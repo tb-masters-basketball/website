@@ -527,6 +527,15 @@ class MultiSeasonTests(SeasonFixture):
             self.assertEqual(len(set(titles)), len(pages), folder)
             self.assertEqual(len(set(descriptions)), len(pages), folder)
 
+    def test_calendars_come_from_the_real_season_even_in_sample_mode(self):
+        self.build(sample_data=True, url="https://example.ca")
+        self.assertEqual(sorted(p.name for p in (self.site / "calendar").glob("*.ics")),
+                         ["aa.ics", "bb.ics", "cc.ics", "league.ics"])
+        info = (self.out / "calendars.json").read_text()
+        self.assertIn('"season": "real"', info)
+        self.assertIn('"games": 0', info)                                 # the fake season's games aren't in it
+        self.assertNotIn("BEGIN:VEVENT", (self.site / "calendar" / "league.ics").read_text())
+
     def test_stubs_are_rewritten_not_accumulated(self):
         self.build(sample_data=True)
         (self.site / "_games" / "stale.md").write_text("---\n---\n")

@@ -261,6 +261,14 @@ Keep the game's row in `data/2026-27/schedule.csv` and change it:
 - **Cancelled now, made up later:** mark the original row `cancelled`, and add a
   new row for the make-up game with its own date and `game_id`.
 
+### Team calendars
+
+Nothing to do. Every time the site is published, the calendar files on the
+Schedule page (and each team page) are rebuilt from `schedule.csv` and the game
+files. Anyone who chose **Subscribe** sees moved and cancelled games, and final
+scores, the next time their calendar app checks (usually within a day). Anyone
+who chose **Download** has a copy and needs to download it again.
+
 ### Fix a wrong number
 
 Open the game file, correct the number, and commit it as a pull request. The

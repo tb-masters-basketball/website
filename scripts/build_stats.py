@@ -20,6 +20,7 @@ and writes JSON that the Jekyll templates read:
 It also writes small stub pages for Jekyll (see write_stubs): _games/, _players/,
 _teams/ and _archive/ (git-ignored, rewritten every run), and, if
 `score_sheet_links: true` in _config.yml, copies score sheet photos to sheets/.
+It writes the real season's calendar files to calendar/ too (see calendars.py).
 
 If any check fails, every problem is printed and nothing is written.
 
@@ -41,6 +42,8 @@ from fractions import Fraction
 from pathlib import Path
 
 import yaml
+
+import calendars
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -1013,6 +1016,9 @@ def build(data_dir, out_dir, write=True, config=None, root=None):
             owner[gid] = s["id"]
     if problems:
         raise DataError(problems)
+    # Calendars always carry the real (current) season, even in sample mode.
+    current = next(s for s in seasons if s["current"])
+    site_url = str(config.get("url") or "").rstrip("/") + str(config.get("baseurl") or "").rstrip("/")
     mode = "sample mode" if active.get("sample") else "real season"
     summary.append(f"Site shows: {active['id']} ({mode}); archive lists {', '.join(s['id'] for s in listed)}")
 
@@ -1029,6 +1035,11 @@ def build(data_dir, out_dir, write=True, config=None, root=None):
             for sid, files in outputs.items():
                 for name, data in files.items():
                     _write_json(tmp / sid / name, data)
+            if root is not None:
+                cal = calendars.write_calendars(root, current, outputs[current["id"]]["schedule.json"],
+                                                outputs[current["id"]]["teams.json"], site_url)
+                cal["games"] = sum(len(w["games"]) for w in outputs[current["id"]]["schedule.json"]["weeks"])
+                _write_json(tmp / "calendars.json", cal)
             if out_dir.exists():
                 shutil.rmtree(out_dir)
             tmp.rename(out_dir)
@@ -1037,6 +1048,8 @@ def build(data_dir, out_dir, write=True, config=None, root=None):
                 shutil.rmtree(tmp)
         if root is not None:
             summary.append(f"Wrote {write_stubs(root, active, listed, outputs)} stub pages")
+            summary.append(f"Wrote calendars for {current['id']} ({len(outputs[current['id']]['teams.json'])} teams "
+                           "and the league) to calendar/")
             if publish_sheets:
                 summary.append(f"Copied {copy_sheets(root, listed, loaded_seasons)} score sheet photos")
             else:

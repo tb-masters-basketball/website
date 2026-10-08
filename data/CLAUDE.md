@@ -54,6 +54,17 @@ A game's gym is the `gym` cell in `schedule.csv`; a blank cell means the
 season's `gym` from `seasons.yml` (St. Pat's). There are no courts. Pages show
 the gym in the week heading and the next-game panel.
 
+### Calendars
+`build_stats.py` also writes `calendar/<team id>.ics` and `calendar/league.ics`
+(git-ignored, rewritten every run, published at `/calendar/...`) through
+`scripts/calendars.py`. They always hold the **current** season, even in sample
+mode, so nobody subscribes to made-up games. One event per game (UID from the
+`game_id`, so subscribed calendars update in place), 75 minutes long (the gap
+between the printed start times), at the game's gym, Eastern time. Cancelled
+games stay in the feed as cancelled; played games carry the final score. The
+Schedule page lists every team's calendar and the league's; a team page lists
+its own when that team is in the current season.
+
 ### Cancelled games
 A row with `status` `cancelled` stays on the Schedule with a "Cancelled" badge,
 and the team pages leave it out of their upcoming games. It never counts in any

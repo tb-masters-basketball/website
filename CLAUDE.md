@@ -43,6 +43,8 @@ data/<season>/          source of truth, edited by hand or by /record-game (see 
 _config.yml             `sample_data: true` makes every page read the sample season (+ banner);
                         `score_sheet_links` (off) publishes score sheet photos; collections for the stubs
 scripts/build_stats.py  computes _data/computed/ (git-ignored) — never edit those files by hand
+scripts/calendars.py    writes calendar/<team>.ics and league.ics (git-ignored) from the real season;
+                        called by build_stats.py, linked from Schedule and team pages
 scripts/make_sample_season.py  regenerates data/sample-2026-27/ and sample-2025-26/ (fake data)
 scripts/check_links.sh  fails on broken links/images in _site/ (html-proofer; runs in CI)
 scripts/screenshot_all.py  builds sample + real mode, screenshots every page (360/390/1440, light/dark),

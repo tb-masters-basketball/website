@@ -8,12 +8,14 @@ vendor/
 
 # Written by scripts/build_stats.py on every build; never edit or commit
 _data/computed/
-# Stub pages (one per game, player, team and archive season) and published score sheets
+# Stub pages (one per game, player, team and archive season), published score sheets
+# and the calendar files
 /_games/
 /_players/
 /_teams/
 /_archive/
 /sheets/
+/calendar/
 
 # Python
 __pycache__/

@@ -197,3 +197,8 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
   and the existing `.badge`: muted names and a "Cancelled" badge where the time
   would be. A game day that is cancelled outright is headed by its date and the
   badge, with no week number and no bye line, and sits under Results.
+- Team calendars: an "Add to your calendar" section at the end of the Schedule
+  page (every team plus "Every game", reached from a link under the title) and
+  on each team page (that team only). It reuses the game row: the team chip and
+  name, then **Subscribe** (webcal://) and **Download** (.ics) links, with a
+  short note on Google Calendar.

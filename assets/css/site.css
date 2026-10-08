@@ -1916,6 +1916,20 @@ a.team-card:hover {
   font-variant-numeric: tabular-nums;
 }
 
+/* A row of links instead of a time (calendar Subscribe / Download). */
+.game-row--links {
+  align-items: center;
+}
+
+.game-row__links {
+  display: flex;
+  gap: 20px;
+}
+
+.game-row--links .chip {
+  margin-right: 8px;
+}
+
 /* A cancelled game: muted names and a "Cancelled" badge where the time would be. */
 .game-row--cancelled {
   color: var(--mb-muted);

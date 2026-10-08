@@ -17,6 +17,8 @@ The site shows a visible `[placeholder]` for each of these until it's answered.
 | Can score sheet photos be published on the box score pages? (They may show full names; players are only ever "First L.") | Box score | Not for now: `score_sheet_links: false`. Revisit after seeing a real sheet |
 | Do subs' points count only for the player? (assumed yes) | Stats | |
 | Score sheet layout (photo of a filled-in sheet) | `/record-game` skill | |
+| How long is a game? Calendar events last 75 minutes for now, the gap between the 9:45 and 11:00 starts | Team calendars | |
+| Gym address (calendar events only say "St. Pat's") | Team calendars | |
 | Badge colourway for jerseys/merch (navy, blue or light) | Not on the site | |
 
 ## Site decisions waiting on you

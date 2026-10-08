@@ -69,5 +69,14 @@ layout: default
     {%- endif %}
   </section>
 
+  {%- capture team_cal %}{% include calendar-links.html team=tid %}{% endcapture %}
+  {%- assign team_cal_trimmed = team_cal | strip %}
+  {%- if team_cal_trimmed != "" %}
+  <section class="page-section" aria-labelledby="calendar-title">
+    <h2 class="section-title" id="calendar-title">Add to your calendar</h2>
+    {{ team_cal }}
+  </section>
+  {%- endif %}
+
   <p class="page-links"><a class="link-more" href="{{ '/teams/' | relative_url }}">All teams</a></p>
 </div>
