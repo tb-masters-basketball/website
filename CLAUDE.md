@@ -5,10 +5,10 @@ April). It shows standings, schedule, team pages, player stats (points, PPG,
 FTM, FTA, FT%) and an archive of past seasons. Visitors are mostly on phones.
 
 Hosted on GitHub Pages from the `tb-masters-basketball` organization, repo
-`website`, at the custom domain `https://masterbasketball.ca/` (registered at
+`website`, at the custom domain `https://mastersbasketball.ca/` (registered at
 Porkbun; DNS records are listed in `docs/domain.md`).
 
-**Paths:** `_config.yml` sets `url: "https://masterbasketball.ca"` and an empty
+**Paths:** `_config.yml` sets `url: "https://mastersbasketball.ca"` and an empty
 `baseurl`; the `CNAME` file names the domain. Every internal link, image,
 stylesheet, icon and manifest path must still go through `relative_url` (or
 `absolute_url` for share tags), e.g.

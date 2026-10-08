@@ -1,12 +1,12 @@
 # Masters Basketball League · Thunder Bay
 #
-# The site lives at https://masterbasketball.ca/ (the domain root, so baseurl
+# The site lives at https://mastersbasketball.ca/ (the domain root, so baseurl
 # is empty). The CNAME file next to this one names the same domain. Every
 # path in the templates goes through relative_url, so changing domain again
 # only means changing url here and the CNAME file.
 title: "Masters Basketball · Thunder Bay"
 description: "Standings, schedule and player stats for the Masters Basketball League in Thunder Bay."
-url: "https://masterbasketball.ca"
+url: "https://mastersbasketball.ca"
 baseurl: ""
 
 # Sample data switch. While true, every page reads the fake season in

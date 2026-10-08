@@ -31,7 +31,7 @@ it into the root of the new GitHub repo and commit it as the first commit.
    5. "Check every page at 360, 390 and 1440 px in both themes for overflow,
       contrast and anything that doesn't match the mockups. Fix what you find."
 4. **GitHub Pages** is on (Settings → Pages → Source: GitHub Actions).
-5. **Domain:** the site lives at `https://masterbasketball.ca/` (Porkbun). The
+5. **Domain:** the site lives at `https://mastersbasketball.ca/` (Porkbun). The
    DNS records and setup steps are in [`docs/domain.md`](docs/domain.md).
 
 Keeping the numbers up to date (typing in game results, fixing a mistake, adding

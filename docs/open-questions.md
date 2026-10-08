@@ -4,7 +4,7 @@ The site shows a visible `[placeholder]` for each of these until it's answered.
 
 | Question | Where it shows | Answer |
 |---|---|---|
-| Domain name | `_config.yml` (`url`), `CNAME`, share tags | `masterbasketball.ca` (Porkbun). DNS steps in `docs/domain.md` |
+| Domain name | `_config.yml` (`url`), `CNAME`, share tags | `mastersbasketball.ca` (Porkbun). DNS steps in `docs/domain.md` |
 | GitHub organization name | repo, Pages address | `tb-masters-basketball`, repo `website` |
 | Gym name and courts | Next game panel, Schedule | St. Pats, no courts. A game's gym is read from `schedule.csv` (blank = season gym) |
 | Real team names, short codes and colours | Everywhere; the five in the mockups are samples | |
