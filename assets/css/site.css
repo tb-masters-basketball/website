@@ -920,8 +920,7 @@ a.leader-card--hot:hover {
   gap: 0 18px;
 }
 
-.site-footer__nav a,
-.site-footer__placeholder {
+.site-footer__nav a {
   display: inline-flex;
   align-items: center;
   min-width: 44px;
@@ -934,11 +933,6 @@ a.leader-card--hot:hover {
 .site-footer__nav a:hover {
   color: var(--mb-header-text);
   text-decoration: underline;
-}
-
-.site-footer__placeholder {
-  font-weight: 400;
-  color: var(--mb-footer-text);
 }
 
 .site-footer__meta {

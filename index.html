@@ -45,8 +45,8 @@ nav: home
     <section class="home__standings" aria-labelledby="standings-title">
       <div class="section-head">
         <h2 class="section-title" id="standings-title">Standings</h2>
-        <a class="link-more" href="{{ '/standings/' | relative_url }}">Full table</a>
       </div>
+      {%- comment -%} Home is the standings page: every team, always, with no limit and no link to another page. {%- endcomment %}
       {% include standings-table.html standings=stats.standings %}
       <p class="table-note">Playoffs in April.{% if has_tie and stats.standings.through_week %} {{ stats.standings.tiebreak_note }}{% endif %}</p>
     </section>

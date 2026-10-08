@@ -9,7 +9,7 @@ url: "https://tb-masters-basketball.github.io"
 baseurl: "/website"
 
 # Where the footer's "Contact the league" link goes (a mailto: link or a form).
-# Blank until the league decides; the footer shows a [placeholder] meanwhile.
+# Leave it blank and the footer shows no contact link.
 contact_url: ""
 
 timezone: America/Toronto

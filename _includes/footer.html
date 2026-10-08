@@ -6,11 +6,10 @@
       <nav class="site-footer__nav" aria-label="Footer">
         <a href="{{ '/teams/' | relative_url }}">Teams</a>
         <a href="{{ '/archive/' | relative_url }}">Past seasons</a>
+        {%- comment -%} Only shown once contact_url is set in _config.yml. {%- endcomment -%}
         {%- assign contact_url = site.contact_url | strip %}
         {%- if contact_url != "" %}
         <a href="{{ contact_url }}">Contact the league</a>
-        {%- else %}
-        <span class="site-footer__placeholder">Contact the league [placeholder]</span>
         {%- endif %}
       </nav>
       <p class="site-footer__meta">Masters Basketball League · Thunder Bay, Ontario</p>

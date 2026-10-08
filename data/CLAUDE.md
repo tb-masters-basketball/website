@@ -65,7 +65,8 @@ writes nothing until all of them are fixed.
 - **FT%:** FTM ÷ FTA, one decimal. FT% leaderboards need 10 or more FTA.
 - **Standings:** sorted by win %. Show W, L, PCT (`.857` style), GB, PF, PA, DIFF.
 - **Tiebreakers:** `[placeholder]`, not yet decided by the league. Until then
-  use head-to-head, then point differential, and say so on the standings page.
+  use head-to-head, then point differential, and say so under the standings on
+  Home (shown when a tie was broken this way).
   Head-to-head is win % in games among all the tied teams, and is skipped if
   any tied team hasn't played the others yet. Ties left after that go by name.
 - **Rounding:** PPG, FT% and PCT round half up (20.15 → 20.2). Rankings use the

@@ -11,8 +11,7 @@ The site shows a visible `[placeholder]` for each of these until it's answered.
 | Standings tiebreakers (including three-way ties) | Standings note | |
 | Minimum games to appear on the PPG leaderboard (none for now, so a sub with one big game could lead) | Home, Stats | |
 | Playoff format (teams, single game or series) | Schedule, Archive | |
-| League contact for the footer's "Contact the league" link (an email address or a form). Set `contact_url` in `_config.yml`; until then the footer shows a `[placeholder]` | Footer | |
-| Is there a full standings page? Home's "Full table" link points to `/standings/`, but the design brief doesn't list that page | Home, Standings | |
+| League contact for the footer's "Contact the league" link (an email address or a form). Set `contact_url` in `_config.yml`; with it blank the footer shows no contact link | Footer | |
 | Do subs' points count only for the player? (assumed yes) | Stats | |
 | Score sheet layout (photo of a filled-in sheet) | `/record-game` skill | |
 | Badge colourway for jerseys/merch (navy, blue or light) | Not on the site | |
