@@ -1,0 +1,46 @@
+{%- comment -%}
+  One team's half of a box score: a heading with the team and its score, then a
+  table of every player on the sheet (PTS, FTM, FTA) with a team totals row.
+  The top scorer's row is highlighted. linked=true links the team and player
+  names (only the season the site is showing has team and player pages).
+  Usage: include box-score-table.html team=game.home_team game=game linked=true
+{%- endcomment -%}
+{%- assign bt = include.team -%}
+<section class="box-team" aria-labelledby="box-{{ bt.team }}">
+  <div class="section-head">
+    <h2 class="section-title" id="box-{{ bt.team }}"><span class="chip chip--{{ bt.colour_slot }}" aria-hidden="true"></span>{% if include.linked %}<a class="tap-link" href="{{ '/teams/' | append: bt.team | append: '/' | relative_url }}">{{ bt.name }}</a>{% else %}{{ bt.name }}{% endif %}</h2>
+    <span class="section-head__meta"><b>{{ bt.score }}</b> points</span>
+  </div>
+  <div class="table-card" role="region" aria-label="{{ bt.name }} box score" tabindex="0">
+    <table class="table box-table">
+      <caption class="visually-hidden">{{ bt.name }} box score</caption>
+      <thead>
+        <tr>
+          <th scope="col">Player</th>
+          <th scope="col"><abbr title="Points">PTS</abbr></th>
+          <th scope="col"><abbr title="Free throws made">FTM</abbr></th>
+          <th scope="col"><abbr title="Free throws attempted">FTA</abbr></th>
+        </tr>
+      </thead>
+      <tbody>
+        {%- for bt_line in bt.lines %}
+        {%- assign bt_top = false %}{% for bt_t in include.game.top %}{% if bt_t.player == bt_line.player %}{% assign bt_top = true %}{% endif %}{% endfor %}
+        <tr{% if bt_top %} class="is-top"{% endif %}>
+          <th scope="row">{% if include.linked %}<a href="{{ '/players/' | append: bt_line.player | append: '/' | relative_url }}">{{ bt_line.display }}</a>{% else %}{{ bt_line.display }}{% endif %}{% if bt_line.sub %} <span class="badge">Sub</span>{% endif %}{% if bt_top %} <span class="badge badge--top">Top</span>{% endif %}</th>
+          <td>{{ bt_line.pts }}</td>
+          <td>{{ bt_line.ftm }}</td>
+          <td>{{ bt_line.fta }}</td>
+        </tr>
+        {%- endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row">Team totals</th>
+          <td>{{ bt.totals.pts }}</td>
+          <td>{{ bt.totals.ftm }}</td>
+          <td>{{ bt.totals.fta }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</section>

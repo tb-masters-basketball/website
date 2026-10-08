@@ -74,7 +74,7 @@ class SeasonFixture(unittest.TestCase):
         - {id: sam-e, display: Sam E., team: bb, sub: true}
         """
     SCHEDULE = """\
-        game_id,date,time,court,home,away,type,week
+        game_id,date,time,gym,home,away,type,week
         2026-10-01-g1,2026-10-01,19:00,1,aa,bb,regular,1
         2026-10-08-g1,2026-10-08,19:00,1,bb,cc,regular,2
         2026-10-15-g1,2026-10-15,19:00,1,cc,aa,regular,3
@@ -266,13 +266,22 @@ class StatsTests(SeasonFixture):
         self.assertEqual(sched["next_week"], 4)
         self.assertEqual(sched["weeks"][0]["byes"], ["cc"])
         self.assertEqual(sched["weeks"][-1]["byes"], [])          # playoff weeks have no byes
-        self.assertEqual(sched["weeks"][0]["games"][0]["court"], "1")
+        self.assertEqual(sched["weeks"][0]["games"][0]["gym"], "1")
+        self.assertEqual(sched["weeks"][0]["gyms"], ["1"])
 
-    def test_blank_court_is_null(self):
-        self.write("schedule.csv", self.SCHEDULE.replace(",19:00,1,", ",19:00,,"))
+    def test_blank_gym_uses_the_season_gym(self):
+        self.write("schedule.csv", self.SCHEDULE.replace(",19:00,1,", ",19:00,,", 1))
+        out = bs.compute_season(bs.load_season(self.data, "test", gym="St. Pats"))
+        first = out["schedule.json"]["weeks"][0]
+        self.assertEqual(first["games"][0]["gym"], "St. Pats")
+        self.assertEqual(first["gyms"], ["St. Pats"])
+        self.assertEqual(out["games.json"]["2026-10-01-g1"]["gym"], "St. Pats")
+        # a different gym on another night is kept as written
+        self.assertEqual(out["schedule.json"]["weeks"][1]["games"][0]["gym"], "1")
+        # no season gym and a blank cell: no gym
         out = self.compute()
-        self.assertIsNone(out["schedule.json"]["weeks"][0]["games"][0]["court"])
-        self.assertIsNone(out["games.json"]["2026-10-01-g1"]["court"])
+        self.assertIsNone(out["schedule.json"]["weeks"][0]["games"][0]["gym"])
+        self.assertEqual(out["schedule.json"]["weeks"][0]["gyms"], [])
 
 
 class NoGamesYetTests(SeasonFixture):
@@ -282,7 +291,7 @@ class NoGamesYetTests(SeasonFixture):
         super().setUp()
         for path in (self.season / "games").glob("*.yml"):
             path.unlink()
-        self.write("schedule.csv", "game_id,date,time,court,home,away,type,week\n")
+        self.write("schedule.csv", "game_id,date,time,gym,home,away,type,week\n")
 
     def test_builds_with_no_games_and_no_schedule(self):
         out = self.compute()
@@ -302,10 +311,13 @@ class NoGamesYetTests(SeasonFixture):
 
     def test_main_writes_every_file(self):
         out = self.tmp / "computed"
-        self.assertEqual(bs.main(["--data", str(self.data), "--out", str(out)]), 0)
+        argv = ["--data", str(self.data), "--out", str(out), "--root", str(self.tmp / "site"),
+                "--config", str(self.tmp / "none.yml")]
+        self.assertEqual(bs.main(argv), 0)
         names = sorted(p.name for p in (out / "test").iterdir())
         self.assertIn("rankings.json", names)
         self.assertEqual(len(names), 9)
+        self.assertTrue((out / "active.json").exists())
 
 
 class SeasonListTests(unittest.TestCase):
@@ -346,15 +358,163 @@ class SeasonListTests(unittest.TestCase):
             """)
         self.assertTrue(any("exactly one season must have 'current: true'" in p for p in problems), problems)
 
-    def test_only_one_sample(self):
-        for sid in ("fake2",):
-            (self.tmp / sid).mkdir()
-        _, problems = self.load("""\
+    def test_a_past_sample_season_is_allowed(self):
+        (self.tmp / "fake2").mkdir()
+        seasons, problems = self.load("""\
             - {id: real, current: true}
-            - {id: fake, sample: true}
+            - {id: fake, sample: true, stands_in_for: real}
             - {id: fake2, sample: true}
             """)
-        self.assertTrue(any("at most one season can have 'sample: true'" in p for p in problems), problems)
+        self.assertEqual(problems, [])
+        self.assertEqual([s["sample"] for s in seasons], [False, True, True])
+
+    def test_only_one_stand_in_per_season(self):
+        (self.tmp / "fake2").mkdir()
+        _, problems = self.load("""\
+            - {id: real, current: true}
+            - {id: fake, sample: true, stands_in_for: real}
+            - {id: fake2, sample: true, stands_in_for: real}
+            """)
+        self.assertTrue(any("both 'fake' and 'fake2' stand in for 'real'" in p for p in problems), problems)
+
+
+class ActiveSeasonTests(unittest.TestCase):
+    SEASONS = [
+        {"id": "real", "current": True, "sample": False},
+        {"id": "fake", "current": False, "sample": True, "stands_in_for": "real"},
+        {"id": "old-fake", "current": False, "sample": True},
+        {"id": "old-real", "current": False, "sample": False},
+    ]
+
+    def ids(self, seasons):
+        return [s["id"] for s in seasons]
+
+    def test_real_mode(self):
+        active = bs.choose_active(self.SEASONS, sample_mode=False)
+        self.assertEqual(active["id"], "real")
+        # the real current season and the real past season, no sample seasons
+        self.assertEqual(self.ids(bs.archive_seasons(self.SEASONS, active, False)), ["real", "old-real"])
+
+    def test_sample_mode(self):
+        active = bs.choose_active(self.SEASONS, sample_mode=True)
+        self.assertEqual(active["id"], "fake")
+        # the stand-in replaces the real season; sample past seasons now show
+        self.assertEqual(self.ids(bs.archive_seasons(self.SEASONS, active, True)), ["fake", "old-fake", "old-real"])
+
+    def test_sample_mode_without_a_stand_in_falls_back_to_real(self):
+        seasons = [s for s in self.SEASONS if s["id"] != "fake"]
+        self.assertEqual(bs.choose_active(seasons, True)["id"], "real")
+
+
+class MultiSeasonTests(SeasonFixture):
+    """A real season (no games), its sample stand-in, and a sample past season."""
+
+    def setUp(self):
+        super().setUp()
+        base = self.season
+        for name in ("real", "fake", "oldfake"):
+            shutil.copytree(base, self.data / name)
+        shutil.rmtree(base)
+        for gid in list(self.GAMES):                     # the real season has no games yet
+            (self.data / "real" / "games" / f"{gid}.yml").unlink()
+        (self.data / "real" / "schedule.csv").write_text("game_id,date,time,gym,home,away,type,week\n")
+        # the fake past season gets its own game ids, a year earlier
+        old = self.data / "oldfake"
+        for gid in list(self.GAMES):
+            new_id = gid.replace("2026", "2025").replace("2027", "2026")
+            text = (old / "games" / f"{gid}.yml").read_text().replace(gid, new_id).replace(gid[:10], new_id[:10])
+            (old / "games" / f"{gid}.yml").unlink()
+            (old / "games" / f"{new_id}.yml").write_text(text)
+        sched = (old / "schedule.csv").read_text().replace("2026-", "2025-").replace("2027-", "2026-")
+        (old / "schedule.csv").write_text(sched)
+        (self.data / "seasons.yml").write_text(textwrap.dedent("""\
+            - {id: real, current: true, gym: Gym A}
+            - {id: fake, sample: true, stands_in_for: real, gym: Gym A}
+            - {id: oldfake, sample: true, gym: Gym A}
+            """))
+        self.site = self.tmp / "site"
+        self.out = self.tmp / "computed"
+
+    def build(self, **config):
+        return bs.build(self.data, self.out, config=config, root=self.site)
+
+    def stubs(self, folder):
+        d = self.site / folder
+        return sorted(p.stem for p in d.glob("*.md")) if d.exists() else []
+
+    def test_real_mode_stubs(self):
+        self.build(sample_data=False)
+        active = (self.out / "active.json").read_text()
+        self.assertIn('"season": "real"', active)
+        self.assertIn('"sample_mode": false', active)
+        self.assertEqual(self.stubs("_games"), [])                       # no games yet
+        self.assertEqual(self.stubs("_archive"), ["real"])
+        self.assertEqual(self.stubs("_teams"), ["aa", "bb", "cc"])       # teams exist before games do
+        self.assertEqual(self.stubs("_players"), ["al-a", "amy-b", "bo-c", "cy-d", "sam-e"])
+
+    def test_sample_mode_stubs(self):
+        self.build(sample_data=True)
+        self.assertIn('"season": "fake"', (self.out / "active.json").read_text())
+        self.assertEqual(self.stubs("_archive"), ["fake", "oldfake"])
+        # games from every listed season; players and teams from the active one only
+        self.assertEqual(self.stubs("_games"), ["2025-10-01-g1", "2025-10-08-g1", "2025-10-15-g1", "2026-04-01-g1",
+                                                 "2026-10-01-g1", "2026-10-08-g1", "2026-10-15-g1", "2027-04-01-g1"])
+        game = (self.site / "_games" / "2026-10-01-g1.md").read_text()
+        self.assertEqual(game, '---\nseason: "fake"\ngame_id: "2026-10-01-g1"\ntitle: "Alpha vs Bravo"\n---\n')
+        self.assertEqual(self.stubs("_teams"), ["aa", "bb", "cc"])
+        self.assertIn('title: "Al A."', (self.site / "_players" / "al-a.md").read_text())
+
+    def test_stubs_are_rewritten_not_accumulated(self):
+        self.build(sample_data=True)
+        (self.site / "_games" / "stale.md").write_text("---\n---\n")
+        self.build(sample_data=True)
+        self.assertNotIn("stale", self.stubs("_games"))
+
+    def test_check_mode_writes_nothing(self):
+        argv = ["--data", str(self.data), "--out", str(self.out), "--root", str(self.site),
+                "--config", str(self.tmp / "none.yml"), "--check"]
+        self.assertEqual(bs.main(argv), 0)
+        self.assertFalse(self.out.exists())
+        self.assertFalse(self.site.exists())
+
+    def test_game_ids_must_be_unique_across_listed_seasons(self):
+        shutil.copy(self.data / "fake" / "games" / "2026-10-01-g1.yml", self.data / "oldfake" / "games" / "2026-10-01-g1.yml")
+        sched = self.data / "oldfake" / "schedule.csv"
+        sched.write_text(sched.read_text() + "2026-10-01-g1,2026-10-01,19:00,,aa,bb,regular,1\n")
+        with self.assertRaises(bs.DataError) as ctx:
+            self.build(sample_data=True)
+        self.assertIn("'2026-10-01-g1' is used in both 'fake' and 'oldfake'", "\n".join(ctx.exception.problems))
+        # in real mode neither sample season is listed, so the clash doesn't matter
+        self.build(sample_data=False)
+
+    def test_score_sheets_only_copied_when_switched_on(self):
+        photo = self.data / "fake" / "sheets"
+        photo.mkdir(exist_ok=True)
+        (photo / "2026-10-01-g1.jpg").write_bytes(b"jpeg")
+        self.build(sample_data=True)
+        self.assertFalse((self.site / "sheets").exists())
+        self.assertIn('"sheet": null', (self.out / "fake" / "games.json").read_text())
+        self.build(sample_data=True, score_sheet_links=True)
+        self.assertEqual((self.site / "sheets" / "2026-10-01-g1.jpg").read_bytes(), b"jpeg")
+        self.assertIn('"sheet": "sheets/2026-10-01-g1.jpg"', (self.out / "fake" / "games.json").read_text())
+        self.build(sample_data=True)                          # switched off again: the copy is removed
+        self.assertFalse((self.site / "sheets").exists())
+
+
+class SeasonStandInTests(unittest.TestCase):
+    def test_stands_in_for_must_name_a_season_and_be_sample(self):
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            (tmp / "a").mkdir()
+            (tmp / "b").mkdir()
+            (tmp / "seasons.yml").write_text("- {id: a, current: true}\n- {id: b, stands_in_for: nope}\n")
+            problems = []
+            bs.load_seasons(tmp, problems)
+            joined = "\n".join(problems)
+            self.assertIn("not marked sample: true", joined)
+            self.assertIn("stands_in_for 'nope', which is not a season", joined)
+        finally:
+            shutil.rmtree(tmp)
 
 
 class CheckTests(SeasonFixture):
@@ -405,7 +565,7 @@ class CheckTests(SeasonFixture):
         self.assertTrue((out / "test" / "standings.json").exists())
         self.edit_game("2026-10-01-g1", "{aa: 30, bb: 20}", "{aa: 31, bb: 20}")
         (out / "marker").write_text("old")
-        self.assertEqual(bs.main(["--data", str(self.data), "--out", str(out)]), 1)
+        self.assertEqual(bs.main(["--data", str(self.data), "--out", str(out), "--root", str(self.tmp / "site")]), 1)
         self.assertTrue((out / "marker").exists())                  # old output left alone
 
 

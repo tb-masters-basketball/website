@@ -1,21 +1,27 @@
 {%- comment -%}
-  Next game night panel: date, gym, one row per game and the bye.
+  Next game night panel: date, gym, one row per game and the bye. The gym comes
+  from the schedule (a blank gym there means the season's gym; build_stats.py
+  fills that in). compact=true leaves out the label, date and gym, for use
+  under a week heading on the Schedule page.
   Usage: include next-game.html week=week teams=stats.teams gym=season.gym
 {%- endcomment -%}
 {%- assign week = include.week -%}
+{%- if include.compact -%}
+<div class="next-game next-game--compact">
+{%- else -%}
 <section class="next-game" aria-labelledby="next-game-title">
   <p class="next-game__label" id="next-game-title">Next game night</p>
   <p class="next-game__date">{{ week.date | date: "%A, %b %-d" }}</p>
-  <p class="next-game__gym">{{ include.gym | default: "[Gym name]" }}</p>
+  <p class="next-game__gym">{{ week.gyms | join: " · " | default: include.gym | default: "[Gym name]" }}</p>
+{%- endif %}
   <ul class="next-game__games">
     {%- for g in week.games %}
     <li><span>{{ include.teams[g.home].name }} vs {{ include.teams[g.away].name }}</span><time datetime="{{ g.time }}">{{ g.time_display }}</time></li>
     {%- endfor %}
   </ul>
-  {%- if week.byes.size > 0 %}
-  <p class="next-game__bye">
-    {%- for id in week.byes %}{{ include.teams[id].name }}{% unless forloop.last %}{% if forloop.rindex == 2 %} and {% else %}, {% endif %}{% endunless %}{% endfor %}
-    {% if week.byes.size == 1 %}has{% else %}have{% endif %} the bye
-  </p>
-  {%- endif %}
+  {% include bye-line.html byes=week.byes teams=include.teams class="next-game__bye" %}
+{%- if include.compact %}
+</div>
+{%- else %}
 </section>
+{%- endif %}

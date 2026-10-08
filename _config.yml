@@ -14,6 +14,12 @@ baseurl: "/website"
 # data/2026-27/ and the banner goes away. Nothing else needs to change.
 sample_data: true
 
+# Score sheet photos. Off: the box score page has no "Score sheet photo" link.
+# On: scripts/build_stats.py copies the photos from data/<season>/sheets/ into
+# the site and each box score links to its photo. Leave it off until the league
+# has checked that the sheets are fine to publish (they may show full names).
+score_sheet_links: false
+
 # Where the footer's "Contact the league" link goes (a mailto: link or a form).
 # Leave it blank and the footer shows no contact link.
 contact_url: ""
@@ -35,3 +41,34 @@ exclude:
   - vendor/
   - brand/BRAND.md
   - brand/head-snippet.html
+
+# Game stubs are named by date (2026-12-03-g1.md); without this Jekyll would
+# skip any dated after the day the site is built, which hides the sample season.
+future: true
+
+# One page per game, player, team and archive season. The files in these
+# folders are tiny stubs written by scripts/build_stats.py (git-ignored,
+# rewritten every build); each layout reads its data from _data/computed.
+collections:
+  games:
+    output: true
+    permalink: /games/:name/
+  players:
+    output: true
+    permalink: /players/:name/
+  teams:
+    output: true
+    permalink: /teams/:name/
+  archive:
+    output: true
+    permalink: /archive/:name/
+
+defaults:
+  - scope: {path: "", type: games}
+    values: {layout: game, nav: schedule}
+  - scope: {path: "", type: players}
+    values: {layout: player, nav: stats}
+  - scope: {path: "", type: teams}
+    values: {layout: team, nav: teams}
+  - scope: {path: "", type: archive}
+    values: {layout: archive-season, nav: archive}

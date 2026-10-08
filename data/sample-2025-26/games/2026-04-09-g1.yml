@@ -1,0 +1,23 @@
+# Sample data from scripts/make_sample_season.py. Not real.
+game_id: 2026-04-09-g1
+date: 2026-04-09
+home: pa
+away: cr
+type: playoff
+final: {pa: 68, cr: 64}
+lines:
+  - {player: dave-m, team: pa, pts: 23, ftm: 0, fta: 0}
+  - {player: gord-f, team: pa, pts: 14, ftm: 0, fta: 0}
+  - {player: kevin-h, team: pa, pts: 12, ftm: 0, fta: 0}
+  - {player: marc-l, team: pa, pts: 11, ftm: 0, fta: 0}
+  - {player: terry-n, team: pa, pts: 8, ftm: 0, fta: 1}
+  - {player: brian-o, team: pa, pts: 0, ftm: 0, fta: 0}
+  - {player: neil-f, team: cr, pts: 14, ftm: 1, fta: 1}
+  - {player: tom-g, team: cr, pts: 13, ftm: 0, fta: 0}
+  - {player: jason-p, team: cr, pts: 11, ftm: 0, fta: 2}
+  - {player: luc-b, team: cr, pts: 9, ftm: 2, fta: 4}
+  - {player: chris-b, team: cr, pts: 5, ftm: 2, fta: 3}
+  - {player: darren-v, team: cr, pts: 5, ftm: 0, fta: 1}
+  - {player: pete-s, team: cr, pts: 4, ftm: 0, fta: 0}
+  - {player: rob-k, team: cr, pts: 3, ftm: 0, fta: 0}
+  - {player: scott-a, team: cr, pts: 0, ftm: 0, fta: 0}

@@ -1,4 +1,4 @@
-game_id,date,time,court,home,away,type,week
+game_id,date,time,gym,home,away,type,week
 2026-10-15-g1,2026-10-15,19:00,,fw,pa,regular,1
 2026-10-15-g2,2026-10-15,20:15,,cr,wf,regular,1
 2026-10-22-g1,2026-10-22,19:00,,wf,lh,regular,2

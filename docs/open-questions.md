@@ -6,13 +6,14 @@ The site shows a visible `[placeholder]` for each of these until it's answered.
 |---|---|---|
 | Domain name | `head-snippet.html`, social card link | |
 | GitHub organization name | repo, Pages address | `tb-masters-basketball`, repo `website` |
-| Gym name and courts | Next game panel, Schedule | St. Pats, one court |
+| Gym name and courts | Next game panel, Schedule | St. Pats, no courts. A game's gym is read from `schedule.csv` (blank = season gym) |
 | Real team names, short codes and colours | Everywhere; the five in the mockups are samples | |
 | The real 2026-27 schedule: first game night and every game night's games and times (`data/2026-27/schedule.csv` is empty until then, so Home says "Not scheduled yet") | Home, Schedule | |
 | Standings tiebreakers (including three-way ties) | Standings note | |
 | Minimum games to appear on the PPG leaderboard (none for now, so a sub with one big game could lead) | Home, Stats | |
 | Playoff format (teams, single game or series) | Schedule, Archive | |
 | League contact for the footer's "Contact the league" link (an email address or a form). Set `contact_url` in `_config.yml`; with it blank the footer shows no contact link | Footer | |
+| Can score sheet photos be published on the box score pages? (They may show full names; players are only ever "First L.") | Box score | Not for now: `score_sheet_links: false`. Revisit after seeing a real sheet |
 | Do subs' points count only for the player? (assumed yes) | Stats | |
 | Score sheet layout (photo of a filled-in sheet) | `/record-game` skill | |
 | Badge colourway for jerseys/merch (navy, blue or light) | Not on the site | |

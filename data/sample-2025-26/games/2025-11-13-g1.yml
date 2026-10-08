@@ -1,0 +1,25 @@
+# Sample data from scripts/make_sample_season.py. Not real.
+game_id: 2025-11-13-g1
+date: 2025-11-13
+home: wf
+away: pa
+type: regular
+final: {wf: 61, pa: 70}
+lines:
+  - {player: jeff-s, team: wf, pts: 16, ftm: 2, fta: 3}
+  - {player: al-k, team: wf, pts: 9, ftm: 0, fta: 0}
+  - {player: derek-h, team: wf, pts: 8, ftm: 0, fta: 0}
+  - {player: jamie-c, team: wf, pts: 8, ftm: 0, fta: 0}
+  - {player: mark-d, team: wf, pts: 8, ftm: 0, fta: 1}
+  - {player: steve-p, team: wf, pts: 7, ftm: 2, fta: 3}
+  - {player: trevor-m, team: wf, pts: 4, ftm: 0, fta: 0}
+  - {player: rick-l, team: wf, pts: 1, ftm: 1, fta: 2}
+  - {player: greg-t, team: pa, pts: 23, ftm: 1, fta: 2}
+  - {player: brian-o, team: pa, pts: 11, ftm: 2, fta: 2}
+  - {player: marc-l, team: pa, pts: 10, ftm: 1, fta: 4}
+  - {player: doug-w, team: pa, pts: 8, ftm: 3, fta: 3}
+  - {player: dave-m, team: pa, pts: 7, ftm: 1, fta: 2}
+  - {player: ian-c, team: pa, pts: 4, ftm: 2, fta: 4}
+  - {player: gord-f, team: pa, pts: 3, ftm: 1, fta: 1}
+  - {player: terry-n, team: pa, pts: 3, ftm: 3, fta: 3}
+  - {player: kevin-h, team: pa, pts: 1, ftm: 1, fta: 4}

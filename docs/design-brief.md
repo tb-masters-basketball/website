@@ -109,7 +109,66 @@ Built from the parts above, in this order.
 
 ## Open questions (use placeholders until answered)
 - League domain and GitHub organization name
-- ~~Gym name and courts~~ (answered: St. Pats, one court)
+- ~~Gym name and courts~~ (answered: St. Pats, no courts; a game's gym is read from `schedule.csv`, blank meaning the season's gym)
 - Real team names and colours (the five in the mockups are samples)
 - Tiebreaker rules and playoff format
 - Score sheet layout (affects the `/record-game` skill, not the site)
+
+## Decisions made while building the remaining pages (step 4)
+The brief didn't cover these. They are in the code now; change any of them here
+and in the templates together.
+
+**Schedule**
+- Upcoming game nights come first, soonest first, with the next night
+  highlighted (its games in the blue next-game panel). Results follow, newest
+  week first. One newest-first list would have put next March at the top. A
+  week that is only partly played sits under Upcoming and shows both kinds of
+  game.
+- Week headings are sticky inside their own week. The gym is shown once in each
+  week heading; there is no court column. Playoff weeks read "Playoffs".
+
+**Box score**
+- The header is the result card, larger and not a link; team names, player
+  names and top scorers in it link. Top scorers (ties included) get a "Top"
+  badge and a tinted row. Every table has a team totals row. Names link only
+  for the season the site is showing.
+- "Score sheet photo" shows only when `score_sheet_links: true` in
+  `_config.yml` and the photo exists. It is off.
+
+**Player page**
+- The big card is points per game with the player's rank ("No. 3 of 50
+  players"); beside or below it are GP, PTS, FTM-FTA and FT%. The bars are
+  regular-season games only. The game log is newest first, includes playoff
+  games (badged "Playoff") and shows the result under the opponent's name.
+- Subs are marked with a "Sub" badge on their page, in team rosters and in box
+  scores.
+- A player with no games shows "No games played yet".
+
+**Teams**
+- Team cards show the colour as a top bar, the W-L record and the rank, or "No
+  games yet". The team page header has the colour as a bar on the left.
+- The roster lists everyone on the team in `players.yml`: players with games
+  as ranked rows (PPG, with FT% in the sub-line, ranked in order within the
+  team), the rest below as "No games yet". Results are result cards, newest
+  first; upcoming games are rows with their dates.
+- Team names in the Home standings link to team pages. Result cards stay
+  whole-card links to the box score, so the names inside them aren't links.
+
+**Archive**
+- The Archive lists the season being shown (badged "Current") and every past
+  season, newest first, each with who tops the standings. With only the
+  current season it says past seasons will appear once a season has finished.
+- A season page shows "Standings so far" (current) or "Final standings"
+  (past), the playoff games as result cards (no round names or champion, as
+  the playoff format isn't decided), and the PPG and FT% leaders.
+- Past seasons have box scores (their playoff cards link to them) but no
+  player or team pages, so their names don't link.
+
+**Other**
+- 404: header, "Page not found" and a "Back to Home" button.
+- New reusable parts: badge, button, surface card, tap link (a name that is also
+  a 44 px target), game row, week heading, team card, season card, large result
+  card.
+- A link check (html-proofer) runs after the site is built and fails the
+  deploy on a broken link, image, script or anchor. External links aren't
+  checked.

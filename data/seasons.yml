@@ -1,9 +1,13 @@
 # Seasons, newest first.
-#   id       the folder name under data/
-#   label    what the site shows
-#   current  exactly one season is current: the real one
-#   sample   fake data from scripts/make_sample_season.py. Never `current`.
-#            It is only shown while `sample_data: true` in _config.yml.
+#   id             the folder name under data/
+#   label          what the site shows
+#   current        exactly one season is current: the real one
+#   sample         fake data from scripts/make_sample_season.py. Never `current`.
+#                  Only shown while `sample_data: true` in _config.yml.
+#   stands_in_for  on the sample season that replaces the current one while
+#                  `sample_data: true`. A sample season without it is a fake
+#                  past season, listed in the archive in sample mode only.
+#   gym            the gym, used for any game whose gym is blank in schedule.csv
 - id: 2026-27
   label: "2026-27"
   current: true
@@ -11,5 +15,11 @@
 
 - id: sample-2026-27
   label: "2026-27"
+  sample: true
+  stands_in_for: 2026-27
+  gym: "St. Pats"
+
+- id: sample-2025-26
+  label: "2025-26"
   sample: true
   gym: "St. Pats"

@@ -46,6 +46,11 @@
   box-sizing: border-box;
 }
 
+/* Keep a focused or jumped-to element clear of the sticky week headings */
+html {
+  scroll-padding-top: 72px;
+}
+
 body {
   margin: 0;
   background: var(--mb-bg);
@@ -569,6 +574,7 @@ a.card:hover {
 .table-card {
   margin-top: 10px;
   overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
   background: var(--mb-surface);
   border: 1px solid var(--mb-line);
@@ -764,8 +770,8 @@ a.leader-card--hot:hover {
   color: var(--mb-accent);
 }
 
-/* The fourth ranked row is for the wide layout only */
-.rank-list .rank-row:nth-child(n + 4) {
+/* Home's leaders list shows three rows on a phone and four on desktop */
+.home__leaders .rank-list .rank-row:nth-child(n + 4) {
   display: none;
 }
 
@@ -887,7 +893,7 @@ a.leader-card--hot:hover {
     font-size: 22px;
   }
 
-  .rank-list .rank-row:nth-child(n + 4) {
+  .home__leaders .rank-list .rank-row:nth-child(n + 4) {
     display: grid;
   }
 
@@ -1012,7 +1018,7 @@ a.leader-card--hot:hover {
 
 /* ------------------------------------------------------------ Stats page */
 
-.stats-page {
+.page {
   padding-top: 18px;
   padding-bottom: 8px;
 }
@@ -1465,16 +1471,21 @@ html.js .stats-app[data-view="table"] [data-metrics] {
   padding-block: 0;
 }
 
-.player-table tbody th a {
+/* Names inside cards and tables: plain text that is also a 44 px tap target.
+   Padding out and margin back in keeps the layout the same. */
+.tap-link,
+.table tbody th a {
   display: inline-block;
   min-width: 44px;
-  padding: 13px 0;
-  margin: -13px 0;
+  padding: 15px 0;
+  margin: -15px 0;
   color: inherit;
   text-decoration: none;
 }
 
-.player-table tbody th a:hover {
+.tap-link:hover,
+.table tbody th a:hover {
+  color: inherit;
   text-decoration: underline;
 }
 
@@ -1565,11 +1576,11 @@ th[aria-sort="ascending"] .sort-btn::after {
 }
 
 @media (min-width: 900px) {
-  .stats-page {
+  .page {
     padding-top: 28px;
   }
 
-  .stats-page > * {
+  .page > * {
     max-width: 760px;
   }
 
@@ -1592,5 +1603,328 @@ th[aria-sort="ascending"] .sort-btn::after {
 
   .stats-table .table-card {
     max-width: 760px;
+  }
+}
+
+/* ----------------------------------------------- shared page parts (step 4) */
+
+.page-section {
+  margin-top: 24px;
+}
+
+.page-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 18px;
+  margin-top: 24px;
+}
+
+.page-sub .tap-link {
+  color: var(--mb-link);
+  font-weight: 600;
+}
+
+.page-sub .chip {
+  margin-right: 2px;
+}
+
+.page > .empty {
+  margin-top: 16px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid var(--mb-line);
+  border-radius: 6px;
+  font: 600 11px/1.4 var(--mb-font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  vertical-align: middle;
+  color: var(--mb-muted);
+}
+
+.badge--top {
+  border-color: var(--mb-hot);
+  color: var(--mb-hot);
+}
+
+.page-title .badge {
+  font-size: 12px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 22px;
+  background: var(--mb-accent);
+  color: var(--on-accent);
+  font: 600 16px/normal var(--mb-font-body);
+  text-decoration: none;
+}
+
+.btn:hover {
+  color: var(--on-accent);
+  opacity: 0.9;
+}
+
+.surface-card {
+  margin-top: 10px;
+  padding: 14px;
+  background: var(--mb-surface);
+  border: 1px solid var(--mb-line);
+  border-radius: 12px;
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* Box score */
+.result-card--large {
+  margin-top: 14px;
+  padding: 16px 18px;
+  border-radius: 12px;
+}
+
+.result-card--large .result-card__team {
+  font-size: 22px;
+}
+
+.result-card--large .result-card__team + .result-card__team {
+  margin-top: 8px;
+}
+
+.result-card--large .result-card__score {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.result-card--large .chip {
+  width: 12px;
+  height: 12px;
+}
+
+.result-card--large .result-card__foot {
+  margin-top: 12px;
+  padding-top: 12px;
+  font-size: 14px;
+}
+
+.box-team {
+  margin-top: 24px;
+}
+
+.box-team .section-title .chip {
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+}
+
+.table tbody tr.is-top > * {
+  background: var(--mb-bg);
+}
+
+.table tfoot th,
+.table tfoot td {
+  border-top: 2px solid var(--mb-line);
+  border-bottom: 0;
+  font-weight: 700;
+}
+
+/* Player page */
+.player-summary {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.player-summary .top-card {
+  margin-top: 0;
+}
+
+.tiles--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.tile--card {
+  border: 1px solid var(--mb-line);
+}
+
+.page > .tiles {
+  margin-top: 14px;
+}
+
+.log-table tbody th a {
+  color: var(--mb-link);
+}
+
+.log-table th:nth-child(2),
+.log-table td:nth-child(2) {
+  text-align: left;
+}
+
+.log-table__result {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--mb-muted);
+}
+
+/* Teams */
+.team-header {
+  padding-left: 14px;
+  border-left: 6px solid var(--chip, var(--mb-muted));
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.team-card {
+  padding: 14px 16px;
+  border-top: 4px solid var(--chip, var(--mb-line));
+}
+
+a.team-card:hover {
+  border-color: var(--mb-accent);
+  border-top-color: var(--chip, var(--mb-line));
+}
+
+.team-card__name,
+.team-card__record,
+.team-card__rank {
+  display: block;
+}
+
+.team-card__name {
+  font: 700 24px/normal var(--mb-font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.team-card__record {
+  margin-top: 6px;
+  font: 700 40px/1 var(--mb-font-display);
+  color: var(--mb-accent);
+}
+
+.team-card__rank {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--mb-muted);
+}
+
+/* Schedule */
+.schedule-week {
+  margin-top: 16px;
+}
+
+.week-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 0;
+  padding: 10px 0;
+  background: var(--mb-bg);
+  border-bottom: 1px solid var(--mb-line);
+  font: 700 20px/normal var(--mb-font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.week-head__meta {
+  margin-left: auto;
+  font: 400 14px/normal var(--mb-font-body);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--mb-muted);
+}
+
+.schedule-week .result-grid,
+.schedule-week .game-rows,
+.next-game--compact {
+  margin-top: 10px;
+}
+
+.game-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.game-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 12px;
+  padding: 12px 14px;
+  background: var(--mb-surface);
+  border: 1px solid var(--mb-line);
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.game-row__time {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.bye-note {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--mb-muted);
+}
+
+/* Archive */
+.season-card {
+  padding: 14px 16px;
+}
+
+.season-card__title,
+.season-card__meta {
+  display: block;
+}
+
+.season-card__title {
+  font: 700 28px/normal var(--mb-font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.season-card__meta {
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--mb-muted);
+}
+
+@media (min-width: 900px) {
+  .player-summary {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .player-summary .tiles--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .result-card--large .result-card__score {
+    font-size: 56px;
   }
 }

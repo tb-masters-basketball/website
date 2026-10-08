@@ -1,9 +1,17 @@
 {%- comment -%}
   Big leader card: label, number, player and team.
   Usage: include leader-card.html label="Points / game" player=p value=p.ppg_display meta=p.team_name tone="hot"
-  Leave `player` empty to show the empty state in `empty`.
+  Leave `player` empty to show the empty state in `empty`. plain=true draws the
+  card without a link (for past seasons, which have no player pages).
 {%- endcomment -%}
-{%- if include.player -%}
+{%- if include.player and include.plain -%}
+<div class="leader-card{% if include.tone == 'hot' %} leader-card--hot{% endif %}">
+  <span class="leader-card__label">{{ include.label }}</span>
+  <span class="leader-card__value">{{ include.value }}</span>
+  <span class="leader-card__name">{{ include.player.display }}</span>
+  <span class="leader-card__meta">{{ include.meta }}</span>
+</div>
+{%- elsif include.player -%}
 <a class="leader-card{% if include.tone == 'hot' %} leader-card--hot{% endif %}" href="{{ '/players/' | append: include.player.id | append: '/' | relative_url }}">
   <span class="leader-card__label">{{ include.label }}</span>
   <span class="leader-card__value">{{ include.value }}</span>

@@ -1,0 +1,23 @@
+# Sample data from scripts/make_sample_season.py. Not real.
+game_id: 2025-10-23-g1
+date: 2025-10-23
+home: pa
+away: lh
+type: regular
+final: {pa: 60, lh: 52}
+lines:
+  - {player: terry-n, team: pa, pts: 19, ftm: 0, fta: 0}
+  - {player: brian-o, team: pa, pts: 12, ftm: 2, fta: 2}
+  - {player: doug-w, team: pa, pts: 12, ftm: 0, fta: 2}
+  - {player: kevin-h, team: pa, pts: 6, ftm: 1, fta: 2}
+  - {player: greg-t, team: pa, pts: 5, ftm: 0, fta: 0}
+  - {player: marc-l, team: pa, pts: 4, ftm: 1, fta: 2}
+  - {player: gord-f, team: pa, pts: 2, ftm: 2, fta: 4}
+  - {player: pat-o, team: lh, pts: 13, ftm: 0, fta: 1}
+  - {player: andre-g, team: lh, pts: 12, ftm: 1, fta: 3}
+  - {player: craig-s, team: lh, pts: 11, ftm: 0, fta: 0}
+  - {player: brad-e, team: lh, pts: 6, ftm: 0, fta: 0}
+  - {player: mike-r, team: lh, pts: 5, ftm: 2, fta: 2}
+  - {player: dan-h, team: lh, pts: 3, ftm: 0, fta: 0}
+  - {player: lorne-k, team: lh, pts: 1, ftm: 1, fta: 3}
+  - {player: todd-b, team: lh, pts: 1, ftm: 1, fta: 4}

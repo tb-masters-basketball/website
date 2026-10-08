@@ -22,10 +22,15 @@ it needs no change.)
 - **`scripts/build_stats.py`** (Python 3, standard library plus PyYAML) reads
   every season in `data/seasons.yml` and writes `_data/computed/<season>/*.json`:
   standings, player totals, leaders, per-player rankings and per-game logs.
-- **Sample data switch:** pages never name a season. They get `season` and
-  `stats` from `_includes/active-season.html`, which reads the sample season
-  while `sample_data: true` in `_config.yml`, else the `current` one. Don't
-  hard-code a season id in a template.
+- **Sample data switch:** pages never name a season. `build_stats.py` picks the
+  active season (the sample stand-in while `sample_data: true` in `_config.yml`,
+  else the `current` one) and writes `_data/computed/active.json`;
+  `_includes/active-season.html` reads it and gives templates `season` and
+  `stats`. Don't hard-code a season id in a template.
+- **One page per game, player, team and archive season** comes from stub files
+  that `build_stats.py` writes into `_games/`, `_players/`, `_teams/` and
+  `_archive/` (git-ignored, rewritten every run). Jekyll collections and
+  `defaults` in `_config.yml` give them a layout and an address. No Ruby plugin.
 - **No JavaScript framework.** Use small vanilla JS only for the theme toggle,
   stat-table sorting and expanding player rows (`assets/js/site.js`, and
   `assets/js/stats.js` on the Stats page). Every page must make sense
@@ -35,9 +40,11 @@ it needs no change.)
 ```
 data/<season>/          source of truth, edited by hand or by /record-game (see data/CLAUDE.md)
                         data/2026-27/ is the real season; data/sample-2026-27/ is fake data
-_config.yml             `sample_data: true` makes every page read the sample season (+ banner)
+_config.yml             `sample_data: true` makes every page read the sample season (+ banner);
+                        `score_sheet_links` (off) publishes score sheet photos; collections for the stubs
 scripts/build_stats.py  computes _data/computed/ (git-ignored) — never edit those files by hand
-scripts/make_sample_season.py  regenerates data/sample-2026-27/ (fake data)
+scripts/make_sample_season.py  regenerates data/sample-2026-27/ and sample-2025-26/ (fake data)
+scripts/check_links.sh  fails on broken links/images in _site/ (html-proofer; runs in CI)
 tests/                  unit tests for build_stats.py
 _layouts/ _includes/    templates
 assets/css/site.css     page styles, built on brand/css/brand.css variables
@@ -51,10 +58,12 @@ docs/mockups/           approved mockups (open in a browser) and screenshots
 ## Commands
 ```
 python -m unittest discover -s tests     # unit tests
-python scripts/build_stats.py            # check data and recompute stats
+python scripts/build_stats.py            # check data, recompute stats, write the stub pages
 bundle exec jekyll serve --livereload    # preview at http://localhost:4000/website/
+bundle exec jekyll build && scripts/check_links.sh   # build, then check every link and image
 ```
-Always run the stats script before previewing data changes.
+Always run the stats script before previewing data changes (and after changing
+`sample_data`): it also writes the stub pages and the active season.
 
 ## Design rules (details in docs/design-brief.md)
 - Match `docs/mockups/` for look and spacing. Mobile mockups are 390 px wide;
@@ -70,7 +79,11 @@ Always run the stats script before previewing data changes.
   the blue header). Footer uses `masters-wordmark-type-dark.svg`. Favicon and
   app icons are in `brand/icons/`.
 - Players are always shown as "First L." (e.g. "Mike R."). Never full names,
-  contact details or photos of players.
+  contact details or photos of players. Score sheet photos stay unpublished
+  (`score_sheet_links: false`) for this reason.
+- Reuse the includes and classes already in `_includes/` and `assets/css/site.css`
+  (result card, standings table, rank row, tiles, bars, game row, team card...).
+  If a page needs something new, add it as a reusable component, not a one-off.
 
 ## Quality bar
 - Every page works at 360 px wide with no sideways page scroll. Wide tables

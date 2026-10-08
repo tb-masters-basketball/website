@@ -1,0 +1,15 @@
+{%- comment -%}
+  One season in the archive list, linking to its page.
+  Usage: include season-card.html season=row stats=season_stats current=true
+{%- endcomment -%}
+{%- assign sc_top = include.stats.standings.teams | first -%}
+<a class="card season-card" href="{{ '/archive/' | append: include.season.id | append: '/' | relative_url }}">
+  <span class="season-card__title">{{ include.season.label }} season{% if include.current %} <span class="badge">Current</span>{% endif %}</span>
+  <span class="season-card__meta">
+    {%- if include.stats.standings.through_week -%}
+      {% if include.current %}Leading so far{% else %}Top of the standings{% endif %}: {{ sc_top.name }} ({{ sc_top.w }}-{{ sc_top.l }})
+    {%- else -%}
+      No games played yet
+    {%- endif -%}
+  </span>
+</a>

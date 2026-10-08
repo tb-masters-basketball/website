@@ -1,0 +1,48 @@
+---
+layout: default
+title: Schedule
+nav: schedule
+permalink: /schedule/
+description: Every game night of the season, with results and upcoming games.
+---
+{%- comment -%}
+  Schedule. Upcoming game nights come first (soonest first, the next one
+  highlighted), then results with the newest week first. A week that is only
+  partly played sits under "Upcoming" and shows both kinds of game.
+{%- endcomment -%}
+{%- include active-season.html -%}
+{%- assign weeks = stats.schedule.weeks -%}
+{%- assign next_week = stats.schedule.next_week -%}
+
+<div class="wrap page">
+  <h1 class="page-title">Schedule</h1>
+  <p class="page-sub">{{ season.label }} season</p>
+
+  {%- if weeks.size == 0 %}
+  <p class="empty">No games scheduled yet.</p>
+  {%- else %}
+  <section class="page-section" aria-labelledby="upcoming-title">
+    <h2 class="section-title" id="upcoming-title">Upcoming</h2>
+    {%- assign shown_upcoming = false %}
+    {%- for week in weeks %}{% unless week.played %}
+    {%- assign shown_upcoming = true %}
+    {%- if week.week == next_week %}
+    {% include schedule-week.html week=week stats=stats highlight=true %}
+    {%- else %}
+    {% include schedule-week.html week=week stats=stats %}
+    {%- endif %}
+    {%- endunless %}{% endfor %}
+    {%- unless shown_upcoming %}<p class="empty">No more games scheduled.</p>{% endunless %}
+  </section>
+
+  <section class="page-section" aria-labelledby="results-title">
+    <h2 class="section-title" id="results-title">Results</h2>
+    {%- assign shown_results = false %}
+    {%- for week in weeks reversed %}{% if week.played %}
+    {%- assign shown_results = true %}
+    {% include schedule-week.html week=week stats=stats %}
+    {%- endif %}{% endfor %}
+    {%- unless shown_results %}<p class="empty">No games played yet.</p>{% endunless %}
+  </section>
+  {%- endif %}
+</div>

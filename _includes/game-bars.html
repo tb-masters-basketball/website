@@ -1,0 +1,11 @@
+{%- comment -%}
+  Points by game night: one bar per game, scaled to the player's season high,
+  with the latest game in --mb-hot. Used by the Stats rows and the player page.
+  Usage: include game-bars.html games=player.games high=player.season_high
+{%- endcomment -%}
+<ol class="bars" style="--n: {{ include.games.size }}">
+  {%- for gb in include.games %}
+  {%- assign gb_h = 0 %}{% if include.high > 0 %}{% assign gb_h = gb.pts | times: 1.0 | divided_by: include.high | round: 3 %}{% endif %}
+  <li class="bars__item{% if gb.latest %} is-latest{% endif %}" style="--h: {{ gb_h }}"><span class="bars__pts">{{ gb.pts }}</span><span class="bars__bar"></span><span class="bars__week">W{{ gb.week }}</span></li>
+  {%- endfor %}
+</ol>

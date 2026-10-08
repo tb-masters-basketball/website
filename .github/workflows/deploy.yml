@@ -2,7 +2,8 @@ name: Build and deploy
 
 # Every push and pull request checks the league data and builds the site.
 # Only pushes to main deploy to GitHub Pages. If the tests or the data checks
-# in scripts/build_stats.py fail, the build stops and nothing is deployed.
+# in scripts/build_stats.py fail, or the built site has a broken link or
+# image, the build stops and nothing is deployed.
 
 on:
   push:
@@ -45,6 +46,11 @@ jobs:
         run: bundle exec jekyll build
         env:
           JEKYLL_ENV: production
+
+      # Fails the build (and so the deploy) on a broken internal link, image,
+      # script or anchor anywhere in the built site.
+      - name: Check links and images
+        run: scripts/check_links.sh
 
       - uses: actions/upload-pages-artifact@v4
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'

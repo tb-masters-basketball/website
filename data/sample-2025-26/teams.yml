@@ -1,0 +1,32 @@
+# Sample data from scripts/make_sample_season.py. Not real.
+# colour_slot picks --mb-team-N in brand/css/brand.css; the hex values are a record only.
+- id: pa
+  name: Port Arthur
+  short: PA
+  colour_slot: 1
+  colour_light: "#C8102E"
+  colour_dark: "#E8394F"
+- id: cr
+  name: Current River
+  short: CR
+  colour_slot: 2
+  colour_light: "#1F6FB5"
+  colour_dark: "#4D8FE0"
+- id: wf
+  name: Westfort
+  short: WF
+  colour_slot: 3
+  colour_light: "#2E8B57"
+  colour_dark: "#3FB27F"
+- id: lh
+  name: Lakehead
+  short: LH
+  colour_slot: 4
+  colour_light: "#F2A900"
+  colour_dark: "#F2B630"
+- id: fw
+  name: Fort William
+  short: FW
+  colour_slot: 5
+  colour_light: "#6B3FA0"
+  colour_dark: "#9B6FD6"
