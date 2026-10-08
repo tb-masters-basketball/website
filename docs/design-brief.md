@@ -172,3 +172,16 @@ and in the templates together.
 - A link check (html-proofer) runs after the site is built and fails the
   deploy on a broken link, image, script or anchor. External links aren't
   checked.
+
+## Changes from the full-site QA (step 5)
+
+See `docs/qa/report.md` for the full list. None of these change the approved look:
+- A "Skip to content" link is the first thing a keyboard user reaches. It stays
+  off screen until it has focus, then shows over the header's top-left corner.
+- The page is a column with the footer at the bottom of the window. On a short
+  page (an empty schedule, the 404) the footer no longer stops halfway up with
+  page background below it.
+- Every page has its own `<title>` and meta description. Box score titles
+  include the date, because the same two teams meet more than once a season.
+  Share tags (Open Graph and Twitter) use the page's description and the
+  social card.

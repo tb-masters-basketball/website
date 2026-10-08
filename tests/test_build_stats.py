@@ -1,5 +1,6 @@
 """Tests for scripts/build_stats.py. Run: python -m unittest discover -s tests"""
 
+import re
 import shutil
 import sys
 import tempfile
@@ -460,9 +461,20 @@ class MultiSeasonTests(SeasonFixture):
         self.assertEqual(self.stubs("_games"), ["2025-10-01-g1", "2025-10-08-g1", "2025-10-15-g1", "2026-04-01-g1",
                                                  "2026-10-01-g1", "2026-10-08-g1", "2026-10-15-g1", "2027-04-01-g1"])
         game = (self.site / "_games" / "2026-10-01-g1.md").read_text()
-        self.assertEqual(game, '---\nseason: "fake"\ngame_id: "2026-10-01-g1"\ntitle: "Alpha vs Bravo"\n---\n')
+        self.assertEqual(game, '---\nseason: "fake"\ngame_id: "2026-10-01-g1"\ntitle: "Alpha vs Bravo, Thu Oct 1, 2026"\n'
+                               'description: "Box score: Alpha 30, Bravo 20 on Thu Oct 1, 2026 (Week 1). '
+                               'Points and free throws for every player."\n---\n')
         self.assertEqual(self.stubs("_teams"), ["aa", "bb", "cc"])
         self.assertIn('title: "Al A."', (self.site / "_players" / "al-a.md").read_text())
+
+    def test_every_stub_has_its_own_title_and_description(self):
+        self.build(sample_data=True)
+        for folder in ("_games", "_players", "_teams", "_archive"):
+            pages = [p.read_text() for p in (self.site / folder).glob("*.md")]
+            titles = [re.search(r'^title: (.*)$', p, re.M).group(1) for p in pages]
+            descriptions = [re.search(r'^description: (.*)$', p, re.M).group(1) for p in pages]
+            self.assertEqual(len(set(titles)), len(pages), folder)
+            self.assertEqual(len(set(descriptions)), len(pages), folder)
 
     def test_stubs_are_rewritten_not_accumulated(self):
         self.build(sample_data=True)

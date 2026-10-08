@@ -264,4 +264,8 @@
   renderTable();
   app.classList.add("is-ready");
   if (location.hash === "#stats-table") setView("table", false);
+  // A link or typed address to #stats-table on this page (replaceState above doesn't fire this).
+  window.addEventListener("hashchange", function () {
+    if (location.hash === "#stats-table" && state.view !== "table") setView("table", false);
+  });
 })();

@@ -45,6 +45,8 @@ _config.yml             `sample_data: true` makes every page read the sample sea
 scripts/build_stats.py  computes _data/computed/ (git-ignored) — never edit those files by hand
 scripts/make_sample_season.py  regenerates data/sample-2026-27/ and sample-2025-26/ (fake data)
 scripts/check_links.sh  fails on broken links/images in _site/ (html-proofer; runs in CI)
+scripts/screenshot_all.py  builds sample + real mode, screenshots every page (360/390/1440, light/dark),
+                        checks sideways scroll, console errors and failed requests
 tests/                  unit tests for build_stats.py
 _layouts/ _includes/    templates
 assets/css/site.css     page styles, built on brand/css/brand.css variables
@@ -52,6 +54,7 @@ brand/                  logos, icons, colours, scenes (from the brand kit; don't
 docs/design-brief.md    the design spec: read this before touching any page
 docs/stats-workflow.md  how score sheets become site numbers, for the volunteer (keep it true)
 docs/mockups/           approved mockups (open in a browser) and screenshots
+docs/qa/                full-site QA: report.md, before/after screenshots, contact sheets
 .github/workflows/      build stats → build Jekyll → deploy to Pages
 ```
 
@@ -61,6 +64,7 @@ python -m unittest discover -s tests     # unit tests
 python scripts/build_stats.py            # check data, recompute stats, write the stub pages
 bundle exec jekyll serve --livereload    # preview at http://localhost:4000/website/
 bundle exec jekyll build && scripts/check_links.sh   # build, then check every link and image
+python scripts/screenshot_all.py --out /tmp/shots --contact-sheets   # every page, both modes (needs Playwright)
 ```
 Always run the stats script before previewing data changes (and after changing
 `sample_data`): it also writes the stub pages and the active season.
