@@ -4,7 +4,7 @@ The site shows a visible `[placeholder]` for each of these until it's answered.
 
 | Question | Where it shows | Answer |
 |---|---|---|
-| Domain name | `head-snippet.html`, social card link | |
+| Domain name | `_config.yml` (`url`), `CNAME`, share tags | `masterbasketball.ca` (Porkbun). DNS steps in `docs/domain.md` |
 | GitHub organization name | repo, Pages address | `tb-masters-basketball`, repo `website` |
 | Gym name and courts | Next game panel, Schedule | St. Pats, no courts. A game's gym is read from `schedule.csv` (blank = season gym) |
 | Real team names, short codes and colours | Everywhere; the five in the mockups are samples | |
@@ -18,3 +18,13 @@ The site shows a visible `[placeholder]` for each of these until it's answered.
 | Do subs' points count only for the player? (assumed yes) | Stats | |
 | Score sheet layout (photo of a filled-in sheet) | `/record-game` skill | |
 | Badge colourway for jerseys/merch (navy, blue or light) | Not on the site | |
+
+## Site decisions waiting on you
+
+These aren't league facts, so nothing on the site shows a placeholder for them.
+They came out of the full-site QA (`docs/qa/report.md`).
+
+| Question | Current state | Answer |
+|---|---|---|
+| Keep the QA screenshot sets in the repo? | `docs/qa/before/` and `after/` hold about 41 MB of PNGs. They could be cut down to the six contact sheets; `scripts/screenshot_all.py` recreates the rest | |
+| Theme toggle for screen readers | The label changes ("Switch to dark theme" / "Switch to light theme") instead of a fixed label with `aria-pressed`. Both are valid; using both at once contradicts itself | |

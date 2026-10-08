@@ -5,16 +5,16 @@ April). It shows standings, schedule, team pages, player stats (points, PPG,
 FTM, FTA, FT%) and an archive of past seasons. Visitors are mostly on phones.
 
 Hosted on GitHub Pages from the `tb-masters-basketball` organization, repo
-`website`. Until a domain is bought it lives at
-`https://tb-masters-basketball.github.io/website/`; later it moves to `[DOMAIN]`.
+`website`, at the custom domain `https://masterbasketball.ca/` (registered at
+Porkbun; DNS records are listed in `docs/domain.md`).
 
-**Paths:** `_config.yml` sets `baseurl: "/website"` for now. Every internal
-link, image, stylesheet, icon and manifest path must go through
-`relative_url` (or `absolute_url` for share tags), e.g.
+**Paths:** `_config.yml` sets `url: "https://masterbasketball.ca"` and an empty
+`baseurl`; the `CNAME` file names the domain. Every internal link, image,
+stylesheet, icon and manifest path must still go through `relative_url` (or
+`absolute_url` for share tags), e.g.
 `{{ '/brand/logo/masters-badge.svg' | relative_url }}`. Never hard-code a
-leading `/`. Moving to the custom domain is then: set `baseurl: ""` and `url`
-to the domain, add a `CNAME` file. (`site.webmanifest` uses relative paths, so
-it needs no change.)
+leading `/`: then a new domain or a baseurl only means changing `_config.yml`
+and `CNAME`. (`site.webmanifest` uses relative paths, so it needs no change.)
 
 ## Stack
 - **Jekyll** builds the site. Deploys run through a GitHub Actions workflow, not
@@ -62,7 +62,7 @@ docs/qa/                full-site QA: report.md, before/after screenshots, conta
 ```
 python -m unittest discover -s tests     # unit tests
 python scripts/build_stats.py            # check data, recompute stats, write the stub pages
-bundle exec jekyll serve --livereload    # preview at http://localhost:4000/website/
+bundle exec jekyll serve --livereload    # preview at http://localhost:4000/
 bundle exec jekyll build && scripts/check_links.sh   # build, then check every link and image
 python scripts/screenshot_all.py --out /tmp/shots --contact-sheets   # every page, both modes (needs Playwright)
 ```

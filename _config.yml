@@ -1,12 +1,13 @@
 # Masters Basketball League · Thunder Bay
 #
-# While the site lives at https://tb-masters-basketball.github.io/website/,
-# baseurl is "/website". To move to the league's own domain: set baseurl to ""
-# and url to the domain, and add a CNAME file (see CLAUDE.md).
+# The site lives at https://masterbasketball.ca/ (the domain root, so baseurl
+# is empty). The CNAME file next to this one names the same domain. Every
+# path in the templates goes through relative_url, so changing domain again
+# only means changing url here and the CNAME file.
 title: "Masters Basketball · Thunder Bay"
 description: "Standings, schedule and player stats for the Masters Basketball League in Thunder Bay."
-url: "https://tb-masters-basketball.github.io"
-baseurl: "/website"
+url: "https://masterbasketball.ca"
+baseurl: ""
 
 # Sample data switch. While true, every page reads the fake season in
 # data/sample-2026-27/ and a banner under the header says so. Set it to false

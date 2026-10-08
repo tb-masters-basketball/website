@@ -5,8 +5,9 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-# Links in the built pages start with the baseurl ("/website"); the files in
-# _site/ don't, so tell html-proofer to strip it. Empty baseurl: nothing to strip.
+# If a baseurl is set (e.g. "/website"), links in the built pages start with it
+# but the files in _site/ don't, so tell html-proofer to strip it. The site
+# now runs at the domain root (empty baseurl), so there is nothing to strip.
 baseurl=$(ruby -ryaml -e 'puts(YAML.load_file("_config.yml")["baseurl"] || "")')
 args=(./_site --disable-external --no-enforce-https)
 if [ -n "$baseurl" ]; then

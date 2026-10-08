@@ -2,7 +2,7 @@
 """Screenshot every page of the site, and check each one for problems.
 
 Builds the site the way the Actions workflow does (stats script, then a
-production Jekyll build with the /website baseurl), once with sample data on
+production Jekyll build with the site's baseurl), once with sample data on
 and once with it off, serves each build locally and captures:
 
   pages   Home, Stats (list and table view), Schedule, Teams, one team,
@@ -25,7 +25,7 @@ Usage:
   python scripts/screenshot_all.py --out docs/qa/after --contact-sheets
   python scripts/screenshot_all.py --out /tmp/shots --modes sample --widths 390
   python scripts/screenshot_all.py --out /tmp/shots --no-build \\
-      --base-url http://localhost:4000/website/      # use a site you serve
+      --base-url http://localhost:4000/      # use a site you serve
 
 Needs: pip install playwright pillow pyyaml, and Chromium. If Playwright's own
 browser isn't installed, set PLAYWRIGHT_CHROMIUM to a Chromium binary (the
@@ -218,7 +218,7 @@ def main():
     parser.add_argument("--widths", nargs="+", type=int, default=WIDTHS)
     parser.add_argument("--themes", nargs="+", choices=THEMES, default=THEMES)
     parser.add_argument("--no-build", action="store_true", help="use --base-url instead of building (one mode only)")
-    parser.add_argument("--base-url", help="with --no-build: the site's address, e.g. http://localhost:4000/website/")
+    parser.add_argument("--base-url", help="with --no-build: the site's address, e.g. http://localhost:4000/")
     parser.add_argument("--contact-sheets", action="store_true", help="also write one contact sheet per width")
     args = parser.parse_args()
     if args.no_build and (not args.base_url or len(args.modes) != 1):
