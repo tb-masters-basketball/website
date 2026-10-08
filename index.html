@@ -16,7 +16,7 @@ title: Home
   {%- if stats == nil %}
   <p>No computed stats found. Run <code>python scripts/build_stats.py</code> first.</p>
   {%- else %}
-  <p>Games on Thursday nights at {{ season.gym }}.</p>
+  <p>Gym: {{ season.gym }}.</p>
 
   <h2>Standings</h2>
   <p>Regular season, through week {{ stats.standings.through_week }}.</p>
