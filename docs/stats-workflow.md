@@ -220,7 +220,7 @@ the site (it takes a minute or two).
    The columns are `game_id, date, time, gym, home, away, type, week`. The
    date is `YYYY-MM-DD`, the time is 24-hour (`19:00`), and the id is the date
    plus `-g1`, `-g2` for that night's first and second game. Leave `gym` blank
-   to use the season's gym (St. Pats, set in `data/seasons.yml`); fill it in
+   to use the season's gym (St. Pat's, set in `data/seasons.yml`); fill it in
    only for a night played somewhere else. There is no court column.
 2. **Create the game file.** In `data/2026-27/games/`, choose **Add file →
    Create new file** and name it exactly like the `game_id`, plus `.yml`:

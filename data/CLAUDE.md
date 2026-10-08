@@ -19,16 +19,16 @@ data/2026-27/
 - id: 2026-27          # folder name under data/
   label: "2026-27"     # what the site shows
   current: true        # exactly one season is current: the real one
-  gym: "St. Pats"
+  gym: "St. Pat's"
 - id: sample-2026-27
   label: "2026-27"
   sample: true         # fake data; never `current`
   stands_in_for: 2026-27   # shown instead of 2026-27 while sample_data is on
-  gym: "St. Pats"
+  gym: "St. Pat's"
 - id: sample-2025-26
   label: "2025-26"
   sample: true         # a fake past season: in the Archive in sample mode only
-  gym: "St. Pats"
+  gym: "St. Pat's"
 ```
 `sample_data: true` in `_config.yml` makes every page read the sample season
 that `stands_in_for` the current one, and show a "Preview with sample data"
@@ -50,7 +50,7 @@ Past seasons therefore show names without links to player or team pages.
 
 ### Gym
 A game's gym is the `gym` cell in `schedule.csv`; a blank cell means the
-season's `gym` from `seasons.yml` (St. Pats). There are no courts. Pages show
+season's `gym` from `seasons.yml` (St. Pat's). There are no courts. Pages show
 the gym in the week heading and the next-game panel.
 
 ### Score sheet photos
@@ -61,11 +61,24 @@ publish (they may show full names, and players are only ever "First L."). The bu
 listed here and must not fail on one with no games yet.
 
 ### The real season before the first game
-`data/2026-27/` holds `[placeholder]` rows: five teams (`[Team A]`...), one
-`[placeholder]` player per team, a `schedule.csv` with only its header row (no
-dates are invented), an empty `games/` and `sheets/`. A player `display` of
-exactly `[placeholder]` passes the "First L." check for this reason. Replace
-the rows with real ones as the league decides.
+`data/2026-27/` has the real teams and the full regular-season schedule, both
+from the league's printed schedule (`Masters_League_Print_Schedule_2026-27.pdf`):
+- **Teams:** Bay City Bears (`bb`), Dam Nation (`dn`), Floor Generals (`fg`),
+  Hustle (`hu`) and Nor'Westers (`nw`). The ids and 2-letter codes were made up
+  for the site; the colour slots are in alphabetical order until the league
+  picks team colours.
+- **Schedule:** 20 Saturdays, Oct 3 to Apr 3, at St. Pat's. Two games each
+  morning, at 9:45 AM (`-g1`) and 11:00 AM (`-g2`), and one team has the bye.
+  `week` is the game day's number (1 to 20), so weeks with no games (Thanksgiving,
+  the holidays, Feb 13, March break) are skipped.
+- **Home and away:** the printed schedule has none, so the team listed first is
+  in the `home` column.
+- **Playoffs:** April 10, 17 and 24, 2027. They aren't in `schedule.csv` yet,
+  because the playoff format and matchups aren't known.
+
+Still placeholders: one `[placeholder]` player per team (a `display` of exactly
+`[placeholder]` passes the "First L." check for this reason). `games/` and
+`sheets/` are empty.
 
 ### Team colours
 `colour_slot` (1-5) picks `--mb-team-N` in `brand/css/brand.css`, which holds

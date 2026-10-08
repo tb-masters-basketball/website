@@ -11,15 +11,15 @@
 - id: 2026-27
   label: "2026-27"
   current: true
-  gym: "St. Pats"
+  gym: "St. Pat's"
 
 - id: sample-2026-27
   label: "2026-27"
   sample: true
   stands_in_for: 2026-27
-  gym: "St. Pats"
+  gym: "St. Pat's"
 
 - id: sample-2025-26
   label: "2025-26"
   sample: true
-  gym: "St. Pats"
+  gym: "St. Pat's"
