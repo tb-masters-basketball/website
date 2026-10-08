@@ -1,50 +1,81 @@
 ---
 layout: default
 title: Home
+nav: home
 ---
 {%- comment -%}
-  Placeholder home page. It proves the layout, brand files and computed data
-  all load. The real Home page (docs/mockups/home-*.html) replaces it.
+  Home page. Everything shown comes from _data/computed (see
+  scripts/build_stats.py); no numbers are typed in here.
 {%- endcomment -%}
 {%- assign season = site.data.computed.seasons | where: "current", true | first -%}
 {%- assign stats = site.data.computed[season.id] -%}
-<main>
-  <img src="{{ '/brand/logo/masters-badge.svg' | relative_url }}" alt="Masters Basketball League badge" width="84" height="84">
-  <h1>Masters Basketball</h1>
-  <p>Thunder Bay · {{ season.label }} season. The site is being built.{% if season.sample %} These are sample numbers, not real games.{% endif %}</p>
+{%- assign sched = stats.schedule -%}
+{%- assign latest = sched.weeks | where: "week", sched.latest_week | first -%}
+{%- assign upcoming = sched.weeks | where: "week", sched.next_week | first -%}
+{%- assign ppg_leaders = stats.leaders.ppg -%}
+{%- assign ppg_leader = ppg_leaders | first -%}
+{%- assign ft_leader = stats.leaders.ft_pct | first -%}
+{%- assign has_tie = false -%}
+{%- for t in stats.standings.teams %}{% if t.tiebreak %}{% assign has_tie = true %}{% endif %}{% endfor -%}
 
-  {%- if stats == nil %}
-  <p>No computed stats found. Run <code>python scripts/build_stats.py</code> first.</p>
-  {%- else %}
-  <p>Gym: {{ season.gym }}.</p>
+<h1 class="visually-hidden">Masters Basketball League, Thunder Bay: {{ season.label }} season</h1>
 
-  <h2>Standings</h2>
-  <p>Regular season, through week {{ stats.standings.through_week }}.</p>
-  <table>
-    <thead>
-      <tr><th scope="col">#</th><th scope="col">Team</th><th scope="col">W</th><th scope="col">L</th><th scope="col">PCT</th><th scope="col">GB</th><th scope="col">PF</th><th scope="col">PA</th><th scope="col">DIFF</th></tr>
-    </thead>
-    <tbody>
-      {%- for t in stats.standings.teams %}
-      <tr><td>{{ t.rank }}</td><th scope="row">{{ t.name }}</th><td>{{ t.w }}</td><td>{{ t.l }}</td><td>{{ t.pct }}</td><td>{{ t.gb_display }}</td><td>{{ t.pf }}</td><td>{{ t.pa }}</td><td>{{ t.diff_display }}</td></tr>
-      {%- endfor %}
-    </tbody>
-  </table>
-  <p>{{ stats.standings.tiebreak_note }}</p>
+<div class="wrap home">
+  <div class="home__col">
 
-  <h2>Points per game</h2>
-  <ol>
-    {%- for p in stats.leaders.ppg limit: 7 %}
-    <li>{{ p.display }}, {{ p.team_name }}: {{ p.ppg_display }} ({{ p.pts }} pts, {{ p.gp }} GP)</li>
-    {%- endfor %}
-  </ol>
+    <section class="home__results" aria-labelledby="results-title">
+      <div class="section-head">
+        <h2 class="section-title" id="results-title">Latest results</h2>
+        {%- if latest %}
+        <span class="section-head__meta">{% if latest.type == "playoff" %}Playoffs{% else %}Week {{ latest.week }}{% endif %} · {{ latest.date_display }}<span class="u-wide"> · <a class="link-more" href="{{ '/schedule/' | relative_url }}">All results</a></span></span>
+        {%- endif %}
+      </div>
+      {%- if latest %}
+      <div class="result-grid">
+        {%- for g in latest.games %}{% if g.played %}
+        {%- assign game = stats.games[g.game_id] %}
+        {% include result-card.html game=game %}
+        {%- endif %}{% endfor %}
+      </div>
+      {%- else %}
+      <p class="empty">No games have been played yet.</p>
+      {%- endif %}
+    </section>
 
-  <h2>Free-throw %</h2>
-  <p>Minimum {{ stats.leaders.ft_min_attempts }} attempts.</p>
-  <ol>
-    {%- for p in stats.leaders.ft_pct limit: 3 %}
-    <li>{{ p.display }}, {{ p.team_name }}: {{ p.ft_pct_display }}% ({{ p.ftm }} of {{ p.fta }})</li>
-    {%- endfor %}
-  </ol>
-  {%- endif %}
-</main>
+    <section class="home__standings" aria-labelledby="standings-title">
+      <div class="section-head">
+        <h2 class="section-title" id="standings-title">Standings</h2>
+        <a class="link-more" href="{{ '/standings/' | relative_url }}">Full table</a>
+      </div>
+      {% include standings-table.html standings=stats.standings %}
+      <p class="table-note">Playoffs in April.{% if has_tie and stats.standings.through_week %} {{ stats.standings.tiebreak_note }}{% endif %}</p>
+    </section>
+
+  </div>
+  <div class="home__col">
+
+    {%- if upcoming %}
+    {% include next-game.html week=upcoming teams=stats.teams gym=season.gym %}
+    {%- endif %}
+
+    <section class="home__leaders" aria-labelledby="leaders-title">
+      <div class="section-head">
+        <h2 class="section-title" id="leaders-title">Leaders</h2>
+        <a class="link-more" href="{{ '/stats/' | relative_url }}">All stats</a>
+      </div>
+      <div class="leader-grid">
+        {% include leader-card.html label="Points / game" tone="hot" player=ppg_leader value=ppg_leader.ppg_display meta=ppg_leader.team_name empty="No games yet" %}
+        {%- capture ft_meta %}{{ ft_leader.team_name }} · {{ ft_leader.ftm }} of {{ ft_leader.fta }}{% endcapture %}
+        {% include leader-card.html label="Free throw %" player=ft_leader value=ft_leader.ft_pct_display meta=ft_meta empty="Needs 10 attempts" %}
+      </div>
+      {%- if ppg_leaders.size > 1 %}
+      <div class="rank-list">
+        {%- for p in ppg_leaders offset: 1 limit: 4 %}
+        {%- include rank-row.html player=p value=p.ppg_display %}
+        {%- endfor %}
+      </div>
+      {%- endif %}
+    </section>
+
+  </div>
+</div>

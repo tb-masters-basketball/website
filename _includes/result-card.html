@@ -1,0 +1,23 @@
+{%- comment -%}
+  Result card for one played game: both teams with colour chips and scores
+  (winner in bold), then the top scorer and a box score link.
+  Usage: include result-card.html game=game (assign game = stats.games[game_id] first;
+  include params can't contain brackets)
+{%- endcomment -%}
+{%- comment -%} Names here (rc_*) can't clash with the caller's loop variables. {%- endcomment -%}
+{%- assign rc_game = include.game -%}
+{%- assign sides = "home_team,away_team" | split: "," -%}
+<a class="card result-card" href="{{ '/games/' | append: rc_game.game_id | append: '/' | relative_url }}">
+  {%- for side in sides %}
+  {%- assign rc_team = rc_game[side] %}
+  <span class="result-card__team{% if rc_team.won %} is-winner{% endif %}">
+    <span class="chip chip--{{ rc_team.colour_slot }}" aria-hidden="true"></span>
+    <span class="result-card__name">{{ rc_team.name }}</span>
+    <span class="result-card__score">{{ rc_team.score }}</span>
+  </span>
+  {%- endfor %}
+  <span class="result-card__foot">
+    <span class="result-card__top">Top: {% for p in rc_game.top %}<b>{{ p.display }}</b>{% unless forloop.last %}, {% endunless %}{% endfor %} {{ rc_game.top[0].pts }} {% if rc_game.top[0].pts == 1 %}pt{% else %}pts{% endif %}</span>
+    <span class="result-card__link">Box score ›</span>
+  </span>
+</a>
