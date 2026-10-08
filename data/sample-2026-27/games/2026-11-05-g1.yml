@@ -1,0 +1,25 @@
+# Sample data from scripts/make_sample_season.py. Not real.
+game_id: 2026-11-05-g1
+date: 2026-11-05
+home: fw
+away: lh
+type: regular
+final: {fw: 67, lh: 72}
+lines:
+  - {player: paul-l, team: fw, pts: 18, ftm: 3, fta: 4}
+  - {player: glen-a, team: fw, pts: 11, ftm: 0, fta: 0}
+  - {player: tim-r, team: fw, pts: 10, ftm: 0, fta: 0}
+  - {player: bill-c, team: fw, pts: 9, ftm: 2, fta: 2}
+  - {player: nick-t, team: fw, pts: 9, ftm: 0, fta: 2}
+  - {player: ken-w, team: fw, pts: 6, ftm: 1, fta: 1}
+  - {player: barry-s, team: fw, pts: 4, ftm: 0, fta: 0}
+  - {player: joe-p, team: fw, pts: 0, ftm: 0, fta: 0}
+  - {player: dan-h, team: lh, pts: 14, ftm: 0, fta: 0}
+  - {player: todd-b, team: lh, pts: 11, ftm: 1, fta: 2}
+  - {player: mike-r, team: lh, pts: 10, ftm: 2, fta: 4}
+  - {player: brad-e, team: lh, pts: 9, ftm: 0, fta: 0}
+  - {player: pat-o, team: lh, pts: 9, ftm: 1, fta: 2}
+  - {player: andre-g, team: lh, pts: 6, ftm: 0, fta: 2}
+  - {player: lorne-k, team: lh, pts: 6, ftm: 4, fta: 4}
+  - {player: jon-v, team: lh, pts: 5, ftm: 2, fta: 2}
+  - {player: sean-m, team: lh, pts: 2, ftm: 0, fta: 0}
