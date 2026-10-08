@@ -9,7 +9,8 @@ data/seasons.yml              list of seasons, newest first; marks the current o
 data/2026-27/
   teams.yml                   id, name, short (2 letters), colour_slot, colour_light, colour_dark
   players.yml                 id, display (First L.), team, sub (true/false)
-  schedule.csv                game_id,date,time,gym,home,away,type,week (gym blank: the season's gym; no courts)
+  schedule.csv                game_id,date,time,gym,home,away,type,week,status (gym blank: the season's gym; no courts;
+                              status blank, or `cancelled`; the status column may be left out)
   games/2026-12-03-g1.yml     one file per played game (format below)
   sheets/2026-12-03-g1.jpg    photo of the paper score sheet, kept for checking
 ```
@@ -53,6 +54,14 @@ A game's gym is the `gym` cell in `schedule.csv`; a blank cell means the
 season's `gym` from `seasons.yml` (St. Pat's). There are no courts. Pages show
 the gym in the week heading and the next-game panel.
 
+### Cancelled games
+A row with `status` `cancelled` stays on the Schedule with a "Cancelled" badge,
+and the team pages leave it out of their upcoming games. It never counts in any
+stat, and the next game day skips it. A game file for it fails the check. A game
+day whose games are all cancelled is headed by its date and the badge, with no
+week number, and moves to Results. A make-up game is a new row; a moved game
+keeps its row with a new date, time and `game_id`.
+
 ### Score sheet photos
 `score_sheet_links: true` in `_config.yml` makes the build copy the photos in
 `sheets/` to the published site and shows a "Score sheet photo" link on the box
@@ -63,16 +72,18 @@ listed here and must not fail on one with no games yet.
 ### The real season before the first game
 `data/2026-27/` has the real teams and the full regular-season schedule, both
 from the league's printed schedule (`Masters_League_Print_Schedule_2026-27.pdf`):
-- **Teams:** Bay City Bears (`bb`), Dam Nation (`dn`), Floor Generals (`fg`),
-  Hustle (`hu`) and Nor'Westers (`nw`). The ids and 2-letter codes were made up
-  for the site; the colour slots are in alphabetical order until the league
-  picks team colours.
+- **Teams:** Bay City Bears (`bb`, BB), Dam Nation (`dn`, DN), Floor Generals
+  (`fg`, FG), Hustle (`hu`, HU) and Nor'Westers (`nw`, NW). The codes were made
+  for the site and approved. Colour slots go in alphabetical order (approved; a
+  slot can be swapped any time in `teams.yml`).
 - **Schedule:** 20 Saturdays, Oct 3 to Apr 3, at St. Pat's. Two games each
   morning, at 9:45 AM (`-g1`) and 11:00 AM (`-g2`), and one team has the bye.
-  `week` is the game day's number (1 to 20), so weeks with no games (Thanksgiving,
-  the holidays, Feb 13, March break) are skipped.
-- **Home and away:** the printed schedule has none, so the team listed first is
-  in the `home` column.
+  Oct 3 was cancelled (`status: cancelled`, week `0`), so Oct 17 is Week 1 and
+  Apr 3 is Week 19. Weeks with no games on the printed schedule (Thanksgiving,
+  the holidays, Feb 13, March break) are simply skipped.
+- **Home and away:** the printed schedule has none. The team listed first is in
+  the `home` column, but the site never says "home" or "away": the player game
+  log always says "vs".
 - **Playoffs:** April 10, 17 and 24, 2027. They aren't in `schedule.csv` yet,
   because the playoff format and matchups aren't known.
 

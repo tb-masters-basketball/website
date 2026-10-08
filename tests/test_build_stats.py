@@ -196,9 +196,9 @@ class StatsTests(SeasonFixture):
         self.assertIsNone(al["rank_ft"])
         self.assertIsNone(al["order_ft"])
 
-    def test_rankings_game_nights_are_regular_season_only(self):
+    def test_rankings_game_days_are_regular_season_only(self):
         al = next(r for r in self.compute()["rankings.json"] if r["id"] == "al-a")
-        # the 50-point playoff game (week 20) is not a game night here
+        # the 50-point playoff game (week 20) is not a game day here
         self.assertEqual([(g["week"], g["pts"]) for g in al["games"]], [(1, 20), (3, 21)])
         self.assertTrue(al["games"][-1]["latest"])
         self.assertNotIn("latest", al["games"][0])
@@ -277,12 +277,63 @@ class StatsTests(SeasonFixture):
         self.assertEqual(first["games"][0]["gym"], "St. Pats")
         self.assertEqual(first["gyms"], ["St. Pats"])
         self.assertEqual(out["games.json"]["2026-10-01-g1"]["gym"], "St. Pats")
-        # a different gym on another night is kept as written
+        # a different gym on another day is kept as written
         self.assertEqual(out["schedule.json"]["weeks"][1]["games"][0]["gym"], "1")
         # no season gym and a blank cell: no gym
         out = self.compute()
         self.assertIsNone(out["schedule.json"]["weeks"][0]["games"][0]["gym"])
         self.assertEqual(out["schedule.json"]["weeks"][0]["gyms"], [])
+
+
+class CancelledGameTests(SeasonFixture):
+    """schedule.csv may have a status column: blank, or cancelled."""
+
+    def schedule_with_status(self, statuses):
+        lines = textwrap.dedent(self.SCHEDULE).splitlines()
+        out = [lines[0] + ",status"]
+        for line in lines[1:]:
+            out.append(line + "," + statuses.get(line.split(",")[0], ""))
+        self.write("schedule.csv", "\n".join(out) + "\n")
+
+    def test_header_without_status_still_works(self):
+        self.assertEqual(self.compute()["schedule.json"]["next_week"], 4)
+
+    def test_cancelled_game_is_skipped_as_next_and_moves_to_results(self):
+        self.schedule_with_status({"2026-10-22-g1": "cancelled"})
+        out = self.compute()
+        sched = out["schedule.json"]
+        week4 = next(w for w in sched["weeks"] if w["week"] == 4)
+        self.assertTrue(week4["cancelled"])
+        self.assertTrue(week4["played"])                 # done: shown under Results
+        self.assertTrue(week4["games"][0]["cancelled"])
+        self.assertFalse(week4["games"][0]["played"])
+        self.assertIsNone(sched["next_week"])            # the only open game was cancelled
+        self.assertEqual(sched["latest_week"], 20)
+        self.assertEqual(out["players.json"]["al-a"]["gp"], 2)   # stats don't change
+
+    def test_partly_cancelled_week_stays_upcoming(self):
+        self.schedule_with_status({"2026-10-22-g1": "cancelled"})
+        self.write("schedule.csv", (self.season / "schedule.csv").read_text()
+                   + "2026-10-22-g2,2026-10-22,20:15,1,bb,cc,regular,4,\n")
+        sched = self.compute()["schedule.json"]
+        week4 = next(w for w in sched["weeks"] if w["week"] == 4)
+        self.assertFalse(week4["cancelled"])
+        self.assertFalse(week4["played"])
+        self.assertEqual(sched["next_week"], 4)
+
+    def test_a_game_file_for_a_cancelled_game_fails(self):
+        self.schedule_with_status({"2026-10-08-g1": "cancelled"})
+        self.assertProblem("game '2026-10-08-g1' is marked cancelled in schedule.csv")
+
+    def test_unknown_status_fails(self):
+        self.schedule_with_status({"2026-10-22-g1": "postponed"})
+        self.assertProblem("status 'postponed' should be blank or cancelled")
+
+    def test_make_up_on_the_day_of_a_cancelled_game_is_allowed(self):
+        self.schedule_with_status({"2026-10-22-g1": "cancelled"})
+        self.write("schedule.csv", (self.season / "schedule.csv").read_text()
+                   + "2026-10-22-g2,2026-10-22,20:15,1,aa,bb,regular,4,\n")
+        self.assertEqual(self.compute()["schedule.json"]["next_week"], 4)
 
 
 class NoGamesYetTests(SeasonFixture):

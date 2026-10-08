@@ -11,7 +11,7 @@ and writes JSON that the Jekyll templates read:
   _data/computed/<season>/players.json     per-player season totals, keyed by id
   _data/computed/<season>/leaders.json     ranked PPG, points and FT% lists
   _data/computed/<season>/rankings.json    one row per player for the Stats page: totals,
-                                           every rank, and points by game night
+                                           every rank, and points by game day
   _data/computed/<season>/games.json       box scores, keyed by game_id
   _data/computed/<season>/game_logs.json   each player's games, keyed by id
   _data/computed/<season>/schedule.json    weeks, byes, latest and next week
@@ -45,7 +45,9 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 
 FT_MIN_ATTEMPTS = 10
-SCHEDULE_COLUMNS = ["game_id", "date", "time", "gym", "home", "away", "type", "week"]
+SCHEDULE_COLUMNS = ["game_id", "date", "time", "gym", "home", "away", "type", "week", "status"]
+# status: blank (the game goes ahead) or "cancelled". The column may be left out.
+GAME_STATUSES = ("", "cancelled")
 GAME_TYPES = ("regular", "playoff")
 SHEET_EXTENSIONS = (".jpg", ".jpeg", ".png", ".heic", ".pdf")
 TEAM_ID_RE = re.compile(r"^[a-z]{2}$")
@@ -274,7 +276,7 @@ def load_schedule(season_dir, teams, problems):
     try:
         with open(path, encoding="utf-8", newline="") as fh:
             reader = csv.DictReader(fh)
-            if reader.fieldnames != SCHEDULE_COLUMNS:
+            if reader.fieldnames not in (SCHEDULE_COLUMNS, SCHEDULE_COLUMNS[:-1]):
                 problems.append(f"{path}: header should be {','.join(SCHEDULE_COLUMNS)}")
                 return schedule
             rows = list(reader)
@@ -313,7 +315,12 @@ def load_schedule(season_dir, teams, problems):
         except ValueError:
             problems.append(f"{where} ({gid}): week {row['week']!r} should be a number")
             continue
+        status = (row.get("status") or "").strip().lower()
+        if status not in GAME_STATUSES:
+            problems.append(f"{where} ({gid}): status {row['status']!r} should be blank or cancelled")
         for tid in (home, away):
+            if status == "cancelled":
+                break   # a cancelled game doesn't stop a team playing a make-up that day
             key = (tid, date)
             if key in team_dates and gtype == "regular":
                 problems.append(f"{where} ({gid}): {tid} already plays on {date} ({team_dates[key]})")
@@ -327,6 +334,7 @@ def load_schedule(season_dir, teams, problems):
             "away": away,
             "type": gtype,
             "week": week,
+            "cancelled": status == "cancelled",
         }
     return schedule
 
@@ -358,6 +366,10 @@ def _check_game(path, game, teams, players, schedule, problems):
     row = schedule.get(gid)
     if row is None:
         problems.append(f"{where}: game_id '{gid}' has no row in schedule.csv")
+        return
+    if row["cancelled"]:
+        problems.append(f"{where}: game '{gid}' is marked cancelled in schedule.csv. "
+                        "Delete this file, or clear the status if the game was played")
         return
 
     date = game.get("date")
@@ -626,7 +638,7 @@ def compute_leaders(totals):
 def compute_rankings(season, totals, leaders, logs):
     """One row per player who has played, in points-per-game order, with all
     three ranks, their position in each ordering, and their regular-season
-    points by game night. The Stats page sorts, filters and expands these."""
+    points by game day. The Stats page sorts, filters and expands these."""
     teams = season["teams"]
     pos = {
         "ppg": {e["id"]: (i, e["rank"]) for i, e in enumerate(leaders["ppg"])},
@@ -776,6 +788,7 @@ def compute_schedule(season, summaries):
                 "home": r["home"],
                 "away": r["away"],
                 "played": played,
+                "cancelled": r["cancelled"],
             }
             if played:
                 s = summaries[r["game_id"]]
@@ -786,16 +799,18 @@ def compute_schedule(season, summaries):
         regular = all(g["type"] == "regular" for g in games)
         out.append({
             "week": week,
+            "cancelled": all(g["cancelled"] for g in games),
             "type": "regular" if regular else "playoff",
             "date": rows[0]["date"].isoformat(),
             "date_display": fmt_date(rows[0]["date"]),
-            "played": all(g["played"] for g in games),
+            # done: every game played or cancelled (the week moves to Results)
+            "played": all(g["played"] or g["cancelled"] for g in games),
             "gyms": list(dict.fromkeys(g["gym"] for g in games if g["gym"])),
             "games": games,
             "byes": sorted((t for t in teams if t not in playing), key=lambda t: teams[t]["name"]) if regular else [],
         })
     played_weeks = [w["week"] for w in out if any(g["played"] for g in w["games"])]
-    upcoming = [w["week"] for w in out if not all(g["played"] for g in w["games"])]
+    upcoming = [w["week"] for w in out if not w["played"]]
     return {
         "latest_week": max(played_weeks) if played_weeks else None,
         "next_week": min(upcoming) if upcoming else None,

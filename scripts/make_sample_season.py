@@ -355,7 +355,7 @@ def write_files(weeks, played, scores, players, present, pts, ft):
         fh.write(",".join(build_stats.SCHEDULE_COLUMNS) + "\n")
         for games in weeks:
             for g in games:
-                fh.write(f"{g['game_id']},{g['date']},{g['time']},{GYM},{g['home']},{g['away']},regular,{g['week']}\n")
+                fh.write(f"{g['game_id']},{g['date']},{g['time']},{GYM},{g['home']},{g['away']},regular,{g['week']},\n")
 
     for key, g in played.items():
         s = scores[key]
@@ -496,7 +496,7 @@ def write_past_season():
     with open(PAST_OUT / "schedule.csv", "w", encoding="utf-8", newline="") as fh:
         fh.write(",".join(build_stats.SCHEDULE_COLUMNS) + "\n")
         for g in schedule:
-            fh.write(f"{g['game_id']},{g['date']},{g['time']},{GYM},{g['home']},{g['away']},{g['type']},{g['week']}\n")
+            fh.write(f"{g['game_id']},{g['date']},{g['time']},{GYM},{g['home']},{g['away']},{g['type']},{g['week']},\n")
     for g, scores in results:
         lines = []
         for tid in (g["home"], g["away"]):

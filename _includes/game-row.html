@@ -1,6 +1,11 @@
 {%- comment -%}
-  One upcoming game as a row: the two teams and the time. show_date=true adds
-  the date (for lists that aren't under a week heading, like a team page).
+  One upcoming or cancelled game as a row: the two teams and the time (or
+  "Cancelled", in muted text). show_date=true adds the date (for lists that
+  aren't under a week heading, like a team page).
   Usage: include game-row.html game=g teams=stats.teams show_date=true
 {%- endcomment -%}
+{%- if include.game.cancelled -%}
+<li class="game-row game-row--cancelled"><span class="game-row__teams">{{ include.teams[include.game.home].name }} vs {{ include.teams[include.game.away].name }}</span><span class="game-row__time">{% if include.show_date %}{{ include.game.date_display }} · {% endif %}<span class="badge">Cancelled</span></span></li>
+{%- else -%}
 <li class="game-row"><span class="game-row__teams">{{ include.teams[include.game.home].name }} vs {{ include.teams[include.game.away].name }}</span><time class="game-row__time" datetime="{{ include.game.date }}T{{ include.game.time }}">{% if include.show_date %}{{ include.game.date_display }} · {% endif %}{{ include.game.time_display }}</time></li>
+{%- endif -%}

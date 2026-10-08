@@ -4,7 +4,7 @@ A guide for whoever keeps the league's numbers up to date. You do not need to
 be a programmer. Everything below can be done in GitHub's web editor in a
 browser, and the site checks your work for you before anything goes live.
 
-**The short version:** after each game night, the paper score sheets are typed
+**The short version:** after each game day, the paper score sheets are typed
 into one small text file per game. The site reads those files, double-checks
 them, works out every number (standings, points per game, free-throw %), and
 publishes the pages. If something doesn't add up, the check fails with a plain
@@ -62,7 +62,7 @@ data/
   2026-27/             the REAL season (starts with [placeholder] rows)
     teams.yml            the five teams
     players.yml          every player and sub
-    schedule.csv         every game night: who plays whom, when
+    schedule.csv         every game day: who plays whom, when
     games/               one file per game that has been played
     sheets/              photos of the paper score sheets
   sample-2026-27/      FAKE sample season, standing in for the real one
@@ -129,6 +129,7 @@ The real message starts with the full path (for example
 | The `game_id` doesn't match the file name | `games/2026-12-03-g1.yml: game_id '2026-12-03-g9' doesn't match the file name '2026-12-03-g1'` |
 | The game isn't in `schedule.csv` | `games/2026-12-11-g1.yml: game_id '2026-12-11-g1' has no row in schedule.csv` |
 | The date, teams or type disagree with `schedule.csv` | `games/2026-12-03-g1.yml: date 2026-12-04 doesn't match schedule.csv (2026-12-03)` |
+| A game file exists for a game marked `cancelled` | `games/2026-10-03-g1.yml: game '2026-10-03-g1' is marked cancelled in schedule.csv. Delete this file, or clear the status if the game was played` |
 | The final score is a tie | `games/2026-12-03-g1.yml: final score is tied 64-64` |
 | A player is listed twice in one game | `games/2026-12-03-g1.yml: line 3 (greg-t): player is listed twice in this game` |
 | A player name isn't written "First L." | `players.yml: player #1 (dave-m): display 'Dave Mitchell' should be 'First L.' (never a full name)` |
@@ -139,7 +140,7 @@ site (each game gets a page at `/games/<game_id>/`, so ids must be unique), a
 `stands_in_for` that names a season that doesn't exist, two players or teams
 sharing an id, a made free throw worth
 more than the points scored, a player with exactly 1 point more than their free
-throws (a field goal can't be worth 1), a team playing twice on the same night,
+throws (a field goal can't be worth 1), a team playing twice on the same day,
 and a `seasons.yml` that doesn't have exactly one current season.
 
 **Where you see the message:** on the GitHub pull request, the *Build and
@@ -166,7 +167,7 @@ the sample season, line by line:
 | 8 | 24 | 6 | 7 |
 | **Total** | **141** | **22** | **27** |
 
-(He has no line for week 3, so he didn't play that night.)
+(He has no line for week 3, so he didn't play that day.)
 
 | Stat | Rule | Dave M.'s number |
 |---|---|---|
@@ -185,7 +186,7 @@ truly equal.
   (FTA). Dave M.'s 27 is plenty. A player with 1 of 2 is not ranked, however
   good the percentage.
 - **Subs** get their own line and their own stats. A sub's points also count
-  toward their team's score that night.
+  toward their team's score that day.
 - **Playoffs** (`type: playoff`) are kept separate. They never count in the
   standings or in the Stats page.
 
@@ -216,12 +217,13 @@ the site (it takes a minute or two).
 
 1. **Check the game is on the schedule.** Open `data/2026-27/schedule.csv`. The
    game needs a row, for example:
-   `2026-12-03-g1,2026-12-03,19:00,,pa,lh,regular,8`
-   The columns are `game_id, date, time, gym, home, away, type, week`. The
-   date is `YYYY-MM-DD`, the time is 24-hour (`19:00`), and the id is the date
-   plus `-g1`, `-g2` for that night's first and second game. Leave `gym` blank
+   `2026-10-17-g1,2026-10-17,09:45,,bb,hu,regular,1,`
+   The columns are `game_id, date, time, gym, home, away, type, week, status`. The
+   date is `YYYY-MM-DD`, the time is 24-hour (`09:45`), and the id is the date
+   plus `-g1`, `-g2` for that day's first and second game. Leave `gym` blank
    to use the season's gym (St. Pat's, set in `data/seasons.yml`); fill it in
-   only for a night played somewhere else. There is no court column.
+   only for a game day played somewhere else. There is no court column. Leave
+   `status` blank (it is only for [cancelled games](#cancel-or-move-a-game)).
 2. **Create the game file.** In `data/2026-27/games/`, choose **Add file →
    Create new file** and name it exactly like the `game_id`, plus `.yml`:
    `2026-12-03-g1.yml`. The easiest start is to copy the example
@@ -241,6 +243,24 @@ the site (it takes a minute or two).
    (`/games/2026-12-03-g1/`), and the Schedule, standings, Stats and every
    player's and team's page update with it.
 
+### Cancel or move a game
+
+Keep the game's row in `data/2026-27/schedule.csv` and change it:
+
+- **Cancelled, not made up:** type `cancelled` in the last column (`status`),
+  for example `2026-10-03-g1,2026-10-03,09:45,,dn,fg,regular,0,cancelled`.
+  The game stays on the Schedule with a **Cancelled** badge. It counts for
+  nothing, and the site skips it when it shows the next game day. A game file
+  for a cancelled game is an error: the check says so.
+  - If every game that day is cancelled, the Schedule shows the date with a
+    **Cancelled** badge and no week number, so the week number in those rows
+    doesn't matter (use `0` for a day before the first game).
+- **Moved to another date or time:** change its `date` and `time`, and change
+  the `game_id` to match the new date (and its `-g1`/`-g2`). Give it the
+  `week` of the day it is now played on.
+- **Cancelled now, made up later:** mark the original row `cancelled`, and add a
+  new row for the make-up game with its own date and `game_id`.
+
 ### Fix a wrong number
 
 Open the game file, correct the number, and commit it as a pull request. The
@@ -257,7 +277,7 @@ will tell you.
    players would get the same id, number the second one: `mike-r2`.
 3. The **display** name is always written **First L.**, never a full name.
 4. For a **sub**, add them the first time they play and set `sub: true`. Then
-   use their id in that night's game file like any other player. A sub's page
+   use their id in that day's game file like any other player. A sub's page
    and box score lines are marked **Sub**.
 5. Once they are in `players.yml` they get a player page (`/players/mike-r/`)
    and appear on their team's roster, even before their first game.
@@ -272,7 +292,7 @@ sample_data: true     # change to false when real results begin
 
 - **On (`true`):** every page shows the made-up season, and a banner under the
   header says *"Preview with sample data. Real results start after the first
-  game night."*
+  game day."*
 - **Off (`false`):** every page reads the real season in `data/2026-27/` and
   the banner disappears. The sample past season leaves the Archive too. Until
   the first game is recorded, the pages show empty states such as "No games
@@ -280,8 +300,8 @@ sample_data: true     # change to false when real results begin
   season.
 
 Before you switch it off, replace the `[placeholder]` rows in
-`data/2026-27/teams.yml`, `players.yml` and `schedule.csv` with the real teams,
-players and game nights. Nothing else needs to change. The sample data can stay
+`data/2026-27/players.yml` with the real players (the teams and the schedule
+are already in). Nothing else needs to change. The sample data can stay
 in the repository (it is never shown while the switch is off), or be deleted
 later together with its entry in `data/seasons.yml`.
 

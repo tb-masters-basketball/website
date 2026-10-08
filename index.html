@@ -56,7 +56,7 @@ nav: home
     {% include next-game.html week=upcoming teams=stats.teams gym=season.gym %}
     {%- else %}
     <section class="next-game" aria-labelledby="next-game-title">
-      <p class="next-game__label" id="next-game-title">Next game night</p>
+      <p class="next-game__label" id="next-game-title">Next game day</p>
       <p class="next-game__date">Not scheduled yet</p>
       <p class="next-game__gym">{{ season.gym | default: "[Gym name]" }}</p>
     </section>

@@ -1916,6 +1916,16 @@ a.team-card:hover {
   font-variant-numeric: tabular-nums;
 }
 
+/* A cancelled game: muted names and a "Cancelled" badge where the time would be. */
+.game-row--cancelled {
+  color: var(--mb-muted);
+}
+
+.next-game__games .badge {
+  border-color: currentColor;
+  color: inherit;
+}
+
 .bye-note {
   margin-top: 8px;
   font-size: 13px;

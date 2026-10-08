@@ -26,7 +26,7 @@
       <div class="tile"><div class="tile__value">{% if sr.fta > 0 %}{{ sr.ft_pct_display }}%{% else %}—{% endif %}</div><div class="tile__label">FT%</div></div>
       <div class="tile"><div class="tile__value">{{ sr.season_high }}</div><div class="tile__label">Season high</div></div>
     </div>
-    <p class="details__title">Points by game night</p>
+    <p class="details__title">Points by game day</p>
     {% include game-bars.html games=sr.games high=sr.season_high %}
     <a class="details__link" href="{{ sr_url }}">Full player page ›</a>
   </div>

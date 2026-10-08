@@ -44,7 +44,7 @@ layout: default
     {%- endif %}{% endif %}{% endfor %}{% endfor %}
   {%- endcapture %}
   {%- capture team_upcoming %}
-    {%- for week in stats.schedule.weeks %}{% for tg in week.games %}{% unless tg.played %}{% if tg.home == tid or tg.away == tid %}
+    {%- for week in stats.schedule.weeks %}{% for tg in week.games %}{% unless tg.played or tg.cancelled %}{% if tg.home == tid or tg.away == tid %}
     {% include game-row.html game=tg teams=stats.teams show_date=true %}
     {%- endif %}{% endunless %}{% endfor %}{% endfor %}
   {%- endcapture %}
