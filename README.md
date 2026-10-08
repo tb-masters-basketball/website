@@ -30,13 +30,9 @@ it into the root of the new GitHub repo and commit it as the first commit.
       from the design brief."
    5. "Check every page at 360, 390 and 1440 px in both themes for overflow,
       contrast and anything that doesn't match the mockups. Fix what you find."
-4. **Turn on GitHub Pages** (Settings → Pages → Source: GitHub Actions). The site
-   goes live at `https://tb-masters-basketball.github.io/website/`.
-5. **Domain:** once it's bought, ask Claude Code to "move the site to
-   [domain]". It changes `baseurl`, adds the `CNAME` file and fills in the
-   share tags, and gives you the DNS records. You add those records at the
-   registrar, enter the domain under Settings → Pages, and tick "Enforce HTTPS"
-   once the certificate is issued.
+4. **GitHub Pages** is on (Settings → Pages → Source: GitHub Actions).
+5. **Domain:** the site lives at `https://mastersbasketball.ca/` (Porkbun). The
+   DNS records and setup steps are in [`docs/domain.md`](docs/domain.md).
 
 Keeping the numbers up to date (typing in game results, fixing a mistake, adding
 a sub, switching off the sample data) is explained for non-programmers in
