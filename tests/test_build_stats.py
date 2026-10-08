@@ -175,6 +175,11 @@ class StatsTests(SeasonFixture):
         self.assertEqual(p["sam-e"]["pts"], 6)                           # subs count as players
         self.assertEqual(p["bo-c"]["ft_pct_display"], "100.0")
 
+    def test_teams_lookup(self):
+        teams = self.compute()["teams.json"]
+        self.assertEqual(teams["aa"], {"id": "aa", "name": "Alpha", "short": "AL", "colour_slot": 1})
+        self.assertEqual(set(teams), {"aa", "bb", "cc"})
+
     def test_standings_exclude_playoffs(self):
         teams = self.compute()["standings.json"]["teams"]
         alpha = next(t for t in teams if t["team"] == "aa")

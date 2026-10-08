@@ -5,6 +5,7 @@ Reads the hand-edited source files described in data/CLAUDE.md, checks them,
 and writes JSON that the Jekyll templates read:
 
   _data/computed/seasons.json
+  _data/computed/<season>/teams.json       team names, short codes and colour slots, keyed by id
   _data/computed/<season>/standings.json   regular-season table
   _data/computed/<season>/players.json     per-player season totals, keyed by id
   _data/computed/<season>/leaders.json     ranked PPG, points and FT% lists
@@ -735,7 +736,12 @@ def compute_season(season):
     }
     leaders = compute_leaders(totals)
     leaders["through_week"] = through_week
+    team_info = {
+        tid: {"id": tid, "name": t["name"], "short": t["short"], "colour_slot": t["colour_slot"]}
+        for tid, t in season["teams"].items()
+    }
     return {
+        "teams.json": team_info,
         "standings.json": standings,
         "players.json": totals,
         "leaders.json": leaders,

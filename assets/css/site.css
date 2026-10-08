@@ -1,6 +1,35 @@
-/* Masters Basketball: page styles. Colours come only from the --mb-*
-   variables in brand/css/brand.css. Page components arrive with the Home
-   and Stats builds; this is the base layer. */
+/* Masters Basketball: page styles.
+   Colours come only from the --mb-* variables in brand/css/brand.css (light
+   and dark are switched there). Mobile first: phone sizes are the base and
+   everything from 900 px up is in the one media query per section. */
+
+/* ------------------------------------------------------------------ base */
+
+:root {
+  --gutter: 16px;
+  --content-max: 1200px;
+  /* Scene images, as url()s relative to this file. They are set here rather
+     than taken from brand.css so the paths resolve the same in every browser. */
+  --scene-image: url("../../brand/scenes/giant-sunrise.svg");
+  --silhouette-image: url("../../brand/scenes/giant-silhouette.svg");
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --scene-image: url("../../brand/scenes/giant-moonset.svg");
+  }
+}
+
+:root[data-theme="dark"] {
+  --scene-image: url("../../brand/scenes/giant-moonset.svg");
+}
+
+@media (min-width: 900px) {
+  :root {
+    --gutter: 32px;
+  }
+}
+
 *,
 *::before,
 *::after {
@@ -13,20 +42,23 @@ body {
   color: var(--mb-text);
   font-family: var(--mb-font-body);
   font-size: 16px;
-  line-height: 1.5;
+  line-height: normal;
+  -webkit-text-size-adjust: 100%;
 }
 
 h1,
 h2,
-h3 {
-  font-family: var(--mb-font-display);
-  font-weight: 700;
-  text-transform: uppercase;
-  line-height: 1.1;
+h3,
+p {
+  margin: 0;
 }
 
 a {
   color: var(--mb-link);
+}
+
+a:hover {
+  color: var(--mb-text);
 }
 
 img {
@@ -34,7 +66,909 @@ img {
   height: auto;
 }
 
-table {
-  border-collapse: collapse;
+:focus-visible {
+  outline: 3px solid var(--mb-accent);
+  outline-offset: 2px;
+}
+
+abbr[title] {
+  text-decoration: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Shown from 900 px up only */
+.u-wide {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .u-wide {
+    display: inline;
+  }
+}
+
+/* Content width: 1200 px of content plus the gutters either side */
+.wrap {
+  width: 100%;
+  max-width: calc(var(--content-max) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+/* ------------------------------------------------------- scene (Giant) */
+
+/* The Sleeping Giant, drawn at the bottom of the header (sunrise or moonset)
+   and, as a silhouette, at the top of the footer. On phones it is the whole
+   image across the full width. From 900 px the image keeps its proportions
+   and sits off-centre, and flat ground in the same colour runs out to both
+   edges of the screen. */
+.scene {
+  display: block;
+  aspect-ratio: 390 / 56;
+  background: var(--scene-image) center bottom / 100% 100% no-repeat;
+}
+
+.scene--footer {
+  background: var(--mb-footer);
+  -webkit-mask: var(--silhouette-image) center bottom / 100% 100% no-repeat;
+  mask: var(--silhouette-image) center bottom / 100% 100% no-repeat;
+}
+
+@media (min-width: 900px) {
+  .scene {
+    aspect-ratio: auto;
+    height: 130px;
+    background:
+      var(--scene-image) calc(50% + 2px) 100% / 936px auto no-repeat,
+      linear-gradient(var(--mb-giant), var(--mb-giant)) 0 100% / calc(50% - 464px) 38px no-repeat,
+      linear-gradient(var(--mb-giant), var(--mb-giant)) 100% 100% / calc(50% - 468px) 19px no-repeat;
+  }
+
+  .scene--footer {
+    height: 100px;
+    background: var(--mb-footer);
+    -webkit-mask:
+      var(--silhouette-image) calc(50% + 2px) 100% / 936px auto no-repeat,
+      linear-gradient(var(--mb-footer), var(--mb-footer)) 0 100% / calc(50% - 464px) 38px no-repeat,
+      linear-gradient(var(--mb-footer), var(--mb-footer)) 100% 100% / calc(50% - 468px) 19px no-repeat;
+    mask:
+      var(--silhouette-image) calc(50% + 2px) 100% / 936px auto no-repeat,
+      linear-gradient(var(--mb-footer), var(--mb-footer)) 0 100% / calc(50% - 464px) 38px no-repeat,
+      linear-gradient(var(--mb-footer), var(--mb-footer)) 100% 100% / calc(50% - 468px) 19px no-repeat;
+  }
+}
+
+/* ---------------------------------------------------------------- header */
+
+.site-header {
+  background: var(--mb-sky);
+  color: var(--mb-header-text);
+}
+
+.site-header a:focus-visible,
+.site-header button:focus-visible,
+.site-footer a:focus-visible {
+  outline-color: var(--mb-header-text);
+}
+
+.site-header__bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "brand toggle"
+    "nav nav";
+  align-items: center;
+  column-gap: 12px;
+  padding: 12px 12px 0 var(--gutter);
+}
+
+.brand {
+  grid-area: brand;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: inherit;
+}
+
+.brand__badge {
+  flex: none;
+  width: 58px;
+  height: 58px;
+}
+
+.brand__text {
+  min-width: 0;
+}
+
+.brand__name {
+  display: block;
+  font: 700 23px/normal var(--mb-font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.brand__season {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+  font: 600 13px/normal var(--mb-font-body);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mb-header-muted);
+}
+
+.brand__rule {
+  flex: none;
+  width: 18px;
+  height: 3px;
+  background: var(--mb-tab);
+}
+
+.theme-toggle {
+  grid-area: toggle;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--mb-white) 25%, transparent);
+  border-radius: 23px;
+  background: transparent;
+  color: var(--mb-header-text);
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  background: color-mix(in srgb, var(--mb-white) 12%, transparent);
+}
+
+/* The button only works with JavaScript, so it only shows when JS is on. */
+html:not(.js) .theme-toggle {
+  display: none;
+}
+
+/* Show the icon for the theme you would switch to: the moon while the page
+   is light, the sun while it is dark. */
+.theme-toggle__sun {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle__moon {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle__sun {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle__moon {
+    display: none;
+  }
+
+  :root:not([data-theme="light"]) .theme-toggle__sun {
+    display: block;
+  }
+}
+
+.site-nav {
+  grid-area: nav;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin: 4px 0 0 -7px;
+}
+
+.site-nav__link {
+  display: inline-flex;
+  align-items: flex-end;
+  min-height: 44px;
+  padding: 0 7px 9px;
+  border-bottom: 3px solid transparent;
+  font: 700 15px/normal var(--mb-font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--mb-header-muted);
+}
+
+.site-nav__link:hover,
+.site-nav__link[aria-current="page"] {
+  color: var(--mb-header-text);
+}
+
+.site-nav__link[aria-current="page"] {
+  border-bottom-color: var(--mb-tab);
+}
+
+.site-header .scene {
+  margin-top: 6px;
+}
+
+@media (min-width: 900px) {
+  .site-header__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 18px;
+    padding: 22px var(--gutter) 0;
+  }
+
+  .brand {
+    flex: 1 1 260px;
+    gap: 18px;
+  }
+
+  .brand__badge {
+    width: 84px;
+    height: 84px;
+  }
+
+  .brand__name {
+    font-size: 34px;
+  }
+
+  .brand__season {
+    gap: 10px;
+    margin-top: 6px;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+  }
+
+  .brand__rule {
+    width: 24px;
+  }
+
+  .site-nav {
+    flex-wrap: wrap;
+    gap: 0 26px;
+    margin: 0;
+  }
+
+  .site-nav__link {
+    padding: 0 4px 8px;
+    font-size: 18px;
+  }
+
+  .theme-toggle {
+    margin-left: 8px;
+  }
+
+  .site-header .scene {
+    margin-top: 10px;
+  }
+}
+
+/* ------------------------------------------------------------ components */
+
+.card {
+  display: block;
+  background: var(--mb-surface);
+  border: 1px solid var(--mb-line);
+  border-radius: 10px;
+  color: var(--mb-text);
+  text-decoration: none;
+}
+
+a.card:hover {
+  color: var(--mb-text);
+  border-color: var(--mb-accent);
+}
+
+.chip {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--chip, var(--mb-muted));
+}
+
+.chip--1 { --chip: var(--mb-team-1); }
+.chip--2 { --chip: var(--mb-team-2); }
+.chip--3 { --chip: var(--mb-team-3); }
+.chip--4 { --chip: var(--mb-team-4); }
+.chip--5 { --chip: var(--mb-team-5); }
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.section-title {
+  font: 700 24px/normal var(--mb-font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.section-head__meta {
+  font-size: 14px;
+  color: var(--mb-muted);
+  text-align: right;
+}
+
+.link-more {
+  font-size: 14px;
+  font-weight: 600;
+  /* A 44 px tap area that doesn't move the text: padding out, margin back in */
+  padding: 14px 0;
+  margin: -14px 0;
+}
+
+.empty {
+  margin-top: 12px;
+  color: var(--mb-muted);
+}
+
+/* Result card */
+.result-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.result-card {
+  padding: 12px 14px;
+}
+
+.result-card__team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  color: var(--mb-muted);
+}
+
+.result-card__team + .result-card__team {
+  margin-top: 4px;
+}
+
+.result-card__team.is-winner {
+  font-weight: 600;
+  color: var(--mb-text);
+}
+
+.result-card__name {
+  flex: 1;
+  min-width: 0;
+}
+
+.result-card__score {
+  font: 600 24px/normal var(--mb-font-display);
   font-variant-numeric: tabular-nums;
+}
+
+.is-winner .result-card__score {
+  font-weight: 700;
+}
+
+.result-card__foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--mb-line);
+  font-size: 13px;
+}
+
+.result-card__top {
+  color: var(--mb-muted);
+}
+
+.result-card__top b {
+  color: var(--mb-text);
+}
+
+.result-card__link {
+  flex: none;
+  font-weight: 600;
+  color: var(--mb-link);
+}
+
+/* Next game panel */
+.next-game {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--mb-panel);
+  color: var(--mb-panel-text);
+}
+
+.next-game__label {
+  font: 700 13px/normal var(--mb-font-body);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mb-panel-muted);
+}
+
+.next-game__date {
+  margin-top: 2px;
+  font: 700 26px/normal var(--mb-font-display);
+  text-transform: uppercase;
+}
+
+.next-game__gym {
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--mb-panel-muted);
+}
+
+.next-game__games {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.next-game__games li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mb-white) 12%, transparent);
+  font-size: 16px;
+}
+
+.next-game__games time {
+  font-weight: 600;
+}
+
+.next-game__bye {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--mb-panel-muted);
+}
+
+/* Tables: scroll inside their own card, first column stays put */
+.table-card {
+  margin-top: 10px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  background: var(--mb-surface);
+  border: 1px solid var(--mb-line);
+  border-radius: 10px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  padding: 11px 6px;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--mb-line);
+}
+
+.table thead th {
+  padding: 10px 6px 8px;
+  font: 600 12px/normal var(--mb-font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mb-muted);
+  border-bottom: 2px solid var(--mb-accent);
+}
+
+.table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.table th:first-child,
+.table td:first-child {
+  position: sticky;
+  left: 0;
+  padding-left: 14px;
+  text-align: left;
+  background: var(--mb-surface);
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: 14px;
+}
+
+@media (max-width: 599px) {
+  .table th:first-child,
+  .table td:first-child {
+    box-shadow: 1px 0 0 var(--mb-line);
+  }
+}
+
+.table tbody th {
+  font-weight: 600;
+}
+
+.table abbr {
+  cursor: help;
+}
+
+.standings__rank {
+  display: inline-block;
+  width: 18px;
+  font-weight: 500;
+  color: var(--mb-muted);
+}
+
+.standings .chip {
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 2px;
+}
+
+.table-note {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--mb-muted);
+}
+
+/* Leader cards and ranked rows */
+.leader-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.leader-card {
+  display: block;
+  padding: 12px 14px;
+  background: var(--mb-surface);
+  border: 1px solid var(--mb-line);
+  border-top: 4px solid var(--mb-accent);
+  border-radius: 10px;
+  color: var(--mb-text);
+  text-decoration: none;
+}
+
+a.leader-card:hover {
+  color: var(--mb-text);
+  border-color: var(--mb-accent);
+}
+
+.leader-card--hot {
+  border-top-color: var(--mb-hot);
+}
+
+a.leader-card--hot:hover {
+  border-color: var(--mb-hot);
+}
+
+.leader-card__label {
+  display: block;
+  font: 600 12px/normal var(--mb-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mb-muted);
+}
+
+.leader-card__value {
+  display: block;
+  margin-top: 6px;
+  font: 700 40px/1 var(--mb-font-display);
+  color: var(--mb-accent);
+}
+
+.leader-card__name {
+  display: block;
+  margin-top: 6px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.leader-card__meta {
+  display: block;
+  font-size: 13px;
+  color: var(--mb-muted);
+}
+
+.rank-list {
+  margin-top: 8px;
+  overflow: hidden;
+  background: var(--mb-surface);
+  border: 1px solid var(--mb-line);
+  border-radius: 10px;
+}
+
+.rank-row {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  color: var(--mb-text);
+  text-decoration: none;
+}
+
+.rank-row:hover {
+  color: var(--mb-text);
+  background: var(--mb-bg);
+}
+
+.rank-row:focus-visible {
+  outline-offset: -3px;
+}
+
+.rank-row + .rank-row {
+  border-top: 1px solid var(--mb-line);
+}
+
+.rank-row__rank {
+  font: 700 18px/normal var(--mb-font-display);
+  color: var(--mb-muted);
+}
+
+.rank-row__name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.rank-row__team {
+  font-size: 13px;
+  color: var(--mb-muted);
+}
+
+.rank-row__value {
+  font: 700 20px/normal var(--mb-font-display);
+  color: var(--mb-accent);
+}
+
+/* The fourth ranked row is for the wide layout only */
+.rank-list .rank-row:nth-child(n + 4) {
+  display: none;
+}
+
+/* ------------------------------------------------------------- Home page */
+
+.home {
+  display: flex;
+  flex-direction: column;
+  padding-top: 18px;
+}
+
+/* On phones the two columns dissolve so the four sections can run in the
+   mockup's order: results, next game, standings, leaders. */
+.home__col {
+  display: contents;
+}
+
+.home__results { order: 1; }
+.next-game { order: 2; }
+.home__standings { order: 3; margin-top: 24px; }
+.home__leaders { order: 4; margin-top: 24px; }
+
+@media (min-width: 900px) {
+  .section-title {
+    font-size: 28px;
+  }
+
+  .section-head__meta,
+  .link-more {
+    font-size: 15px;
+  }
+
+  .result-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+  }
+
+  .next-game {
+    padding: 20px;
+    border-radius: 14px;
+  }
+
+  .next-game__date {
+    font-size: 30px;
+  }
+
+  .next-game__gym {
+    margin-top: 0;
+    font-size: 15px;
+  }
+
+  .next-game__games {
+    margin-top: 14px;
+  }
+
+  .next-game__games li {
+    padding: 11px 14px;
+  }
+
+  .next-game__bye {
+    margin-top: 12px;
+    font-size: 14px;
+  }
+
+  .table-card {
+    margin-top: 14px;
+    border-radius: 12px;
+  }
+
+  .table {
+    font-size: 16px;
+  }
+
+  .standings__rank {
+    width: 22px;
+  }
+
+  .standings .chip {
+    width: 10px;
+    height: 10px;
+    margin-right: 10px;
+    border-radius: 3px;
+  }
+
+  .standings__diff {
+    font-weight: 600;
+  }
+
+  .table-note {
+    font-size: 14px;
+  }
+
+  .leader-grid {
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .leader-card {
+    padding: 14px 16px;
+    border-radius: 12px;
+  }
+
+  .leader-card__value {
+    font-size: 44px;
+  }
+
+  .rank-list {
+    margin-top: 12px;
+    border-radius: 12px;
+  }
+
+  .rank-row {
+    gap: 10px;
+    padding: 11px 16px;
+  }
+
+  .rank-row__value {
+    font-size: 22px;
+  }
+
+  .rank-list .rank-row:nth-child(n + 4) {
+    display: grid;
+  }
+
+  .home {
+    display: grid;
+    grid-template-columns: minmax(0, 1.9fr) minmax(280px, 1fr);
+    gap: 32px;
+    align-items: start;
+    padding-top: 28px;
+  }
+
+  .home__col {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    min-width: 0;
+  }
+
+  .next-game,
+  .home__standings,
+  .home__leaders {
+    margin-top: 0;
+  }
+}
+
+/* ---------------------------------------------------------------- footer */
+
+.site-footer {
+  margin-top: 28px;
+}
+
+.site-footer__band {
+  padding: 10px 0 28px;
+  background: var(--mb-footer);
+  color: var(--mb-footer-text);
+  font-size: 14px;
+}
+
+.site-footer__logo {
+  display: block;
+  width: 168px;
+  height: 54px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.site-footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 18px;
+}
+
+.site-footer__nav a {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  font-weight: 600;
+  color: var(--mb-header-text);
+  text-decoration: none;
+}
+
+.site-footer__nav a:hover {
+  color: var(--mb-header-text);
+  text-decoration: underline;
+}
+
+.site-footer__meta {
+  margin-top: -1px;
+  font-size: 13px;
+}
+
+@media (min-width: 900px) {
+  .site-footer {
+    margin-top: 48px;
+  }
+
+  .site-footer__band {
+    padding: 12px 0 36px;
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px 48px;
+  }
+
+  .site-footer__logo {
+    width: 200px;
+  }
+
+  .site-footer__nav {
+    gap: 0 28px;
+    font-size: 16px;
+  }
+
+  .site-footer__meta {
+    margin-top: 0;
+    margin-left: auto;
+    font-size: 14px;
+  }
 }

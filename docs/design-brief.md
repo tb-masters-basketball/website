@@ -53,7 +53,10 @@ league) and "Masters Basketball League · Thunder Bay, Ontario".
 - **Next game panel:** `--mb-panel` background, date, gym, and one row per game
   with its time, plus a bye line.
 - **Standings table:** rank, team colour chip and name, then W, L, PCT, GB, plus
-  PF, PA, DIFF on desktop and on the full standings page.
+  PF, PA, DIFF, all on every screen size. On phones the table scrolls sideways
+  inside its card and the team column stays fixed. There is no separate
+  standings page: Home always shows the full table, with every team and no
+  link to another page.
 - **Leader card:** small uppercase label, big number in `--mb-accent`, player,
   team. The PPG card has a `--mb-hot` top edge; the FT% card has `--mb-accent`.
 - **Ranked player row:** rank, name, a line with team · pts · GP, the number,

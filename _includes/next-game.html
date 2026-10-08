@@ -1,0 +1,21 @@
+{%- comment -%}
+  Next game night panel: date, gym, one row per game and the bye.
+  Usage: include next-game.html week=week teams=stats.teams gym=season.gym
+{%- endcomment -%}
+{%- assign week = include.week -%}
+<section class="next-game" aria-labelledby="next-game-title">
+  <p class="next-game__label" id="next-game-title">Next game night</p>
+  <p class="next-game__date">{{ week.date | date: "%A, %b %-d" }}</p>
+  <p class="next-game__gym">{{ include.gym | default: "[Gym name]" }}</p>
+  <ul class="next-game__games">
+    {%- for g in week.games %}
+    <li><span>{{ include.teams[g.home].name }} vs {{ include.teams[g.away].name }}</span><time datetime="{{ g.time }}">{{ g.time_display }}</time></li>
+    {%- endfor %}
+  </ul>
+  {%- if week.byes.size > 0 %}
+  <p class="next-game__bye">
+    {%- for id in week.byes %}{{ include.teams[id].name }}{% unless forloop.last %}{% if forloop.rindex == 2 %} and {% else %}, {% endif %}{% endunless %}{% endfor %}
+    {% if week.byes.size == 1 %}has{% else %}have{% endif %} the bye
+  </p>
+  {%- endif %}
+</section>
