@@ -7,8 +7,7 @@ nav: home
   Home page. Everything shown comes from _data/computed (see
   scripts/build_stats.py); no numbers are typed in here.
 {%- endcomment -%}
-{%- assign season = site.data.computed.seasons | where: "current", true | first -%}
-{%- assign stats = site.data.computed[season.id] -%}
+{%- include active-season.html -%}
 {%- assign sched = stats.schedule -%}
 {%- assign latest = sched.weeks | where: "week", sched.latest_week | first -%}
 {%- assign upcoming = sched.weeks | where: "week", sched.next_week | first -%}
@@ -38,7 +37,7 @@ nav: home
         {%- endif %}{% endfor %}
       </div>
       {%- else %}
-      <p class="empty">No games have been played yet.</p>
+      <p class="empty">No games played yet.</p>
       {%- endif %}
     </section>
 
@@ -56,6 +55,12 @@ nav: home
 
     {%- if upcoming %}
     {% include next-game.html week=upcoming teams=stats.teams gym=season.gym %}
+    {%- else %}
+    <section class="next-game" aria-labelledby="next-game-title">
+      <p class="next-game__label" id="next-game-title">Next game night</p>
+      <p class="next-game__date">Not scheduled yet</p>
+      <p class="next-game__gym">{{ season.gym | default: "[Gym name]" }}</p>
+    </section>
     {%- endif %}
 
     <section class="home__leaders" aria-labelledby="leaders-title">

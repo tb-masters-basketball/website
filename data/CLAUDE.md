@@ -18,9 +18,24 @@ data/2026-27/
 ```yaml
 - id: 2026-27          # folder name under data/
   label: "2026-27"     # what the site shows
-  current: true        # exactly one season is current
+  current: true        # exactly one season is current: the real one
+  gym: "St. Pats"
+- id: sample-2026-27
+  label: "2026-27"
+  sample: true         # fake data; never `current`, at most one
   gym: "St. Pats"
 ```
+`sample_data: true` in `_config.yml` makes every page read the `sample` season
+and show a "Preview with sample data" banner. With it off, pages read the
+`current` season and the banner goes. The build script processes every season
+listed here and must not fail on one with no games yet.
+
+### The real season before the first game
+`data/2026-27/` holds `[placeholder]` rows: five teams (`[Team A]`...), one
+`[placeholder]` player per team, a `schedule.csv` with only its header row (no
+dates are invented), an empty `games/` and `sheets/`. A player `display` of
+exactly `[placeholder]` passes the "First L." check for this reason. Replace
+the rows with real ones as the league decides.
 
 ### Team colours
 `colour_slot` (1-5) picks `--mb-team-N` in `brand/css/brand.css`, which holds
@@ -80,6 +95,8 @@ from the mockups, about 10 players each, 8 weeks played, and the numbers that
 appear in the mockups (Port Arthur 6–1, Dave M. 20.1 PPG, and so on). Put it in
 `data/sample-2026-27/` so it is easy to delete.
 
-`scripts/make_sample_season.py` writes it, with a fixed seed so the files are
+`scripts/make_sample_season.py` writes it (5 teams, 9 players and a sub each,
+16 games over 8 weeks, an upcoming night, and enough free throws that 16
+players clear the 10-FTA minimum and 34 don't), with a fixed seed so the files are
 the same every run, and checks the result against the mockup numbers. To
 remove it: delete the folder and its entry in `seasons.yml`.

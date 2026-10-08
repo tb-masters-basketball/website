@@ -8,6 +8,7 @@ The site shows a visible `[placeholder]` for each of these until it's answered.
 | GitHub organization name | repo, Pages address | `tb-masters-basketball`, repo `website` |
 | Gym name and courts | Next game panel, Schedule | St. Pats, one court |
 | Real team names, short codes and colours | Everywhere; the five in the mockups are samples | |
+| The real 2026-27 schedule: first game night and every game night's games and times (`data/2026-27/schedule.csv` is empty until then, so Home says "Not scheduled yet") | Home, Schedule | |
 | Standings tiebreakers (including three-way ties) | Standings note | |
 | Minimum games to appear on the PPG leaderboard (none for now, so a sub with one big game could lead) | Home, Stats | |
 | Playoff format (teams, single game or series) | Schedule, Archive | |

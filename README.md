@@ -10,6 +10,7 @@ it into the root of the new GitHub repo and commit it as the first commit.
 | `data/CLAUDE.md` | Data file formats, IDs and stat rules |
 | `docs/design-brief.md` | The design spec: approved look, components, and every page to build |
 | `docs/mockups/` | Approved mockups as HTML pages you can open in a browser, plus PNG screenshots |
+| `docs/stats-workflow.md` | **For the volunteer who keeps the stats:** how a score sheet becomes numbers on the site, what each check catches, and how to add a game, fix a number or add a player |
 | `docs/open-questions.md` | League decisions still needed; the site uses placeholders until then |
 | `brand/` | Logos, icons, favicon, colours (`css/brand.css`), Sleeping Giant scenes, social card, `BRAND.md` |
 
@@ -36,6 +37,10 @@ it into the root of the new GitHub repo and commit it as the first commit.
    share tags, and gives you the DNS records. You add those records at the
    registrar, enter the domain under Settings → Pages, and tick "Enforce HTTPS"
    once the certificate is issued.
+
+Keeping the numbers up to date (typing in game results, fixing a mistake, adding
+a sub, switching off the sample data) is explained for non-programmers in
+[`docs/stats-workflow.md`](docs/stats-workflow.md).
 
 After the site works, the next stage is the `/record-game` skill that turns a
 photo of the score sheet into a game file. That needs a sample score sheet first.

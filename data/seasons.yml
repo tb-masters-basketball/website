@@ -1,7 +1,15 @@
-# Seasons, newest first. `id` is the folder under data/, `label` is what the
-# site shows, and exactly one season is `current: true`.
-- id: sample-2026-27
+# Seasons, newest first.
+#   id       the folder name under data/
+#   label    what the site shows
+#   current  exactly one season is current: the real one
+#   sample   fake data from scripts/make_sample_season.py. Never `current`.
+#            It is only shown while `sample_data: true` in _config.yml.
+- id: 2026-27
   label: "2026-27"
   current: true
   gym: "St. Pats"
-  sample: true      # fake data from scripts/make_sample_season.py; delete when real games exist
+
+- id: sample-2026-27
+  label: "2026-27"
+  sample: true
+  gym: "St. Pats"

@@ -1,0 +1,15 @@
+{%- comment -%}
+  Picks the season every page shows and sets two variables for the caller:
+    season  the season's row from data/seasons.yml (label, gym, sample, ...)
+    stats   that season's computed files (stats.standings, stats.leaders, ...)
+  With `sample_data: true` in _config.yml it is the sample season; otherwise
+  it is the one marked `current: true` in data/seasons.yml.
+{%- endcomment -%}
+{%- assign all_seasons = site.data.computed.seasons -%}
+{%- if site.sample_data -%}
+  {%- assign season = all_seasons | where: "sample", true | first -%}
+{%- endif -%}
+{%- unless season -%}
+  {%- assign season = all_seasons | where: "current", true | first -%}
+{%- endunless -%}
+{%- assign stats = site.data.computed[season.id] -%}

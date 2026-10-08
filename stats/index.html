@@ -1,0 +1,140 @@
+---
+layout: default
+title: Player stats
+nav: stats
+permalink: /stats/
+description: Points per game, total points and free-throw percentage for every player in the Masters Basketball League.
+scripts:
+  - stats.js
+---
+{%- comment -%}
+  Stats page. Everything comes from _data/computed (see scripts/build_stats.py).
+  Without JavaScript you get the No. 1 card, the top of the ranked list (each
+  player links to their page), the free-throw leaders, and the full table.
+  assets/js/stats.js adds the PPG / Points / FT % switch, team chips, expanding
+  rows, and the sortable table view.
+{%- endcomment -%}
+{%- include active-season.html -%}
+{%- assign rows = stats.rankings -%}
+{%- assign top = rows | first -%}
+{%- assign ft_min = stats.leaders.ft_min_attempts -%}
+{%- assign week = stats.leaders.through_week -%}
+
+<div class="wrap stats-page">
+  <h1 class="page-title">Player stats</h1>
+  <p class="page-sub">Regular season{% if week %} · through Week {{ week }}{% endif %}</p>
+
+  {%- if rows.size == 0 %}
+  <p class="empty">No games played yet. Player stats appear after the first game night.</p>
+  {%- else %}
+  <div class="stats-app" data-stats data-ft-min="{{ ft_min }}">
+
+    <div class="segmented js-only" role="group" aria-label="Rank players by" data-metrics>
+      <button type="button" class="segmented__btn" data-metric="ppg" aria-pressed="true">PPG</button>
+      <button type="button" class="segmented__btn" data-metric="pts" aria-pressed="false">Points</button>
+      <button type="button" class="segmented__btn" data-metric="ft" aria-pressed="false">FT %</button>
+    </div>
+
+    <div class="filter-chips js-only" role="group" aria-label="Show players from" data-teams>
+      <button type="button" class="filter-chip" data-team="all" aria-pressed="true"><span class="filter-chip__face">All</span></button>
+      {%- for t in stats.standings.teams %}
+      <button type="button" class="filter-chip" data-team="{{ t.team }}" aria-pressed="false"><span class="filter-chip__face"><span class="chip chip--{{ t.colour_slot }}" aria-hidden="true"></span>{{ t.short }}<span class="visually-hidden"> {{ t.name }}</span></span></button>
+      {%- endfor %}
+    </div>
+
+    <p class="stats-note" data-ft-note hidden>Free-throw percentage only ranks players with at least {{ ft_min }} attempts.</p>
+
+    <div data-list-view>
+      <a class="top-card" href="{{ '/players/' | append: top.id | append: '/' | relative_url }}" data-top>
+        <span class="top-card__value" data-top-value>{{ top.ppg_display }}</span>
+        <span class="top-card__text">
+          <span class="top-card__label" data-top-label>No. 1 · points per game</span>
+          <span class="top-card__name" data-top-name>{{ top.display }}</span>
+          <span class="top-card__meta" data-top-meta>{{ top.team_name }} · {{ top.pts }} pts · {{ top.gp }} GP · FT {{ top.ftm }}-{{ top.fta }}</span>
+        </span>
+      </a>
+
+      <p class="stats-empty" data-empty hidden></p>
+
+      <div class="ranked">
+        <ol class="ranked__list" data-ranked>
+          {%- for player in rows %}
+          {%- include stats-row.html player=player %}
+          {%- endfor %}
+        </ol>
+      </div>
+
+      <div class="stats-foot">
+        <p class="stats-foot__count" role="status" data-count>Showing {% if rows.size < 7 %}{{ rows.size }}{% else %}7{% endif %} of {{ rows.size }}</p>
+        <a class="link-more" href="#stats-table" data-show-table>See all as a table</a>
+      </div>
+
+      <section class="ft-card" aria-labelledby="ft-card-title" data-ft-card>
+        <h2 class="ft-card__title" id="ft-card-title">Free-throw leaders</h2>
+        <p class="ft-card__sub">Minimum {{ ft_min }} attempts</p>
+        <ol class="ft-card__list" data-ft-list>
+          {%- for p in stats.leaders.ft_pct %}
+          <li class="ft-card__item" data-team="{{ p.team }}"{% if forloop.index > 3 %} hidden{% endif %}>
+            <div class="ft-card__row">
+              <span class="ft-card__who"><b>{{ p.display }}</b> <span>· {{ p.team_name }}</span></span>
+              <span class="ft-card__num"><b>{{ p.ft_pct_display }}%</b> <span>{{ p.ftm }}-{{ p.fta }}</span></span>
+            </div>
+            <div class="ft-card__track"><div class="ft-card__fill" style="width: {{ p.ft_pct_display }}%"></div></div>
+          </li>
+          {%- endfor %}
+        </ol>
+        <p class="stats-empty" data-ft-empty{% if stats.leaders.ft_pct.size > 0 %} hidden{% endif %}>No one has {{ ft_min }} free-throw attempts yet.</p>
+      </section>
+    </div>
+
+    <section class="stats-table" id="stats-table" aria-labelledby="stats-table-title" data-table-view>
+      <div class="section-head">
+        <h2 class="section-title" id="stats-table-title" tabindex="-1">All players</h2>
+        <a class="link-more js-only" href="#top" data-show-list>Back to top players</a>
+      </div>
+      <p class="stats-note">Free-throw percentage is shown for everyone here. The ranked list only counts players with at least {{ ft_min }} attempts.</p>
+      <p class="stats-foot__count" role="status" data-table-count>{{ rows.size }} players</p>
+      <div class="table-card" role="region" aria-label="All players table" tabindex="0">
+        <table class="table player-table" data-sortable>
+          <thead>
+            <tr>
+              <th scope="col" data-sort="name">Player</th>
+              <th scope="col" data-sort="gp"><abbr title="Games played">GP</abbr></th>
+              <th scope="col" data-sort="pts"><abbr title="Points">PTS</abbr></th>
+              <th scope="col" data-sort="ppg" aria-sort="descending"><abbr title="Points per game">PPG</abbr></th>
+              <th scope="col" data-sort="ftm"><abbr title="Free throws made">FTM</abbr></th>
+              <th scope="col" data-sort="fta"><abbr title="Free throws attempted">FTA</abbr></th>
+              <th scope="col" data-sort="ft"><abbr title="Free-throw percentage">FT%</abbr></th>
+            </tr>
+          </thead>
+          <tbody data-table-body>
+            {%- for p in rows %}
+            <tr data-team="{{ p.team }}" data-order="{{ p.order_ppg }}" data-name="{{ p.display | downcase }}" data-gp="{{ p.gp }}" data-pts="{{ p.pts }}" data-ppg="{{ p.ppg }}" data-ftm="{{ p.ftm }}" data-fta="{{ p.fta }}" data-ft="{{ p.ft_pct }}">
+              <th scope="row"><span class="chip chip--{{ p.colour_slot }}" aria-hidden="true"></span><a href="{{ '/players/' | append: p.id | append: '/' | relative_url }}">{{ p.display }}</a> <span class="player-table__team">{{ p.team_short }}</span></th>
+              <td>{{ p.gp }}</td>
+              <td>{{ p.pts }}</td>
+              <td>{{ p.ppg_display }}</td>
+              <td>{{ p.ftm }}</td>
+              <td>{{ p.fta }}</td>
+              <td>{% if p.fta > 0 %}{{ p.ft_pct_display }}{% else %}—{% endif %}</td>
+            </tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  {%- endif %}
+
+  <section class="how-counted" aria-labelledby="how-counted-title">
+    <h2 class="section-title" id="how-counted-title">How stats are counted</h2>
+    <dl class="how-counted__list">
+      <div><dt>GP</dt><dd>Games played: the games where the player is on the score sheet.</dd></div>
+      <div><dt>PPG</dt><dd>Points per game: total points divided by games played, to one decimal.</dd></div>
+      <div><dt>FT%</dt><dd>Free throws made divided by free throws attempted, to one decimal. A player needs at least {{ ft_min | default: 10 }} attempts to be ranked.</dd></div>
+      <div><dt>Subs</dt><dd>A sub's points count for them as a player and toward their team's score that night.</dd></div>
+      <div><dt>Playoffs</dt><dd>Kept separate. Playoff games never count in these stats or in the standings.</dd></div>
+      <div><dt>Source</dt><dd>The league's paper score sheets, typed into the site's game files. The numbers are recalculated every time the site is published.</dd></div>
+    </dl>
+  </section>
+</div>

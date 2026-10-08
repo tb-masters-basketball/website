@@ -20,15 +20,22 @@ it needs no change.)
 - **Jekyll** builds the site. Deploys run through a GitHub Actions workflow, not
   the default Pages build, because a Python step runs first.
 - **`scripts/build_stats.py`** (Python 3, standard library plus PyYAML) reads
-  `data/<season>/` and writes `_data/computed/<season>/*.json`: standings,
-  player totals, leaders and per-game logs.
+  every season in `data/seasons.yml` and writes `_data/computed/<season>/*.json`:
+  standings, player totals, leaders, per-player rankings and per-game logs.
+- **Sample data switch:** pages never name a season. They get `season` and
+  `stats` from `_includes/active-season.html`, which reads the sample season
+  while `sample_data: true` in `_config.yml`, else the `current` one. Don't
+  hard-code a season id in a template.
 - **No JavaScript framework.** Use small vanilla JS only for the theme toggle,
-  stat-table sorting and expanding player rows. Every page must make sense
+  stat-table sorting and expanding player rows (`assets/js/site.js`, and
+  `assets/js/stats.js` on the Stats page). Every page must make sense
   with JS off.
 
 ## Layout
 ```
 data/<season>/          source of truth, edited by hand or by /record-game (see data/CLAUDE.md)
+                        data/2026-27/ is the real season; data/sample-2026-27/ is fake data
+_config.yml             `sample_data: true` makes every page read the sample season (+ banner)
 scripts/build_stats.py  computes _data/computed/ (git-ignored) — never edit those files by hand
 scripts/make_sample_season.py  regenerates data/sample-2026-27/ (fake data)
 tests/                  unit tests for build_stats.py
@@ -36,6 +43,7 @@ _layouts/ _includes/    templates
 assets/css/site.css     page styles, built on brand/css/brand.css variables
 brand/                  logos, icons, colours, scenes (from the brand kit; don't edit)
 docs/design-brief.md    the design spec: read this before touching any page
+docs/stats-workflow.md  how score sheets become site numbers, for the volunteer (keep it true)
 docs/mockups/           approved mockups (open in a browser) and screenshots
 .github/workflows/      build stats → build Jekyll → deploy to Pages
 ```

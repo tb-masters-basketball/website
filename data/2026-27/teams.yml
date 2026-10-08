@@ -1,0 +1,33 @@
+# The real 2026-27 season. Replace each [placeholder] with the league's real
+# team name, 2-letter code and id once the teams are confirmed.
+# colour_slot picks --mb-team-N in brand/css/brand.css (1 to 5).
+- id: aa
+  name: "[Team A]"
+  short: TA
+  colour_slot: 1
+  colour_light: "#C8102E"
+  colour_dark: "#E8394F"
+- id: bb
+  name: "[Team B]"
+  short: TB
+  colour_slot: 2
+  colour_light: "#1F6FB5"
+  colour_dark: "#4D8FE0"
+- id: cc
+  name: "[Team C]"
+  short: TC
+  colour_slot: 3
+  colour_light: "#2E8B57"
+  colour_dark: "#3FB27F"
+- id: dd
+  name: "[Team D]"
+  short: TD
+  colour_slot: 4
+  colour_light: "#F2A900"
+  colour_dark: "#F2B630"
+- id: ee
+  name: "[Team E]"
+  short: TE
+  colour_slot: 5
+  colour_light: "#6B3FA0"
+  colour_dark: "#9B6FD6"

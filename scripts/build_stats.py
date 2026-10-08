@@ -9,6 +9,8 @@ and writes JSON that the Jekyll templates read:
   _data/computed/<season>/standings.json   regular-season table
   _data/computed/<season>/players.json     per-player season totals, keyed by id
   _data/computed/<season>/leaders.json     ranked PPG, points and FT% lists
+  _data/computed/<season>/rankings.json    one row per player for the Stats page: totals,
+                                           every rank, and points by game night
   _data/computed/<season>/games.json       box scores, keyed by game_id
   _data/computed/<season>/game_logs.json   each player's games, keyed by id
   _data/computed/<season>/schedule.json    weeks, byes, latest and next week
@@ -140,8 +142,14 @@ def _read_yaml(path, problems):
     return None
 
 
+PLACEHOLDER = "[placeholder]"
+
+
 def _valid_display(display):
-    """'First L.' — a first name, a space, one capital letter and a full stop."""
+    """'First L.' — a first name, a space, one capital letter and a full stop.
+    The literal "[placeholder]" is also allowed, for rows waiting to be filled in."""
+    if display == PLACEHOLDER:
+        return True
     if not isinstance(display, str) or " " not in display:
         return False
     first, last = display.rsplit(" ", 1)
@@ -176,9 +184,17 @@ def load_seasons(data_dir, problems):
             problems.append(f"{where}: folder data/{season['id']}/ does not exist")
         season.setdefault("label", season["id"])
         season["current"] = bool(season.get("current", False))
-    current = [s for s in seasons if isinstance(s, dict) and s.get("current")]
+        season["sample"] = bool(season.get("sample", False))
+        if season["current"] and season["sample"]:
+            problems.append(f"{where}: '{season['id']}' is both current and sample; "
+                            "the sample season should never be the current one")
+    valid = [s for s in seasons if isinstance(s, dict)]
+    current = [s for s in valid if s.get("current")]
     if len(current) != 1:
         problems.append(f"{path}: exactly one season must have 'current: true' (found {len(current)})")
+    samples = [s for s in valid if s.get("sample")]
+    if len(samples) > 1:
+        problems.append(f"{path}: at most one season can have 'sample: true' (found {len(samples)})")
     return [s for s in seasons if isinstance(s, dict) and isinstance(s.get("id"), str)]
 
 
@@ -587,6 +603,55 @@ def compute_leaders(totals):
     }
 
 
+def compute_rankings(season, totals, leaders, logs):
+    """One row per player who has played, in points-per-game order, with all
+    three ranks, their position in each ordering, and their regular-season
+    points by game night. The Stats page sorts, filters and expands these."""
+    teams = season["teams"]
+    pos = {
+        "ppg": {e["id"]: (i, e["rank"]) for i, e in enumerate(leaders["ppg"])},
+        "pts": {e["id"]: (i, e["rank"]) for i, e in enumerate(leaders["points"])},
+        "ft": {e["id"]: (i, e["rank"]) for i, e in enumerate(leaders["ft_pct"])},
+    }
+    rows = []
+    for entry in leaders["ppg"]:
+        pid = entry["id"]
+        t = totals[pid]
+        team = teams[t["team"]]
+        games = [
+            {"week": g["week"], "pts": g["pts"], "game_id": g["game_id"]}
+            for g in logs[pid] if g["type"] == "regular"
+        ]
+        if games:
+            games[-1]["latest"] = True
+        row = {
+            "id": pid,
+            "display": t["display"],
+            "sub": t["sub"],
+            "team": t["team"],
+            "team_name": t["team_name"],
+            "team_short": team["short"],
+            "colour_slot": team["colour_slot"],
+            "gp": t["gp"],
+            "pts": t["pts"],
+            "ppg": t["ppg"],
+            "ppg_display": t["ppg_display"],
+            "ftm": t["ftm"],
+            "fta": t["fta"],
+            "ft_pct": t["ft_pct"],
+            "ft_pct_display": t["ft_pct_display"],
+            "season_high": t["season_high"],
+            "qualifies_ft": pid in pos["ft"],
+            "games": games,
+        }
+        for key in ("ppg", "pts", "ft"):
+            order, rank = pos[key].get(pid, (None, None))
+            row[f"order_{key}"] = order
+            row[f"rank_{key}"] = rank
+        rows.append(row)
+    return rows
+
+
 def game_summary(game, sched_row, season):
     teams, players = season["teams"], season["players"]
     home, away = game["home"], game["away"]
@@ -740,13 +805,15 @@ def compute_season(season):
         tid: {"id": tid, "name": t["name"], "short": t["short"], "colour_slot": t["colour_slot"]}
         for tid, t in season["teams"].items()
     }
+    logs = compute_game_logs(season, summaries)
     return {
         "teams.json": team_info,
         "standings.json": standings,
         "players.json": totals,
         "leaders.json": leaders,
+        "rankings.json": compute_rankings(season, totals, leaders, logs),
         "games.json": summaries,
-        "game_logs.json": compute_game_logs(season, summaries),
+        "game_logs.json": logs,
         "schedule.json": compute_schedule(season, summaries),
         "playoffs.json": playoffs,
     }
@@ -771,8 +838,10 @@ def build(data_dir, out_dir, write=True):
         outputs[s["id"]] = compute_season(loaded)
         played = len(loaded["games"])
         week = outputs[s["id"]]["standings.json"]["through_week"]
-        summary.append(f"{s['id']}: {len(loaded['teams'])} teams, {len(loaded['players'])} players, "
-                       f"{played} games played, through week {week}")
+        progress = f"through week {week}" if week else "no games played yet"
+        flag = " (sample data)" if s.get("sample") else ""
+        summary.append(f"{s['id']}{flag}: {len(loaded['teams'])} teams, {len(loaded['players'])} players, "
+                       f"{played} games played, {progress}")
     if problems:
         raise DataError(problems)
 
