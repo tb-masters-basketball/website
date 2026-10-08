@@ -5,8 +5,10 @@
 {%- endcomment -%}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
-<meta name="description" content="{{ page.description | default: site.description }}">
+{%- assign head_title = site.title %}{% if page.title %}{% assign head_title = page.title | append: " · " | append: site.title %}{% endif %}
+{%- assign head_description = page.description | default: site.description %}
+<title>{{ head_title }}</title>
+<meta name="description" content="{{ head_description }}">
 <meta name="theme-color" content="#032F98" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0A1022" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="{{ page.url | absolute_url }}">
@@ -22,12 +24,17 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="{{ site.title }}">
 <meta property="og:title" content="{{ page.title | default: site.title }}">
-<meta property="og:description" content="Standings, schedule and player stats.">
+<meta property="og:description" content="{{ head_description }}">
 <meta property="og:url" content="{{ page.url | absolute_url }}">
 <meta property="og:image" content="{{ '/brand/social/og-image.png' | absolute_url }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Masters Basketball Thunder Bay badge">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ page.title | default: site.title }}">
+<meta name="twitter:description" content="{{ head_description }}">
+<meta name="twitter:image" content="{{ '/brand/social/og-image.png' | absolute_url }}">
+<meta name="twitter:image:alt" content="Masters Basketball Thunder Bay badge">
 <!-- Apply a saved theme choice before the page paints (no flash). The "js"
      class lets the stylesheet show controls that only work with JavaScript. -->
 <script>

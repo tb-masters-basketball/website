@@ -51,7 +51,12 @@ html {
   scroll-padding-top: 72px;
 }
 
+/* A column, so the footer reaches the bottom of the window on short pages. */
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   background: var(--mb-bg);
   color: var(--mb-text);
@@ -97,6 +102,31 @@ abbr[title] {
 /* Controls that only work with JavaScript */
 html:not(.js) .js-only {
   display: none !important;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* Skip link: off screen until a keyboard user tabs to it, then shown over the header. */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--mb-radius);
+  background: var(--mb-surface);
+  color: var(--mb-link);
+  font-weight: 600;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
 }
 
 .visually-hidden {

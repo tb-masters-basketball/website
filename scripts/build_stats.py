@@ -892,7 +892,7 @@ def _front_matter(**fields):
 def write_stubs(root, active, listed, outputs):
     """Write one tiny Jekyll page per game, player, team and archive season.
 
-    A stub is only front matter (season, id, title). The layouts read
+    A stub is only front matter (season, id, title, description). The layouts read
     everything else from _data/computed. Games and archive pages exist for
     every listed season (game ids start with their date, so they never clash);
     players and teams only for the active season, because ids like `dave-m`
@@ -909,19 +909,30 @@ def write_stubs(root, active, listed, outputs):
     count = 0
     for season in listed:
         files = outputs[season["id"]]
-        teams = files["teams.json"]
+        label = season["label"]
         for gid, game in files["games.json"].items():
-            title = f"{teams[game['home']]['name']} vs {teams[game['away']]['name']}"
-            put("_games", gid, season=season["id"], game_id=gid, title=title)
+            home, away = game["home_team"], game["away_team"]
+            year = game["date"][:4]
+            # The date keeps titles unique: the same two teams meet more than once a season.
+            title = f"{home['name']} vs {away['name']}, {game['date_display']}, {year}"
+            when = "Playoffs" if game["type"] == "playoff" else f"Week {game['week']}"
+            description = (f"Box score: {home['name']} {home['score']}, {away['name']} {away['score']} "
+                           f"on {game['date_display']}, {year} ({when}). Points and free throws for every player.")
+            put("_games", gid, season=season["id"], game_id=gid, title=title, description=description)
             count += 1
-        put("_archive", season["id"], season=season["id"], title=f"{season['label']} season")
+        description = f"The {label} season: standings, playoff results and scoring leaders."
+        put("_archive", season["id"], season=season["id"], title=f"{label} season", description=description)
         count += 1
     files = outputs[active["id"]]
+    label = active["label"]
     for pid, player in files["players.json"].items():
-        put("_players", pid, season=active["id"], player_id=pid, title=player["display"])
+        description = (f"{player['display']}, {player['team_name']}: points, points per game and free throws, "
+                       f"game by game, for the {label} season.")
+        put("_players", pid, season=active["id"], player_id=pid, title=player["display"], description=description)
         count += 1
     for tid, team in files["teams.json"].items():
-        put("_teams", tid, season=active["id"], team_id=tid, title=team["name"])
+        description = f"{team['name']}: record, roster, results and upcoming games for the {label} season."
+        put("_teams", tid, season=active["id"], team_id=tid, title=team["name"], description=description)
         count += 1
     return count
 
