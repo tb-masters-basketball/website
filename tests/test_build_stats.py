@@ -180,6 +180,28 @@ class StatsTests(SeasonFixture):
         self.assertEqual(teams["aa"], {"id": "aa", "name": "Alpha", "short": "AL", "colour_slot": 1})
         self.assertEqual(set(teams), {"aa", "bb", "cc"})
 
+    def test_rankings_rows(self):
+        rows = self.compute()["rankings.json"]
+        by_id = {r["id"]: r for r in rows}
+        self.assertEqual(set(by_id), {"al-a", "amy-b", "bo-c", "cy-d", "sam-e"})
+        # played, in points-per-game order: Cy 31.0, Al 20.5, Bo 19.5, Amy 10.0, Sam 6.0
+        self.assertEqual([r["id"] for r in rows], ["cy-d", "al-a", "bo-c", "amy-b", "sam-e"])
+        al = by_id["al-a"]
+        self.assertEqual((al["rank_ppg"], al["order_ppg"], al["rank_pts"]), (2, 1, 2))
+        self.assertEqual((al["gp"], al["pts"], al["ppg_display"], al["season_high"]), (2, 41, "20.5", 21))
+        # only Cy (15 FTA) and Bo (11 FTA) clear the 10-attempt minimum
+        self.assertEqual([r["id"] for r in rows if r["qualifies_ft"]], ["cy-d", "bo-c"])  # PPG order
+        self.assertEqual((by_id["bo-c"]["rank_ft"], by_id["bo-c"]["order_ft"]), (1, 0))
+        self.assertIsNone(al["rank_ft"])
+        self.assertIsNone(al["order_ft"])
+
+    def test_rankings_game_nights_are_regular_season_only(self):
+        al = next(r for r in self.compute()["rankings.json"] if r["id"] == "al-a")
+        # the 50-point playoff game (week 20) is not a game night here
+        self.assertEqual([(g["week"], g["pts"]) for g in al["games"]], [(1, 20), (3, 21)])
+        self.assertTrue(al["games"][-1]["latest"])
+        self.assertNotIn("latest", al["games"][0])
+
     def test_standings_exclude_playoffs(self):
         teams = self.compute()["standings.json"]["teams"]
         alpha = next(t for t in teams if t["team"] == "aa")
@@ -251,6 +273,88 @@ class StatsTests(SeasonFixture):
         out = self.compute()
         self.assertIsNone(out["schedule.json"]["weeks"][0]["games"][0]["court"])
         self.assertIsNone(out["games.json"]["2026-10-01-g1"]["court"])
+
+
+class NoGamesYetTests(SeasonFixture):
+    """The real season starts with teams, placeholder players and no games."""
+
+    def setUp(self):
+        super().setUp()
+        for path in (self.season / "games").glob("*.yml"):
+            path.unlink()
+        self.write("schedule.csv", "game_id,date,time,court,home,away,type,week\n")
+
+    def test_builds_with_no_games_and_no_schedule(self):
+        out = self.compute()
+        self.assertEqual(out["rankings.json"], [])
+        self.assertEqual(out["leaders.json"]["ppg"], [])
+        self.assertEqual(out["leaders.json"]["ft_pct"], [])
+        self.assertIsNone(out["standings.json"]["through_week"])
+        self.assertEqual(out["schedule.json"], {"latest_week": None, "next_week": None, "weeks": []})
+        self.assertEqual(out["games.json"], {})
+        teams = out["standings.json"]["teams"]
+        self.assertEqual(len(teams), 3)
+        self.assertTrue(all((t["w"], t["l"], t["pct"], t["gb_display"]) == (0, 0, ".000", "\u2014") for t in teams))
+
+    def test_placeholder_rows_are_accepted(self):
+        self.write("players.yml", "- {id: placeholder-a, display: \"[placeholder]\", team: aa, sub: false}\n")
+        self.assertEqual(self.compute()["rankings.json"], [])
+
+    def test_main_writes_every_file(self):
+        out = self.tmp / "computed"
+        self.assertEqual(bs.main(["--data", str(self.data), "--out", str(out)]), 0)
+        names = sorted(p.name for p in (out / "test").iterdir())
+        self.assertIn("rankings.json", names)
+        self.assertEqual(len(names), 9)
+
+
+class SeasonListTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        for sid in ("real", "fake"):
+            (self.tmp / sid).mkdir()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def load(self, text):
+        (self.tmp / "seasons.yml").write_text(textwrap.dedent(text))
+        problems = []
+        seasons = bs.load_seasons(self.tmp, problems)
+        return seasons, problems
+
+    def test_real_current_and_sample_flagged(self):
+        seasons, problems = self.load("""\
+            - {id: real, current: true}
+            - {id: fake, sample: true}
+            """)
+        self.assertEqual(problems, [])
+        self.assertEqual([(s["id"], s["current"], s["sample"]) for s in seasons],
+                         [("real", True, False), ("fake", False, True)])
+
+    def test_sample_cannot_be_current(self):
+        _, problems = self.load("""\
+            - {id: real}
+            - {id: fake, sample: true, current: true}
+            """)
+        self.assertTrue(any("both current and sample" in p for p in problems), problems)
+
+    def test_exactly_one_current(self):
+        _, problems = self.load("""\
+            - {id: real}
+            - {id: fake, sample: true}
+            """)
+        self.assertTrue(any("exactly one season must have 'current: true'" in p for p in problems), problems)
+
+    def test_only_one_sample(self):
+        for sid in ("fake2",):
+            (self.tmp / sid).mkdir()
+        _, problems = self.load("""\
+            - {id: real, current: true}
+            - {id: fake, sample: true}
+            - {id: fake2, sample: true}
+            """)
+        self.assertTrue(any("at most one season can have 'sample: true'" in p for p in problems), problems)
 
 
 class CheckTests(SeasonFixture):

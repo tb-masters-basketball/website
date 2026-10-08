@@ -8,6 +8,12 @@ description: "Standings, schedule and player stats for the Masters Basketball Le
 url: "https://tb-masters-basketball.github.io"
 baseurl: "/website"
 
+# Sample data switch. While true, every page reads the fake season in
+# data/sample-2026-27/ and a banner under the header says so. Set it to false
+# (or delete the line) once the first real game is recorded: the site then reads
+# data/2026-27/ and the banner goes away. Nothing else needs to change.
+sample_data: true
+
 # Where the footer's "Contact the league" link goes (a mailto: link or a form).
 # Leave it blank and the footer shows no contact link.
 contact_url: ""

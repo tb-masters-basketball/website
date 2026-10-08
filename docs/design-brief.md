@@ -73,6 +73,11 @@ Built from the parts above, in this order.
 2. **Stats** (`/stats/`): as mocked up. Add a full sortable table view behind
    "See all as a table", with columns GP, PTS, PPG, FTM, FTA, FT%, a sticky
    name column, and sort by any column. The team chips filter both views.
+   Rank 1 is the card and the list starts at rank 2 ("Showing 7 of 50" counts
+   the card). The FT % view only ranks players with the minimum attempts and
+   says so. Without JavaScript: the card, the list (each player links to their
+   page) and the full table. Desktop isn't mocked: the same single column,
+   left-aligned, 760 px wide. Ends with a short "How stats are counted".
 3. **Schedule** (`/schedule/`): weeks newest first, with a sticky week heading
    ("Week 8 · Thu Dec 3"). Played games use result cards; upcoming games use
    rows like the next-game panel's (teams, time, court). Byes are listed under
@@ -93,6 +98,9 @@ Built from the parts above, in this order.
 8. **404:** the header, "Page not found", and a link home.
 
 ## Behaviour
+- While `sample_data: true` in `_config.yml`, every page reads the sample season
+  and shows a slim banner under the header: "Preview with sample data. Real
+  results start after the first game night."
 - The current season is the default everywhere. A season switcher only lives in
   the Archive.
 - All dates in Eastern time, written "Thu Dec 10", with times like "7:00 PM".

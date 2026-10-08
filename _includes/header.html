@@ -3,7 +3,7 @@
   Giant scene (drawn by CSS from brand/scenes/). The active tab comes from
   `nav:` in the page's front matter.
 {%- endcomment -%}
-{%- assign season = site.data.computed.seasons | where: "current", true | first -%}
+{%- include active-season.html -%}
 {%- assign nav_items = "home|/|Home,schedule|/schedule/|Schedule,stats|/stats/|Stats,teams|/teams/|Teams,archive|/archive/|Archive" | split: "," -%}
 <header class="site-header">
   <div class="wrap site-header__bar">
