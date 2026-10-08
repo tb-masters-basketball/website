@@ -3,5 +3,5 @@
 - id: sample-2026-27
   label: "2026-27"
   current: true
-  gym: "[Gym name]"
+  gym: "St. Pats"
   sample: true      # fake data from scripts/make_sample_season.py; delete when real games exist

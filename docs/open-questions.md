@@ -6,7 +6,7 @@ The site shows a visible `[placeholder]` for each of these until it's answered.
 |---|---|---|
 | Domain name | `head-snippet.html`, social card link | |
 | GitHub organization name | repo, Pages address | `tb-masters-basketball`, repo `website` |
-| Gym name and courts | Next game panel, Schedule | |
+| Gym name and courts | Next game panel, Schedule | St. Pats, one court |
 | Real team names, short codes and colours | Everywhere; the five in the mockups are samples | |
 | Standings tiebreakers (including three-way ties) | Standings note | |
 | Minimum games to appear on the PPG leaderboard (none for now, so a sub with one big game could lead) | Home, Stats | |

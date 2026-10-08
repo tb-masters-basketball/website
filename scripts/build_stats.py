@@ -289,7 +289,7 @@ def load_schedule(season_dir, teams, problems):
             "game_id": gid,
             "date": date,
             "time": time,
-            "court": row["court"].strip(),
+            "court": row["court"].strip() or None,   # blank when the gym has one court
             "home": home,
             "away": away,
             "type": gtype,

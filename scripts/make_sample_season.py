@@ -75,7 +75,7 @@ BYE_CYCLES = [
 FIRST_NIGHT = dt.date(2026, 10, 15)          # week 8 is Thu Dec 3
 SKIP_DATES = {dt.date(2026, 12, 24), dt.date(2026, 12, 31)}
 TIMES = ["19:00", "20:15"]
-COURT = "[Court]"
+COURT = ""                     # St. Pats has a single court
 WEEKS_PLAYED = 8
 
 # Winners of the games played each week.

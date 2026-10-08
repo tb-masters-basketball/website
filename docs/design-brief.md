@@ -98,7 +98,7 @@ Built from the parts above, in this order.
 
 ## Open questions (use placeholders until answered)
 - League domain and GitHub organization name
-- Gym name and courts
+- ~~Gym name and courts~~ (answered: St. Pats, one court)
 - Real team names and colours (the five in the mockups are samples)
 - Tiebreaker rules and playoff format
 - Score sheet layout (affects the `/record-game` skill, not the site)

@@ -239,6 +239,13 @@ class StatsTests(SeasonFixture):
         self.assertEqual(sched["next_week"], 4)
         self.assertEqual(sched["weeks"][0]["byes"], ["cc"])
         self.assertEqual(sched["weeks"][-1]["byes"], [])          # playoff weeks have no byes
+        self.assertEqual(sched["weeks"][0]["games"][0]["court"], "1")
+
+    def test_blank_court_is_null(self):
+        self.write("schedule.csv", self.SCHEDULE.replace(",19:00,1,", ",19:00,,"))
+        out = self.compute()
+        self.assertIsNone(out["schedule.json"]["weeks"][0]["games"][0]["court"])
+        self.assertIsNone(out["games.json"]["2026-10-01-g1"]["court"])
 
 
 class CheckTests(SeasonFixture):

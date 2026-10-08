@@ -9,7 +9,7 @@ data/seasons.yml              list of seasons, newest first; marks the current o
 data/2026-27/
   teams.yml                   id, name, short (2 letters), colour_slot, colour_light, colour_dark
   players.yml                 id, display (First L.), team, sub (true/false)
-  schedule.csv                game_id,date,time,court,home,away,type,week
+  schedule.csv                game_id,date,time,court,home,away,type,week (court blank: St. Pats has one court)
   games/2026-12-03-g1.yml     one file per played game (format below)
   sheets/2026-12-03-g1.jpg    photo of the paper score sheet, kept for checking
 ```
@@ -19,7 +19,7 @@ data/2026-27/
 - id: 2026-27          # folder name under data/
   label: "2026-27"     # what the site shows
   current: true        # exactly one season is current
-  gym: "[Gym name]"
+  gym: "St. Pats"
 ```
 
 ### Team colours
