@@ -550,6 +550,7 @@ a.card:hover {
 .table-card {
   margin-top: 10px;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   background: var(--mb-surface);
   border: 1px solid var(--mb-line);
   border-radius: 10px;
@@ -557,7 +558,8 @@ a.card:hover {
 
 .table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 15px;
   font-variant-numeric: tabular-nums;
 }
@@ -597,16 +599,19 @@ a.card:hover {
   padding-right: 14px;
 }
 
+@media (max-width: 599px) {
+  .table th:first-child,
+  .table td:first-child {
+    box-shadow: 1px 0 0 var(--mb-line);
+  }
+}
+
 .table tbody th {
   font-weight: 600;
 }
 
 .table abbr {
   cursor: help;
-}
-
-.col-wide {
-  display: none;
 }
 
 .standings__rank {
@@ -814,10 +819,6 @@ a.leader-card--hot:hover {
 
   .table {
     font-size: 16px;
-  }
-
-  .col-wide {
-    display: table-cell;
   }
 
   .standings__rank {
