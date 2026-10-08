@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Generate the fake sample season in data/sample-2026-27/.
+"""Generate the fake sample seasons: data/sample-2026-27/ (the stand-in for the
+current season) and data/sample-2025-26/ (a short past season for the archive).
 
 The numbers shown in docs/mockups/ are fixed here (standings, the top seven
 scorers, Rob K.'s points by week, the free-throw leaders and the week 8 and 9
@@ -7,8 +8,8 @@ games). Everything else is filled in at random, with a fixed seed so the output
 is the same every run, and kept below those numbers so the leaderboards match
 the mockups.
 
-Delete data/sample-2026-27/ (and its entry in data/seasons.yml) once real
-games exist.
+Delete data/sample-2026-27/ and data/sample-2025-26/ (and their entries in
+data/seasons.yml) once real games exist.
 
 Usage: python scripts/make_sample_season.py
 """
@@ -26,6 +27,8 @@ import build_stats  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 SEASON = "sample-2026-27"
 OUT = ROOT / "data" / SEASON
+PAST_SEASON = "sample-2025-26"
+PAST_OUT = ROOT / "data" / PAST_SEASON
 
 # id, name, short, colour slot (--mb-team-N), light hex, dark hex (from brand.css)
 TEAMS = [
@@ -75,7 +78,7 @@ BYE_CYCLES = [
 FIRST_NIGHT = dt.date(2026, 10, 15)          # week 8 is Thu Dec 3
 SKIP_DATES = {dt.date(2026, 12, 24), dt.date(2026, 12, 31)}
 TIMES = ["19:00", "20:15"]
-COURT = ""                     # St. Pats has a single court
+GYM = ""                       # blank: the season's gym (St. Pats) is used
 WEEKS_PLAYED = 8
 
 # Winners of the games played each week.
@@ -321,6 +324,15 @@ def generate(seed):
     return weeks, played, scores, players, present, pts, ft
 
 
+def write_teams(out, header):
+    with open(out / "teams.yml", "w", encoding="utf-8") as fh:
+        fh.write(header)
+        fh.write("# colour_slot picks --mb-team-N in brand/css/brand.css; the hex values are a record only.\n")
+        for tid, name, short, slot, light, dark in TEAMS:
+            fh.write(f"- id: {tid}\n  name: {name}\n  short: {short}\n  colour_slot: {slot}\n"
+                     f"  colour_light: \"{light}\"\n  colour_dark: \"{dark}\"\n")
+
+
 def write_files(weeks, played, scores, players, present, pts, ft):
     if OUT.exists():
         shutil.rmtree(OUT)
@@ -329,12 +341,7 @@ def write_files(weeks, played, scores, players, present, pts, ft):
     (OUT / "sheets" / ".gitkeep").write_text("")
     header = "# Sample data from scripts/make_sample_season.py. Not real.\n"
 
-    with open(OUT / "teams.yml", "w", encoding="utf-8") as fh:
-        fh.write(header)
-        fh.write("# colour_slot picks --mb-team-N in brand/css/brand.css; the hex values are a record only.\n")
-        for tid, name, short, slot, light, dark in TEAMS:
-            fh.write(f"- id: {tid}\n  name: {name}\n  short: {short}\n  colour_slot: {slot}\n"
-                     f"  colour_light: \"{light}\"\n  colour_dark: \"{dark}\"\n")
+    write_teams(OUT, header)
 
     with open(OUT / "players.yml", "w", encoding="utf-8") as fh:
         fh.write(header)
@@ -348,7 +355,7 @@ def write_files(weeks, played, scores, players, present, pts, ft):
         fh.write(",".join(build_stats.SCHEDULE_COLUMNS) + "\n")
         for games in weeks:
             for g in games:
-                fh.write(f"{g['game_id']},{g['date']},{g['time']},{COURT},{g['home']},{g['away']},regular,{g['week']}\n")
+                fh.write(f"{g['game_id']},{g['date']},{g['time']},{GYM},{g['home']},{g['away']},regular,{g['week']}\n")
 
     for key, g in played.items():
         s = scores[key]
@@ -406,6 +413,105 @@ def check_against_mockups(out):
         raise Retry("week 9")
 
 
+# ------------------------------------------------------ the sample past season
+
+PAST_FIRST_NIGHT = dt.date(2025, 10, 16)
+PAST_WEEKS = 5                      # five regular-season nights, each team has one bye
+PAST_FINAL_DATE = dt.date(2026, 4, 9)
+PAST_BYE_ORDER = ["lh", "wf", "fw", "pa", "cr"]
+PAST_STRENGTH = {"cr": 3, "wf": 2, "pa": 1, "fw": 0, "lh": -1}     # last year's pecking order
+
+
+def past_lines(rng, roster, team_points):
+    """Split a team's points among the players on the sheet, with free throws."""
+    regulars, sub = roster[:-1], roster[-1]
+    here = [p for p in regulars if rng.random() < 0.85]
+    while len(here) < 6:
+        here = [p for p in regulars if rng.random() < 0.9]
+    if rng.random() < 0.3:
+        here.append(sub)
+    skill = {p: rng.uniform(0.5, 2.2) for p in here}
+    points = {p: 0 for p in here}
+    left = team_points
+    while left > 0:
+        chunk = min(left, rng.choice([2, 2, 2, 3, 1]))
+        points[rng.choices(here, weights=[skill[p] for p in here])[0]] += chunk
+        left -= chunk
+    lines = []
+    for p in sorted(here, key=lambda p: (-points[p], p)):
+        fta = rng.choice([0, 0, 1, 2, 2, 3, 4]) if points[p] else 0
+        ftm = min(points[p], sum(rng.random() < 0.65 for _ in range(fta)))
+        if points[p] - ftm == 1:                  # one point can't come from field goals
+            ftm = 1 if points[p] == 1 else ftm - 1
+        lines.append((p, points[p], ftm, max(fta, ftm)))
+    return lines
+
+
+def write_past_season():
+    """A short, believable past season: 5 regular nights and a playoff final."""
+    rng = random.Random(2025)
+    if PAST_OUT.exists():
+        shutil.rmtree(PAST_OUT)
+    (PAST_OUT / "games").mkdir(parents=True)
+    (PAST_OUT / "sheets").mkdir()
+    (PAST_OUT / "sheets" / ".gitkeep").write_text("")
+    header = "# Sample data from scripts/make_sample_season.py. Not real.\n"
+    write_teams(PAST_OUT, header)
+
+    rosters = {tid: [pid_for(d) for d in names[:8] + names[-1:]] for tid, names in ROSTERS.items()}
+    display = {pid_for(d): d for names in ROSTERS.values() for d in names}
+    with open(PAST_OUT / "players.yml", "w", encoding="utf-8") as fh:
+        fh.write(header)
+        for tid, *_ in TEAMS:
+            for i, pid in enumerate(rosters[tid]):
+                fh.write(f"- {{id: {pid}, display: {display[pid]}, team: {tid}, "
+                         f"sub: {'true' if i == len(rosters[tid]) - 1 else 'false'}}}\n")
+
+    schedule, results = [], []          # results: (game, winner, scores)
+    wins = {tid: [0, 0, 0] for tid, *_ in TEAMS}     # wins, losses, point differential
+    for week in range(1, PAST_WEEKS + 1):
+        date = PAST_FIRST_NIGHT + dt.timedelta(days=7 * (week - 1))
+        for i, (home, away) in enumerate(PAIRS_BY_BYE[PAST_BYE_ORDER[week - 1]]):
+            game = {"game_id": f"{date.isoformat()}-g{i + 1}", "date": date, "time": TIMES[i],
+                    "home": home, "away": away, "week": week, "type": "regular"}
+            # Stronger teams usually win, so the final standings aren't all level
+            chance = 0.5 + 0.13 * (PAST_STRENGTH[home] - PAST_STRENGTH[away])
+            winner = home if rng.random() < chance else away
+            loser = away if winner == home else home
+            top = rng.randint(58, 76)
+            margin = rng.randint(2, 14)
+            scores = {winner: top, loser: top - margin}
+            wins[winner][0] += 1; wins[loser][1] += 1
+            wins[winner][2] += margin; wins[loser][2] -= margin
+            schedule.append(game); results.append((game, scores))
+    # The two best records meet in the final
+    seeds = sorted(wins, key=lambda t: (-wins[t][0], -wins[t][2], t))[:2]
+    final = {"game_id": f"{PAST_FINAL_DATE.isoformat()}-g1", "date": PAST_FINAL_DATE, "time": TIMES[0],
+             "home": seeds[0], "away": seeds[1], "week": PAST_WEEKS + 1, "type": "playoff"}
+    champion = rng.choice(seeds)
+    other = seeds[1] if champion == seeds[0] else seeds[0]
+    top = rng.randint(60, 74)
+    schedule.append(final); results.append((final, {champion: top, other: top - rng.randint(3, 9)}))
+
+    with open(PAST_OUT / "schedule.csv", "w", encoding="utf-8", newline="") as fh:
+        fh.write(",".join(build_stats.SCHEDULE_COLUMNS) + "\n")
+        for g in schedule:
+            fh.write(f"{g['game_id']},{g['date']},{g['time']},{GYM},{g['home']},{g['away']},{g['type']},{g['week']}\n")
+    for g, scores in results:
+        lines = []
+        for tid in (g["home"], g["away"]):
+            for pid, pts_, ftm, fta in past_lines(rng, rosters[tid], scores[tid]):
+                lines.append(f"  - {{player: {pid}, team: {tid}, pts: {pts_}, ftm: {ftm}, fta: {fta}}}\n")
+        with open(PAST_OUT / "games" / f"{g['game_id']}.yml", "w", encoding="utf-8") as fh:
+            fh.write(header)
+            fh.write(f"game_id: {g['game_id']}\ndate: {g['date']}\nhome: {g['home']}\naway: {g['away']}\n"
+                     f"type: {g['type']}\nfinal: {{{g['home']}: {scores[g['home']]}, {g['away']}: {scores[g['away']]}}}\n"
+                     "lines:\n")
+            fh.writelines(lines)
+    build_stats.load_season(ROOT / "data", PAST_SEASON)       # raises if any check fails
+    print(f"Wrote {PAST_OUT.relative_to(ROOT)}/ ({len(results)} games, final won by {champion})")
+
+
 def main():
     for seed in range(1, 500):
         try:
@@ -416,6 +522,7 @@ def main():
         except (Retry, build_stats.DataError):
             continue
         print(f"Wrote {OUT.relative_to(ROOT)}/ (seed {seed})")
+        write_past_season()
         return 0
     print("No seed produced data matching the mockups.", file=sys.stderr)
     return 1

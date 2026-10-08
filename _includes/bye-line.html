@@ -1,0 +1,10 @@
+{%- comment -%}
+  "Current River has the bye" (or "A and B have the bye"). Prints nothing when nobody has one.
+  Usage: include bye-line.html byes=week.byes teams=stats.teams class="next-game__bye"
+{%- endcomment -%}
+{%- if include.byes.size > 0 -%}
+<p class="{{ include.class }}">
+  {%- for bl_id in include.byes %}{{ include.teams[bl_id].name }}{% unless forloop.last %}{% if forloop.rindex == 2 %} and {% else %}, {% endif %}{% endunless %}{% endfor %}
+  {% if include.byes.size == 1 %}has{% else %}have{% endif %} the bye
+</p>
+{%- endif -%}

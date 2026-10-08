@@ -9,7 +9,7 @@ data/seasons.yml              list of seasons, newest first; marks the current o
 data/2026-27/
   teams.yml                   id, name, short (2 letters), colour_slot, colour_light, colour_dark
   players.yml                 id, display (First L.), team, sub (true/false)
-  schedule.csv                game_id,date,time,court,home,away,type,week (court blank: St. Pats has one court)
+  schedule.csv                game_id,date,time,gym,home,away,type,week (gym blank: the season's gym; no courts)
   games/2026-12-03-g1.yml     one file per played game (format below)
   sheets/2026-12-03-g1.jpg    photo of the paper score sheet, kept for checking
 ```
@@ -22,12 +22,42 @@ data/2026-27/
   gym: "St. Pats"
 - id: sample-2026-27
   label: "2026-27"
-  sample: true         # fake data; never `current`, at most one
+  sample: true         # fake data; never `current`
+  stands_in_for: 2026-27   # shown instead of 2026-27 while sample_data is on
+  gym: "St. Pats"
+- id: sample-2025-26
+  label: "2025-26"
+  sample: true         # a fake past season: in the Archive in sample mode only
   gym: "St. Pats"
 ```
-`sample_data: true` in `_config.yml` makes every page read the `sample` season
-and show a "Preview with sample data" banner. With it off, pages read the
-`current` season and the banner goes. The build script processes every season
+`sample_data: true` in `_config.yml` makes every page read the sample season
+that `stands_in_for` the current one, and show a "Preview with sample data"
+banner. With it off, pages read the `current` season and the banner goes.
+`build_stats.py` makes that choice once and writes it to
+`_data/computed/active.json` (the active season, and the seasons the Archive
+lists); the templates only read that file. At most one sample season may stand
+in for a given season.
+
+### Pages made from the data
+`build_stats.py` also writes a tiny stub page for each game, player, team and
+archive season into `_games/`, `_players/`, `_teams/` and `_archive/` (git-ignored,
+rewritten every run). A stub is only front matter (season, id, title); the
+layouts read everything else from `_data/computed`. Games and archive pages
+exist for every season the Archive lists (game ids start with their date, so
+they must be unique across those seasons: the script checks); players and teams
+only for the active season, because ids like `dave-m` repeat across seasons.
+Past seasons therefore show names without links to player or team pages.
+
+### Gym
+A game's gym is the `gym` cell in `schedule.csv`; a blank cell means the
+season's `gym` from `seasons.yml` (St. Pats). There are no courts. Pages show
+the gym in the week heading and the next-game panel.
+
+### Score sheet photos
+`score_sheet_links: true` in `_config.yml` makes the build copy the photos in
+`sheets/` to the published site and shows a "Score sheet photo" link on the box
+score. It is **off** until the league has checked that the sheets are fine to
+publish (they may show full names, and players are only ever "First L."). The build script processes every season
 listed here and must not fail on one with no games yet.
 
 ### The real season before the first game

@@ -1,9 +1,13 @@
 {%- comment -%}
-  Compact ranked player row: rank, name, team and the number.
-  Usage: include rank-row.html player=p value=p.ppg_display
+  Compact ranked player row: rank, name, a line under the name, and the number.
+  The line defaults to the team name and the rank to player.rank. plain=true
+  draws the row without a link (past seasons have no player pages).
+  Usage: include rank-row.html player=p value=p.ppg_display meta=text rank=n
 {%- endcomment -%}
-<a class="rank-row" href="{{ '/players/' | append: include.player.id | append: '/' | relative_url }}">
-  <span class="rank-row__rank">{{ include.player.rank }}</span>
-  <span class="rank-row__who"><span class="rank-row__name">{{ include.player.display }}</span> <span class="rank-row__team">{{ include.player.team_name }}</span></span>
+{%- assign rr_tag = "a" -%}
+{%- if include.plain %}{% assign rr_tag = "div" %}{% endif -%}
+<{{ rr_tag }} class="rank-row"{% unless include.plain %} href="{{ '/players/' | append: include.player.id | append: '/' | relative_url }}"{% endunless %}>
+  <span class="rank-row__rank">{{ include.rank | default: include.player.rank }}</span>
+  <span class="rank-row__who"><span class="rank-row__name">{{ include.player.display }}</span>{% if include.player.sub %} <span class="badge">Sub</span>{% endif %} <span class="rank-row__team">{{ include.meta | default: include.player.team_name }}</span></span>
   <span class="rank-row__value">{{ include.value }}</span>
-</a>
+</{{ rr_tag }}>

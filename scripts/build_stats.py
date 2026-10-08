@@ -5,6 +5,7 @@ Reads the hand-edited source files described in data/CLAUDE.md, checks them,
 and writes JSON that the Jekyll templates read:
 
   _data/computed/seasons.json
+  _data/computed/active.json               which season the site shows, and which are listed in the archive
   _data/computed/<season>/teams.json       team names, short codes and colour slots, keyed by id
   _data/computed/<season>/standings.json   regular-season table
   _data/computed/<season>/players.json     per-player season totals, keyed by id
@@ -16,11 +17,15 @@ and writes JSON that the Jekyll templates read:
   _data/computed/<season>/schedule.json    weeks, byes, latest and next week
   _data/computed/<season>/playoffs.json    playoff games and totals (kept apart)
 
+It also writes small stub pages for Jekyll (see write_stubs): _games/, _players/,
+_teams/ and _archive/ (git-ignored, rewritten every run), and, if
+`score_sheet_links: true` in _config.yml, copies score sheet photos to sheets/.
+
 If any check fails, every problem is printed and nothing is written.
 
 Usage:
   python scripts/build_stats.py              # check and write
-  python scripts/build_stats.py --check      # check only
+  python scripts/build_stats.py --check      # check only (writes nothing)
 """
 
 import argparse
@@ -40,7 +45,7 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 
 FT_MIN_ATTEMPTS = 10
-SCHEDULE_COLUMNS = ["game_id", "date", "time", "court", "home", "away", "type", "week"]
+SCHEDULE_COLUMNS = ["game_id", "date", "time", "gym", "home", "away", "type", "week"]
 GAME_TYPES = ("regular", "playoff")
 SHEET_EXTENSIONS = (".jpg", ".jpeg", ".png", ".heic", ".pdf")
 TEAM_ID_RE = re.compile(r"^[a-z]{2}$")
@@ -189,12 +194,23 @@ def load_seasons(data_dir, problems):
             problems.append(f"{where}: '{season['id']}' is both current and sample; "
                             "the sample season should never be the current one")
     valid = [s for s in seasons if isinstance(s, dict)]
+    ids = {s.get("id") for s in valid}
+    stand_ins = {}
+    for s in valid:
+        target = s.get("stands_in_for")
+        if target is None:
+            continue
+        if not s.get("sample"):
+            problems.append(f"{path}: season '{s.get('id')}' has stands_in_for but is not marked sample: true")
+        if target not in ids:
+            problems.append(f"{path}: season '{s.get('id')}' stands_in_for '{target}', which is not a season in this file")
+        if target in stand_ins:
+            problems.append(f"{path}: both '{stand_ins[target]}' and '{s.get('id')}' stand in for '{target}'")
+        stand_ins[target] = s.get("id")
     current = [s for s in valid if s.get("current")]
     if len(current) != 1:
         problems.append(f"{path}: exactly one season must have 'current: true' (found {len(current)})")
-    samples = [s for s in valid if s.get("sample")]
-    if len(samples) > 1:
-        problems.append(f"{path}: at most one season can have 'sample: true' (found {len(samples)})")
+
     return [s for s in seasons if isinstance(s, dict) and isinstance(s.get("id"), str)]
 
 
@@ -306,7 +322,7 @@ def load_schedule(season_dir, teams, problems):
             "game_id": gid,
             "date": date,
             "time": time,
-            "court": row["court"].strip() or None,   # blank when the gym has one court
+            "gym": row["gym"].strip() or None,   # blank: use the season's gym
             "home": home,
             "away": away,
             "type": gtype,
@@ -424,15 +440,18 @@ def _check_game(path, game, teams, players, schedule, problems):
 
 
 def find_sheet(season_dir, gid):
+    """The score sheet photo for a game, or None."""
     for ext in SHEET_EXTENSIONS:
         path = season_dir / "sheets" / f"{gid}{ext}"
         if path.exists():
-            return path.relative_to(season_dir.parent.parent).as_posix()
+            return path
     return None
 
 
-def load_season(data_dir, season_id):
-    """Load and check one season. Raises DataError listing every problem."""
+def load_season(data_dir, season_id, gym=None):
+    """Load and check one season. Raises DataError listing every problem.
+    `gym` is the season's default gym (from seasons.yml), used when a
+    schedule row leaves its gym blank."""
     problems = []
     season_dir = data_dir / season_id
     teams = load_teams(season_dir, problems)
@@ -442,8 +461,9 @@ def load_season(data_dir, season_id):
     if problems:
         raise DataError(problems)
     for gid, game in games.items():
-        game["sheet"] = find_sheet(season_dir, gid)
-    return {"id": season_id, "teams": teams, "players": players, "schedule": schedule, "games": games}
+        game["sheet_path"] = find_sheet(season_dir, gid)
+    return {"id": season_id, "gym": gym, "teams": teams, "players": players, "schedule": schedule,
+            "games": games, "publish_sheets": False}
 
 
 # --------------------------------------------------------------- computation
@@ -694,7 +714,7 @@ def game_summary(game, sched_row, season):
         "date_display": fmt_date(sched_row["date"]),
         "time": sched_row["time"],
         "time_display": fmt_time(sched_row["time"]),
-        "court": sched_row["court"],
+        "gym": sched_row["gym"] or season.get("gym"),
         "home": home,
         "away": away,
         "winner": home if final[home] > final[away] else away,
@@ -704,7 +724,8 @@ def game_summary(game, sched_row, season):
             {"player": l["player"], "display": l["display"], "team": l["team"], "pts": l["pts"]}
             for l in all_lines if l["pts"] == top_pts
         ],
-        "sheet": game.get("sheet"),
+        # Only set when score sheet links are switched on in _config.yml and the photo exists
+        "sheet": f"sheets/{game['sheet_path'].name}" if season.get("publish_sheets") and game.get("sheet_path") else None,
     }
 
 
@@ -751,7 +772,7 @@ def compute_schedule(season, summaries):
                 "date_display": fmt_date(r["date"]),
                 "time": r["time"],
                 "time_display": fmt_time(r["time"]),
-                "court": r["court"],
+                "gym": r["gym"] or season.get("gym"),
                 "home": r["home"],
                 "away": r["away"],
                 "played": played,
@@ -769,6 +790,7 @@ def compute_schedule(season, summaries):
             "date": rows[0]["date"].isoformat(),
             "date_display": fmt_date(rows[0]["date"]),
             "played": all(g["played"] for g in games),
+            "gyms": list(dict.fromkeys(g["gym"] for g in games if g["gym"])),
             "games": games,
             "byes": sorted((t for t in teams if t not in playing), key=lambda t: teams[t]["name"]) if regular else [],
         })
@@ -821,20 +843,128 @@ def compute_season(season):
 
 # ---------------------------------------------------------------------- main
 
-def build(data_dir, out_dir, write=True):
-    """Check every season, then (if all pass) replace out_dir with fresh JSON."""
+STUB_DIRS = ("_games", "_players", "_teams", "_archive")
+
+
+def read_config(path):
+    """The two settings this script needs from _config.yml (missing file: defaults)."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            config = yaml.safe_load(fh) or {}
+    except FileNotFoundError:
+        return {}
+    return config if isinstance(config, dict) else {}
+
+
+def choose_active(seasons, sample_mode):
+    """The season every page shows: the current one, or while sample mode is on
+    the sample season that stands in for it."""
+    current = next(s for s in seasons if s["current"])
+    if sample_mode:
+        stand_in = next((s for s in seasons if s.get("stands_in_for") == current["id"]), None)
+        if stand_in:
+            return stand_in
+    return current
+
+
+def archive_seasons(seasons, active, sample_mode):
+    """Seasons the archive lists (newest first, as in seasons.yml): the active
+    one, every past season, and other sample seasons only in sample mode. The
+    real season and its sample stand-in never both appear."""
+    listed = []
+    for s in seasons:
+        if s["id"] == active["id"]:
+            listed.append(s)
+        elif s["current"] or s.get("stands_in_for"):
+            continue
+        elif s["sample"] and not sample_mode:
+            continue
+        else:
+            listed.append(s)
+    return listed
+
+
+def _front_matter(**fields):
+    body = "\n".join(f"{key}: {json.dumps(value, ensure_ascii=False)}" for key, value in fields.items())
+    return f"---\n{body}\n---\n"
+
+
+def write_stubs(root, active, listed, outputs):
+    """Write one tiny Jekyll page per game, player, team and archive season.
+
+    A stub is only front matter (season, id, title). The layouts read
+    everything else from _data/computed. Games and archive pages exist for
+    every listed season (game ids start with their date, so they never clash);
+    players and teams only for the active season, because ids like `dave-m`
+    repeat across seasons. The folders are git-ignored and wiped each run, so
+    a removed game can't leave an orphan page behind."""
+    for name in STUB_DIRS:
+        shutil.rmtree(root / name, ignore_errors=True)
+
+    def put(folder, name, **fields):
+        folder_path = root / folder
+        folder_path.mkdir(parents=True, exist_ok=True)
+        (folder_path / f"{name}.md").write_text(_front_matter(**fields), encoding="utf-8")
+
+    count = 0
+    for season in listed:
+        files = outputs[season["id"]]
+        teams = files["teams.json"]
+        for gid, game in files["games.json"].items():
+            title = f"{teams[game['home']]['name']} vs {teams[game['away']]['name']}"
+            put("_games", gid, season=season["id"], game_id=gid, title=title)
+            count += 1
+        put("_archive", season["id"], season=season["id"], title=f"{season['label']} season")
+        count += 1
+    files = outputs[active["id"]]
+    for pid, player in files["players.json"].items():
+        put("_players", pid, season=active["id"], player_id=pid, title=player["display"])
+        count += 1
+    for tid, team in files["teams.json"].items():
+        put("_teams", tid, season=active["id"], team_id=tid, title=team["name"])
+        count += 1
+    return count
+
+
+def copy_sheets(root, listed, loaded):
+    """Copy score sheet photos of listed seasons to <root>/sheets/ so Jekyll
+    publishes them. Only called when `score_sheet_links: true`."""
+    target = root / "sheets"
+    shutil.rmtree(target, ignore_errors=True)
+    copied = 0
+    for season in listed:
+        for game in loaded[season["id"]]["games"].values():
+            photo = game.get("sheet_path")
+            if photo:
+                target.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(photo, target / photo.name)
+                copied += 1
+    return copied
+
+
+def build(data_dir, out_dir, write=True, config=None, root=None):
+    """Check every season, then (if all pass) replace out_dir with fresh JSON.
+
+    config: the settings from _config.yml (sample_data, score_sheet_links).
+    root:   the site folder to write stub pages and sheets into; None writes
+            only the JSON."""
+    config = config or {}
+    sample_mode = bool(config.get("sample_data"))
+    publish_sheets = bool(config.get("score_sheet_links"))
     problems = []
     seasons = load_seasons(data_dir, problems)
     if problems:
         raise DataError(problems)
 
-    outputs, summary = {}, []
+    outputs, loaded_seasons, summary = {}, {}, []
     for s in seasons:
         try:
-            loaded = load_season(data_dir, s["id"])
+            loaded = load_season(data_dir, s["id"], gym=s.get("gym"))
         except DataError as exc:
             problems.extend(exc.problems)
             continue
+        loaded["publish_sheets"] = publish_sheets
+        loaded_seasons[s["id"]] = loaded
         outputs[s["id"]] = compute_season(loaded)
         played = len(loaded["games"])
         week = outputs[s["id"]]["standings.json"]["through_week"]
@@ -845,13 +975,31 @@ def build(data_dir, out_dir, write=True):
     if problems:
         raise DataError(problems)
 
+    active = choose_active(seasons, sample_mode)
+    listed = archive_seasons(seasons, active, sample_mode)
+    # Game pages live at /games/<game_id>/, so ids must be unique among the listed seasons.
+    owner = {}
+    for s in listed:
+        for gid in outputs[s["id"]]["games.json"]:
+            if gid in owner:
+                problems.append(f"game_id '{gid}' is used in both '{owner[gid]}' and '{s['id']}'; "
+                                "game ids must be unique across seasons shown on the site")
+            owner[gid] = s["id"]
+    if problems:
+        raise DataError(problems)
+    mode = "sample mode" if active.get("sample") else "real season"
+    summary.append(f"Site shows: {active['id']} ({mode}); archive lists {', '.join(s['id'] for s in listed)}")
+
     if write:
         out_dir.parent.mkdir(parents=True, exist_ok=True)
         tmp = Path(tempfile.mkdtemp(prefix=".computed-", dir=out_dir.parent))
         try:
-            _write_json(tmp / "seasons.json", [
-                {k: v for k, v in s.items()} for s in seasons
-            ])
+            _write_json(tmp / "seasons.json", [dict(s) for s in seasons])
+            _write_json(tmp / "active.json", {
+                "season": active["id"],
+                "sample_mode": bool(active.get("sample")),
+                "archive": [s["id"] for s in listed],
+            })
             for sid, files in outputs.items():
                 for name, data in files.items():
                     _write_json(tmp / sid / name, data)
@@ -861,6 +1009,12 @@ def build(data_dir, out_dir, write=True):
         finally:
             if tmp.exists():
                 shutil.rmtree(tmp)
+        if root is not None:
+            summary.append(f"Wrote {write_stubs(root, active, listed, outputs)} stub pages")
+            if publish_sheets:
+                summary.append(f"Copied {copy_sheets(root, listed, loaded_seasons)} score sheet photos")
+            else:
+                shutil.rmtree(root / "sheets", ignore_errors=True)
     return summary
 
 
@@ -875,10 +1029,12 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--data", type=Path, default=ROOT / "data", help="source data folder")
     parser.add_argument("--out", type=Path, default=ROOT / "_data" / "computed", help="output folder")
+    parser.add_argument("--config", type=Path, default=ROOT / "_config.yml", help="the site's _config.yml")
+    parser.add_argument("--root", type=Path, default=ROOT, help="site folder that gets the stub pages")
     parser.add_argument("--check", action="store_true", help="check the data without writing anything")
     args = parser.parse_args(argv)
     try:
-        summary = build(args.data, args.out, write=not args.check)
+        summary = build(args.data, args.out, write=not args.check, config=read_config(args.config), root=args.root)
     except DataError as exc:
         print(f"Data check failed: {len(exc.problems)} problem(s). Nothing was written.\n", file=sys.stderr)
         for p in exc.problems:

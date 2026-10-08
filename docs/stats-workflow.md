@@ -30,9 +30,11 @@ flowchart TD
     D -- "a check fails" --> E["Clear error message.<br/>Nothing is published."]
     E -- "fix the file and try again" --> C
     D -- "all checks pass" --> F["Calculates standings,<br/>points per game, free-throw %"]
-    F --> G["_data/computed/*.json<br/>(made by the script, never edited by hand)"]
-    G --> H["Jekyll builds the pages:<br/>Home, Stats, ..."]
-    H --> I["GitHub Actions publishes<br/>to GitHub Pages"]
+    F --> G["_data/computed/*.json<br/>and one small stub page per game,<br/>player and team (never edited by hand)"]
+    G --> H["Jekyll builds every page:<br/>Home, Stats, Schedule, box scores,<br/>player and team pages, Archive"]
+    H --> L{"Link check:<br/>any broken link or image?"}
+    L -- "yes" --> E2["Build fails.<br/>Nothing is published."]
+    L -- "no" --> I["GitHub Actions publishes<br/>to GitHub Pages"]
     I --> J["The live website"]
 ```
 
@@ -44,11 +46,13 @@ What each step means in plain words:
 | Game file | **You**, by typing the sheet's numbers | `data/<season>/games/<date>-g1.yml` |
 | Checks | `scripts/build_stats.py` (automatic) | Runs on every change; see [the checks](#the-checks-and-what-a-failure-looks-like) |
 | Calculations | `scripts/build_stats.py` (automatic) | Writes `_data/computed/`. Never edit those files; they are rewritten every time |
-| Pages | Jekyll, the site builder (automatic) | The Home and Stats pages read `_data/computed/` |
+| Pages | Jekyll, the site builder (automatic) | Every page reads `_data/computed/`. The script also writes a tiny stub file for each game, player, team and archive season (folders `_games/`, `_players/`, `_teams/`, `_archive/`, rewritten every time), which is how each one gets its own page |
+| Link check | `scripts/check_links.sh` (automatic) | Stops the publish if any link, image or script in the built site is broken |
 | Publishing | GitHub Actions (automatic) | `.github/workflows/deploy.yml`. It only publishes when a change is **merged into `main`** |
 
 You only ever touch the game file (and occasionally the player list). The rest
-happens by itself.
+happens by itself: add a game and its box score page, the players' pages and the
+standings all update on their own.
 
 ## The data folders
 
@@ -61,15 +65,22 @@ data/
     schedule.csv         every game night: who plays whom, when
     games/               one file per game that has been played
     sheets/              photos of the paper score sheets
-  sample-2026-27/      FAKE sample season, so the site has something to show
+  sample-2026-27/      FAKE sample season, standing in for the real one
+  sample-2025-26/      FAKE past season, so the Archive has something to show
 ```
 
 - **Real season:** `data/2026-27/`. It starts with `[placeholder]` names and no
   games. Fill it in as the league decides things.
-- **Sample season:** `data/sample-2026-27/` is made-up data (made by
-  `scripts/make_sample_season.py`) so the site looks real before the first game.
-  While sample mode is on, the website shows a banner saying so. See
+- **Sample seasons:** `data/sample-2026-27/` and `data/sample-2025-26/` are
+  made-up data (made by `scripts/make_sample_season.py`) so the site looks real
+  before the first game. The first stands in for the current season and the
+  second is a short past season for the Archive. While sample mode is on, the
+  website shows a banner saying so, and the Archive lists both. With it off,
+  neither is shown anywhere. See
   [Leave sample mode](#leave-sample-mode-when-the-real-season-starts).
+- **Which season is shown** is decided in one place, `data/seasons.yml`:
+  `current: true` marks the real season, and `stands_in_for: 2026-27` marks
+  the sample that replaces it while sample mode is on.
 
 ## What a game file looks like
 
@@ -123,7 +134,10 @@ The real message starts with the full path (for example
 | A player name isn't written "First L." | `players.yml: player #1 (dave-m): display 'Dave Mitchell' should be 'First L.' (never a full name)` |
 | The file isn't valid (a missing bracket, wrong indent) | `games/2026-12-03-g1.yml: not valid YAML (...)` followed by the line and column |
 
-It also catches: two players or teams sharing an id, a made free throw worth
+It also catches: the same `game_id` used in two seasons that are shown on the
+site (each game gets a page at `/games/<game_id>/`, so ids must be unique), a
+`stands_in_for` that names a season that doesn't exist, two players or teams
+sharing an id, a made free throw worth
 more than the points scored, a player with exactly 1 point more than their free
 throws (a field goal can't be worth 1), a team playing twice on the same night,
 and a `seasons.yml` that doesn't have exactly one current season.
@@ -203,10 +217,11 @@ the site (it takes a minute or two).
 1. **Check the game is on the schedule.** Open `data/2026-27/schedule.csv`. The
    game needs a row, for example:
    `2026-12-03-g1,2026-12-03,19:00,,pa,lh,regular,8`
-   The columns are `game_id, date, time, court, home, away, type, week`. The
-   date is `YYYY-MM-DD`, the time is 24-hour (`19:00`), the court is left blank
-   (St. Pats has one court), and the id is the date plus `-g1`, `-g2` for that
-   night's first and second game.
+   The columns are `game_id, date, time, gym, home, away, type, week`. The
+   date is `YYYY-MM-DD`, the time is 24-hour (`19:00`), and the id is the date
+   plus `-g1`, `-g2` for that night's first and second game. Leave `gym` blank
+   to use the season's gym (St. Pats, set in `data/seasons.yml`); fill it in
+   only for a night played somewhere else. There is no court column.
 2. **Create the game file.** In `data/2026-27/games/`, choose **Add file →
    Create new file** and name it exactly like the `game_id`, plus `.yml`:
    `2026-12-03-g1.yml`. The easiest start is to copy the example
@@ -216,9 +231,15 @@ the site (it takes a minute or two).
    points added up.
 4. **Optional: save the photo** of the sheet as
    `data/2026-27/sheets/2026-12-03-g1.jpg` (same name as the game). It is kept
-   for checking and is not shown on the site yet.
+   for checking. It is **not** shown on the site: the box score's "Score sheet
+   photo" link is switched off (`score_sheet_links: false` in `_config.yml`)
+   until the league has checked that the sheets are fine to publish, since
+   they may show full names.
 5. **Commit as a pull request** and wait for the check. Fix anything it reports
    (see [the checks](#the-checks-and-what-a-failure-looks-like)), then merge.
+   When it is published the game has its own box score page
+   (`/games/2026-12-03-g1/`), and the Schedule, standings, Stats and every
+   player's and team's page update with it.
 
 ### Fix a wrong number
 
@@ -236,7 +257,10 @@ will tell you.
    players would get the same id, number the second one: `mike-r2`.
 3. The **display** name is always written **First L.**, never a full name.
 4. For a **sub**, add them the first time they play and set `sub: true`. Then
-   use their id in that night's game file like any other player.
+   use their id in that night's game file like any other player. A sub's page
+   and box score lines are marked **Sub**.
+5. Once they are in `players.yml` they get a player page (`/players/mike-r/`)
+   and appear on their team's roster, even before their first game.
 
 ### Leave sample mode when the real season starts
 
@@ -250,8 +274,10 @@ sample_data: true     # change to false when real results begin
   header says *"Preview with sample data. Real results start after the first
   game night."*
 - **Off (`false`):** every page reads the real season in `data/2026-27/` and
-  the banner disappears. Until the first game is recorded, Home and Stats show
-  empty states such as "No games played yet".
+  the banner disappears. The sample past season leaves the Archive too. Until
+  the first game is recorded, the pages show empty states such as "No games
+  played yet" and "Not scheduled yet", and the Archive lists only the current
+  season.
 
 Before you switch it off, replace the `[placeholder]` rows in
 `data/2026-27/teams.yml`, `players.yml` and `schedule.csv` with the real teams,

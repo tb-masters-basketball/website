@@ -1,0 +1,32 @@
+---
+layout: default
+title: Archive
+nav: archive
+permalink: /archive/
+description: Standings, playoff results and leaders from past seasons.
+---
+{%- comment -%}
+  Archive. The seasons the build script lists for the current mode
+  (active.archive in _data/computed/active.json), newest first.
+{%- endcomment -%}
+{%- include active-season.html -%}
+
+<div class="wrap page">
+  <h1 class="page-title">Archive</h1>
+  <p class="page-sub">Past seasons</p>
+
+  <div class="card-list">
+    {%- for id in active.archive %}
+    {%- assign list_season = site.data.computed.seasons | where: "id", id | first %}
+    {%- assign list_stats = site.data.computed[id] %}
+    {%- if id == active.season %}
+    {% include season-card.html season=list_season stats=list_stats current=true %}
+    {%- else %}
+    {% include season-card.html season=list_season stats=list_stats %}
+    {%- endif %}
+    {%- endfor %}
+  </div>
+  {%- if active.archive.size == 1 %}
+  <p class="empty">Past seasons will appear here once a season has finished.</p>
+  {%- endif %}
+</div>

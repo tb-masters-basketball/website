@@ -1,15 +1,11 @@
 {%- comment -%}
-  Picks the season every page shows and sets two variables for the caller:
+  The season every page shows. scripts/build_stats.py decides it (the current
+  season, or while `sample_data: true` the sample season that stands in for it)
+  and writes it to _data/computed/active.json. Sets for the caller:
+    active  that file: .season (the id), .sample_mode, .archive (ids listed in the archive)
     season  the season's row from data/seasons.yml (label, gym, sample, ...)
-    stats   that season's computed files (stats.standings, stats.leaders, ...)
-  With `sample_data: true` in _config.yml it is the sample season; otherwise
-  it is the one marked `current: true` in data/seasons.yml.
+    stats   the season's computed files (stats.standings, stats.leaders, ...)
 {%- endcomment -%}
-{%- assign all_seasons = site.data.computed.seasons -%}
-{%- if site.sample_data -%}
-  {%- assign season = all_seasons | where: "sample", true | first -%}
-{%- endif -%}
-{%- unless season -%}
-  {%- assign season = all_seasons | where: "current", true | first -%}
-{%- endunless -%}
+{%- assign active = site.data.computed.active -%}
+{%- assign season = site.data.computed.seasons | where: "id", active.season | first -%}
 {%- assign stats = site.data.computed[season.id] -%}

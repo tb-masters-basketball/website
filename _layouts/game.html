@@ -1,0 +1,25 @@
+---
+layout: default
+---
+{%- comment -%}
+  Box score. The stub for each game (written by scripts/build_stats.py) only
+  names the season and the game; everything shown comes from _data/computed.
+{%- endcomment -%}
+{%- include page-season.html -%}
+{%- assign game = stats.games[page.game_id] -%}
+
+<div class="wrap page">
+  <h1 class="page-title">Box score</h1>
+  <p class="page-sub">{% if game.type == "playoff" %}Playoffs{% else %}Week {{ game.week }}{% endif %} · {{ game.date_display }} · {{ game.time_display }}{% if game.gym %} · {{ game.gym }}{% endif %}</p>
+
+  {% include result-card.html game=game large=true link_teams=is_active link_players=is_active %}
+
+  {% include box-score-table.html team=game.home_team game=game linked=is_active %}
+  {% include box-score-table.html team=game.away_team game=game linked=is_active %}
+
+  <p class="page-links">
+    {%- if game.sheet %}<a class="link-more" href="{{ '/' | append: game.sheet | relative_url }}">Score sheet photo</a>{% endif %}
+    {%- if is_active %}<a class="link-more" href="{{ '/schedule/' | relative_url }}">All results</a>
+    {%- else %}<a class="link-more" href="{{ '/archive/' | append: page.season | append: '/' | relative_url }}">{{ season.label }} season</a>{% endif %}
+  </p>
+</div>

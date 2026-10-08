@@ -1,0 +1,10 @@
+{%- comment -%}
+  For pages made from stubs: sets `active`, `season`, `stats` for the season the
+  stub names (page.season), and `is_active` (true when that is the season the
+  site is showing, so teams and players have pages to link to).
+{%- endcomment -%}
+{%- assign active = site.data.computed.active -%}
+{%- assign season = site.data.computed.seasons | where: "id", page.season | first -%}
+{%- assign stats = site.data.computed[page.season] -%}
+{%- assign is_active = false -%}
+{%- if page.season == active.season -%}{%- assign is_active = true -%}{%- endif -%}

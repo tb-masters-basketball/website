@@ -1,7 +1,9 @@
 {%- comment -%}
   Standings table inside a scrolling card. Lists every team and every column.
   On narrow screens the card scrolls sideways and the team column stays put.
-  Usage: include standings-table.html standings=stats.standings
+  link_teams=true makes each team name a link to its page (only the season the
+  site is showing has team pages).
+  Usage: include standings-table.html standings=stats.standings link_teams=true
 {%- endcomment -%}
 <div class="table-card" role="region" aria-label="Standings table" tabindex="0">
   <table class="table standings">
@@ -21,7 +23,7 @@
     <tbody>
       {%- for t in include.standings.teams %}
       <tr>
-        <th scope="row"><span class="standings__rank">{{ t.rank }}</span><span class="chip chip--{{ t.colour_slot }}" aria-hidden="true"></span>{{ t.name }}</th>
+        <th scope="row"><span class="standings__rank">{{ t.rank }}</span><span class="chip chip--{{ t.colour_slot }}" aria-hidden="true"></span>{% if include.link_teams %}<a href="{{ '/teams/' | append: t.team | append: '/' | relative_url }}">{{ t.name }}</a>{% else %}{{ t.name }}{% endif %}</th>
         <td>{{ t.w }}</td>
         <td>{{ t.l }}</td>
         <td>{{ t.pct }}</td>

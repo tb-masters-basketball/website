@@ -1,0 +1,72 @@
+---
+layout: default
+---
+{%- comment -%}
+  Player page. Stub files (written by scripts/build_stats.py) name the player;
+  the numbers come from _data/computed: players.json, rankings.json, game_logs.json.
+{%- endcomment -%}
+{%- include page-season.html -%}
+{%- assign player = stats.players[page.player_id] -%}
+{%- assign prow = stats.rankings | where: "id", page.player_id | first -%}
+{%- assign logs = stats.game_logs[page.player_id] -%}
+{%- assign team = stats.teams[player.team] -%}
+
+<div class="wrap page">
+  <h1 class="page-title">{{ player.display }}{% if player.sub %} <span class="badge">Sub</span>{% endif %}</h1>
+  <p class="page-sub"><span class="chip chip--{{ team.colour_slot }}" aria-hidden="true"></span> <a class="tap-link" href="{{ '/teams/' | append: team.id | append: '/' | relative_url }}">{{ team.name }}</a> · {{ season.label }} season</p>
+
+  {%- if player.gp == 0 %}
+  <p class="empty">No games played yet. {{ player.display }}'s numbers appear after their first game.</p>
+  {%- else %}
+  <div class="player-summary">
+    <div class="top-card">
+      <span class="top-card__value">{{ prow.ppg_display }}</span>
+      <span class="top-card__text">
+        <span class="top-card__label">Points per game</span>
+        <span class="top-card__name">No. {{ prow.rank_ppg }}</span>
+        <span class="top-card__meta">of {{ stats.rankings.size }} players</span>
+      </span>
+    </div>
+    <div class="tiles tiles--4">
+      <div class="tile tile--card"><div class="tile__value">{{ player.gp }}</div><div class="tile__label"><abbr title="Games played">GP</abbr></div></div>
+      <div class="tile tile--card"><div class="tile__value">{{ player.pts }}</div><div class="tile__label"><abbr title="Points">PTS</abbr></div></div>
+      <div class="tile tile--card"><div class="tile__value">{{ player.ftm }}-{{ player.fta }}</div><div class="tile__label">FTM-FTA</div></div>
+      <div class="tile tile--card"><div class="tile__value">{% if player.fta > 0 %}{{ player.ft_pct_display }}%{% else %}—{% endif %}</div><div class="tile__label">FT%</div></div>
+    </div>
+  </div>
+
+  <section class="page-section" aria-labelledby="bars-title">
+    <h2 class="section-title" id="bars-title">Points by game night</h2>
+    <div class="surface-card">
+      {% include game-bars.html games=prow.games high=prow.season_high %}
+    </div>
+  </section>
+
+  <section class="page-section" aria-labelledby="log-title">
+    <h2 class="section-title" id="log-title">Game log</h2>
+    <div class="table-card" role="region" aria-label="Game log table" tabindex="0">
+      <table class="table log-table">
+        <caption class="visually-hidden">{{ player.display }}'s games, newest first</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Opponent</th>
+            <th scope="col"><abbr title="Points">PTS</abbr></th>
+            <th scope="col">FTM-FTA</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for lg in logs reversed %}
+          <tr>
+            <th scope="row"><a href="{{ '/games/' | append: lg.game_id | append: '/' | relative_url }}">{{ lg.date_display }}</a>{% if lg.type == "playoff" %} <span class="badge">Playoff</span>{% endif %}</th>
+            <td><a class="tap-link" href="{{ '/teams/' | append: lg.opponent | append: '/' | relative_url }}">{% if lg.home %}vs{% else %}at{% endif %} {{ lg.opponent_name }}</a><span class="log-table__result">{{ lg.result }} {{ lg.score }}</span></td>
+            <td>{{ lg.pts }}</td>
+            <td>{{ lg.ftm }}-{{ lg.fta }}</td>
+          </tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {%- endif %}
+</div>

@@ -27,12 +27,7 @@
       <div class="tile"><div class="tile__value">{{ sr.season_high }}</div><div class="tile__label">Season high</div></div>
     </div>
     <p class="details__title">Points by game night</p>
-    <ol class="bars" style="--n: {{ sr.games.size }}">
-      {%- for g in sr.games %}
-      {%- assign sr_h = 0 %}{% if sr.season_high > 0 %}{% assign sr_h = g.pts | times: 1.0 | divided_by: sr.season_high | round: 3 %}{% endif %}
-      <li class="bars__item{% if g.latest %} is-latest{% endif %}" style="--h: {{ sr_h }}"><span class="bars__pts">{{ g.pts }}</span><span class="bars__bar"></span><span class="bars__week">W{{ g.week }}</span></li>
-      {%- endfor %}
-    </ol>
+    {% include game-bars.html games=sr.games high=sr.season_high %}
     <a class="details__link" href="{{ sr_url }}">Full player page ›</a>
   </div>
 </li>

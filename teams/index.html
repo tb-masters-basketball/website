@@ -1,0 +1,20 @@
+---
+layout: default
+title: Teams
+nav: teams
+permalink: /teams/
+description: The five teams of the Masters Basketball League.
+---
+{%- comment -%} Teams. One card per team, in standings order. {%- endcomment -%}
+{%- include active-season.html -%}
+
+<div class="wrap page">
+  <h1 class="page-title">Teams</h1>
+  <p class="page-sub">{{ season.label }} season</p>
+
+  <div class="team-grid">
+    {%- for row in stats.standings.teams %}
+    {% include team-card.html row=row %}
+    {%- endfor %}
+  </div>
+</div>
