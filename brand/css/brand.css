@@ -1,0 +1,108 @@
+/* Masters Basketball League, Thunder Bay: brand tokens.
+   Light is the default. Dark follows the device setting unless the visitor
+   picks a theme with the sun/moon button (sets data-theme on <html>). */
+:root {
+  /* Core brand colours (from the badge) */
+  --mb-masters-blue: #032F98;
+  --mb-maple-red: #CB0E1D;
+  --mb-night-navy: #0B1B3F;
+  --mb-ice: #F4F6FB;
+  --mb-white: #FFFFFF;
+  /* Dark-mode lifts of the brand colours */
+  --mb-sky-blue: #8FB0FF;
+  --mb-coral-red: #FF5C66;
+  --mb-midnight: #0A1022;
+
+  --mb-font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --mb-font-body: "Barlow", system-ui, sans-serif;
+  --mb-radius: 10px;
+  --mb-radius-lg: 12px;
+
+  color-scheme: light;
+  --mb-bg: #F4F6FB;
+  --mb-surface: #FFFFFF;
+  --mb-line: #E3E8F2;
+  --mb-text: #0B1B3F;
+  --mb-muted: #5A6478;
+  --mb-accent: #032F98;
+  --mb-link: #032F98;
+  --mb-hot: #CB0E1D;
+  --mb-panel: #032F98;
+  --mb-panel-text: #FFFFFF;
+  --mb-panel-muted: #C9D4F2;
+  --mb-header-text: #FFFFFF;
+  --mb-header-muted: #D6DEF5;
+  --mb-tab: #FF5C66;
+  --mb-giant: #0B1B3F;
+  --mb-footer: #0B1B3F;
+  --mb-footer-text: #C9D4F2;
+  --mb-track: #E8EDF8;
+  --mb-sky: linear-gradient(180deg, #032F98 0%, #032F98 58%, #3A2A8C 74%, #B23A5E 88%, #EE6A2F 100%);
+  --mb-team-1: #C8102E;
+  --mb-team-2: #1F6FB5;
+  --mb-team-3: #2E8B57;
+  --mb-team-4: #F2A900;
+  --mb-team-5: #6B3FA0;
+  --mb-logo-badge: url("../logo/masters-badge.svg");
+  --mb-scene: url("../scenes/giant-sunrise.svg");
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+  --mb-bg: #0A1022;
+    --mb-surface: #131B34;
+    --mb-line: #243052;
+    --mb-text: #EEF2FF;
+    --mb-muted: #9AA6C4;
+    --mb-accent: #8FB0FF;
+    --mb-link: #8FB0FF;
+    --mb-hot: #FF5C66;
+    --mb-panel: #1A2B6B;
+    --mb-panel-text: #FFFFFF;
+    --mb-panel-muted: #B8CCFF;
+    --mb-header-text: #FFFFFF;
+    --mb-header-muted: #B8C3E0;
+    --mb-tab: #FF5C66;
+    --mb-giant: #03060C;
+    --mb-footer: #18214D;
+    --mb-footer-text: #B8C3E0;
+    --mb-track: #222C4A;
+    --mb-sky: linear-gradient(180deg, #0A1022 0%, #111A3E 50%, #2C3A80 76%, #4F5EA8 100%);
+    --mb-team-1: #E8394F;
+    --mb-team-2: #4D8FE0;
+    --mb-team-3: #3FB27F;
+    --mb-team-4: #F2B630;
+    --mb-team-5: #9B6FD6;
+    --mb-logo-badge: url("../logo/masters-badge.svg");
+    --mb-scene: url("../scenes/giant-moonset.svg");
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --mb-bg: #0A1022;
+  --mb-surface: #131B34;
+  --mb-line: #243052;
+  --mb-text: #EEF2FF;
+  --mb-muted: #9AA6C4;
+  --mb-accent: #8FB0FF;
+  --mb-link: #8FB0FF;
+  --mb-hot: #FF5C66;
+  --mb-panel: #1A2B6B;
+  --mb-panel-text: #FFFFFF;
+  --mb-panel-muted: #B8CCFF;
+  --mb-header-text: #FFFFFF;
+  --mb-header-muted: #B8C3E0;
+  --mb-tab: #FF5C66;
+  --mb-giant: #03060C;
+  --mb-footer: #18214D;
+  --mb-footer-text: #B8C3E0;
+  --mb-track: #222C4A;
+  --mb-sky: linear-gradient(180deg, #0A1022 0%, #111A3E 50%, #2C3A80 76%, #4F5EA8 100%);
+  --mb-team-1: #E8394F;
+  --mb-team-2: #4D8FE0;
+  --mb-team-3: #3FB27F;
+  --mb-team-4: #F2B630;
+  --mb-team-5: #9B6FD6;
+  --mb-logo-badge: url("../logo/masters-badge.svg");
+  --mb-scene: url("../scenes/giant-moonset.svg");
+}
