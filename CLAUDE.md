@@ -13,7 +13,8 @@ link, image, stylesheet, icon and manifest path must go through
 `relative_url` (or `absolute_url` for share tags), e.g.
 `{{ '/brand/logo/masters-badge.svg' | relative_url }}`. Never hard-code a
 leading `/`. Moving to the custom domain is then: set `baseurl: ""` and `url`
-to the domain, add a `CNAME` file, update `site.webmanifest` paths.
+to the domain, add a `CNAME` file. (`site.webmanifest` uses relative paths, so
+it needs no change.)
 
 ## Stack
 - **Jekyll** builds the site. Deploys run through a GitHub Actions workflow, not
@@ -28,7 +29,9 @@ to the domain, add a `CNAME` file, update `site.webmanifest` paths.
 ## Layout
 ```
 data/<season>/          source of truth, edited by hand or by /record-game (see data/CLAUDE.md)
-scripts/build_stats.py  computes _data/computed/ — never edit those files by hand
+scripts/build_stats.py  computes _data/computed/ (git-ignored) — never edit those files by hand
+scripts/make_sample_season.py  regenerates data/sample-2026-27/ (fake data)
+tests/                  unit tests for build_stats.py
 _layouts/ _includes/    templates
 assets/css/site.css     page styles, built on brand/css/brand.css variables
 brand/                  logos, icons, colours, scenes (from the brand kit; don't edit)
@@ -39,8 +42,9 @@ docs/mockups/           approved mockups (open in a browser) and screenshots
 
 ## Commands
 ```
-python scripts/build_stats.py            # recompute stats
-bundle exec jekyll serve --livereload    # preview at http://localhost:4000
+python -m unittest discover -s tests     # unit tests
+python scripts/build_stats.py            # check data and recompute stats
+bundle exec jekyll serve --livereload    # preview at http://localhost:4000/website/
 ```
 Always run the stats script before previewing data changes.
 

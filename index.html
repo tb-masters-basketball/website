@@ -1,0 +1,48 @@
+---
+layout: default
+title: Home
+---
+{%- comment -%}
+  Placeholder home page. It proves the layout, brand files and computed data
+  all load. The real Home page (docs/mockups/home-*.html) replaces it.
+{%- endcomment -%}
+{%- assign season = site.data.computed.seasons | where: "current", true | first -%}
+{%- assign stats = site.data.computed[season.id] -%}
+<main>
+  <img src="{{ '/brand/logo/masters-badge.svg' | relative_url }}" alt="Masters Basketball League badge" width="84" height="84">
+  <h1>Masters Basketball</h1>
+  <p>Thunder Bay · {{ season.label }} season. The site is being built.{% if season.sample %} These are sample numbers, not real games.{% endif %}</p>
+
+  {%- if stats == nil %}
+  <p>No computed stats found. Run <code>python scripts/build_stats.py</code> first.</p>
+  {%- else %}
+  <h2>Standings</h2>
+  <p>Regular season, through week {{ stats.standings.through_week }}.</p>
+  <table>
+    <thead>
+      <tr><th scope="col">#</th><th scope="col">Team</th><th scope="col">W</th><th scope="col">L</th><th scope="col">PCT</th><th scope="col">GB</th><th scope="col">PF</th><th scope="col">PA</th><th scope="col">DIFF</th></tr>
+    </thead>
+    <tbody>
+      {%- for t in stats.standings.teams %}
+      <tr><td>{{ t.rank }}</td><th scope="row">{{ t.name }}</th><td>{{ t.w }}</td><td>{{ t.l }}</td><td>{{ t.pct }}</td><td>{{ t.gb_display }}</td><td>{{ t.pf }}</td><td>{{ t.pa }}</td><td>{{ t.diff_display }}</td></tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+  <p>{{ stats.standings.tiebreak_note }}</p>
+
+  <h2>Points per game</h2>
+  <ol>
+    {%- for p in stats.leaders.ppg limit: 7 %}
+    <li>{{ p.display }}, {{ p.team_name }}: {{ p.ppg_display }} ({{ p.pts }} pts, {{ p.gp }} GP)</li>
+    {%- endfor %}
+  </ol>
+
+  <h2>Free-throw %</h2>
+  <p>Minimum {{ stats.leaders.ft_min_attempts }} attempts.</p>
+  <ol>
+    {%- for p in stats.leaders.ft_pct limit: 3 %}
+    <li>{{ p.display }}, {{ p.team_name }}: {{ p.ft_pct_display }}% ({{ p.ftm }} of {{ p.fta }})</li>
+    {%- endfor %}
+  </ol>
+  {%- endif %}
+</main>

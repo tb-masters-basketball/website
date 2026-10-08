@@ -1,0 +1,40 @@
+/* Masters Basketball: page styles. Colours come only from the --mb-*
+   variables in brand/css/brand.css. Page components arrive with the Home
+   and Stats builds; this is the base layer. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--mb-bg);
+  color: var(--mb-text);
+  font-family: var(--mb-font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--mb-font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+a {
+  color: var(--mb-link);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}

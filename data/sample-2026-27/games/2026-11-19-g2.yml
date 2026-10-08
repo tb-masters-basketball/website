@@ -1,0 +1,21 @@
+# Sample data from scripts/make_sample_season.py. Not real.
+game_id: 2026-11-19-g2
+date: 2026-11-19
+home: lh
+away: wf
+type: regular
+final: {lh: 74, wf: 67}
+lines:
+  - {player: mike-r, team: lh, pts: 24, ftm: 0, fta: 0}
+  - {player: andre-g, team: lh, pts: 19, ftm: 0, fta: 0}
+  - {player: brad-e, team: lh, pts: 17, ftm: 1, fta: 3}
+  - {player: pat-o, team: lh, pts: 8, ftm: 0, fta: 0}
+  - {player: todd-b, team: lh, pts: 5, ftm: 1, fta: 2}
+  - {player: sean-m, team: lh, pts: 1, ftm: 1, fta: 2}
+  - {player: steve-p, team: wf, pts: 16, ftm: 4, fta: 4}
+  - {player: al-k, team: wf, pts: 15, ftm: 0, fta: 0}
+  - {player: derek-h, team: wf, pts: 15, ftm: 1, fta: 2}
+  - {player: shawn-t, team: wf, pts: 11, ftm: 0, fta: 0}
+  - {player: jeff-s, team: wf, pts: 7, ftm: 2, fta: 2}
+  - {player: mark-d, team: wf, pts: 2, ftm: 0, fta: 0}
+  - {player: trevor-m, team: wf, pts: 1, ftm: 1, fta: 1}

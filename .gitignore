@@ -1,0 +1,16 @@
+# Jekyll output and caches
+_site/
+.jekyll-cache/
+.jekyll-metadata
+.sass-cache/
+vendor/
+.bundle/
+
+# Written by scripts/build_stats.py on every build; never edit or commit
+_data/computed/
+
+# Python
+__pycache__/
+*.pyc
+
+.DS_Store

@@ -1,0 +1,27 @@
+# Masters Basketball League · Thunder Bay
+#
+# While the site lives at https://tb-masters-basketball.github.io/website/,
+# baseurl is "/website". To move to the league's own domain: set baseurl to ""
+# and url to the domain, and add a CNAME file (see CLAUDE.md).
+title: "Masters Basketball · Thunder Bay"
+description: "Standings, schedule and player stats for the Masters Basketball League in Thunder Bay."
+url: "https://tb-masters-basketball.github.io"
+baseurl: "/website"
+
+timezone: America/Toronto
+markdown: kramdown
+permalink: pretty
+
+exclude:
+  - CLAUDE.md
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - requirements.txt
+  - data/
+  - docs/
+  - scripts/
+  - tests/
+  - vendor/
+  - brand/BRAND.md
+  - brand/head-snippet.html
