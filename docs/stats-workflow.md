@@ -61,7 +61,7 @@ The league's score sheet is form **MBL-SS5**, made by
 Every time the site is published:
 
 - **Upcoming game days:** each one on the Schedule gets a **Score sheet (PDF)**
-  link (portrait Letter) and **Other layouts** (portrait Legal, landscape
+  link (landscape Legal) and **Other layouts** (landscape Letter, portrait
   Letter and Legal). The sheet has both games, two pages each, with the date,
   start time, game ID and team names filled in. Each roster lists the team's
   regular players (not subs) in jersey-number order. Until the rosters are in
@@ -171,6 +171,7 @@ The real message starts with the full path (for example
 | The final score is a tie | `games/2026-12-03-g1.yml: final score is tied 64-64` |
 | A player is listed twice in one game | `games/2026-12-03-g1.yml: line 3 (greg-t): player is listed twice in this game` |
 | A player name isn't written "First L." | `players.yml: player #1 (dave-m): display 'Dave Mitchell' should be 'First L.' (never a full name)` |
+| Two players on one team share a "First L." and one has no number | ``players.yml: mike-r, mike-r2 on team dn are all "Mike R."; give each a jersey `number` ...`` |
 | The file isn't valid (a missing bracket, wrong indent) | `games/2026-12-03-g1.yml: not valid YAML (...)` followed by the line and column |
 
 It also catches: the same `game_id` used in two seasons that are shown on the
@@ -349,7 +350,11 @@ will tell you.
    (`number` is the jersey number, optional, 0 to 99; it goes on the score
    sheets)
 2. The **id** is first name plus last initial, lowercase (`mike-r`). If two
-   players would get the same id, number the second one: `mike-r2`.
+   players would get the same id, number the second one: `mike-r2` (or use
+   more of the last name: `mike-ro`). Never change an id once a game uses it.
+   If two players on the **same team** are both "Mike R.", give both a
+   `number`: the site shows "#23 Mike R." and "#7 Mike R.", and the build
+   stops until they have one.
 3. The **display** name is always written **First L.**, never a full name.
 4. For a **sub**, add them the first time they play and set `sub: true`. Then
    use their id in that day's game file like any other player. A sub's page

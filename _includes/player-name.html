@@ -1,0 +1,7 @@
+{%- comment -%}
+  A player's name as shown everywhere on the site: "#23 Dave M.", the jersey
+  number muted and first, then the name. The number comes from the roster
+  (players.yml), which is the truth; without one, just "Dave M.".
+  Usage: include player-name.html player=p     (p has .display and .number)
+{%- endcomment -%}
+{%- if include.player.number %}<span class="player-num">#{{ include.player.number }}</span> {% endif %}{{ include.player.display -}}

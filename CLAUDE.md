@@ -101,7 +101,9 @@ Always run the stats script before previewing data changes (and after changing
 - Logo: `brand/logo/masters-badge.svg` in the header (works on light, dark and
   the blue header). Footer uses `masters-wordmark-type-dark.svg`. Favicon and
   app icons are in `brand/icons/`.
-- Players are always shown as "First L." (e.g. "Mike R."). Never full names,
+- Players are always shown as "First L." (e.g. "Mike R."), with their jersey
+  number first when `players.yml` has one ("#23 Mike R.", via
+  `_includes/player-name.html`). Never full names,
   contact details or photos of players. Score sheet photos stay unpublished
   (`score_sheet_links: false`) for this reason.
 - Reuse the includes and classes already in `_includes/` and `assets/css/site.css`

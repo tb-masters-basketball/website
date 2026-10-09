@@ -25,9 +25,10 @@ The full list, with answers so far, is in
 - [ ] **Rosters for 2026-27.** Every player as "First L.", their team, and who
       is a sub. `data/2026-27/players.yml` is empty until then, so team pages
       say "No players listed yet".
-- [ ] **Jersey numbers for 2026-27.** They go in `players.yml` as `number:`
-      and print in the score sheets' # box (blank until then). They also tell
-      apart two players with the same "First L." name.
+- [ ] **Jersey numbers for 2026-27.** They go in `players.yml` as `number:`,
+      show as "#23 Dave M." wherever a player is named, and print in the score
+      sheets' # box (blank until then). Two players on one team with the same
+      "First L." must both have one, or the build stops.
 - [ ] **League rules.** `rules/index.md` (the League rules page, linked in the
       footer) has every section with a `[placeholder]` to replace.
 - [ ] **Technical foul rules.** What happens after two in a game, or a number
@@ -80,6 +81,12 @@ sheet into that file and a pull request:
    - slashed foul boxes give `pf`, slashed red T boxes give `tech`
    - check: last running total = Final box; player points add up to it
 3. **Match names to player ids** in `players.yml`:
+   - Player ids are matched by **team, then first name and last initial**
+     ("Dave M." on Hustle is `dave-m`). Jersey numbers are kept only in
+     `players.yml` (the roster file), so a number change is one edit there.
+   - **When a team has two players with the same "First L."**, the jersey
+     number decides. The build insists both have a `number`, and the sheet
+     prints it beside each name.
    - Ask about anyone it can't match, and add new players or subs (`sub: true`).
    - Never write a full name; players are always "First L.".
 4. **Write the files:**
@@ -94,24 +101,26 @@ sheet into that file and a pull request:
 It would live in `.claude/skills/record-game/SKILL.md` (or as a command), and
 `docs/stats-workflow.md` would gain a "Record a game from a photo" section.
 
-### 3. Two players with the same first name and last initial
+### 3. Build `players.yml` from team roster CSVs
 
-**Partly handled.**
-- Player **ids** can't clash: the second "Mike R." gets the id `mike-r2`, and
-  the build rejects any id used twice.
-- **Display names** aren't handled. Both players show as "Mike R." On
-  different teams the team name tells them apart, but on the same team they
-  look identical everywhere, and whoever enters the sheet has to know which id
-  is which.
+Rosters will arrive one team at a time, probably as a spreadsheet per team. A
+small script (say `scripts/build_roster.py`) would read one CSV per team
+(first name, last name, jersey number, sub or not) and update
+`data/<season>/players.yml`, which stays the one source of truth for ids,
+display names and numbers:
 
-To decide:
-- **How to show them.** For example two letters of the last name
-  ("Mike Ro." and "Mike Ri."), or a jersey number. The "First L." rule and its
-  check (`_valid_display` in `scripts/build_stats.py`) would change to allow
-  it.
-- **Whether the build should warn** when two players on the same team share a
-  display name.
-- **How `/record-game` tells them apart on a sheet.**
+- **Add only players who are new by name.** A row matches an existing player
+  on the same team by "First L." (and, if two share it, by number). Existing
+  ids are never rewritten, because every game file points at them.
+- **New ids** follow the usual rule: `dave-m`, then `dave-m2` for a second
+  "Dave M." in the league. `dave-mo` style ids are also accepted.
+- **Update numbers** from the CSVs. A number lives only in `players.yml`, so a
+  change shows everywhere at once, past box scores included.
+- **Keep only "First L."** in `players.yml`. Full last names in the CSVs are
+  read for matching and never written to the repo.
+- **Fail on a duplicate id**, and on two players on one team with the same
+  "First L." and no numbers to tell them apart (the build already fails on
+  both).
 
 ---
 
@@ -161,7 +170,7 @@ generated is committed: `_data/computed/`, the stub folders, `calendar/` and
 |---|---|---|
 | `data/seasons.yml` | Every season, newest first. Marks which is `current`, which are sample (fake) data, the gym and its address | hand, once a season |
 | `data/<season>/teams.yml` | Team id (2 letters), name, 2-letter code, colour slot (1–5) | hand, once a season |
-| `data/<season>/players.yml` | Player id (`mike-r`), display name ("Mike R."), team, `sub` | hand or `/record-game` |
+| `data/<season>/players.yml` | Player id (`mike-r`), display name ("Mike R."), team, `sub`, jersey `number` (the roster: the only place numbers live) | hand or `/record-game` |
 | `data/<season>/schedule.csv` | One row per game: id, date, time, gym, home, away, `regular`/`playoff`, week, optional `status` (`cancelled`) and `round` (playoff round name) | hand |
 | `data/<season>/games/<game_id>.yml` | One file per played game: final score and a line per player (points, FTM, FTA) | hand or `/record-game` |
 | `data/<season>/sheets/<game_id>.jpg` | Photo of the paper sheet, kept for checking (not published) | hand or `/record-game` |
@@ -308,7 +317,8 @@ Every page uses `_layouts/default.html`:
 
 ### Publishing
 
-`.github/workflows/deploy.yml` runs on every push and pull request:
+`.github/workflows/deploy.yml` runs on every push and pull request, and every
+night at about 4 AM Thunder Bay time (08:17 UTC):
 
 1. Install Python packages (`requirements.txt`: PyYAML, reportlab).
 2. Run the unit tests (`tests/`).
@@ -323,6 +333,10 @@ Every page uses `_layouts/default.html`:
 7. **On `main` only:** upload `_site/` and deploy it to GitHub Pages.
 
 A pull request runs steps 1–6, so a red cross means "don't merge yet". The
+nightly run rebuilds `main` with nothing changed, so the parts that depend on
+today's date stay current: the score sheets (from today on), the "next game
+day" panel and the calendar files. GitHub pauses scheduled runs after 60 days
+without a push to the repo; re-enable it under Actions → Build and deploy. The
 domain is set in the repo's Settings → Pages and in `_config.yml` (`url`) and
 `CNAME`; DNS is at Porkbun ([`docs/domain.md`](docs/domain.md)).
 

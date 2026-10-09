@@ -127,7 +127,7 @@
       top.card.href = candidates[0]._url;
       top.value.textContent = figure(first, metric);
       top.label.textContent = LABELS[metric];
-      top.name.textContent = first.name;
+      showName(top.name, first.name, first.number);
       top.meta.textContent = topLine(first, metric);
       emptyMsg.hidden = true;
     } else {
@@ -149,6 +149,19 @@
     });
     ftEmpty.hidden = shown > 0;
     ftCard.hidden = metric === "ft";
+  }
+
+  // "#23 Dave M.", as _includes/player-name.html draws it (no number: just the name).
+  function showName(el, name, number) {
+    el.textContent = "";
+    if (number) {
+      var num = document.createElement("span");
+      num.className = "player-num";
+      num.textContent = "#" + number;
+      el.appendChild(num);
+      el.appendChild(document.createTextNode(" "));
+    }
+    el.appendChild(document.createTextNode(name));
   }
 
   function dataRank(it, key) {

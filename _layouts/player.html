@@ -14,7 +14,7 @@ layout: default
 {%- assign team = stats.teams[player.team] -%}
 
 <div class="wrap page">
-  <h1 class="page-title">{{ player.display }}{% if player.sub %} <span class="badge">Sub</span>{% endif %}</h1>
+  <h1 class="page-title">{% include player-name.html player=player %}{% if player.sub %} <span class="badge">Sub</span>{% endif %}</h1>
   <p class="page-sub"><span class="chip chip--{{ team.colour_slot }}" aria-hidden="true"></span> <a class="tap-link" href="{{ '/teams/' | append: team.id | append: '/' | relative_url }}">{{ team.name }}</a> · {{ season.label }} season</p>
 
   {%- if player.gp == 0 %}

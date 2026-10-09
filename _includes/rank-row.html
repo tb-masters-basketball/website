@@ -8,6 +8,6 @@
 {%- if include.plain %}{% assign rr_tag = "div" %}{% endif -%}
 <{{ rr_tag }} class="rank-row"{% unless include.plain %} href="{{ '/players/' | append: include.player.id | append: '/' | relative_url }}"{% endunless %}>
   <span class="rank-row__rank">{{ include.rank | default: include.player.rank }}</span>
-  <span class="rank-row__who"><span class="rank-row__name">{{ include.player.display }}</span>{% if include.player.sub %} <span class="badge">Sub</span>{% endif %} <span class="rank-row__team">{{ include.meta | default: include.player.team_name }}</span></span>
+  <span class="rank-row__who"><span class="rank-row__name">{% include player-name.html player=include.player %}</span>{% if include.player.sub %} <span class="badge">Sub</span>{% endif %} <span class="rank-row__team">{{ include.meta | default: include.player.team_name }}</span></span>
   <span class="rank-row__value">{{ include.value }}</span>
 </{{ rr_tag }}>
