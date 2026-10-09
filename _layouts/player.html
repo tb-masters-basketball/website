@@ -36,7 +36,7 @@ layout: default
   </div>
 
   <section class="page-section" aria-labelledby="bars-title">
-    <h2 class="section-title" id="bars-title">Points by game night</h2>
+    <h2 class="section-title" id="bars-title">Points by game day</h2>
     <div class="surface-card">
       {% include game-bars.html games=prow.games high=prow.season_high %}
     </div>
@@ -59,7 +59,7 @@ layout: default
           {%- for lg in logs reversed %}
           <tr>
             <th scope="row"><a href="{{ '/games/' | append: lg.game_id | append: '/' | relative_url }}">{{ lg.date_display }}</a>{% if lg.type == "playoff" %} <span class="badge">Playoff</span>{% endif %}</th>
-            <td><a class="tap-link" href="{{ '/teams/' | append: lg.opponent | append: '/' | relative_url }}">{% if lg.home %}vs{% else %}at{% endif %} {{ lg.opponent_name }}</a><span class="log-table__result">{{ lg.result }} {{ lg.score }}</span></td>
+            <td><a class="tap-link" href="{{ '/teams/' | append: lg.opponent | append: '/' | relative_url }}">vs {{ lg.opponent_name }}</a><span class="log-table__result">{{ lg.result }} {{ lg.score }}</span></td>
             <td>{{ lg.pts }}</td>
             <td>{{ lg.ftm }}-{{ lg.fta }}</td>
           </tr>

@@ -61,7 +61,7 @@ league) and "Masters Basketball League · Thunder Bay, Ontario".
   team. The PPG card has a `--mb-hot` top edge; the FT% card has `--mb-accent`.
 - **Ranked player row:** rank, name, a line with team · pts · GP, the number,
   and a chevron. Tapping opens the expanded row (FTM-FTA, FT%, season high,
-  points-by-game-night bars with the latest game in `--mb-hot`, and a "Full
+  points-by-game-day bars with the latest game in `--mb-hot`, and a "Full
   player page" link).
 - **Segmented control:** PPG / Points / FT % on the Stats page.
 - **Team filter chips:** All plus one per team, with colour dots.
@@ -81,7 +81,7 @@ Built from the parts above, in this order.
 3. **Schedule** (`/schedule/`): weeks newest first, with a sticky week heading
    ("Week 8 · Thu Dec 3"). Played games use result cards; upcoming games use
    rows like the next-game panel's (teams, time, court). Byes are listed under
-   the week. The next game night is highlighted.
+   the week. The next game day is highlighted.
 4. **Teams** (`/teams/`): five team cards, each with a colour chip, name, W-L
    and rank. **Team page** (`/teams/<id>/`): team name with a colour bar,
    record, rank, then the roster as ranked player rows (PPG, with FT% in the
@@ -100,7 +100,7 @@ Built from the parts above, in this order.
 ## Behaviour
 - While `sample_data: true` in `_config.yml`, every page reads the sample season
   and shows a slim banner under the header: "Preview with sample data. Real
-  results start after the first game night."
+  results start after the first game day."
 - The current season is the default everywhere. A season switcher only lives in
   the Archive.
 - All dates in Eastern time, written "Thu Dec 10", with times like "7:00 PM".
@@ -119,7 +119,7 @@ The brief didn't cover these. They are in the code now; change any of them here
 and in the templates together.
 
 **Schedule**
-- Upcoming game nights come first, soonest first, with the next night
+- Upcoming game days come first, soonest first, with the next game day
   highlighted (its games in the blue next-game panel). Results follow, newest
   week first. One newest-first list would have put next March at the top. A
   week that is only partly played sits under Upcoming and shows both kinds of
@@ -185,3 +185,23 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
   include the date, because the same two teams meet more than once a season.
   Share tags (Open Graph and Twitter) use the page's description and the
   social card.
+
+## Changes for the real 2026-27 season
+
+- Games are Saturday mornings, so "game night" is now "game day" everywhere
+  ("Next game day", "Points by game day"). The mockups still say "night";
+  that's the only difference.
+- The league has no home team (one gym, "A vs B" on the printed schedule), so
+  the player game log always says "vs", never "at".
+- Cancelled games (`status: cancelled` in `schedule.csv`) reuse the game row
+  and the existing `.badge`: muted names and a "Cancelled" badge where the time
+  would be. A game day that is cancelled outright is headed by its date and the
+  badge, with no week number and no bye line, and sits under Results.
+- Team calendars: an "Add to your calendar" section at the end of the Schedule
+  page (every team plus "Every game", reached from a link under the title) and
+  on each team page (that team only). It reuses the game row: the team chip and
+  name, then **Subscribe** (webcal://) and **Download** (.ics) links, with a
+  short note on Google Calendar.
+- Playoff games whose teams aren't decided show as printed: the round in bold,
+  then the placeholders ("**Semifinal (G42)** · 2nd vs 3rd"), in the same game
+  row and next-game panel. Playoff weeks are headed "Playoffs · Sat Apr 24".

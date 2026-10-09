@@ -1,8 +1,11 @@
-# The real 2026-27 season. One [placeholder] row per team keeps the file's
-# shape visible. Replace them with the real players, written "First L."
-# (for example `display: Mike R.`), with ids like `mike-r`. See data/CLAUDE.md.
-- {id: placeholder-a, display: "[placeholder]", team: aa, sub: false}
-- {id: placeholder-b, display: "[placeholder]", team: bb, sub: false}
-- {id: placeholder-c, display: "[placeholder]", team: cc, sub: false}
-- {id: placeholder-d, display: "[placeholder]", team: dd, sub: false}
-- {id: placeholder-e, display: "[placeholder]", team: ee, sub: false}
+# The real 2026-27 season's players. Empty until the rosters are in: team
+# pages say "No players listed yet" and nobody has a player page.
+#
+# Add one line per player, written "First L." (never a full name), with an id
+# of first name plus last initial (add a number if two clash), the team's id,
+# and sub: true for a sub. See data/CLAUDE.md and docs/stats-workflow.md.
+#   - {id: mike-r, display: Mike R., team: dn, sub: false}
+#
+# Team ids: bb Bay City Bears, dn Dam Nation, fg Floor Generals, hu Hustle,
+# nw Nor'Westers.
+[]

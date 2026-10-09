@@ -1,33 +1,37 @@
-# The real 2026-27 season. Replace each [placeholder] with the league's real
-# team name, 2-letter code and id once the teams are confirmed.
-# colour_slot picks --mb-team-N in brand/css/brand.css (1 to 5).
-- id: aa
-  name: "[Team A]"
-  short: TA
-  colour_slot: 1
+# The real 2026-27 season, from the league's printed schedule
+# (Masters_Basketball_Schedule_2026-27_UPDATED.pdf). The ids and 2-letter codes
+# were made for the site and approved.
+# Team colours come from the league; each team uses the nearest of the five
+# site colours (colour_slot picks --mb-team-N in brand/css/brand.css). Black
+# and orange aren't among them, so Hustle is purple and Nor'Westers gold.
+# colour_light/colour_dark record the slot's hex values.
+- id: bb
+  name: "Bay City Bears"
+  short: BB
+  colour_slot: 1    # league colour: red
   colour_light: "#C8102E"
   colour_dark: "#E8394F"
-- id: bb
-  name: "[Team B]"
-  short: TB
-  colour_slot: 2
+- id: dn
+  name: "Dam Nation"
+  short: DN
+  colour_slot: 2    # league colour: blue
   colour_light: "#1F6FB5"
   colour_dark: "#4D8FE0"
-- id: cc
-  name: "[Team C]"
-  short: TC
-  colour_slot: 3
+- id: fg
+  name: "Floor Generals"
+  short: FG
+  colour_slot: 3    # league colour: green
   colour_light: "#2E8B57"
   colour_dark: "#3FB27F"
-- id: dd
-  name: "[Team D]"
-  short: TD
-  colour_slot: 4
-  colour_light: "#F2A900"
-  colour_dark: "#F2B630"
-- id: ee
-  name: "[Team E]"
-  short: TE
-  colour_slot: 5
+- id: hu
+  name: "Hustle"
+  short: HU
+  colour_slot: 5    # league colour: black; shown as slot 5, purple
   colour_light: "#6B3FA0"
   colour_dark: "#9B6FD6"
+- id: nw
+  name: "Nor'Westers"
+  short: NW
+  colour_slot: 4    # league colour: orange; shown as slot 4, gold
+  colour_light: "#F2A900"
+  colour_dark: "#F2B630"

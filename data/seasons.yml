@@ -8,18 +8,21 @@
 #                  `sample_data: true`. A sample season without it is a fake
 #                  past season, listed in the archive in sample mode only.
 #   gym            the gym, used for any game whose gym is blank in schedule.csv
+#   gym_address    optional: the gym's street address, added to calendar events
+#                  for games at that gym
 - id: 2026-27
   label: "2026-27"
   current: true
-  gym: "St. Pats"
+  gym: "St. Pat's"
+  gym_address: "621 Selkirk St S, Thunder Bay, ON P7E 1T9"
 
 - id: sample-2026-27
   label: "2026-27"
   sample: true
   stands_in_for: 2026-27
-  gym: "St. Pats"
+  gym: "St. Pat's"
 
 - id: sample-2025-26
   label: "2025-26"
   sample: true
-  gym: "St. Pats"
+  gym: "St. Pat's"

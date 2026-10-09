@@ -196,9 +196,9 @@ class StatsTests(SeasonFixture):
         self.assertIsNone(al["rank_ft"])
         self.assertIsNone(al["order_ft"])
 
-    def test_rankings_game_nights_are_regular_season_only(self):
+    def test_rankings_game_days_are_regular_season_only(self):
         al = next(r for r in self.compute()["rankings.json"] if r["id"] == "al-a")
-        # the 50-point playoff game (week 20) is not a game night here
+        # the 50-point playoff game (week 20) is not a game day here
         self.assertEqual([(g["week"], g["pts"]) for g in al["games"]], [(1, 20), (3, 21)])
         self.assertTrue(al["games"][-1]["latest"])
         self.assertNotIn("latest", al["games"][0])
@@ -277,12 +277,100 @@ class StatsTests(SeasonFixture):
         self.assertEqual(first["games"][0]["gym"], "St. Pats")
         self.assertEqual(first["gyms"], ["St. Pats"])
         self.assertEqual(out["games.json"]["2026-10-01-g1"]["gym"], "St. Pats")
-        # a different gym on another night is kept as written
+        # a different gym on another day is kept as written
         self.assertEqual(out["schedule.json"]["weeks"][1]["games"][0]["gym"], "1")
         # no season gym and a blank cell: no gym
         out = self.compute()
         self.assertIsNone(out["schedule.json"]["weeks"][0]["games"][0]["gym"])
         self.assertEqual(out["schedule.json"]["weeks"][0]["gyms"], [])
+
+
+class CancelledGameTests(SeasonFixture):
+    """schedule.csv may have a status column: blank, or cancelled."""
+
+    def schedule_with_status(self, statuses):
+        lines = textwrap.dedent(self.SCHEDULE).splitlines()
+        out = [lines[0] + ",status"]
+        for line in lines[1:]:
+            out.append(line + "," + statuses.get(line.split(",")[0], ""))
+        self.write("schedule.csv", "\n".join(out) + "\n")
+
+    def test_header_without_status_still_works(self):
+        self.assertEqual(self.compute()["schedule.json"]["next_week"], 4)
+
+    def test_cancelled_game_is_skipped_as_next_and_moves_to_results(self):
+        self.schedule_with_status({"2026-10-22-g1": "cancelled"})
+        out = self.compute()
+        sched = out["schedule.json"]
+        week4 = next(w for w in sched["weeks"] if w["week"] == 4)
+        self.assertTrue(week4["cancelled"])
+        self.assertTrue(week4["played"])                 # done: shown under Results
+        self.assertTrue(week4["games"][0]["cancelled"])
+        self.assertFalse(week4["games"][0]["played"])
+        self.assertIsNone(sched["next_week"])            # the only open game was cancelled
+        self.assertEqual(sched["latest_week"], 20)
+        self.assertEqual(out["players.json"]["al-a"]["gp"], 2)   # stats don't change
+
+    def test_partly_cancelled_week_stays_upcoming(self):
+        self.schedule_with_status({"2026-10-22-g1": "cancelled"})
+        self.write("schedule.csv", (self.season / "schedule.csv").read_text()
+                   + "2026-10-22-g2,2026-10-22,20:15,1,bb,cc,regular,4,\n")
+        sched = self.compute()["schedule.json"]
+        week4 = next(w for w in sched["weeks"] if w["week"] == 4)
+        self.assertFalse(week4["cancelled"])
+        self.assertFalse(week4["played"])
+        self.assertEqual(sched["next_week"], 4)
+
+    def test_a_game_file_for_a_cancelled_game_fails(self):
+        self.schedule_with_status({"2026-10-08-g1": "cancelled"})
+        self.assertProblem("game '2026-10-08-g1' is marked cancelled in schedule.csv")
+
+    def test_unknown_status_fails(self):
+        self.schedule_with_status({"2026-10-22-g1": "postponed"})
+        self.assertProblem("status 'postponed' should be blank or cancelled")
+
+    def test_make_up_on_the_day_of_a_cancelled_game_is_allowed(self):
+        self.schedule_with_status({"2026-10-22-g1": "cancelled"})
+        self.write("schedule.csv", (self.season / "schedule.csv").read_text()
+                   + "2026-10-22-g2,2026-10-22,20:15,1,aa,bb,regular,4,\n")
+        self.assertEqual(self.compute()["schedule.json"]["next_week"], 4)
+
+
+class PlayoffPlaceholderTests(SeasonFixture):
+    """A playoff game can name its teams as TBD, a place (2nd) or Winner G41."""
+
+    def add_rows(self, *rows, header="game_id,date,time,gym,home,away,type,week,status,round"):
+        lines = textwrap.dedent(self.SCHEDULE).splitlines()
+        body = [header] + [line + ",," for line in lines[1:]] + list(rows)
+        self.write("schedule.csv", "\n".join(body) + "\n")
+
+    def test_placeholders_and_round_in_the_schedule(self):
+        self.add_rows("2027-04-08-g1,2027-04-08,19:30,1,2nd,Winner G41,playoff,21,,Semifinal (G42)")
+        week = self.compute()["schedule.json"]["weeks"][-1]
+        g = week["games"][0]
+        self.assertEqual((g["home_name"], g["away_name"], g["round"]), ("2nd", "Winner G41", "Semifinal (G42)"))
+        self.assertFalse(g["teams_known"])
+        self.assertEqual(week["byes"], [])
+
+    def test_team_names_are_filled_in_when_known(self):
+        g = self.compute()["schedule.json"]["weeks"][0]["games"][0]
+        self.assertEqual((g["home_name"], g["away_name"], g["teams_known"], g["round"]),
+                         ("Alpha", "Bravo", True, None))
+
+    def test_placeholders_only_for_playoff_games(self):
+        self.add_rows("2026-10-29-g1,2026-10-29,19:00,1,TBD,aa,regular,5,,")
+        self.assertProblem("home team 'TBD' is not in teams.yml")
+
+    def test_unknown_placeholder_is_still_a_typo(self):
+        self.add_rows("2027-04-08-g1,2027-04-08,19:30,1,Winner of 41,aa,playoff,21,,")
+        self.assertProblem("home team 'Winner of 41' is not in teams.yml (a playoff game may also say TBD")
+
+    def test_a_game_file_needs_the_real_teams_in_the_schedule(self):
+        self.add_rows()
+        sched = (self.season / "schedule.csv").read_text().replace(
+            "2027-04-01-g1,2027-04-01,19:00,1,aa,bb,playoff,20,,", "2027-04-01-g1,2027-04-01,19:00,1,1st,2nd,playoff,20,,Final")
+        self.write("schedule.csv", sched)
+        self.assertProblem("schedule.csv still lists this game as 1st vs 2nd")
 
 
 class NoGamesYetTests(SeasonFixture):
@@ -293,6 +381,13 @@ class NoGamesYetTests(SeasonFixture):
         for path in (self.season / "games").glob("*.yml"):
             path.unlink()
         self.write("schedule.csv", "game_id,date,time,gym,home,away,type,week\n")
+
+    def test_builds_with_an_empty_roster(self):
+        self.write("players.yml", "# rosters to come\n[]\n")
+        out = self.compute()
+        self.assertEqual(out["players.json"], {})
+        self.assertEqual(out["rankings.json"], [])
+        self.assertEqual(len(out["teams.json"]), 3)
 
     def test_builds_with_no_games_and_no_schedule(self):
         out = self.compute()
@@ -475,6 +570,15 @@ class MultiSeasonTests(SeasonFixture):
             descriptions = [re.search(r'^description: (.*)$', p, re.M).group(1) for p in pages]
             self.assertEqual(len(set(titles)), len(pages), folder)
             self.assertEqual(len(set(descriptions)), len(pages), folder)
+
+    def test_calendars_come_from_the_real_season_even_in_sample_mode(self):
+        self.build(sample_data=True, url="https://example.ca")
+        self.assertEqual(sorted(p.name for p in (self.site / "calendar").glob("*.ics")),
+                         ["aa.ics", "bb.ics", "cc.ics", "league.ics"])
+        info = (self.out / "calendars.json").read_text()
+        self.assertIn('"season": "real"', info)
+        self.assertIn('"games": 0', info)                                 # the fake season's games aren't in it
+        self.assertNotIn("BEGIN:VEVENT", (self.site / "calendar" / "league.ics").read_text())
 
     def test_stubs_are_rewritten_not_accumulated(self):
         self.build(sample_data=True)

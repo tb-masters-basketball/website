@@ -22,8 +22,13 @@ layout: default
     <div class="tile tile--card"><div class="tile__value">{{ row.diff_display }}</div><div class="tile__label"><abbr title="Point differential">DIFF</abbr></div></div>
   </div>
 
+  {%- assign roster_size = 0 -%}
+  {%- for pair in stats.players %}{% if pair[1].team == tid %}{% assign roster_size = roster_size | plus: 1 %}{% endif %}{% endfor %}
   <section class="page-section" aria-labelledby="roster-title">
     <h2 class="section-title" id="roster-title">Roster</h2>
+    {%- if roster_size == 0 %}
+    <p class="empty">No players listed yet.</p>
+    {%- else %}
     <div class="rank-list">
       {%- assign rank_in_team = 0 -%}
       {%- for rp in stats.rankings %}{% if rp.team == tid %}
@@ -35,6 +40,7 @@ layout: default
       {%- include rank-row.html player=rp value="—" meta="No games yet" rank="–" %}
       {%- endif %}{% endfor %}
     </div>
+    {%- endif %}
   </section>
 
   {%- capture team_results %}
@@ -44,7 +50,7 @@ layout: default
     {%- endif %}{% endif %}{% endfor %}{% endfor %}
   {%- endcapture %}
   {%- capture team_upcoming %}
-    {%- for week in stats.schedule.weeks %}{% for tg in week.games %}{% unless tg.played %}{% if tg.home == tid or tg.away == tid %}
+    {%- for week in stats.schedule.weeks %}{% for tg in week.games %}{% unless tg.played or tg.cancelled %}{% if tg.home == tid or tg.away == tid %}
     {% include game-row.html game=tg teams=stats.teams show_date=true %}
     {%- endif %}{% endunless %}{% endfor %}{% endfor %}
   {%- endcapture %}
@@ -68,6 +74,15 @@ layout: default
     <p class="empty">{% if stats.schedule.weeks.size == 0 %}Not scheduled yet.{% else %}No more games scheduled.{% endif %}</p>
     {%- endif %}
   </section>
+
+  {%- capture team_cal %}{% include calendar-links.html team=tid %}{% endcapture %}
+  {%- assign team_cal_trimmed = team_cal | strip %}
+  {%- if team_cal_trimmed != "" %}
+  <section class="page-section" aria-labelledby="calendar-title">
+    <h2 class="section-title" id="calendar-title">Add to your calendar</h2>
+    {{ team_cal }}
+  </section>
+  {%- endif %}
 
   <p class="page-links"><a class="link-more" href="{{ '/teams/' | relative_url }}">All teams</a></p>
 </div>

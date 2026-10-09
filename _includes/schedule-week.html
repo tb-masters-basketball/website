@@ -1,19 +1,21 @@
 {%- comment -%}
-  One game night on the Schedule page: a sticky week heading, result cards for
-  games already played, rows for the ones still to come, and the bye. With
-  highlight=true (the next game night) the upcoming games use the blue
-  next-game panel.
+  One game day on the Schedule page: a sticky week heading, result cards for
+  games already played, rows for the ones still to come or cancelled, and the
+  bye. With highlight=true (the next game day) the upcoming games use the blue
+  next-game panel. A game day where every game was cancelled is headed by its
+  date and a "Cancelled" badge, with no week number.
   Usage: include schedule-week.html week=week stats=stats highlight=true
 {%- endcomment -%}
 {%- assign sw = include.week -%}
 {%- assign sw_stats = include.stats -%}
 {%- assign sw_played = 0 -%}
 {%- assign sw_open = 0 -%}
-{%- for sw_g in sw.games %}{% if sw_g.played %}{% assign sw_played = sw_played | plus: 1 %}{% else %}{% assign sw_open = sw_open | plus: 1 %}{% endif %}{% endfor -%}
+{%- assign sw_cancelled = 0 -%}
+{%- for sw_g in sw.games %}{% if sw_g.played %}{% assign sw_played = sw_played | plus: 1 %}{% elsif sw_g.cancelled %}{% assign sw_cancelled = sw_cancelled | plus: 1 %}{% else %}{% assign sw_open = sw_open | plus: 1 %}{% endif %}{% endfor -%}
 <section class="schedule-week" aria-labelledby="week-{{ sw.week }}">
   <h3 class="week-head" id="week-{{ sw.week }}">
-    <span class="week-head__title">{% if sw.type == "playoff" %}Playoffs{% else %}Week {{ sw.week }}{% endif %} · {{ sw.date_display }}</span>
-    {%- if include.highlight %}<span class="badge badge--top">Next game night</span>{% endif %}
+    <span class="week-head__title">{% if sw.cancelled %}{{ sw.date_display }}{% else %}{% if sw.type == "playoff" %}Playoffs{% else %}Week {{ sw.week }}{% endif %} · {{ sw.date_display }}{% endif %}</span>
+    {%- if include.highlight %}<span class="badge badge--top">Next game day</span>{% elsif sw.cancelled %}<span class="badge">Cancelled</span>{% endif %}
     {%- if sw.gyms.size > 0 %}<span class="week-head__meta">{{ sw.gyms | join: " · " }}</span>{% endif %}
   </h3>
   {%- if sw_played > 0 %}
@@ -26,14 +28,14 @@
   {%- endif %}
   {%- if sw_open > 0 and include.highlight %}
   {% include next-game.html week=sw teams=sw_stats.teams compact=true %}
-  {%- elsif sw_open > 0 %}
+  {%- elsif sw_open > 0 or sw_cancelled > 0 %}
   <ul class="game-rows">
     {%- for sw_g in sw.games %}{% unless sw_g.played %}
     {% include game-row.html game=sw_g teams=sw_stats.teams %}
     {%- endunless %}{% endfor %}
   </ul>
   {%- endif %}
-  {%- unless include.highlight and sw_open > 0 %}
+  {%- unless sw.cancelled %}{% unless include.highlight and sw_open > 0 %}
   {% include bye-line.html byes=sw.byes teams=sw_stats.teams class="bye-note" %}
-  {%- endunless %}
+  {%- endunless %}{% endunless %}
 </section>

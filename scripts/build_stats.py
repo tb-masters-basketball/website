@@ -11,7 +11,7 @@ and writes JSON that the Jekyll templates read:
   _data/computed/<season>/players.json     per-player season totals, keyed by id
   _data/computed/<season>/leaders.json     ranked PPG, points and FT% lists
   _data/computed/<season>/rankings.json    one row per player for the Stats page: totals,
-                                           every rank, and points by game night
+                                           every rank, and points by game day
   _data/computed/<season>/games.json       box scores, keyed by game_id
   _data/computed/<season>/game_logs.json   each player's games, keyed by id
   _data/computed/<season>/schedule.json    weeks, byes, latest and next week
@@ -20,6 +20,7 @@ and writes JSON that the Jekyll templates read:
 It also writes small stub pages for Jekyll (see write_stubs): _games/, _players/,
 _teams/ and _archive/ (git-ignored, rewritten every run), and, if
 `score_sheet_links: true` in _config.yml, copies score sheet photos to sheets/.
+It writes the real season's calendar files to calendar/ too (see calendars.py).
 
 If any check fails, every problem is printed and nothing is written.
 
@@ -42,10 +43,19 @@ from pathlib import Path
 
 import yaml
 
+import calendars
+
 ROOT = Path(__file__).resolve().parent.parent
 
 FT_MIN_ATTEMPTS = 10
-SCHEDULE_COLUMNS = ["game_id", "date", "time", "gym", "home", "away", "type", "week"]
+SCHEDULE_COLUMNS = ["game_id", "date", "time", "gym", "home", "away", "type", "week", "status", "round"]
+# The last two columns are optional (leave them out, or out from the end):
+#   status  blank (the game goes ahead) or "cancelled"
+#   round   a playoff round's name as the league writes it, e.g. "Semifinal (G42)"
+GAME_STATUSES = ("", "cancelled")
+# A playoff game whose teams aren't known yet names them like the printed
+# schedule does: TBD, a standings place (1st to 5th), or the winner/loser of a game.
+PLACEHOLDER_RE = re.compile(r"^(TBD|[1-9](st|nd|rd|th)|(Winner|Loser) G\d+)$")
 GAME_TYPES = ("regular", "playoff")
 SHEET_EXTENSIONS = (".jpg", ".jpeg", ".png", ".heic", ".pdf")
 TEAM_ID_RE = re.compile(r"^[a-z]{2}$")
@@ -274,7 +284,7 @@ def load_schedule(season_dir, teams, problems):
     try:
         with open(path, encoding="utf-8", newline="") as fh:
             reader = csv.DictReader(fh)
-            if reader.fieldnames != SCHEDULE_COLUMNS:
+            if reader.fieldnames not in (SCHEDULE_COLUMNS, SCHEDULE_COLUMNS[:-1], SCHEDULE_COLUMNS[:-2]):
                 problems.append(f"{path}: header should be {','.join(SCHEDULE_COLUMNS)}")
                 return schedule
             rows = list(reader)
@@ -300,20 +310,31 @@ def load_schedule(season_dir, teams, problems):
         if not TIME_RE.match(time):
             problems.append(f"{where} ({gid}): time {time!r} should be 24-hour HH:MM")
         home, away = row["home"].strip(), row["away"].strip()
-        for side, tid in (("home", home), ("away", away)):
-            if tid not in teams:
-                problems.append(f"{where} ({gid}): {side} team {tid!r} is not in teams.yml")
-        if home == away:
-            problems.append(f"{where} ({gid}): a team can't play itself")
         gtype = row["type"].strip()
         if gtype not in GAME_TYPES:
             problems.append(f"{where} ({gid}): type {gtype!r} should be regular or playoff")
+        for side, tid in (("home", home), ("away", away)):
+            if tid in teams:
+                continue
+            if gtype == "playoff" and PLACEHOLDER_RE.match(tid):
+                continue   # not known yet: TBD, 2nd, Winner G41...
+            hint = " (a playoff game may also say TBD, a place like 2nd, or Winner G41)" if gtype == "playoff" else ""
+            problems.append(f"{where} ({gid}): {side} team {tid!r} is not in teams.yml{hint}")
+        if home == away and home != "TBD":
+            problems.append(f"{where} ({gid}): a team can't play itself")
         try:
             week = int(row["week"])
         except ValueError:
             problems.append(f"{where} ({gid}): week {row['week']!r} should be a number")
             continue
+        status = (row.get("status") or "").strip().lower()
+        if status not in GAME_STATUSES:
+            problems.append(f"{where} ({gid}): status {row['status']!r} should be blank or cancelled")
         for tid in (home, away):
+            if status == "cancelled":
+                break   # a cancelled game doesn't stop a team playing a make-up that day
+            if tid not in teams:
+                continue
             key = (tid, date)
             if key in team_dates and gtype == "regular":
                 problems.append(f"{where} ({gid}): {tid} already plays on {date} ({team_dates[key]})")
@@ -327,6 +348,9 @@ def load_schedule(season_dir, teams, problems):
             "away": away,
             "type": gtype,
             "week": week,
+            "cancelled": status == "cancelled",
+            "round": (row.get("round") or "").strip() or None,
+            "teams_known": home in teams and away in teams,
         }
     return schedule
 
@@ -358,6 +382,14 @@ def _check_game(path, game, teams, players, schedule, problems):
     row = schedule.get(gid)
     if row is None:
         problems.append(f"{where}: game_id '{gid}' has no row in schedule.csv")
+        return
+    if not row["teams_known"]:
+        problems.append(f"{where}: schedule.csv still lists this game as {row['home']} vs {row['away']}. "
+                        "Put the two teams' ids in its home and away cells first")
+        return
+    if row["cancelled"]:
+        problems.append(f"{where}: game '{gid}' is marked cancelled in schedule.csv. "
+                        "Delete this file, or clear the status if the game was played")
         return
 
     date = game.get("date")
@@ -626,7 +658,7 @@ def compute_leaders(totals):
 def compute_rankings(season, totals, leaders, logs):
     """One row per player who has played, in points-per-game order, with all
     three ranks, their position in each ordering, and their regular-season
-    points by game night. The Stats page sorts, filters and expands these."""
+    points by game day. The Stats page sorts, filters and expands these."""
     teams = season["teams"]
     pos = {
         "ppg": {e["id"]: (i, e["rank"]) for i, e in enumerate(leaders["ppg"])},
@@ -775,7 +807,13 @@ def compute_schedule(season, summaries):
                 "gym": r["gym"] or season.get("gym"),
                 "home": r["home"],
                 "away": r["away"],
+                # names to show: the team's name, or the placeholder (TBD, 2nd, Winner G41)
+                "home_name": teams[r["home"]]["name"] if r["home"] in teams else r["home"],
+                "away_name": teams[r["away"]]["name"] if r["away"] in teams else r["away"],
+                "round": r["round"],
+                "teams_known": r["teams_known"],
                 "played": played,
+                "cancelled": r["cancelled"],
             }
             if played:
                 s = summaries[r["game_id"]]
@@ -786,16 +824,18 @@ def compute_schedule(season, summaries):
         regular = all(g["type"] == "regular" for g in games)
         out.append({
             "week": week,
+            "cancelled": all(g["cancelled"] for g in games),
             "type": "regular" if regular else "playoff",
             "date": rows[0]["date"].isoformat(),
             "date_display": fmt_date(rows[0]["date"]),
-            "played": all(g["played"] for g in games),
+            # done: every game played or cancelled (the week moves to Results)
+            "played": all(g["played"] or g["cancelled"] for g in games),
             "gyms": list(dict.fromkeys(g["gym"] for g in games if g["gym"])),
             "games": games,
             "byes": sorted((t for t in teams if t not in playing), key=lambda t: teams[t]["name"]) if regular else [],
         })
     played_weeks = [w["week"] for w in out if any(g["played"] for g in w["games"])]
-    upcoming = [w["week"] for w in out if not all(g["played"] for g in w["games"])]
+    upcoming = [w["week"] for w in out if not w["played"]]
     return {
         "latest_week": max(played_weeks) if played_weeks else None,
         "next_week": min(upcoming) if upcoming else None,
@@ -998,6 +1038,9 @@ def build(data_dir, out_dir, write=True, config=None, root=None):
             owner[gid] = s["id"]
     if problems:
         raise DataError(problems)
+    # Calendars always carry the real (current) season, even in sample mode.
+    current = next(s for s in seasons if s["current"])
+    site_url = str(config.get("url") or "").rstrip("/") + str(config.get("baseurl") or "").rstrip("/")
     mode = "sample mode" if active.get("sample") else "real season"
     summary.append(f"Site shows: {active['id']} ({mode}); archive lists {', '.join(s['id'] for s in listed)}")
 
@@ -1014,6 +1057,11 @@ def build(data_dir, out_dir, write=True, config=None, root=None):
             for sid, files in outputs.items():
                 for name, data in files.items():
                     _write_json(tmp / sid / name, data)
+            if root is not None:
+                cal = calendars.write_calendars(root, current, outputs[current["id"]]["schedule.json"],
+                                                outputs[current["id"]]["teams.json"], site_url)
+                cal["games"] = sum(len(w["games"]) for w in outputs[current["id"]]["schedule.json"]["weeks"])
+                _write_json(tmp / "calendars.json", cal)
             if out_dir.exists():
                 shutil.rmtree(out_dir)
             tmp.rename(out_dir)
@@ -1022,6 +1070,8 @@ def build(data_dir, out_dir, write=True, config=None, root=None):
                 shutil.rmtree(tmp)
         if root is not None:
             summary.append(f"Wrote {write_stubs(root, active, listed, outputs)} stub pages")
+            summary.append(f"Wrote calendars for {current['id']} ({len(outputs[current['id']]['teams.json'])} teams "
+                           "and the league) to calendar/")
             if publish_sheets:
                 summary.append(f"Copied {copy_sheets(root, listed, loaded_seasons)} score sheet photos")
             else:

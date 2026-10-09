@@ -25,7 +25,7 @@ scripts:
   <p class="page-sub">Regular season{% if week %} · through Week {{ week }}{% endif %}</p>
 
   {%- if rows.size == 0 %}
-  <p class="empty">No games played yet. Player stats appear after the first game night.</p>
+  <p class="empty">No games played yet. Player stats appear after the first game day.</p>
   {%- else %}
   <div class="stats-app" data-stats data-ft-min="{{ ft_min }}">
 
@@ -132,7 +132,7 @@ scripts:
       <div><dt>GP</dt><dd>Games played: the games where the player is on the score sheet.</dd></div>
       <div><dt>PPG</dt><dd>Points per game: total points divided by games played, to one decimal.</dd></div>
       <div><dt>FT%</dt><dd>Free throws made divided by free throws attempted, to one decimal. A player needs at least {{ ft_min | default: 10 }} attempts to be ranked.</dd></div>
-      <div><dt>Subs</dt><dd>A sub's points count for them as a player and toward their team's score that night.</dd></div>
+      <div><dt>Subs</dt><dd>A sub's points count for them as a player and toward their team's score that day.</dd></div>
       <div><dt>Playoffs</dt><dd>Kept separate. Playoff games never count in these stats or in the standings.</dd></div>
       <div><dt>Source</dt><dd>The league's paper score sheets, typed into the site's game files. The numbers are recalculated every time the site is published.</dd></div>
     </dl>
