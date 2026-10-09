@@ -254,7 +254,7 @@ class StatsTests(SeasonFixture):
         out = self.compute()
         g = out["games.json"]["2026-10-01-g1"]
         self.assertEqual(g["winner"], "aa")
-        self.assertEqual(g["top"], [{"player": "al-a", "display": "Al A.", "team": "aa", "pts": 20}])
+        self.assertEqual(g["top"], [{"player": "al-a", "display": "Al A.", "number": None, "team": "aa", "pts": 20}])
         self.assertEqual(g["home_team"]["totals"], {"pts": 30, "ftm": 4, "fta": 7})
         log = out["game_logs.json"]["al-a"]
         self.assertEqual([(e["week"], e["result"], e["pts"]) for e in log],
@@ -673,6 +673,14 @@ class FoulTests(SeasonFixture):
         self.assertProblem("pf -1 should be a whole number from 0 to 5")
 
 
+class PlayerIdTests(unittest.TestCase):
+    def test_id_forms(self):
+        for good in ("dave-m", "mike-r2", "kevin-mo", "kevin-mo2", "mary-ann-k"):
+            self.assertTrue(bs.PLAYER_ID_RE.match(good), good)
+        for bad in ("dave", "Dave-M", "dave-m-23", "23-dave-m", "dave_m"):
+            self.assertFalse(bs.PLAYER_ID_RE.match(bad), bad)
+
+
 class JerseyNumberTests(SeasonFixture):
     """players.yml may give a jersey `number` (optional, 0 to 99)."""
 
@@ -705,6 +713,43 @@ class JerseyNumberTests(SeasonFixture):
     def test_two_regular_players_on_a_team_cant_share_a_number(self):
         self.players(al=7, amy=7)
         self.assertProblem("number 7 is already al-a's on team aa")
+
+    def test_numbers_reach_every_place_a_player_is_named(self):
+        self.players(al=7, amy=12)
+        out = self.compute()
+        self.assertEqual(out["players.json"]["al-a"]["number"], "7")
+        self.assertEqual(out["players.json"]["cy-d"]["number"], None)
+        self.assertEqual({r["id"]: r["number"] for r in out["rankings.json"]}["al-a"], "7")
+        self.assertEqual(out["leaders.json"]["ppg"][0]["number"], out["players.json"][out["leaders.json"]["ppg"][0]["id"]]["number"])
+        lines = out["games.json"]["2026-10-01-g1"]["home_team"]["lines"]
+        self.assertEqual({l["player"]: l["number"] for l in lines}, {"al-a": "7", "amy-b": "12"})
+        self.assertEqual(out["games.json"]["2026-10-01-g1"]["top"][0]["number"], "7")
+
+    def test_two_of_the_same_name_on_a_team_need_numbers(self):
+        self.write("players.yml", """\
+            - {id: al-a, display: Al A., team: aa, sub: false, number: 7}
+            - {id: al-a2, display: Al A., team: aa, sub: false}
+            - {id: amy-b, display: Amy B., team: aa, sub: false}
+            - {id: bo-c, display: Bo C., team: bb, sub: false}
+            - {id: cy-d, display: Cy D., team: cc, sub: false}
+            - {id: sam-e, display: Sam E., team: bb, sub: true}
+            """)
+        self.assertProblem('al-a, al-a2 on team aa are all "Al A."; give each a jersey `number`')
+        self.assertProblem("(missing: al-a2)")
+
+    def test_same_name_with_numbers_or_on_other_teams_is_fine(self):
+        self.write("players.yml", """\
+            - {id: al-a, display: Al A., team: aa, sub: false, number: 7}
+            - {id: al-ab, display: Al A., team: aa, sub: false, number: 8}
+            - {id: amy-b, display: Amy B., team: aa, sub: false}
+            - {id: bo-c, display: Bo C., team: bb, sub: false}
+            - {id: al-a2, display: Al A., team: cc, sub: false}
+            - {id: cy-d, display: Cy D., team: cc, sub: false}
+            - {id: sam-e, display: Sam E., team: bb, sub: true}
+            """)
+        players = bs.load_season(self.data, "test")["players"]
+        self.assertIn("al-ab", players)              # more of the last name in an id is allowed
+        self.assertEqual(players["al-ab"]["display"], "Al A.")
 
     def test_a_sub_can_wear_a_taken_number(self):
         self.players(sam=4)                       # bo-c, on bb, already wears 4

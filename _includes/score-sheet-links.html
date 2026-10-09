@@ -1,7 +1,7 @@
 {%- comment -%}
-  Score sheet PDF links: the portrait Letter sheet, and an "Other layouts"
-  disclosure (works without JavaScript) with portrait Legal and landscape
-  Letter and Legal. The PDFs come from scripts/make_score_sheets.sh; a link is
+  Score sheet PDF links: the landscape Legal sheet (the league's default),
+  and an "Other layouts" disclosure (works without JavaScript) with
+  landscape Letter and portrait Letter and Legal. The PDFs come from scripts/make_score_sheets.sh; a link is
   only drawn when its file was generated (e.g. not for a game day before today,
   or a playoff game whose teams aren't known yet).
     date=YYYY-MM-DD   one game day's sheets (score-sheets-<date>-...pdf)
@@ -15,9 +15,11 @@
 {%- else -%}
 {%- assign ssl_stem = "/score-sheets/score-sheets-" | append: include.date | append: "-" -%}
 {%- endif -%}
-{%- assign ssl_main_path = ssl_stem | append: "portrait-letter.pdf" -%}
+{%- comment %} The first layout is the default link; the rest go under "Other layouts". {% endcomment -%}
+{%- assign ssl_layouts = "landscape-legal|Landscape, Legal;landscape-letter|Landscape, Letter;portrait-letter|Portrait, Letter;portrait-legal|Portrait, Legal" | split: ";" -%}
+{%- assign ssl_main_layout = ssl_layouts | first | split: "|" | first -%}
+{%- assign ssl_main_path = ssl_stem | append: ssl_main_layout | append: ".pdf" -%}
 {%- assign ssl_main = site.static_files | where: "path", ssl_main_path | first -%}
-{%- assign ssl_layouts = "portrait-letter|Portrait, Letter;portrait-legal|Portrait, Legal;landscape-letter|Landscape, Letter;landscape-legal|Landscape, Legal" | split: ";" -%}
 {%- if ssl_main and include.blank -%}
 <ul class="sheet-links__list sheet-links__list--open">
   {%- for ssl_layout in ssl_layouts %}
@@ -31,7 +33,7 @@
 </ul>
 {%- elsif ssl_main -%}
 <div class="sheet-links">
-  <a class="link-more" href="{{ ssl_main_path | relative_url }}">Score sheet (PDF)<span class="visually-hidden">, {{ include.label }}, portrait Letter</span></a>
+  <a class="link-more" href="{{ ssl_main_path | relative_url }}">Score sheet (PDF)<span class="visually-hidden">, {{ include.label }}, landscape Legal</span></a>
   <details class="sheet-links__more">
     <summary>Other layouts<span class="visually-hidden"> for the {{ include.label }} score sheet</span></summary>
     <ul class="sheet-links__list">

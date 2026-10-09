@@ -26,7 +26,7 @@
         {%- for bt_line in bt.lines %}
         {%- assign bt_top = false %}{% for bt_t in include.game.top %}{% if bt_t.player == bt_line.player %}{% assign bt_top = true %}{% endif %}{% endfor %}
         <tr{% if bt_top %} class="is-top"{% endif %}>
-          <th scope="row">{% if include.linked %}<a href="{{ '/players/' | append: bt_line.player | append: '/' | relative_url }}">{{ bt_line.display }}</a>{% else %}{{ bt_line.display }}{% endif %}{% if bt_line.sub %} <span class="badge">Sub</span>{% endif %}{% if bt_top %} <span class="badge badge--top">Top</span>{% endif %}</th>
+          <th scope="row">{% if include.linked %}<a href="{{ '/players/' | append: bt_line.player | append: '/' | relative_url }}">{% include player-name.html player=bt_line %}</a>{% else %}{% include player-name.html player=bt_line %}{% endif %}{% if bt_line.sub %} <span class="badge">Sub</span>{% endif %}{% if bt_top %} <span class="badge badge--top">Top</span>{% endif %}</th>
           <td>{{ bt_line.pts }}</td>
           <td>{{ bt_line.ftm }}</td>
           <td>{{ bt_line.fta }}</td>

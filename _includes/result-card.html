@@ -23,7 +23,7 @@
   </span>
   {%- endfor %}
   <span class="result-card__foot">
-    <span class="result-card__top">Top: {% for rc_p in rc_game.top %}<b>{% if include.large and include.link_players %}<a class="tap-link" href="{{ '/players/' | append: rc_p.player | append: '/' | relative_url }}">{{ rc_p.display }}</a>{% else %}{{ rc_p.display }}{% endif %}</b>{% unless forloop.last %}, {% endunless %}{% endfor %} {{ rc_game.top[0].pts }} {% if rc_game.top[0].pts == 1 %}pt{% else %}pts{% endif %}</span>
+    <span class="result-card__top">Top: {% for rc_p in rc_game.top %}<b>{% if include.large and include.link_players %}<a class="tap-link" href="{{ '/players/' | append: rc_p.player | append: '/' | relative_url }}">{% include player-name.html player=rc_p %}</a>{% else %}{% include player-name.html player=rc_p %}{% endif %}</b>{% unless forloop.last %}, {% endunless %}{% endfor %} {{ rc_game.top[0].pts }} {% if rc_game.top[0].pts == 1 %}pt{% else %}pts{% endif %}</span>
     {%- unless include.large %}
     <span class="result-card__link">Box score ›</span>
     {%- endunless %}

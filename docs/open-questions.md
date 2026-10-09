@@ -17,7 +17,7 @@ The site shows a visible `[placeholder]` for each of these until it's answered.
 | Can score sheet photos be published on the box score pages? (They may show full names; players are only ever "First L.") | Box score | Not for now: `score_sheet_links: false`. Revisit after seeing a real sheet |
 | Do subs' points count only for the player? (assumed yes) | Stats | |
 | Score sheet layout | `/record-game` skill, Schedule page | The league's form MBL-SS5, made by `scripts/scoresheet/scoresheet.py` (see its README). Still useful: a photo of a filled-in sheet, to build and test `/record-game` |
-| Player jersey numbers (for the score sheets' # box; `number:` in `data/2026-27/players.yml`) | Score sheets | Not yet. Until then the # boxes print empty and are filled in by hand |
+| Player jersey numbers (`number:` in `data/2026-27/players.yml`) | Score sheets' # box; "#23 Dave M." wherever a player is named | Not yet. Until then the # boxes print empty and are filled in by hand |
 | What happens after technical fouls: two in one game (ejection?), and a number in a season (suspension?) | League rules page, player page, Stats | The site counts each player's technicals (playoffs included) but flags nothing yet |
 | The league rules themselves | League rules page (`rules/index.md`) | Sections are in place, each with a `[placeholder]` |
 | How long is a game? | Team calendars | 90 minutes (calendar events last 90 minutes) |
@@ -34,5 +34,5 @@ They came out of the full-site QA (`docs/qa/report.md`).
 | Keep the QA screenshot sets in the repo? | `docs/qa/before/` and `after/` hold about 41 MB of PNGs. They could be cut down to the six contact sheets; `scripts/screenshot_all.py` recreates the rest | |
 | "Game night" wording | Games are Saturday mornings | Changed to "game day" everywhere |
 | Home and away | The printed schedule has no home team | The site always says "vs"; the first-listed team is in the `home` column |
-| Two players with the same first name and last initial | Ids can't clash (`mike-r`, `mike-r2`), but both display as "Mike R.": fine on different teams, identical on the same team. Options: two letters of the last name ("Mike Ro."), or a jersey number. See the README's to-do | |
+| Two players with the same first name and last initial | Ids can't clash (`mike-r`, `mike-r2`), and both display as "Mike R." | Jersey numbers: the site shows "#23 Mike R.", and the build stops if two players on one team share a "First L." without numbers. `/record-game` matches by team, then name, then number |
 | Theme toggle for screen readers | The label changes ("Switch to dark theme" / "Switch to light theme") instead of a fixed label with `aria-pressed`. Both are valid; using both at once contradicts itself | |

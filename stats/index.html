@@ -49,7 +49,7 @@ scripts:
         <span class="top-card__value" data-top-value>{{ top.ppg_display }}</span>
         <span class="top-card__text">
           <span class="top-card__label" data-top-label>No. 1 · points per game</span>
-          <span class="top-card__name" data-top-name>{{ top.display }}</span>
+          <span class="top-card__name" data-top-name>{% include player-name.html player=top %}</span>
           <span class="top-card__meta" data-top-meta>{{ top.team_name }} · {{ top.pts }} pts · {{ top.gp }} GP · FT {{ top.ftm }}-{{ top.fta }}</span>
         </span>
       </a>
@@ -76,7 +76,7 @@ scripts:
           {%- for p in stats.leaders.ft_pct %}
           <li class="ft-card__item" data-team="{{ p.team }}"{% if forloop.index > 3 %} hidden{% endif %}>
             <div class="ft-card__row">
-              <span class="ft-card__who"><b>{{ p.display }}</b> <span>· {{ p.team_name }}</span></span>
+              <span class="ft-card__who"><b>{% include player-name.html player=p %}</b> <span>· {{ p.team_name }}</span></span>
               <span class="ft-card__num"><b>{{ p.ft_pct_display }}%</b> <span>{{ p.ftm }}-{{ p.fta }}</span></span>
             </div>
             <div class="ft-card__track"><div class="ft-card__fill" style="width: {{ p.ft_pct_display }}%"></div></div>
@@ -110,7 +110,7 @@ scripts:
           <tbody data-table-body>
             {%- for p in rows %}
             <tr data-team="{{ p.team }}" data-order="{{ p.order_ppg }}" data-name="{{ p.display | downcase }}" data-gp="{{ p.gp }}" data-pts="{{ p.pts }}" data-ppg="{{ p.ppg }}" data-ftm="{{ p.ftm }}" data-fta="{{ p.fta }}" data-ft="{{ p.ft_pct }}">
-              <th scope="row"><span class="chip chip--{{ p.colour_slot }}" aria-hidden="true"></span><a href="{{ '/players/' | append: p.id | append: '/' | relative_url }}">{{ p.display }}</a> <span class="player-table__team">{{ p.team_short }}</span></th>
+              <th scope="row"><span class="chip chip--{{ p.colour_slot }}" aria-hidden="true"></span><a href="{{ '/players/' | append: p.id | append: '/' | relative_url }}">{% include player-name.html player=p %}</a> <span class="player-table__team">{{ p.team_short }}</span></th>
               <td>{{ p.gp }}</td>
               <td>{{ p.pts }}</td>
               <td>{{ p.ppg_display }}</td>

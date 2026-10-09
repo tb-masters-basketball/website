@@ -212,9 +212,9 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
   then the placeholders ("**Semifinal (G42)** · 2nd vs 3rd"), in the same game
   row and next-game panel. Playoff weeks are headed "Playoffs · Sat Apr 24".
 - Score sheets on the Schedule page (reusable include `score-sheet-links.html`):
-  - Each game day still to play gets **Score sheet (PDF)** (portrait Letter)
+  - Each game day still to play gets **Score sheet (PDF)** (landscape Legal)
     and a muted **Other layouts** disclosure (a `<details>`, so it works
-    without JavaScript) with portrait Legal and landscape Letter and Legal.
+    without JavaScript) with landscape Letter and portrait Letter and Legal.
     Both are `link-more` text links with 44 px tap areas. A link is only drawn
     when its PDF was generated, so past days and TBD playoff games get none.
   - A **Score sheets** section at the bottom lists the four blank layouts,
@@ -239,3 +239,17 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
     rank row. It shows number, name, team and games, with the count on the
     right, and "No technical fouls yet." when there are none.
   - **Personal fouls** are recorded but shown nowhere.
+
+## Jersey numbers
+
+- Wherever a player is named, a known jersey number comes first: "#23 Dave M."
+  (reusable include `player-name.html`; `stats.js` draws the No. 1 card the
+  same way). The `#23` is a `.player-num` span in the muted text colour, with
+  tabular figures, so the name stays the stronger of the two. On the blue
+  panels it uses the panel's muted colour. A player without a number shows
+  just the name.
+- Places: result cards ("Top:"), leader cards, the Stats ranked list, No. 1
+  card, FT card and table, rank rows (team rosters, technical fouls), box
+  scores and the player page heading. Captions, page titles and alt-style
+  text keep the plain name.
+- Score sheet links on the Schedule page lead with **landscape Legal**.

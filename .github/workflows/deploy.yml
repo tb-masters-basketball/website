@@ -4,12 +4,17 @@ name: Build and deploy
 # Only pushes to main deploy to GitHub Pages. If the tests or the data checks
 # in scripts/build_stats.py fail, or the built site has a broken link or
 # image, the build stops and nothing is deployed.
+# A nightly run rebuilds and redeploys main even when nothing was pushed, so
+# date-based parts stay current: the score sheets (game days from today on),
+# the "next game day" panel and the calendar files.
 
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "17 8 * * *" # every day at 08:17 UTC (about 4 AM in Thunder Bay)
 
 permissions:
   contents: read

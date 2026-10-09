@@ -62,7 +62,9 @@ PLACEHOLDER_RE = re.compile(r"^(TBD|[1-9](st|nd|rd|th)|(Winner|Loser) G\d+)$")
 GAME_TYPES = ("regular", "playoff")
 SHEET_EXTENSIONS = (".jpg", ".jpeg", ".png", ".heic", ".pdf")
 TEAM_ID_RE = re.compile(r"^[a-z]{2}$")
-PLAYER_ID_RE = re.compile(r"^[a-z]+(?:-[a-z]+)*-[a-z][0-9]*$")
+# first name, hyphen, last initial (or more of the last name, e.g. kevin-mo, to
+# tell two "Kevin M."s apart), then an optional number: dave-m, mike-r2, kevin-mo
+PLAYER_ID_RE = re.compile(r"^[a-z]+(?:-[a-z]+)*-[a-z]+[0-9]*$")
 TIME_RE = re.compile(r"^([01]?\d|2[0-3]):[0-5]\d$")
 MINUS = "−"
 DASH = "—"
@@ -266,7 +268,7 @@ def load_players(season_dir, teams, problems):
             continue
         pid = player.get("id")
         if not isinstance(pid, str) or not PLAYER_ID_RE.match(pid):
-            problems.append(f"{where}: id {pid!r} should look like 'dave-m' or 'mike-r2'")
+            problems.append(f"{where}: id {pid!r} should look like 'dave-m', 'mike-r2' or 'kevin-mo'")
             continue
         if pid in players:
             problems.append(f"{where}: player id '{pid}' is listed twice")
@@ -293,6 +295,18 @@ def load_players(season_dir, teams, problems):
                                         f"team {player.get('team')}")
                     numbers_taken[key] = pid
         players[pid] = player
+    # Two players on one team with the same "First L." are told apart by jersey
+    # number (on the site and on the score sheet), so both need one.
+    same = {}
+    for pid, p in players.items():
+        same.setdefault((p.get("team"), p.get("display")), []).append(pid)
+    for (team, display), pids in same.items():
+        if len(pids) > 1 and display != PLACEHOLDER:
+            missing = [pid for pid in pids if players[pid].get("number") is None]
+            if missing:
+                problems.append(f"{path}: {', '.join(pids)} on team {team} are all \"{display}\"; give each a "
+                                f"jersey `number` so the site and the score sheet can tell them apart "
+                                f"(missing: {', '.join(missing)})")
     return players
 
 
@@ -627,6 +641,7 @@ def player_totals(players, teams, games):
             "team": p["team"],
             "team_name": teams[p["team"]]["name"],
             "sub": p["sub"],
+            "number": p.get("number"),   # jersey number from players.yml (the roster is the truth), or None
             "gp": 0, "pts": 0, "ftm": 0, "fta": 0, "pf": 0, "season_high": None,
         }
     for game in games:
@@ -667,7 +682,7 @@ def add_technicals(totals, regular, playoff):
 
 def technicals_list(totals):
     """Everyone with a technical foul this season, most first, then by name."""
-    keys = ("id", "display", "team", "team_name", "sub", "tech", "tech_playoff", "tech_games")
+    keys = ("id", "display", "number", "team", "team_name", "sub", "tech", "tech_playoff", "tech_games")
     rows = [{k: t[k] for k in keys} for t in totals.values() if t["tech"] > 0]
     return sorted(rows, key=lambda r: (-r["tech"], r["display"], r["id"]))
 
@@ -729,6 +744,7 @@ def compute_rankings(season, totals, leaders, logs):
         row = {
             "id": pid,
             "display": t["display"],
+            "number": t["number"],
             "sub": t["sub"],
             "team": t["team"],
             "team_name": t["team_name"],
@@ -765,6 +781,7 @@ def game_summary(game, sched_row, season):
                 "player": l["player"],
                 "display": players[l["player"]]["display"],
                 "sub": players[l["player"]]["sub"],
+                "number": players[l["player"]].get("number"),
                 "pts": l["pts"], "ftm": l["ftm"], "fta": l["fta"],
                 "pf": l.get("pf", 0), "tech": l.get("tech", 0),
             }
@@ -804,7 +821,7 @@ def game_summary(game, sched_row, season):
         "home_team": by_team[home],
         "away_team": by_team[away],
         "top": [
-            {"player": l["player"], "display": l["display"], "team": l["team"], "pts": l["pts"]}
+            {"player": l["player"], "display": l["display"], "number": l["number"], "team": l["team"], "pts": l["pts"]}
             for l in all_lines if l["pts"] == top_pts
         ],
         # Only set when score sheet links are switched on in _config.yml and the photo exists

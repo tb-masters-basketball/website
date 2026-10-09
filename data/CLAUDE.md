@@ -158,15 +158,22 @@ writes nothing until all of them are fixed.
 ## IDs
 - Team ids: two letters (`pa`, `cr`, `wf`, `lh`, `fw`). Player ids: first name
   plus last initial, lowercase (`dave-m`); add a number if two clash (`mike-r2`).
+  More of the last name is also accepted (`kevin-mo`), but the display stays
+  "First L.". Ids never change once a game uses them.
 - A sub gets a player id the first time they appear, with `sub: true`. Their
   points count for them as a player. A sub's points still count toward the team
   score in that game.
 - **Jersey number** (optional): `number: 23`, from 0 to 99 (write `"00"` in
   quotes, or YAML reads it as 0). Two regular players on a team can't share a
   number; a sub can wear any. The score sheets print it in the # box and sort
-  each roster by it; without one the box is left blank to fill in. It also tells
-  apart two players with the same "First L." name. The sample seasons have
-  made-up numbers; `data/2026-27/` has none until the league sends them.
+  each roster by it; without one the box is left blank to fill in. The site
+  shows it before the name wherever a player appears ("#23 Dave M.";
+  `_includes/player-name.html`). `players.yml` is the only place numbers live,
+  so a changed number shows everywhere, past box scores included.
+- **Same "First L." on one team:** both players must have a `number`, or the
+  build stops; the number is what tells them apart on the site and the sheet.
+  The sample seasons have made-up numbers; `data/2026-27/` has none until the
+  league sends them.
 
 ## Stat rules
 - **GP:** games where the player is listed on the sheet.

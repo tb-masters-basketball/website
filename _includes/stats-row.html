@@ -7,14 +7,14 @@
 {%- endcomment -%}
 {%- assign sr = include.player -%}
 {%- capture sr_url %}{{ '/players/' | append: sr.id | append: '/' | relative_url }}{% endcapture -%}
-<li class="ranked__item" data-id="{{ sr.id }}" data-name="{{ sr.display }}" data-team="{{ sr.team }}" data-team-name="{{ sr.team_name }}"
+<li class="ranked__item" data-id="{{ sr.id }}" data-name="{{ sr.display }}" data-number="{{ sr.number }}" data-team="{{ sr.team }}" data-team-name="{{ sr.team_name }}"
     data-gp="{{ sr.gp }}" data-pts="{{ sr.pts }}" data-ppg="{{ sr.ppg_display }}" data-ftm="{{ sr.ftm }}" data-fta="{{ sr.fta }}" data-ft="{% if sr.qualifies_ft %}{{ sr.ft_pct_display }}{% endif %}"
     data-order-ppg="{{ sr.order_ppg }}" data-order-pts="{{ sr.order_pts }}" data-order-ft="{{ sr.order_ft }}"
     data-rank-ppg="{{ sr.rank_ppg }}" data-rank-pts="{{ sr.rank_pts }}" data-rank-ft="{{ sr.rank_ft }}">
   <a class="ranked__row" href="{{ sr_url }}">
     <span class="ranked__rank" data-rank>{{ sr.rank_ppg }}</span>
     <span class="ranked__who">
-      <span class="ranked__name">{{ sr.display }}</span>
+      <span class="ranked__name">{% include player-name.html player=sr %}</span>
       <span class="ranked__meta" data-meta>{{ sr.team_name }} · {{ sr.pts }} pts · {{ sr.gp }} GP</span>
     </span>
     <span class="ranked__value" data-value>{{ sr.ppg_display }}</span>

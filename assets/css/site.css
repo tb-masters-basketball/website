@@ -1924,6 +1924,18 @@ a.team-card:hover {
   font-variant-numeric: tabular-nums;
 }
 
+/* Jersey number before a player's name ("#23 Dave M."), from player-name.html:
+   muted, so the name still leads. On the blue panels, the panel's muted colour. */
+.player-num {
+  color: var(--mb-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.top-card .player-num,
+.next-game .player-num {
+  color: var(--mb-panel-muted);
+}
+
 /* Prose: a page of Markdown text (the league rules), via _layouts/text.html. */
 .prose {
   max-width: 68ch;
