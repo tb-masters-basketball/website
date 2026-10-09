@@ -1,28 +1,51 @@
 {%- comment -%}
-  "Add to your calendar" rows: for each team (and, with league=true, the whole
-  league) a Subscribe link (webcal://, so the calendar app keeps it up to date)
-  and a Download link (the .ics file). The files come from scripts/calendars.py
-  and always hold the real season's schedule. team=<id> shows that team only.
-  Usage: include calendar-links.html league=true
-         include calendar-links.html team=page.team_id
+  "Add to your calendar". The files come from scripts/calendars.py and always
+  hold the real season's schedule. Three ways in, for each calendar:
+    Apple            webcal:// link: Apple Calendar or Outlook subscribes, and updates itself
+    Google           Google Calendar's "add by URL" screen, filled in; also updates itself
+    Download         the .ics file once; doesn't update
+  team=<id>    a highlighted panel for that team, with big buttons (team page)
+  league=true  the same help panel, then one row of links per team and one for
+               every game (Schedule page)
+  Prints nothing when the current season has no games, or the team isn't in it.
+  Usage: include calendar-links.html team=page.team_id
+         include calendar-links.html league=true
 {%- endcomment -%}
 {%- assign cal = site.data.computed.calendars -%}
 {%- if cal and cal.games > 0 -%}
 {%- assign cal_rows = cal.teams -%}
 {%- if include.team %}{% assign cal_rows = cal.teams | where: "team", include.team %}{% endif -%}
 {%- if cal_rows.size > 0 -%}
+{%- if include.team -%}
+{%- assign cr = cal_rows | first -%}
+{%- capture cr_https %}{{ '/calendar/' | append: cr.file | absolute_url }}{% endcapture -%}
+{%- assign cr_webcal = cr_https | replace_first: "https://", "webcal://" | replace_first: "http://", "webcal://" -%}
+<div class="cal-panel">
+  <p class="cal-panel__lead">Every {{ cr.name }} game in your phone's calendar. It <b>updates by itself</b> when a game moves, is cancelled or gets a score.</p>
+  <div class="cal-panel__buttons">
+    <a class="btn btn--on-panel" href="{{ cr_webcal }}">Apple Calendar<span class="visually-hidden"> or Outlook: subscribe to {{ cr.name }} games</span></a>
+    <a class="btn btn--on-panel" href="https://calendar.google.com/calendar/render?cid={{ cr_webcal | url_encode }}" rel="noopener">Google Calendar<span class="visually-hidden">: add {{ cr.name }} games</span></a>
+  </div>
+  {% include calendar-help.html %}
+  <p class="cal-panel__download">Or <a href="{{ '/calendar/' | append: cr.file | relative_url }}" download>download the file<span class="visually-hidden"> of {{ cr.name }} games</span></a>: a one-time copy that doesn't update.</p>
+</div>
+{%- else -%}
+<div class="cal-panel">
+  <p class="cal-panel__lead">Pick your team below. A subscribed calendar <b>updates by itself</b> when a game moves, is cancelled or gets a score.</p>
+  {% include calendar-help.html %}
+</div>
 <ul class="game-rows">
   {%- for cr in cal_rows %}
   {%- capture cr_https %}{{ '/calendar/' | append: cr.file | absolute_url }}{% endcapture %}
   {%- assign cr_webcal = cr_https | replace_first: "https://", "webcal://" | replace_first: "http://", "webcal://" %}
-  <li class="game-row game-row--links"><span class="game-row__teams"><span class="chip chip--{{ cr.colour_slot }}" aria-hidden="true"></span>{{ cr.name }}</span><span class="game-row__links"><a class="link-more" href="{{ cr_webcal }}">Subscribe<span class="visually-hidden"> to {{ cr.name }} games</span></a><a class="link-more" href="{{ '/calendar/' | append: cr.file | relative_url }}" download>Download<span class="visually-hidden"> {{ cr.name }} calendar</span></a></span></li>
+  <li class="game-row game-row--links"><span class="game-row__teams"><span class="chip chip--{{ cr.colour_slot }}" aria-hidden="true"></span>{{ cr.name }}</span><span class="game-row__links"><a class="link-more" href="{{ cr_webcal }}">Apple<span class="visually-hidden"> or Outlook: subscribe to {{ cr.name }} games</span></a><a class="link-more" href="https://calendar.google.com/calendar/render?cid={{ cr_webcal | url_encode }}" rel="noopener">Google<span class="visually-hidden"> Calendar: add {{ cr.name }} games</span></a><a class="link-more" href="{{ '/calendar/' | append: cr.file | relative_url }}" download>Download<span class="visually-hidden"> {{ cr.name }} calendar</span></a></span></li>
   {%- endfor %}
   {%- if include.league %}
   {%- capture cr_https %}{{ '/calendar/' | append: cal.league | absolute_url }}{% endcapture %}
   {%- assign cr_webcal = cr_https | replace_first: "https://", "webcal://" | replace_first: "http://", "webcal://" %}
-  <li class="game-row game-row--links"><span class="game-row__teams">Every game</span><span class="game-row__links"><a class="link-more" href="{{ cr_webcal }}">Subscribe<span class="visually-hidden"> to every game</span></a><a class="link-more" href="{{ '/calendar/' | append: cal.league | relative_url }}" download>Download<span class="visually-hidden"> the league calendar</span></a></span></li>
+  <li class="game-row game-row--links"><span class="game-row__teams">Every game</span><span class="game-row__links"><a class="link-more" href="{{ cr_webcal }}">Apple<span class="visually-hidden"> or Outlook: subscribe to every game</span></a><a class="link-more" href="https://calendar.google.com/calendar/render?cid={{ cr_webcal | url_encode }}" rel="noopener">Google<span class="visually-hidden"> Calendar: add every game</span></a><a class="link-more" href="{{ '/calendar/' | append: cal.league | relative_url }}" download>Download<span class="visually-hidden"> the league calendar</span></a></span></li>
   {%- endif %}
 </ul>
-<p class="table-note">The {{ cal.label }} schedule. <b>Subscribe</b> keeps your calendar up to date if a game moves or is cancelled (iPhone, Mac, Outlook). <b>Download</b> adds the games once. For Google Calendar, on a computer, choose Other calendars → From URL and paste the Download link.</p>
+{%- endif -%}
 {%- endif -%}
 {%- endif -%}

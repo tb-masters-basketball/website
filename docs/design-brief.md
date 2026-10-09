@@ -197,11 +197,17 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
   and the existing `.badge`: muted names and a "Cancelled" badge where the time
   would be. A game day that is cancelled outright is headed by its date and the
   badge, with no week number and no bye line, and sits under Results.
-- Team calendars: an "Add to your calendar" section at the end of the Schedule
-  page (every team plus "Every game", reached from a link under the title) and
-  on each team page (that team only). It reuses the game row: the team chip and
-  name, then **Subscribe** (webcal://) and **Download** (.ics) links, with a
-  short note on Google Calendar.
+- Team calendars: an "Add to your calendar" section on each team page and at
+  the end of the Schedule page.
+  - **Team page:** a **Calendar** pill beside the team name (icon only, in a
+    44 px circle, under 480 px wide) jumps to the section. The section is a
+    blue panel like Next game day: a one-line promise ("updates by itself"),
+    two white buttons (**Apple Calendar**: webcal://, also works in Outlook;
+    **Google Calendar**: Google's add-by-URL screen), how-to lines per device,
+    and a small "download the file" link (a one-time copy).
+  - **Schedule page:** the same panel without buttons, then a game row per
+    team plus "Every game" with **Apple**, **Google** and **Download** links
+    (under the name on phones).
 - Playoff games whose teams aren't decided show as printed: the round in bold,
   then the placeholders ("**Semifinal (G42)** · 2nd vs 3rd"), in the same game
   row and next-game panel. Playoff weeks are headed "Playoffs · Sat Apr 24".

@@ -10,10 +10,18 @@ layout: default
 {%- assign team = stats.teams[tid] -%}
 {%- assign row = stats.standings.teams | where: "team", tid | first -%}
 
+{%- capture team_cal %}{% include calendar-links.html team=tid %}{% endcapture -%}
+{%- assign team_cal_trimmed = team_cal | strip -%}
+
 <div class="wrap page">
   <header class="team-header chip--{{ team.colour_slot }}">
-    <h1 class="page-title">{{ team.name }}</h1>
-    <p class="page-sub">{{ season.label }} season</p>
+    <div class="team-header__text">
+      <h1 class="page-title">{{ team.name }}</h1>
+      <p class="page-sub">{{ season.label }} season</p>
+    </div>
+    {%- if team_cal_trimmed != "" %}
+    <a class="pill-link" href="#calendar-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span class="pill-link__label">Calendar<span class="visually-hidden">: add {{ team.name }} games to yours</span></span></a>
+    {%- endif %}
   </header>
 
   <div class="tiles">
@@ -75,8 +83,6 @@ layout: default
     {%- endif %}
   </section>
 
-  {%- capture team_cal %}{% include calendar-links.html team=tid %}{% endcapture %}
-  {%- assign team_cal_trimmed = team_cal | strip %}
   {%- if team_cal_trimmed != "" %}
   <section class="page-section" aria-labelledby="calendar-title">
     <h2 class="section-title" id="calendar-title">Add to your calendar</h2>

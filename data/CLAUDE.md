@@ -65,8 +65,12 @@ between the printed start times), at the game's gym, Eastern time. Cancelled
 games stay in the feed as cancelled; played games carry the final score. A
 playoff game with placeholder teams is only in `league.ics` until its row names
 the teams; then it joins those two teams' calendars. The
-Schedule page lists every team's calendar and the league's; a team page lists
-its own when that team is in the current season.
+Schedule page lists every team's calendar and the league's; a team page shows
+its own (with a Calendar button beside the team name) when that team is in the
+current season. Each calendar has three links: webcal:// (Apple Calendar and
+Outlook subscribe), Google Calendar's `render?cid=` add-by-URL screen (Google
+subscribes too, and refreshes on its own schedule, usually within a day), and
+the plain .ics download (a one-time copy).
 
 ### Cancelled games
 A row with `status` `cancelled` stays on the Schedule with a "Cancelled" badge,
