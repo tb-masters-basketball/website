@@ -633,6 +633,44 @@ class SeasonStandInTests(unittest.TestCase):
             shutil.rmtree(tmp)
 
 
+class JerseyNumberTests(SeasonFixture):
+    """players.yml may give a jersey `number` (optional, 0 to 99)."""
+
+    def players(self, al="", amy="", sam=""):
+        def num(n):
+            return f", number: {n}" if n != "" else ""
+        self.write("players.yml", f"""\
+            - {{id: al-a, display: Al A., team: aa, sub: false{num(al)}}}
+            - {{id: amy-b, display: Amy B., team: aa, sub: false{num(amy)}}}
+            - {{id: bo-c, display: Bo C., team: bb, sub: false, number: 4}}
+            - {{id: cy-d, display: Cy D., team: cc, sub: false}}
+            - {{id: sam-e, display: Sam E., team: bb, sub: true{num(sam)}}}
+            """)
+
+    def test_numbers_are_optional_and_kept_as_text(self):
+        self.players(al=7, amy='"00"')
+        season = bs.load_season(self.data, "test")
+        self.assertEqual(season["players"]["al-a"]["number"], "7")
+        self.assertEqual(season["players"]["amy-b"]["number"], "00")
+        self.assertNotIn("number", season["players"]["cy-d"])
+
+    def test_number_must_be_0_to_99(self):
+        self.players(al=100)
+        self.assertProblem("number 100 should be a jersey number from 0 to 99")
+
+    def test_number_must_be_a_number(self):
+        self.players(al="twelve")
+        self.assertProblem("number 'twelve' should be a jersey number")
+
+    def test_two_regular_players_on_a_team_cant_share_a_number(self):
+        self.players(al=7, amy=7)
+        self.assertProblem("number 7 is already al-a's on team aa")
+
+    def test_a_sub_can_wear_a_taken_number(self):
+        self.players(sam=4)                       # bo-c, on bb, already wears 4
+        self.assertEqual(bs.load_season(self.data, "test")["players"]["sam-e"]["number"], "4")
+
+
 class CheckTests(SeasonFixture):
     def test_points_must_add_up_to_final(self):
         self.edit_game("2026-10-01-g1", "{aa: 30, bb: 20}", "{aa: 31, bb: 20}")

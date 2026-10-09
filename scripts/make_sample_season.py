@@ -324,6 +324,13 @@ def generate(seed):
     return weeks, played, scores, players, present, pts, ft
 
 
+def jersey_numbers(tid, pids):
+    """Made-up jersey numbers, unique within the team. A Random of their own, so
+    adding them changes none of the sample season's other numbers."""
+    picks = random.Random(f"jersey-{tid}").sample(range(0, 56), len(pids))
+    return dict(zip(pids, picks))
+
+
 def write_teams(out, header):
     with open(out / "teams.yml", "w", encoding="utf-8") as fh:
         fh.write(header)
@@ -346,16 +353,18 @@ def write_files(weeks, played, scores, players, present, pts, ft):
     with open(OUT / "players.yml", "w", encoding="utf-8") as fh:
         fh.write(header)
         for tid, *_ in TEAMS:
-            for pid, p in players.items():
-                if p["team"] == tid:
-                    fh.write(f"- {{id: {pid}, display: {p['display']}, team: {tid}, "
-                             f"sub: {'true' if p['sub'] else 'false'}}}\n")
+            team_ids = [pid for pid, p in players.items() if p["team"] == tid]
+            numbers = jersey_numbers(tid, team_ids)
+            for pid in team_ids:
+                p = players[pid]
+                fh.write(f"- {{id: {pid}, display: {p['display']}, team: {tid}, "
+                         f"sub: {'true' if p['sub'] else 'false'}, number: {numbers[pid]}}}\n")
 
     with open(OUT / "schedule.csv", "w", encoding="utf-8", newline="") as fh:
         fh.write(",".join(build_stats.SCHEDULE_COLUMNS) + "\n")
         for games in weeks:
             for g in games:
-                fh.write(f"{g['game_id']},{g['date']},{g['time']},{GYM},{g['home']},{g['away']},regular,{g['week']},\n")
+                fh.write(f"{g['game_id']},{g['date']},{g['time']},{GYM},{g['home']},{g['away']},regular,{g['week']},,\n")
 
     for key, g in played.items():
         s = scores[key]
@@ -463,9 +472,10 @@ def write_past_season():
     with open(PAST_OUT / "players.yml", "w", encoding="utf-8") as fh:
         fh.write(header)
         for tid, *_ in TEAMS:
+            numbers = jersey_numbers(tid, rosters[tid])
             for i, pid in enumerate(rosters[tid]):
                 fh.write(f"- {{id: {pid}, display: {display[pid]}, team: {tid}, "
-                         f"sub: {'true' if i == len(rosters[tid]) - 1 else 'false'}}}\n")
+                         f"sub: {'true' if i == len(rosters[tid]) - 1 else 'false'}, number: {numbers[pid]}}}\n")
 
     schedule, results = [], []          # results: (game, winner, scores)
     wins = {tid: [0, 0, 0] for tid, *_ in TEAMS}     # wins, losses, point differential
@@ -496,7 +506,7 @@ def write_past_season():
     with open(PAST_OUT / "schedule.csv", "w", encoding="utf-8", newline="") as fh:
         fh.write(",".join(build_stats.SCHEDULE_COLUMNS) + "\n")
         for g in schedule:
-            fh.write(f"{g['game_id']},{g['date']},{g['time']},{GYM},{g['home']},{g['away']},{g['type']},{g['week']},\n")
+            fh.write(f"{g['game_id']},{g['date']},{g['time']},{GYM},{g['home']},{g['away']},{g['type']},{g['week']},,\n")
     for g, scores in results:
         lines = []
         for tid in (g["home"], g["away"]):

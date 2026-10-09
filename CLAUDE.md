@@ -36,6 +36,17 @@ and `CNAME`. (`site.webmanifest` uses relative paths, so it needs no change.)
   `assets/js/stats.js` on the Stats page). Every page must make sense
   with JS off.
 
+## Score sheets
+The printable score sheet (form MBL-SS5) comes from
+`scripts/scoresheet/scoresheet.py`; read `scripts/scoresheet/README.md` first.
+`scripts/make_score_sheets.sh` runs it on every deploy, after `build_stats.py`
+and before Jekyll, for the season the site shows. It writes `score-sheets/`
+(git-ignored): each game day from today on in all four layouts, plus the blank
+sheets. The Schedule page links only the PDFs that exist.
+**Don't change the sheet's layout or `FORM` without updating `/record-game`**,
+which reads sheets by that exact layout. Changes to how it reads the data
+(which games, which players) are fine.
+
 ## Layout
 ```
 data/<season>/          source of truth, edited by hand or by /record-game (see data/CLAUDE.md)
@@ -47,9 +58,11 @@ scripts/calendars.py    writes calendar/<team>.ics and league.ics (git-ignored) 
                         called by build_stats.py, linked from Schedule and team pages
 scripts/make_sample_season.py  regenerates data/sample-2026-27/ and sample-2025-26/ (fake data)
 scripts/check_links.sh  fails on broken links/images in _site/ (html-proofer; runs in CI)
+scripts/scoresheet/     the score sheet generator (README, fonts, badge, example data)
+scripts/make_score_sheets.sh  score-sheets/*.pdf (git-ignored) for the season shown; runs in CI
 scripts/screenshot_all.py  builds sample + real mode, screenshots every page (360/390/1440, light/dark),
                         checks sideways scroll, console errors and failed requests
-tests/                  unit tests for build_stats.py
+tests/                  unit tests for build_stats.py, calendars.py and the score sheet data loading
 _layouts/ _includes/    templates
 assets/css/site.css     page styles, built on brand/css/brand.css variables
 brand/                  logos, icons, colours, scenes (from the brand kit; don't edit)
@@ -64,6 +77,7 @@ docs/qa/                full-site QA: report.md, before/after screenshots, conta
 ```
 python -m unittest discover -s tests     # unit tests
 python scripts/build_stats.py            # check data, recompute stats, write the stub pages
+scripts/make_score_sheets.sh             # score sheet PDFs into score-sheets/ (needs reportlab)
 bundle exec jekyll serve --livereload    # preview at http://localhost:4000/
 bundle exec jekyll build && scripts/check_links.sh   # build, then check every link and image
 python scripts/screenshot_all.py --out /tmp/shots --contact-sheets   # every page, both modes (needs Playwright)

@@ -1,0 +1,11 @@
+{"game_id": "2026-12-03-g1", "date": "Thu Dec 3", "time": "7:00 PM", "court": "[gym]",
+ "home": {"name": "Port Arthur", "players": [
+  {"num":"4","name":"Dave M."},{"num":"7","name":"Greg T."},{"num":"10","name":"Rob K."},
+  {"num":"12","name":"Paul S."},{"num":"15","name":"Mike R."},{"num":"21","name":"Jeff L."},
+  {"num":"23","name":"Tom B."},{"num":"30","name":"Chris D."},{"num":"33","name":"Kevin P."},
+  {"num":"44","name":"Mark W."}]},
+ "away": {"name": "Lakehead", "players": [
+  {"num":"3","name":"Steve H."},{"num":"5","name":"Brian C."},{"num":"8","name":"Dan F."},
+  {"num":"11","name":"Rick O."},{"num":"14","name":"Al G."},{"num":"20","name":"Jim N."},
+  {"num":"22","name":"Scott V."},{"num":"24","name":"Ian M."},{"num":"32","name":"Pete A."},
+  {"num":"40","name":"Doug E."},{"num":"52","name":"Ken Y."}]}}

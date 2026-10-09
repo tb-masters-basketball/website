@@ -16,7 +16,8 @@ The site shows a visible `[placeholder]` for each of these until it's answered.
 | League contact for the footer's "Contact the league" link (an email address or a form). Set `contact_url` in `_config.yml`; with it blank the footer shows no contact link | Footer | |
 | Can score sheet photos be published on the box score pages? (They may show full names; players are only ever "First L.") | Box score | Not for now: `score_sheet_links: false`. Revisit after seeing a real sheet |
 | Do subs' points count only for the player? (assumed yes) | Stats | |
-| Score sheet layout (photo of a filled-in sheet) | `/record-game` skill | |
+| Score sheet layout | `/record-game` skill, Schedule page | The league's form MBL-SS5, made by `scripts/scoresheet/scoresheet.py` (see its README). Still useful: a photo of a filled-in sheet, to build and test `/record-game` |
+| Player jersey numbers (for the score sheets' # box; `number:` in `data/2026-27/players.yml`) | Score sheets | Not yet. Until then the # boxes print empty and are filled in by hand |
 | How long is a game? | Team calendars | 90 minutes (calendar events last 90 minutes) |
 | Gym address | Team calendars | 621 Selkirk St S, Thunder Bay, ON P7E 1T9 (`gym_address` in `data/seasons.yml`) |
 | Badge colourway for jerseys/merch (navy, blue or light) | Not on the site | |

@@ -1,0 +1,15 @@
+- id: pa
+  name: Port Arthur
+  short: PA
+- id: cr
+  name: Current River
+  short: CR
+- id: wf
+  name: Westfort
+  short: WF
+- id: lh
+  name: Lakehead
+  short: LH
+- id: fw
+  name: Fort William
+  short: FW

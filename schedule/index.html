@@ -8,8 +8,9 @@ description: Every game day of the season, with results and upcoming games.
 {%- comment -%}
   Schedule. Upcoming game days come first (soonest first, the next one
   highlighted), then results with the newest week first. A week that is only
-  partly played sits under "Upcoming" and shows both kinds of game. Last, the
-  team calendars (calendar-links.html), with a link to them under the title.
+  partly played sits under "Upcoming" and shows both kinds of game. Then the
+  team calendars (calendar-links.html, with a link to them under the title)
+  and the blank score sheets.
 {%- endcomment -%}
 {%- include active-season.html -%}
 {%- assign weeks = stats.schedule.weeks -%}
@@ -56,6 +57,16 @@ description: Every game day of the season, with results and upcoming games.
   <section class="page-section" aria-labelledby="calendar-title">
     <h2 class="section-title" id="calendar-title">Add to your calendar</h2>
     {{ cal_links }}
+  </section>
+  {%- endif %}
+
+  {%- capture blank_sheets %}{% include score-sheet-links.html blank=true label="blank" %}{% endcapture %}
+  {%- assign blank_trimmed = blank_sheets | strip %}
+  {%- if blank_trimmed != "" %}
+  <section class="page-section" aria-labelledby="sheets-title">
+    <h2 class="section-title" id="sheets-title">Score sheets</h2>
+    <p class="table-note">Blank, fillable sheets. Print double-sided: page 2 is only for overflow (past 120 points, or more than 10 free throws).</p>
+    {{ blank_sheets }}
   </section>
   {%- endif %}
 </div>

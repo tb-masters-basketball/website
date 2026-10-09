@@ -1,46 +1,46 @@
 # Sample data from scripts/make_sample_season.py. Not real.
-- {id: dave-m, display: Dave M., team: pa, sub: false}
-- {id: greg-t, display: Greg T., team: pa, sub: false}
-- {id: kevin-h, display: Kevin H., team: pa, sub: false}
-- {id: doug-w, display: Doug W., team: pa, sub: false}
-- {id: terry-n, display: Terry N., team: pa, sub: false}
-- {id: brian-o, display: Brian O., team: pa, sub: false}
-- {id: gord-f, display: Gord F., team: pa, sub: false}
-- {id: marc-l, display: Marc L., team: pa, sub: false}
-- {id: ian-c, display: Ian C., team: pa, sub: true}
-- {id: rob-k, display: Rob K., team: cr, sub: false}
-- {id: chris-b, display: Chris B., team: cr, sub: false}
-- {id: scott-a, display: Scott A., team: cr, sub: false}
-- {id: jason-p, display: Jason P., team: cr, sub: false}
-- {id: tom-g, display: Tom G., team: cr, sub: false}
-- {id: darren-v, display: Darren V., team: cr, sub: false}
-- {id: pete-s, display: Pete S., team: cr, sub: false}
-- {id: luc-b, display: Luc B., team: cr, sub: false}
-- {id: neil-f, display: Neil F., team: cr, sub: true}
-- {id: steve-p, display: Steve P., team: wf, sub: false}
-- {id: jeff-s, display: Jeff S., team: wf, sub: false}
-- {id: mark-d, display: Mark D., team: wf, sub: false}
-- {id: rick-l, display: Rick L., team: wf, sub: false}
-- {id: jamie-c, display: Jamie C., team: wf, sub: false}
-- {id: trevor-m, display: Trevor M., team: wf, sub: false}
-- {id: al-k, display: Al K., team: wf, sub: false}
-- {id: derek-h, display: Derek H., team: wf, sub: false}
-- {id: matt-w, display: Matt W., team: wf, sub: true}
-- {id: mike-r, display: Mike R., team: lh, sub: false}
-- {id: dan-h, display: Dan H., team: lh, sub: false}
-- {id: brad-e, display: Brad E., team: lh, sub: false}
-- {id: craig-s, display: Craig S., team: lh, sub: false}
-- {id: todd-b, display: Todd B., team: lh, sub: false}
-- {id: pat-o, display: Pat O., team: lh, sub: false}
-- {id: andre-g, display: Andre G., team: lh, sub: false}
-- {id: lorne-k, display: Lorne K., team: lh, sub: false}
-- {id: jon-v, display: Jon V., team: lh, sub: true}
-- {id: paul-l, display: Paul L., team: fw, sub: false}
-- {id: bill-c, display: Bill C., team: fw, sub: false}
-- {id: tim-r, display: Tim R., team: fw, sub: false}
-- {id: glen-a, display: Glen A., team: fw, sub: false}
-- {id: barry-s, display: Barry S., team: fw, sub: false}
-- {id: ken-w, display: Ken W., team: fw, sub: false}
-- {id: joe-p, display: Joe P., team: fw, sub: false}
-- {id: ray-d, display: Ray D., team: fw, sub: false}
-- {id: carl-m, display: Carl M., team: fw, sub: true}
+- {id: dave-m, display: Dave M., team: pa, sub: false, number: 54}
+- {id: greg-t, display: Greg T., team: pa, sub: false, number: 22}
+- {id: kevin-h, display: Kevin H., team: pa, sub: false, number: 17}
+- {id: doug-w, display: Doug W., team: pa, sub: false, number: 3}
+- {id: terry-n, display: Terry N., team: pa, sub: false, number: 38}
+- {id: brian-o, display: Brian O., team: pa, sub: false, number: 53}
+- {id: gord-f, display: Gord F., team: pa, sub: false, number: 19}
+- {id: marc-l, display: Marc L., team: pa, sub: false, number: 48}
+- {id: ian-c, display: Ian C., team: pa, sub: true, number: 51}
+- {id: rob-k, display: Rob K., team: cr, sub: false, number: 14}
+- {id: chris-b, display: Chris B., team: cr, sub: false, number: 27}
+- {id: scott-a, display: Scott A., team: cr, sub: false, number: 3}
+- {id: jason-p, display: Jason P., team: cr, sub: false, number: 54}
+- {id: tom-g, display: Tom G., team: cr, sub: false, number: 6}
+- {id: darren-v, display: Darren V., team: cr, sub: false, number: 30}
+- {id: pete-s, display: Pete S., team: cr, sub: false, number: 12}
+- {id: luc-b, display: Luc B., team: cr, sub: false, number: 8}
+- {id: neil-f, display: Neil F., team: cr, sub: true, number: 53}
+- {id: steve-p, display: Steve P., team: wf, sub: false, number: 19}
+- {id: jeff-s, display: Jeff S., team: wf, sub: false, number: 55}
+- {id: mark-d, display: Mark D., team: wf, sub: false, number: 5}
+- {id: rick-l, display: Rick L., team: wf, sub: false, number: 24}
+- {id: jamie-c, display: Jamie C., team: wf, sub: false, number: 44}
+- {id: trevor-m, display: Trevor M., team: wf, sub: false, number: 34}
+- {id: al-k, display: Al K., team: wf, sub: false, number: 16}
+- {id: derek-h, display: Derek H., team: wf, sub: false, number: 0}
+- {id: matt-w, display: Matt W., team: wf, sub: true, number: 28}
+- {id: mike-r, display: Mike R., team: lh, sub: false, number: 42}
+- {id: dan-h, display: Dan H., team: lh, sub: false, number: 21}
+- {id: brad-e, display: Brad E., team: lh, sub: false, number: 39}
+- {id: craig-s, display: Craig S., team: lh, sub: false, number: 47}
+- {id: todd-b, display: Todd B., team: lh, sub: false, number: 40}
+- {id: pat-o, display: Pat O., team: lh, sub: false, number: 25}
+- {id: andre-g, display: Andre G., team: lh, sub: false, number: 4}
+- {id: lorne-k, display: Lorne K., team: lh, sub: false, number: 36}
+- {id: jon-v, display: Jon V., team: lh, sub: true, number: 33}
+- {id: paul-l, display: Paul L., team: fw, sub: false, number: 54}
+- {id: bill-c, display: Bill C., team: fw, sub: false, number: 52}
+- {id: tim-r, display: Tim R., team: fw, sub: false, number: 3}
+- {id: glen-a, display: Glen A., team: fw, sub: false, number: 46}
+- {id: barry-s, display: Barry S., team: fw, sub: false, number: 35}
+- {id: ken-w, display: Ken W., team: fw, sub: false, number: 17}
+- {id: joe-p, display: Joe P., team: fw, sub: false, number: 48}
+- {id: ray-d, display: Ray D., team: fw, sub: false, number: 26}
+- {id: carl-m, display: Carl M., team: fw, sub: true, number: 6}

@@ -1,0 +1,254 @@
+- id: dave-t
+  display: Dave T.
+  team: pa
+  sub: false
+  number: 17
+- id: greg-a
+  display: Greg A.
+  team: pa
+  sub: false
+  number: 39
+- id: rob-p
+  display: Rob P.
+  team: pa
+  sub: false
+  number: 36
+- id: paul-i
+  display: Paul I.
+  team: pa
+  sub: false
+  number: 10
+- id: mike-r
+  display: Mike R.
+  team: pa
+  sub: false
+  number: 25
+- id: jeff-h
+  display: Jeff H.
+  team: pa
+  sub: false
+  number: 40
+- id: tom-g
+  display: Tom G.
+  team: pa
+  sub: false
+  number: 32
+- id: chris-w
+  display: Chris W.
+  team: pa
+  sub: false
+  number: 42
+- id: kevin-p
+  display: Kevin P.
+  team: pa
+  sub: false
+  number: 54
+- id: mark-r
+  display: Mark R.
+  team: pa
+  sub: false
+  number: 6
+- id: steve-m
+  display: Steve M.
+  team: cr
+  sub: false
+  number: 55
+- id: brian-x
+  display: Brian X.
+  team: cr
+  sub: false
+  number: 37
+- id: dan-a
+  display: Dan A.
+  team: cr
+  sub: false
+  number: 32
+- id: rick-v
+  display: Rick V.
+  team: cr
+  sub: false
+  number: 27
+- id: al-y
+  display: Al Y.
+  team: cr
+  sub: false
+  number: 42
+- id: jim-c
+  display: Jim C.
+  team: cr
+  sub: false
+  number: 11
+- id: scott-f
+  display: Scott F.
+  team: cr
+  sub: false
+  number: 16
+- id: ian-y
+  display: Ian Y.
+  team: cr
+  sub: false
+  number: 51
+- id: pete-s
+  display: Pete S.
+  team: cr
+  sub: false
+  number: 50
+- id: doug-b
+  display: Doug B.
+  team: cr
+  sub: false
+  number: 35
+- id: ken-m
+  display: Ken M.
+  team: wf
+  sub: false
+  number: 21
+- id: matt-x
+  display: Matt X.
+  team: wf
+  sub: false
+  number: 51
+- id: bill-z
+  display: Bill Z.
+  team: wf
+  sub: false
+  number: 3
+- id: andy-s
+  display: Andy S.
+  team: wf
+  sub: false
+  number: 19
+- id: rich-o
+  display: Rich O.
+  team: wf
+  sub: false
+  number: 32
+- id: gord-e
+  display: Gord E.
+  team: wf
+  sub: false
+  number: 40
+- id: wayne-l
+  display: Wayne L.
+  team: wf
+  sub: false
+  number: 48
+- id: ron-d
+  display: Ron D.
+  team: wf
+  sub: false
+  number: 26
+- id: bob-b
+  display: Bob B.
+  team: wf
+  sub: false
+  number: 47
+- id: joe-e
+  display: Joe E.
+  team: wf
+  sub: false
+  number: 29
+- id: sean-s
+  display: Sean S.
+  team: lh
+  sub: false
+  number: 33
+- id: tim-l
+  display: Tim L.
+  team: lh
+  sub: false
+  number: 15
+- id: rod-r
+  display: Rod R.
+  team: lh
+  sub: false
+  number: 18
+- id: carl-s
+  display: Carl S.
+  team: lh
+  sub: false
+  number: 45
+- id: neil-n
+  display: Neil N.
+  team: lh
+  sub: false
+  number: 29
+- id: barry-s
+  display: Barry S.
+  team: lh
+  sub: false
+  number: 42
+- id: glen-h
+  display: Glen H.
+  team: lh
+  sub: false
+  number: 21
+- id: ray-k
+  display: Ray K.
+  team: lh
+  sub: false
+  number: 28
+- id: darren-v
+  display: Darren V.
+  team: lh
+  sub: false
+  number: 34
+- id: trevor-a
+  display: Trevor A.
+  team: lh
+  sub: false
+  number: 26
+- id: brad-d
+  display: Brad D.
+  team: fw
+  sub: false
+  number: 19
+- id: shawn-w
+  display: Shawn W.
+  team: fw
+  sub: false
+  number: 40
+- id: murray-u
+  display: Murray U.
+  team: fw
+  sub: false
+  number: 44
+- id: keith-g
+  display: Keith G.
+  team: fw
+  sub: false
+  number: 46
+- id: larry-u
+  display: Larry U.
+  team: fw
+  sub: false
+  number: 12
+- id: phil-s
+  display: Phil S.
+  team: fw
+  sub: false
+  number: 52
+- id: gary-i
+  display: Gary I.
+  team: fw
+  sub: false
+  number: 22
+- id: jason-j
+  display: Jason J.
+  team: fw
+  sub: false
+  number: 36
+- id: todd-d
+  display: Todd D.
+  team: fw
+  sub: false
+  number: 38
+- id: lee-c
+  display: Lee C.
+  team: fw
+  sub: false
+  number: 47
+- id: sam-q
+  display: Sam Q.
+  team: pa
+  sub: true
