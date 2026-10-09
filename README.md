@@ -170,7 +170,7 @@ generated is committed: `_data/computed/`, the stub folders, `calendar/` and
 | `data/<season>/schedule.csv` | One row per game: id, date, time, gym, home, away, `regular`/`playoff`, week, optional `status` (`cancelled`) and `round` (playoff round name) | hand |
 | `data/<season>/games/<game_id>.yml` | One file per played game: final score and a line per player (points, FTM, FTA) | hand or `/record-game` |
 | `data/<season>/sheets/<game_id>.jpg` | Photo of the paper sheet, kept for checking (not published) | hand or `/record-game` |
-| `_config.yml` | `sample_data` (show the fake season), `score_sheet_links` (publish photos), `contact_url`, the domain | hand, rarely |
+| `_config.yml` | `sample_data` (show the fake season), `score_sheet_links` (publish photos), `contact_url`, `search_engines` (off: pages ask not to be listed by Google), the domain | hand, rarely |
 
 The file formats, id rules and stat rules (GP, PPG, FT%, standings, rounding,
 tiebreakers) are in [`data/CLAUDE.md`](data/CLAUDE.md). The seasons are:

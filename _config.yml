@@ -25,6 +25,11 @@ score_sheet_links: false
 # Leave it blank and the footer shows no contact link.
 contact_url: ""
 
+# Search engines. false: every page asks Google and others not to list it
+# (<meta name="robots" content="noindex, nofollow">). The league doesn't want
+# the site in search results. Set true to let them list it.
+search_engines: false
+
 timezone: America/Toronto
 markdown: kramdown
 permalink: pretty
