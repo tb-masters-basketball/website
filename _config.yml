@@ -17,8 +17,8 @@ sample_data: false
 
 # Score sheet photos. Off: the box score page has no "Score sheet photo" link.
 # On: scripts/build_stats.py copies the photos from data/<season>/sheets/ into
-# the site and each box score links to its photo. Leave it off until the league
-# has checked that the sheets are fine to publish (they may show full names).
+# the site and each box score links to its photo. The league keeps the photos
+# in the repo (data/<season>/sheets/) but not on the site, so this stays off.
 score_sheet_links: false
 
 # Where the footer's "Contact the league" link goes (a mailto: link or a form).

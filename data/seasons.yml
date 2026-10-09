@@ -21,7 +21,7 @@
   current: true
   gym: "St. Pat's"
   gym_address: "621 Selkirk St S, Thunder Bay, ON P7E 1T9"
-  ppg_min_games: 0
+  ppg_min_games: 3
   ft_min_attempts: 10
 
 - id: sample-2026-27

@@ -83,8 +83,8 @@ keeps its row with a new date, time and `game_id`.
 ### Score sheet photos
 `score_sheet_links: true` in `_config.yml` makes the build copy the photos in
 `sheets/` to the published site and shows a "Score sheet photo" link on the box
-score. It is **off** until the league has checked that the sheets are fine to
-publish (they may show full names, and players are only ever "First L."). The build script processes every season
+score. It stays **off**: the league keeps the photos in the repo (which is
+public on GitHub) but not on the site. The build script processes every season
 listed here and must not fail on one with no games yet.
 
 ### The real season before the first game

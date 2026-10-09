@@ -37,26 +37,11 @@ The full list, with answers so far, is in
 - [ ] **Standings tiebreakers**, including three-way ties. Until then the site
       uses head-to-head, then point differential, and says so under the
       standings.
-- [ ] **Minimum games for the points-per-game leaderboard.** It's a setting
-      now: `ppg_min_games` in `data/seasons.yml` (0, no minimum, until the
-      league picks a number). Until a team has played that many games,
-      playing all of them is enough.
 - [ ] **Playoff matchups.** The play-in (G41, Wed Apr 21) is "TBD vs TBD" in
       `schedule.csv`. Fill in each playoff row as the standings decide it.
 - [ ] **League contact for the footer.** Set `contact_url` in `_config.yml`
       (an email `mailto:` link or a form). The footer shows no contact link
       while it's blank.
-- [ ] **Subs' points.** Do they count only for the player (and the team
-      that night)? The site assumes yes.
-- [ ] **Score sheet photos.** Can they be published on box score pages? They
-      may show full names, so `score_sheet_links: false` for now.
-- [ ] **Hustle (black) and Nor'Westers (orange).** The brand kit only has
-      red, blue, green, gold and purple, so Hustle shows purple and
-      Nor'Westers gold. True black and orange need new values in
-      `brand/css/brand.css`, which needs the brand owner's OK. Black also needs
-      a lighter version for dark mode.
-- [ ] **Badge colourway** for jerseys and merch (navy, blue or light). This
-      isn't on the site.
 
 ### 2. Record a game from a photo of the score sheet (`/record-game`)
 

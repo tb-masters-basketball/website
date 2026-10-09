@@ -104,8 +104,8 @@ Always run the stats script before previewing data changes (and after changing
 - Players are always shown as "First L." (e.g. "Mike R."), with their jersey
   number first when `players.yml` has one ("#23 Mike R.", via
   `_includes/player-name.html`). Never full names,
-  contact details or photos of players. Score sheet photos stay unpublished
-  (`score_sheet_links: false`) for this reason.
+  contact details or photos of players. Score sheet photos stay in the repo
+  and off the site (`score_sheet_links: false`, the league's decision).
 - Reuse the includes and classes already in `_includes/` and `assets/css/site.css`
   (result card, standings table, rank row, tiles, bars, game row, team card...).
   If a page needs something new, add it as a reusable component, not a one-off.

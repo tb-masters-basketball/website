@@ -225,7 +225,7 @@ truly equal.
   (FTA). Dave M.'s 27 is plenty. A player with 1 of 2 is not ranked, however
   good the percentage.
 - **Points-per-game leaders** can need a minimum number of games
-  (`ppg_min_games`, none for now). While a player's team has played fewer
+  (`ppg_min_games`, 3 this season). While a player's team has played fewer
   games than the minimum, playing all of the team's games is enough, so the
   list fills up from the first game day. Players below it still appear in the
   Stats table and on their own page ("Not ranked yet").
@@ -281,9 +281,9 @@ the site (it takes a minute or two).
 4. **Optional: save the photo** of the sheet as
    `data/2026-27/sheets/2026-12-03-g1.jpg` (same name as the game). It is kept
    for checking. It is **not** shown on the site: the box score's "Score sheet
-   photo" link is switched off (`score_sheet_links: false` in `_config.yml`)
-   until the league has checked that the sheets are fine to publish, since
-   they may show full names.
+   photo" link is switched off (`score_sheet_links: false` in `_config.yml`):
+   the league keeps the photos in the repo, not on the site. The repo is public,
+   so if a name was written out in full by hand, don't save the photo.
 5. **Commit as a pull request** and wait for the check. Fix anything it reports
    (see [the checks](#the-checks-and-what-a-failure-looks-like)), then merge.
    When it is published the game has its own box score page
