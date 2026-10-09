@@ -72,7 +72,8 @@ It reads `teams.yml`, `players.yml` and `schedule.csv` from the season folder.
 ## Files
 ```
 scoresheet.py           the generator
-assets/fonts/*.ttf      Barlow and Barlow Condensed (SIL Open Font License)
+assets/fonts/*.ttf      Barlow and Barlow Condensed (SIL Open Font License 1.1)
+assets/fonts/OFL.txt    the licence text, which must stay with the fonts
 assets/masters-badge.png
 example-data/           a small fake season and one sample game, for testing
 ```
