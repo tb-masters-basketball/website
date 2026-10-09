@@ -31,4 +31,5 @@ They came out of the full-site QA (`docs/qa/report.md`).
 | Keep the QA screenshot sets in the repo? | `docs/qa/before/` and `after/` hold about 41 MB of PNGs. They could be cut down to the six contact sheets; `scripts/screenshot_all.py` recreates the rest | |
 | "Game night" wording | Games are Saturday mornings | Changed to "game day" everywhere |
 | Home and away | The printed schedule has no home team | The site always says "vs"; the first-listed team is in the `home` column |
+| Two players with the same first name and last initial | Ids can't clash (`mike-r`, `mike-r2`), but both display as "Mike R.": fine on different teams, identical on the same team. Options: two letters of the last name ("Mike Ro."), or a jersey number. See the README's to-do | |
 | Theme toggle for screen readers | The label changes ("Switch to dark theme" / "Switch to light theme") instead of a fixed label with `aria-pressed`. Both are valid; using both at once contradicts itself | |

@@ -77,7 +77,7 @@ data/
   second is a short past season for the Archive. While sample mode is on, the
   website shows a banner saying so, and the Archive lists both. With it off,
   neither is shown anywhere. See
-  [Leave sample mode](#leave-sample-mode-when-the-real-season-starts).
+  [Sample mode](#sample-mode-now-off) (it is off now).
 - **Which season is shown** is decided in one place, `data/seasons.yml`:
   `current: true` marks the real season, and `stands_in_for: 2026-27` marks
   the sample that replaces it while sample mode is on.
@@ -306,12 +306,14 @@ will tell you.
 5. Once they are in `players.yml` they get a player page (`/players/mike-r/`)
    and appear on their team's roster, even before their first game.
 
-### Leave sample mode when the real season starts
+### Sample mode (now off)
 
-The sample season is a switch in one file, `_config.yml`:
+Sample mode was switched off in October 2026, once the real teams and schedule
+were in: the site shows the real 2026-27 season. The switch is in one file,
+`_config.yml`, if you ever want to preview the site with made-up numbers again:
 
 ```yaml
-sample_data: true     # change to false when real results begin
+sample_data: false    # true shows the made-up sample season
 ```
 
 - **On (`true`):** every page shows the made-up season, and a banner under the

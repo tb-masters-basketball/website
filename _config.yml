@@ -10,10 +10,10 @@ url: "https://mastersbasketball.ca"
 baseurl: ""
 
 # Sample data switch. While true, every page reads the fake season in
-# data/sample-2026-27/ and a banner under the header says so. Set it to false
-# (or delete the line) once the first real game is recorded: the site then reads
-# data/2026-27/ and the banner goes away. Nothing else needs to change.
-sample_data: true
+# data/sample-2026-27/ and a banner under the header says so. Off since the
+# real 2026-27 teams and schedule went in (October 2026): pages read
+# data/2026-27/. Turn it back on to preview the site with sample numbers.
+sample_data: false
 
 # Score sheet photos. Off: the box score page has no "Score sheet photo" link.
 # On: scripts/build_stats.py copies the photos from data/<season>/sheets/ into
