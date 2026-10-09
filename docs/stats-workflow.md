@@ -281,9 +281,11 @@ Keep the game's row in `data/2026-27/schedule.csv` and change it:
 
 Nothing to do. Every time the site is published, the calendar files on the
 Schedule page (and each team page) are rebuilt from `schedule.csv` and the game
-files. Anyone who chose **Subscribe** sees moved and cancelled games, and final
-scores, the next time their calendar app checks (usually within a day). Anyone
-who chose **Download** has a copy and needs to download it again.
+files. Anyone who added a calendar with **Apple** (Apple Calendar or Outlook)
+or **Google** sees moved and cancelled games, and final scores, the next time
+their calendar app checks: Apple within a few hours, Google on its own
+schedule, usually within a day (it can't be hurried). Anyone who chose
+**Download** has a one-time copy and needs to download it again.
 
 ### Fix a wrong number
 

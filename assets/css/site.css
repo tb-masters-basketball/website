@@ -1809,8 +1809,16 @@ th[aria-sort="ascending"] .sort-btn::after {
 
 /* Teams */
 .team-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   padding-left: 14px;
   border-left: 6px solid var(--chip, var(--mb-muted));
+}
+
+.team-header__text {
+  min-width: 0;
 }
 
 .team-grid {
@@ -1916,6 +1924,111 @@ a.team-card:hover {
   font-variant-numeric: tabular-nums;
 }
 
+/* Pill link: a small outlined button with an icon, e.g. "Calendar" beside a
+   team's name. 44 px tall. */
+.pill-link {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--mb-line);
+  border-radius: 22px;
+  background: var(--mb-surface);
+  color: var(--mb-link);
+  font: 600 14px/normal var(--mb-font-body);
+  text-decoration: none;
+}
+
+.pill-link:hover {
+  border-color: var(--mb-link);
+}
+
+/* Narrow phones: just the icon, in a 44 px circle (the label stays for screen readers). */
+@media (max-width: 479px) {
+  .pill-link {
+    justify-content: center;
+    width: 44px;
+    padding: 0;
+  }
+
+  .pill-link__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* Calendar panel: the blue panel (like Next game day) with the calendar
+   buttons and how-to, on team pages and the Schedule page. */
+.cal-panel {
+  margin-top: 10px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--mb-panel);
+  color: var(--mb-panel-text);
+}
+
+.cal-panel__lead {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.cal-panel__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn--on-panel,
+.btn--on-panel:hover {
+  background: var(--mb-panel-text);
+  color: var(--mb-panel);
+}
+
+.cal-panel__help {
+  margin: 14px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--mb-panel-muted);
+}
+
+.cal-panel__help li + li {
+  margin-top: 6px;
+}
+
+.cal-panel__help b,
+.cal-panel__download a {
+  color: var(--mb-panel-text);
+}
+
+.cal-panel__download {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--mb-panel-muted);
+}
+
+.cal-panel__download a {
+  /* a 44 px tap area that doesn't move the text */
+  padding: 14px 0;
+  margin: -14px 0;
+}
+
+.cal-panel a:focus-visible {
+  outline-color: var(--mb-panel-text);
+}
+
+.cal-panel + .game-rows {
+  margin-top: 10px;
+}
+
 /* A row of links instead of a time (calendar Subscribe / Download). */
 .game-row--links {
   align-items: center;
@@ -1924,6 +2037,22 @@ a.team-card:hover {
 .game-row__links {
   display: flex;
   gap: 20px;
+}
+
+.game-row__links .link-more {
+  /* short words like "Apple": widen the tap area to 44 px without moving the text */
+  display: inline-block;
+  min-width: 44px;
+  text-align: center;
+}
+
+/* Phones: the links always go under the name, so every row looks the same. */
+@media (max-width: 479px) {
+  .game-row--links {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 }
 
 .game-row--links .chip {
