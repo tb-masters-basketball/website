@@ -41,7 +41,8 @@ The full list, with answers so far, is in
       `schedule.csv`. Fill in each playoff row as the standings decide it.
 - [ ] **League contact for the footer.** Set `contact_url` in `_config.yml`
       (an email `mailto:` link or a form). The footer shows no contact link
-      while it's blank.
+      while it's blank. A form (e.g. a Google Form) keeps the address away
+      from spam bots, which read email links straight from the page.
 
 ### 2. Record a game from a photo of the score sheet (`/record-game`)
 
