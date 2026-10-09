@@ -6,20 +6,20 @@ away: lh
 type: regular
 final: {fw: 67, lh: 72}
 lines:
-  - {player: paul-l, team: fw, pts: 18, ftm: 3, fta: 4}
-  - {player: glen-a, team: fw, pts: 11, ftm: 0, fta: 0}
-  - {player: tim-r, team: fw, pts: 10, ftm: 0, fta: 0}
-  - {player: bill-c, team: fw, pts: 9, ftm: 2, fta: 2}
-  - {player: nick-t, team: fw, pts: 9, ftm: 0, fta: 2}
-  - {player: ken-w, team: fw, pts: 6, ftm: 1, fta: 1}
-  - {player: barry-s, team: fw, pts: 4, ftm: 0, fta: 0}
-  - {player: joe-p, team: fw, pts: 0, ftm: 0, fta: 0}
-  - {player: dan-h, team: lh, pts: 14, ftm: 0, fta: 0}
-  - {player: todd-b, team: lh, pts: 11, ftm: 1, fta: 2}
-  - {player: mike-r, team: lh, pts: 10, ftm: 2, fta: 4}
-  - {player: brad-e, team: lh, pts: 9, ftm: 0, fta: 0}
-  - {player: pat-o, team: lh, pts: 9, ftm: 1, fta: 2}
-  - {player: andre-g, team: lh, pts: 6, ftm: 0, fta: 2}
-  - {player: lorne-k, team: lh, pts: 6, ftm: 4, fta: 4}
-  - {player: jon-v, team: lh, pts: 5, ftm: 2, fta: 2}
-  - {player: sean-m, team: lh, pts: 2, ftm: 0, fta: 0}
+  - {player: paul-l, team: fw, pts: 18, ftm: 3, fta: 4, pf: 2}
+  - {player: glen-a, team: fw, pts: 11, ftm: 0, fta: 0, pf: 5, tech: 1}
+  - {player: tim-r, team: fw, pts: 10, ftm: 0, fta: 0, pf: 2}
+  - {player: bill-c, team: fw, pts: 9, ftm: 2, fta: 2, pf: 3}
+  - {player: nick-t, team: fw, pts: 9, ftm: 0, fta: 2, pf: 1}
+  - {player: ken-w, team: fw, pts: 6, ftm: 1, fta: 1, pf: 2}
+  - {player: barry-s, team: fw, pts: 4, ftm: 0, fta: 0, pf: 2}
+  - {player: joe-p, team: fw, pts: 0, ftm: 0, fta: 0, pf: 0}
+  - {player: dan-h, team: lh, pts: 14, ftm: 0, fta: 0, pf: 2}
+  - {player: todd-b, team: lh, pts: 11, ftm: 1, fta: 2, pf: 2}
+  - {player: mike-r, team: lh, pts: 10, ftm: 2, fta: 4, pf: 1}
+  - {player: brad-e, team: lh, pts: 9, ftm: 0, fta: 0, pf: 1}
+  - {player: pat-o, team: lh, pts: 9, ftm: 1, fta: 2, pf: 1, tech: 1}
+  - {player: andre-g, team: lh, pts: 6, ftm: 0, fta: 2, pf: 1}
+  - {player: lorne-k, team: lh, pts: 6, ftm: 4, fta: 4, pf: 1}
+  - {player: jon-v, team: lh, pts: 5, ftm: 2, fta: 2, pf: 1}
+  - {player: sean-m, team: lh, pts: 2, ftm: 0, fta: 0, pf: 2}

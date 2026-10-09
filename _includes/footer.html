@@ -6,6 +6,8 @@
       <nav class="site-footer__nav" aria-label="Footer">
         <a href="{{ '/teams/' | relative_url }}">Teams</a>
         <a href="{{ '/archive/' | relative_url }}">Past seasons</a>
+        <a href="{{ '/schedule/' | relative_url }}#sheets-title">Score sheets</a>
+        <a href="{{ '/rules/' | relative_url }}">League rules</a>
         {%- comment -%} Only shown once contact_url is set in _config.yml. {%- endcomment -%}
         {%- assign contact_url = site.contact_url | strip %}
         {%- if contact_url != "" %}

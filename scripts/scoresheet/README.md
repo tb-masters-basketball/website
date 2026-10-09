@@ -25,6 +25,8 @@ The scorekeeper can pick whichever they like. All four have the same parts, so
 | FTM | Filled circles in the player's row. The running score's 1-point jumps must agree. |
 | FTA | Filled circles plus slashed circles. |
 | GP | **Here** ticks. |
+| PF | Slashed foul boxes in the player's row (0 to 5). The website keeps them but doesn't show them. |
+| Techs | Slashed red **T** boxes in the player's row (0 to 2). The website counts them for the whole season, playoffs included. |
 | Checks | The last running total equals the Final box. Halftime totals equal the half boxes. Player points add up to the team score. |
 
 ## Commands

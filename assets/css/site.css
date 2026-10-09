@@ -1779,8 +1779,8 @@ th[aria-sort="ascending"] .sort-btn::after {
   margin-top: 0;
 }
 
-.tiles--4 {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+.tiles--5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .tile--card {
@@ -1922,6 +1922,44 @@ a.team-card:hover {
 .game-row__time {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+/* Prose: a page of Markdown text (the league rules), via _layouts/text.html. */
+.prose {
+  max-width: 68ch;
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.prose > * + * {
+  margin-top: 12px;
+}
+
+.prose h2 {
+  margin-top: 28px;
+  font: 700 22px/normal var(--mb-font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.prose h3 {
+  margin-top: 20px;
+  font: 700 18px/normal var(--mb-font-display);
+  text-transform: uppercase;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 22px;
+}
+
+.prose li + li {
+  margin-top: 6px;
+}
+
+.prose a {
+  color: var(--mb-link);
 }
 
 /* Score sheet links: "Score sheet (PDF)" and an "Other layouts" disclosure
@@ -2152,8 +2190,15 @@ a.team-card:hover {
     align-items: stretch;
   }
 
-  .player-summary .tiles--4 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* five tiles: one row, as tall as the points card beside it */
+  .player-summary .tiles--5 {
+    grid-auto-rows: 1fr;
+  }
+
+  .player-summary .tiles--5 .tile {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .result-card--large .result-card__score {

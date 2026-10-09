@@ -219,3 +219,23 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
     when its PDF was generated, so past days and TBD playoff games get none.
   - A **Score sheets** section at the bottom lists the four blank layouts,
     with one line: print double-sided, page 2 is only for overflow.
+
+## League rules, footer links and technical fouls
+
+- **Footer:** Teams · Past seasons · **Score sheets** (to the blank sheets on
+  the Schedule page) · **League rules** · Contact (when set). The links wrap on
+  phones; each is a 44 px target.
+- **League rules page** (`/rules/`): Markdown in `rules/index.md`, drawn by the
+  reusable `text` layout. The page title, then "Last updated …" (or "Draft"
+  while `updated` is blank), then the text in a readable column (`.prose`,
+  68 characters wide) with the site's section-title style for `##` headings.
+  It's in the footer only, not the header nav.
+- **Technical fouls:**
+  - **Player page:** a fifth tile, **Techs**. It's one row of five on phones,
+    and beside the points card on desktop. A line under the tiles appears when
+    some came in the playoffs. Games with one get a red **Tech** badge (or "2
+    techs") in the game log.
+  - **Stats page:** a **Technical fouls** list at the very bottom, reusing the
+    rank row. It shows number, name, team and games, with the count on the
+    right, and "No technical fouls yet." when there are none.
+  - **Personal fouls** are recorded but shown nowhere.

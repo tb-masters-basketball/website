@@ -22,6 +22,8 @@ and `CNAME`. (`site.webmanifest` uses relative paths, so it needs no change.)
 - **`scripts/build_stats.py`** (Python 3, standard library plus PyYAML) reads
   every season in `data/seasons.yml` and writes `_data/computed/<season>/*.json`:
   standings, player totals, leaders, per-player rankings and per-game logs.
+  Game lines may carry `pf` and `tech` (see data/CLAUDE.md): technical fouls
+  count the whole season, playoffs included, and personal fouls aren't shown.
 - **Sample data switch:** pages never name a season. `build_stats.py` picks the
   active season (the sample stand-in while `sample_data: true` in `_config.yml`,
   else the `current` one) and writes `_data/computed/active.json`;
@@ -63,7 +65,8 @@ scripts/make_score_sheets.sh  score-sheets/*.pdf (git-ignored) for the season sh
 scripts/screenshot_all.py  builds sample + real mode, screenshots every page (360/390/1440, light/dark),
                         checks sideways scroll, console errors and failed requests
 tests/                  unit tests for build_stats.py, calendars.py and the score sheet data loading
-_layouts/ _includes/    templates
+_layouts/ _includes/    templates (_layouts/text.html: Markdown pages such as rules/index.md)
+rules/index.md          the League rules page (Markdown, [placeholder] sections; linked from the footer)
 assets/css/site.css     page styles, built on brand/css/brand.css variables
 brand/                  logos, icons, colours, scenes (from the brand kit; don't edit)
 docs/design-brief.md    the design spec: read this before touching any page

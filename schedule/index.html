@@ -60,13 +60,16 @@ description: Every game day of the season, with results and upcoming games.
   </section>
   {%- endif %}
 
+  {%- comment %} Always here: the footer's "Score sheets" link points to it. {% endcomment %}
   {%- capture blank_sheets %}{% include score-sheet-links.html blank=true label="blank" %}{% endcapture %}
   {%- assign blank_trimmed = blank_sheets | strip %}
-  {%- if blank_trimmed != "" %}
   <section class="page-section" aria-labelledby="sheets-title">
     <h2 class="section-title" id="sheets-title">Score sheets</h2>
+    {%- if blank_trimmed != "" %}
     <p class="table-note">Blank, fillable sheets. Print double-sided: page 2 is only for overflow (past 120 points, or more than 10 free throws).</p>
     {{ blank_sheets }}
+    {%- else %}
+    <p class="empty">The blank score sheets appear here when the site is published.</p>
+    {%- endif %}
   </section>
-  {%- endif %}
 </div>

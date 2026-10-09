@@ -133,8 +133,26 @@ scripts:
       <div><dt>PPG</dt><dd>Points per game: total points divided by games played, to one decimal.</dd></div>
       <div><dt>FT%</dt><dd>Free throws made divided by free throws attempted, to one decimal. A player needs at least {{ ft_min | default: 10 }} attempts to be ranked.</dd></div>
       <div><dt>Subs</dt><dd>A sub's points count for them as a player and toward their team's score that day.</dd></div>
-      <div><dt>Playoffs</dt><dd>Kept separate. Playoff games never count in these stats or in the standings.</dd></div>
+      <div><dt>Techs</dt><dd>Technical fouls, from the T boxes on the score sheet. Unlike the other stats, they count for the whole season, playoffs included.</dd></div>
+      <div><dt>Playoffs</dt><dd>Kept separate. Playoff games never count in these stats (technical fouls aside) or in the standings.</dd></div>
       <div><dt>Source</dt><dd>The league's paper score sheets, typed into the site's game files. The numbers are recalculated every time the site is published.</dd></div>
     </dl>
+  </section>
+
+  {%- comment %} At the very bottom: everyone with a technical foul this season (playoffs included). {% endcomment %}
+  {%- assign techs = stats.leaders.technicals %}
+  <section class="page-section" aria-labelledby="techs-title">
+    <h2 class="section-title" id="techs-title">Technical fouls</h2>
+    <p class="table-note">This season, playoffs included. Most first.</p>
+    {%- if techs.size > 0 %}
+    <div class="rank-list">
+      {%- for tp in techs %}
+      {%- capture tp_meta %}{{ tp.team_name }} · {% if tp.tech_games == 1 %}1 game{% else %}{{ tp.tech_games }} games{% endif %}{% if tp.tech_playoff > 0 %} · {{ tp.tech_playoff }} in playoffs{% endif %}{% endcapture %}
+      {%- include rank-row.html player=tp value=tp.tech meta=tp_meta rank=forloop.index %}
+      {%- endfor %}
+    </div>
+    {%- else %}
+    <p class="empty">No technical fouls yet.</p>
+    {%- endif %}
   </section>
 </div>

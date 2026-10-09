@@ -80,11 +80,13 @@ player past 10 free throws).
 | FTM | Filled circles in the player's row. The running score's 1-point jumps must agree. |
 | FTA | Filled circles plus slashed circles. |
 | GP | **Here** ticks. |
+| PF (personal fouls) | Slashed foul boxes in the player's row (0 to 5). Kept, but not shown on the site. |
+| Techs (technical fouls) | Slashed red **T** boxes in the player's row (0 to 2). |
 | Checks | The last running total equals the Final box. Halftime totals equal the half boxes. Player points add up to the team score. |
 
 Those numbers are what goes into the game file: `pts`, `ftm` and `fta` for every
-player ticked **Here**, and each team's final score. The sheet's fouls,
-timeouts and score by half aren't on the site.
+player ticked **Here** (plus `pf` and `tech` when they're not 0), and each team's
+final score. The sheet's team fouls, timeouts and score by half aren't on the site.
 
 ## The data folders
 
@@ -127,14 +129,17 @@ away: lh
 type: regular               # regular, or playoff
 final: {pa: 71, lh: 64}     # the final score from the sheet
 lines:                      # one line per player listed on the sheet
-  - {player: dave-m, team: pa, pts: 24, ftm: 6, fta: 7}
-  - {player: greg-t, team: pa, pts: 12, ftm: 2, fta: 2}
+  - {player: dave-m, team: pa, pts: 24, ftm: 6, fta: 7, pf: 3}
+  - {player: greg-t, team: pa, pts: 12, ftm: 2, fta: 2, pf: 1, tech: 1}
   - {player: mike-r, team: lh, pts: 16, ftm: 1, fta: 2}
   # ...and so on for everyone on the sheet
 ```
 
 For each player: **`pts`** = total points, **`ftm`** = free throws made,
-**`fta`** = free throws attempted. A player who was on the sheet but didn't
+**`fta`** = free throws attempted. Two more are optional and can be left out
+when they're 0: **`pf`** = personal fouls (0 to 5; kept, not shown on the site)
+and **`tech`** = technical fouls (0 to 2; shown on the player page and the
+Stats page, counting the whole season, playoffs included). A player who was on the sheet but didn't
 score still gets a line with zeros, because being on the sheet counts as
 playing in the game.
 
@@ -162,6 +167,7 @@ The real message starts with the full path (for example
 | The game isn't in `schedule.csv` | `games/2026-12-11-g1.yml: game_id '2026-12-11-g1' has no row in schedule.csv` |
 | The date, teams or type disagree with `schedule.csv` | `games/2026-12-03-g1.yml: date 2026-12-04 doesn't match schedule.csv (2026-12-03)` |
 | A game file exists for a game marked `cancelled` | `games/2026-11-14-g1.yml: game '2026-11-14-g1' is marked cancelled in schedule.csv. Delete this file, or clear the status if the game was played` |
+| Too many fouls for the sheet (`pf` above 5, `tech` above 2) | `games/2026-12-03-g1.yml: line 1 (dave-m): tech 3 should be a whole number from 0 to 2` |
 | The final score is a tie | `games/2026-12-03-g1.yml: final score is tied 64-64` |
 | A player is listed twice in one game | `games/2026-12-03-g1.yml: line 3 (greg-t): player is listed twice in this game` |
 | A player name isn't written "First L." | `players.yml: player #1 (dave-m): display 'Dave Mitchell' should be 'First L.' (never a full name)` |
@@ -318,6 +324,15 @@ or **Google** sees moved and cancelled games, and final scores, the next time
 their calendar app checks: Apple within a few hours, Google on its own
 schedule, usually within a day (it can't be hurried). Anyone who chose
 **Download** has a one-time copy and needs to download it again.
+
+### Edit the league rules
+
+The League rules page (linked in every page's footer) is one text file,
+`rules/index.md`. Open it on GitHub, click the pencil, and replace each
+`[placeholder]` with the real rule. Each line starting with `## ` is a section
+heading; lines starting with `- ` are bullet points. When you're done, put the
+date in `updated:` near the top (for example `updated: "Oct 17, 2026"`); until
+then the page says it's a draft. Commit as a pull request and merge it.
 
 ### Fix a wrong number
 
