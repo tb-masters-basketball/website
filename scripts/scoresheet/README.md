@@ -14,8 +14,8 @@ The scorekeeper can pick whichever they like. All four have the same parts, so
   - 10 **free throw circles**: filled means made, slashed means missed
   - 5 **personal foul** boxes and 2 red **T** boxes for technicals
 - **Under each roster:** team fouls for each half, timeouts, and the score by half and the final score.
-- **Running score from 1 to 120:** the totals run down the middle, with the home scorer's number on the left and the away scorer's on the right.
-- **Page 2, for printing on the back:** carries on in case it's needed, with the running score from 121 to 240 and free throws 11 to 20 for each player. Leave it out with `--front-only`.
+- **Running score from 1 to 100:** the totals run down the middle, with the home scorer's number on the left and the away scorer's on the right.
+- **Page 2, for printing on the back:** carries on in case it's needed, with the running score from 101 to 200 and free throws 11 to 20 for each player. Leave it out with `--front-only`.
 - **Corner squares** so a photo can be straightened.
 
 ## How stats come from a sheet

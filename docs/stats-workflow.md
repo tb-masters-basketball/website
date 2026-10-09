@@ -69,7 +69,7 @@ Every time the site is published:
   an editable field, so last-minute changes can be typed in before printing.
 - **Blank sheets:** all four layouts are at the bottom of the Schedule page.
 
-Print double-sided: page 2 is only for overflow (a team past 120 points, or a
+Print double-sided: page 2 is only for overflow (a team past 100 points, or a
 player past 10 free throws).
 
 ### How stats come from a sheet

@@ -5,8 +5,8 @@ Makes printable, fillable PDF score sheets in four layouts:
 portrait or landscape, Letter or Legal.
 
 Each sheet has two rosters (jersey #, here tick, name, 10 free-throw circles,
-5 personal fouls + 2 technicals) and a running score from 1 to 120, with a
-continuation page (121-240, free throws 11-20) printed on the back: totals in
+5 personal fouls + 2 technicals) and a running score from 1 to 100, with a
+continuation page (101-200, free throws 11-20) printed on the back: totals in
 the middle, home scorer's number on the left, away scorer's on the right.
 
 Usage
@@ -60,7 +60,7 @@ PEN = HexColor("#1F3FB8")      # example handwriting only
 FORM = "MBL-SS5"
 ROSTER_ROWS = 12
 FT_CIRCLES = 10
-MAX_POINTS = 120          # per page; the back page continues 121-240
+MAX_POINTS = 100          # per page; the back page continues 101-200
 PAD = 36
 FID, FID_IN = 14, 16
 SIZES = {"letter": letter, "legal": legal}
@@ -277,12 +277,12 @@ class ScoreSheet:
         "And-one: write the basket, then the free throw.",
         "Player rows: fill a circle for each free throw made, slash one for each miss. Slash a foul box "
         "per personal foul; slash a T box per technical. Tick Here for everyone who plays. "
-        "Halftime: draw a line under each team's last number. Past 120, or more than 10 free throws: "
+        "Halftime: draw a line under each team's last number. Past 100, or more than 10 free throws: "
         "carry on over the page.",
     ]
     BACK_HELP = [
-        "Continuation. Use this side only if a team passes 120 points or a player takes more than 10 free "
-        "throws. Keep marking exactly as on the front; the running score carries on from 121. "
+        "Continuation. Use this side only if a team passes 100 points or a player takes more than 10 free "
+        "throws. Keep marking exactly as on the front; the running score carries on from 101. "
         "Write the final score on the front.",
     ]
 
@@ -344,7 +344,7 @@ class ScoreSheet:
 
     # ---- pages ------------------------------------------------------------------
     def score_sets(self):
-        # portrait letter is the narrowest grid: 5 columns of 24; the rest 4 of 30
+        # portrait letter is the narrowest grid: 5 columns of 20; the rest 4 of 25
         return 5 if (self.orient, self.size) == ("portrait", "letter") else 4
 
     def add_page(self, game=None, example=False, back=True):
