@@ -72,7 +72,7 @@ brand/                  logos, icons, colours, scenes (from the brand kit; don't
 docs/design-brief.md    the design spec: read this before touching any page
 docs/stats-workflow.md  how score sheets become site numbers, for the volunteer (keep it true)
 docs/mockups/           approved mockups (open in a browser) and screenshots
-docs/qa/                full-site QA: report.md, before/after screenshots, contact sheets
+docs/qa/report.md       the full-site QA report (screenshots: run screenshot_all.py)
 .github/workflows/      build stats → build Jekyll → deploy to Pages
 ```
 

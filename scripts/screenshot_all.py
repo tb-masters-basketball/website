@@ -22,7 +22,7 @@ check failed. --contact-sheets also writes one contact sheet per width
 (<out>/contact-<width>.png): every page, light and dark, sample and real.
 
 Usage:
-  python scripts/screenshot_all.py --out docs/qa/after --contact-sheets
+  python scripts/screenshot_all.py --out /tmp/shots --contact-sheets
   python scripts/screenshot_all.py --out /tmp/shots --modes sample --widths 390
   python scripts/screenshot_all.py --out /tmp/shots --no-build \\
       --base-url http://localhost:4000/      # use a site you serve

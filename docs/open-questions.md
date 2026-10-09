@@ -31,7 +31,7 @@ They came out of the full-site QA (`docs/qa/report.md`).
 
 | Question | Current state | Answer |
 |---|---|---|
-| Keep the QA screenshot sets in the repo? | `docs/qa/before/` and `after/` hold about 41 MB of PNGs. They could be cut down to the six contact sheets; `scripts/screenshot_all.py` recreates the rest | |
+| Keep the QA screenshot sets in the repo? | `docs/qa/before/` and `after/` hold about 41 MB of PNGs. They could be cut down to the six contact sheets; `scripts/screenshot_all.py` recreates the rest | Removed (October 2026). `docs/qa/report.md` stays; the screenshots are in git history, and `screenshot_all.py` makes a fresh set |
 | "Game night" wording | Games are Saturday mornings | Changed to "game day" everywhere |
 | Home and away | The printed schedule has no home team | The site always says "vs"; the first-listed team is in the `home` column |
 | Two players with the same first name and last initial | Ids can't clash (`mike-r`, `mike-r2`), and both display as "Mike R." | Jersey numbers: the site shows "#23 Mike R.", and the build stops if two players on one team share a "First L." without numbers. `/record-game` matches by team, then name, then number |

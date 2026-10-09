@@ -56,10 +56,6 @@ The full list, with answers so far, is in
 - [ ] **Badge colourway** for jerseys and merch (navy, blue or light). This
       isn't on the site.
 
-**Site decisions:**
-- [ ] **QA screenshots.** Keep about 41 MB of before/after screenshots in
-      `docs/qa/`, or cut them to the six contact sheets?
-
 ### 2. Record a game from a photo of the score sheet (`/record-game`)
 
 Today a volunteer types each game into a YAML file by hand
