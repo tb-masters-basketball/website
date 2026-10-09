@@ -35,4 +35,4 @@ They came out of the full-site QA (`docs/qa/report.md`).
 | "Game night" wording | Games are Saturday mornings | Changed to "game day" everywhere |
 | Home and away | The printed schedule has no home team | The site always says "vs"; the first-listed team is in the `home` column |
 | Two players with the same first name and last initial | Ids can't clash (`mike-r`, `mike-r2`), and both display as "Mike R." | Jersey numbers: the site shows "#23 Mike R.", and the build stops if two players on one team share a "First L." without numbers. `/record-game` matches by team, then name, then number |
-| Theme toggle for screen readers | The label changes ("Switch to dark theme" / "Switch to light theme") instead of a fixed label with `aria-pressed`. Both are valid; using both at once contradicts itself | |
+| Theme toggle for screen readers | The label changes ("Switch to dark theme" / "Switch to light theme") instead of a fixed label with `aria-pressed`. Both are valid; using both at once contradicts itself | Keep it as it is: the changing label |

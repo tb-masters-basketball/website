@@ -59,8 +59,6 @@ The full list, with answers so far, is in
 **Site decisions:**
 - [ ] **QA screenshots.** Keep about 41 MB of before/after screenshots in
       `docs/qa/`, or cut them to the six contact sheets?
-- [ ] **Theme button for screen readers.** Keep the changing label ("Switch
-      to dark theme"), or use a fixed label with `aria-pressed`?
 
 ### 2. Record a game from a photo of the score sheet (`/record-game`)
 
