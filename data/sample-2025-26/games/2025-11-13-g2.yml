@@ -6,19 +6,19 @@ away: fw
 type: regular
 final: {lh: 58, fw: 47}
 lines:
-  - {player: andre-g, team: lh, pts: 9, ftm: 2, fta: 3}
-  - {player: craig-s, team: lh, pts: 9, ftm: 0, fta: 0}
-  - {player: jon-v, team: lh, pts: 9, ftm: 0, fta: 2}
-  - {player: lorne-k, team: lh, pts: 8, ftm: 0, fta: 0}
-  - {player: mike-r, team: lh, pts: 7, ftm: 3, fta: 4}
-  - {player: brad-e, team: lh, pts: 6, ftm: 0, fta: 0}
-  - {player: todd-b, team: lh, pts: 5, ftm: 3, fta: 4}
-  - {player: pat-o, team: lh, pts: 3, ftm: 0, fta: 2}
-  - {player: dan-h, team: lh, pts: 2, ftm: 0, fta: 2}
-  - {player: paul-l, team: fw, pts: 10, ftm: 0, fta: 0}
-  - {player: bill-c, team: fw, pts: 9, ftm: 1, fta: 1}
-  - {player: carl-m, team: fw, pts: 8, ftm: 1, fta: 2}
-  - {player: barry-s, team: fw, pts: 6, ftm: 1, fta: 2}
-  - {player: glen-a, team: fw, pts: 6, ftm: 0, fta: 0}
-  - {player: joe-p, team: fw, pts: 6, ftm: 0, fta: 0}
-  - {player: ray-d, team: fw, pts: 2, ftm: 0, fta: 0}
+  - {player: andre-g, team: lh, pts: 9, ftm: 2, fta: 3, pf: 1}
+  - {player: craig-s, team: lh, pts: 9, ftm: 0, fta: 0, pf: 1}
+  - {player: jon-v, team: lh, pts: 9, ftm: 0, fta: 2, pf: 2}
+  - {player: lorne-k, team: lh, pts: 8, ftm: 0, fta: 0, pf: 2}
+  - {player: mike-r, team: lh, pts: 7, ftm: 3, fta: 4, pf: 3}
+  - {player: brad-e, team: lh, pts: 6, ftm: 0, fta: 0, pf: 1}
+  - {player: todd-b, team: lh, pts: 5, ftm: 3, fta: 4, pf: 3}
+  - {player: pat-o, team: lh, pts: 3, ftm: 0, fta: 2, pf: 2}
+  - {player: dan-h, team: lh, pts: 2, ftm: 0, fta: 2, pf: 2}
+  - {player: paul-l, team: fw, pts: 10, ftm: 0, fta: 0, pf: 1}
+  - {player: bill-c, team: fw, pts: 9, ftm: 1, fta: 1, pf: 3}
+  - {player: carl-m, team: fw, pts: 8, ftm: 1, fta: 2, pf: 4}
+  - {player: barry-s, team: fw, pts: 6, ftm: 1, fta: 2, pf: 1}
+  - {player: glen-a, team: fw, pts: 6, ftm: 0, fta: 0, pf: 3, tech: 1}
+  - {player: joe-p, team: fw, pts: 6, ftm: 0, fta: 0, pf: 3}
+  - {player: ray-d, team: fw, pts: 2, ftm: 0, fta: 0, pf: 4}

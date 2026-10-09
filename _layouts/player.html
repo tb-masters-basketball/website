@@ -4,6 +4,8 @@ layout: default
 {%- comment -%}
   Player page. Stub files (written by scripts/build_stats.py) name the player;
   the numbers come from _data/computed: players.json, rankings.json, game_logs.json.
+  Techs (technical fouls) count the whole season, playoffs included; a game
+  with one is marked in the game log.
 {%- endcomment -%}
 {%- include page-season.html -%}
 {%- assign player = stats.players[page.player_id] -%}
@@ -27,13 +29,17 @@ layout: default
         <span class="top-card__meta">of {{ stats.rankings.size }} players</span>
       </span>
     </div>
-    <div class="tiles tiles--4">
+    <div class="tiles tiles--5">
       <div class="tile tile--card"><div class="tile__value">{{ player.gp }}</div><div class="tile__label"><abbr title="Games played">GP</abbr></div></div>
       <div class="tile tile--card"><div class="tile__value">{{ player.pts }}</div><div class="tile__label"><abbr title="Points">PTS</abbr></div></div>
       <div class="tile tile--card"><div class="tile__value">{{ player.ftm }}-{{ player.fta }}</div><div class="tile__label">FTM-FTA</div></div>
       <div class="tile tile--card"><div class="tile__value">{% if player.fta > 0 %}{{ player.ft_pct_display }}%{% else %}—{% endif %}</div><div class="tile__label">FT%</div></div>
+      <div class="tile tile--card"><div class="tile__value">{{ player.tech | default: 0 }}</div><div class="tile__label"><abbr title="Technical fouls">Techs</abbr></div></div>
     </div>
   </div>
+  {%- if player.tech_playoff > 0 %}
+  <p class="table-note">Techs count the whole season: {{ player.tech_playoff }} of {{ player.tech }} came in the playoffs.</p>
+  {%- endif %}
 
   <section class="page-section" aria-labelledby="bars-title">
     <h2 class="section-title" id="bars-title">Points by game day</h2>
@@ -58,7 +64,7 @@ layout: default
         <tbody>
           {%- for lg in logs reversed %}
           <tr>
-            <th scope="row"><a href="{{ '/games/' | append: lg.game_id | append: '/' | relative_url }}">{{ lg.date_display }}</a>{% if lg.type == "playoff" %} <span class="badge">Playoff</span>{% endif %}</th>
+            <th scope="row"><a href="{{ '/games/' | append: lg.game_id | append: '/' | relative_url }}">{{ lg.date_display }}</a>{% if lg.type == "playoff" %} <span class="badge">Playoff</span>{% endif %}{% if lg.tech > 0 %} <span class="badge badge--top">{% if lg.tech > 1 %}{{ lg.tech }} techs{% else %}Tech{% endif %}</span>{% endif %}</th>
             <td><a class="tap-link" href="{{ '/teams/' | append: lg.opponent | append: '/' | relative_url }}">vs {{ lg.opponent_name }}</a><span class="log-table__result">{{ lg.result }} {{ lg.score }}</span></td>
             <td>{{ lg.pts }}</td>
             <td>{{ lg.ftm }}-{{ lg.fta }}</td>

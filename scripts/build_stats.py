@@ -53,6 +53,9 @@ SCHEDULE_COLUMNS = ["game_id", "date", "time", "gym", "home", "away", "type", "w
 #   status  blank (the game goes ahead) or "cancelled"
 #   round   a playoff round's name as the league writes it, e.g. "Semifinal (G42)"
 GAME_STATUSES = ("", "cancelled")
+# Optional per-player fouls in a game file, as on the score sheet: 5 personal
+# foul boxes and 2 technical (T) boxes. Personal fouls are kept but not shown.
+FOUL_LIMITS = {"pf": 5, "tech": 2}
 # A playoff game whose teams aren't known yet names them like the printed
 # schedule does: TBD, a standings place (1st to 5th), or the winner/loser of a game.
 PLACEHOLDER_RE = re.compile(r"^(TBD|[1-9](st|nd|rd|th)|(Winner|Loser) G\d+)$")
@@ -469,6 +472,13 @@ def _check_game(path, game, teams, players, schedule, problems):
         if bad:
             problems.append(f"{lw}: {', '.join(bad)} should be whole numbers, 0 or more")
             continue
+        # optional fouls from the sheet: pf (5 boxes) and tech (2 T boxes); missing means 0
+        for key, most in FOUL_LIMITS.items():
+            value = line.get(key, 0)
+            if not _is_count(value) or value > most:
+                problems.append(f"{lw}: {key} {value!r} should be a whole number from 0 to {most}")
+            else:
+                line[key] = value
         if nums["ftm"] > nums["fta"]:
             problems.append(f"{lw}: ftm {nums['ftm']} is more than fta {nums['fta']}")
         if nums["ftm"] > nums["pts"]:
@@ -617,7 +627,7 @@ def player_totals(players, teams, games):
             "team": p["team"],
             "team_name": teams[p["team"]]["name"],
             "sub": p["sub"],
-            "gp": 0, "pts": 0, "ftm": 0, "fta": 0, "season_high": None,
+            "gp": 0, "pts": 0, "ftm": 0, "fta": 0, "pf": 0, "season_high": None,
         }
     for game in games:
         for line in game["lines"]:
@@ -626,6 +636,7 @@ def player_totals(players, teams, games):
             t["pts"] += line["pts"]
             t["ftm"] += line["ftm"]
             t["fta"] += line["fta"]
+            t["pf"] += line.get("pf", 0)
             t["season_high"] = max(t["season_high"] or 0, line["pts"])
     for t in totals.values():
         exact_ppg = ppg(t["pts"], t["gp"])
@@ -635,6 +646,30 @@ def player_totals(players, teams, games):
         t["ft_pct"] = round_half_up(exact_ft) if exact_ft is not None else None
         t["ft_pct_display"] = fmt_decimal(exact_ft) if exact_ft is not None else DASH
     return totals
+
+
+def add_technicals(totals, regular, playoff):
+    """Technical fouls count for the whole season, playoffs included (unlike
+    every other stat): adds tech, tech_playoff and tech_games to each player."""
+    for t in totals.values():
+        t.update(tech=0, tech_playoff=0, tech_games=0)
+    for games, playoffs in ((regular, False), (playoff, True)):
+        for game in games:
+            for line in game["lines"]:
+                n = line.get("tech", 0)
+                if n:
+                    t = totals[line["player"]]
+                    t["tech"] += n
+                    t["tech_games"] += 1
+                    if playoffs:
+                        t["tech_playoff"] += n
+
+
+def technicals_list(totals):
+    """Everyone with a technical foul this season, most first, then by name."""
+    keys = ("id", "display", "team", "team_name", "sub", "tech", "tech_playoff", "tech_games")
+    rows = [{k: t[k] for k in keys} for t in totals.values() if t["tech"] > 0]
+    return sorted(rows, key=lambda r: (-r["tech"], r["display"], r["id"]))
 
 
 def _ranked(entries, value_key, exact):
@@ -731,6 +766,7 @@ def game_summary(game, sched_row, season):
                 "display": players[l["player"]]["display"],
                 "sub": players[l["player"]]["sub"],
                 "pts": l["pts"], "ftm": l["ftm"], "fta": l["fta"],
+                "pf": l.get("pf", 0), "tech": l.get("tech", 0),
             }
             for l in game["lines"] if l["team"] == tid
         ]
@@ -797,6 +833,8 @@ def compute_game_logs(season, summaries):
                     "pts": line["pts"],
                     "ftm": line["ftm"],
                     "fta": line["fta"],
+                    "pf": line.get("pf", 0),
+                    "tech": line.get("tech", 0),
                 })
     return logs
 
@@ -876,8 +914,10 @@ def compute_season(season):
         "games": sorted((g["game_id"] for g in playoff), key=lambda gid: (summaries[gid]["date"], summaries[gid]["time"])),
         "players": {pid: t for pid, t in playoff_totals.items() if t["gp"] > 0},
     }
+    add_technicals(totals, regular, playoff)
     leaders = compute_leaders(totals)
     leaders["through_week"] = through_week
+    leaders["technicals"] = technicals_list(totals)
     team_info = {
         tid: {"id": tid, "name": t["name"], "short": t["short"], "colour_slot": t["colour_slot"]}
         for tid, t in season["teams"].items()

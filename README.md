@@ -28,6 +28,11 @@ The full list, with answers so far, is in
 - [ ] **Jersey numbers for 2026-27.** They go in `players.yml` as `number:`
       and print in the score sheets' # box (blank until then). They also tell
       apart two players with the same "First L." name.
+- [ ] **League rules.** `rules/index.md` (the League rules page, linked in the
+      footer) has every section with a `[placeholder]` to replace.
+- [ ] **Technical foul rules.** What happens after two in a game, or a number
+      in a season? The site counts technicals (playoffs included) but flags
+      nothing until this is decided.
 - [ ] **Standings tiebreakers**, including three-way ties. Until then the site
       uses head-to-head, then point differential, and says so under the
       standings.
@@ -72,6 +77,7 @@ sheet into that file and a pull request:
    - **Here** ticks give GP
    - running score jumps give each player's points
    - filled and slashed circles give FTM and FTA
+   - slashed foul boxes give `pf`, slashed red T boxes give `tech`
    - check: last running total = Final box; player points add up to it
 3. **Match names to player ids** in `players.yml`:
    - Ask about anyone it can't match, and add new players or subs (`sub: true`).
@@ -187,8 +193,8 @@ there are none:
 |---|---|
 | `teams.json` | name, code, colour slot per team |
 | `standings.json` | W, L, PCT, GB, PF, PA, DIFF, rank; tiebreak notes; "through week N" |
-| `players.json` | each player's totals: GP, PTS, PPG, FTM, FTA, FT%, season high |
-| `leaders.json` | PPG and FT% leaders (FT% needs 10+ attempts) |
+| `players.json` | each player's totals: GP, PTS, PPG, FTM, FTA, FT%, season high; PF (kept, not shown); technical fouls for the whole season, playoffs included |
+| `leaders.json` | PPG and FT% leaders (FT% needs 10+ attempts); everyone with a technical foul |
 | `rankings.json` | every player with their rank in each stat, for the Stats page |
 | `games.json` | every played game's box score |
 | `game_logs.json` | each player's game-by-game lines |
@@ -234,9 +240,10 @@ Two small includes turn that into the variables every template uses:
 |---|---|---|
 | `/` | `index.html` | latest results, standings, next game day, leaders |
 | `/schedule/` | `schedule/index.html` | upcoming game days (each with its score sheet PDF), then results; cancelled games; calendar links; blank score sheets |
-| `/stats/` | `stats/index.html` | ranked list (PPG / Points / FT %, by team); full table at `#stats-table` |
+| `/stats/` | `stats/index.html` | ranked list (PPG / Points / FT %, by team); full table at `#stats-table`; technical fouls list at the bottom |
 | `/teams/` | `teams/index.html` | a card per team |
 | `/archive/` | `archive/index.html` | a card per season |
+| `/rules/` | `rules/index.md` (layout `text`) | the league rules, written in Markdown; linked from the footer |
 | `/404.html` | `404.html` | page not found |
 
 **Generated pages:** a stub plus a layout. `_config.yml` declares four
@@ -269,7 +276,7 @@ Every page uses `_layouts/default.html`:
 | Include | What it draws |
 |---|---|
 | `head.html` | title, description, share tags, icons, fonts, CSS, the no-flash theme script |
-| `header.html` / `footer.html` | badge, nav, theme button and the Sleeping Giant scene / wordmark and links |
+| `header.html` / `footer.html` | badge, nav, theme button and the Sleeping Giant scene / wordmark and links (Teams, Past seasons, Score sheets, League rules, Contact when set) |
 | `sample-banner.html` | "Preview with sample data" (sample mode only) |
 | `result-card.html` | a played game's score card |
 | `standings-table.html` | the 8-column standings table (scrolls sideways on phones, team column pinned) |
@@ -346,6 +353,7 @@ Run `build_stats.py` again after changing anything in `data/` or the
 | Add a game result | add `data/2026-27/games/<game_id>.yml` ([guide](docs/stats-workflow.md#add-a-game)) |
 | Fix a number | edit the game file; everything is recalculated |
 | Add a player or sub | one line in `data/2026-27/players.yml` |
+| Edit the league rules | `rules/index.md` ([guide](docs/stats-workflow.md#edit-the-league-rules)) |
 | Cancel, move or make up a game | edit its row in `schedule.csv` ([guide](docs/stats-workflow.md#cancel-or-move-a-game)) |
 | Set a playoff matchup | replace `TBD` / `2nd` / `Winner G41` with team ids in `schedule.csv` |
 | Change a team's colour | its `colour_slot` (1–5) in `teams.yml` |
@@ -371,7 +379,7 @@ scripts/
 tests/                   unit tests for build_stats.py, calendars.py and score sheet data loading
 _config.yml              site settings, switches, collections
 _layouts/  _includes/    templates and components
-index.html  schedule/  stats/  teams/  archive/  404.html   fixed pages
+index.html  schedule/  stats/  teams/  archive/  rules/  404.html   fixed pages
 assets/css/site.css      page styles
 assets/js/               theme button, Stats page
 brand/                   brand kit (don't edit)

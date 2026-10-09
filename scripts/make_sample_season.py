@@ -324,6 +324,15 @@ def generate(seed):
     return weeks, played, scores, players, present, pts, ft
 
 
+def fouls(game_id, pid):
+    """Made-up personal fouls (0-5) and technicals (0-2, rare) for one player in
+    one game, from a Random of their own so no other sample number changes."""
+    r = random.Random(f"fouls-{game_id}-{pid}")
+    pf = r.choices(range(6), weights=[14, 24, 26, 20, 11, 5])[0]
+    tech = 1 if r.random() < 0.025 else 0
+    return f", pf: {pf}" + (f", tech: {tech}" if tech else "")
+
+
 def jersey_numbers(tid, pids):
     """Made-up jersey numbers, unique within the team. A Random of their own, so
     adding them changes none of the sample season's other numbers."""
@@ -373,7 +382,8 @@ def write_files(weeks, played, scores, players, present, pts, ft):
             here = sorted(present[(key, tid)], key=lambda p: (-pts[(key, p)], p))
             for p in here:
                 m, a = ft[(key, p)]
-                lines.append(f"  - {{player: {p}, team: {tid}, pts: {pts[(key, p)]}, ftm: {m}, fta: {a}}}\n")
+                lines.append(f"  - {{player: {p}, team: {tid}, pts: {pts[(key, p)]}, ftm: {m}, fta: {a}"
+                             f"{fouls(g['game_id'], p)}}}\n")
         with open(OUT / "games" / f"{g['game_id']}.yml", "w", encoding="utf-8") as fh:
             fh.write(header)
             fh.write(f"game_id: {g['game_id']}\ndate: {g['date']}\nhome: {g['home']}\naway: {g['away']}\n"
@@ -511,7 +521,8 @@ def write_past_season():
         lines = []
         for tid in (g["home"], g["away"]):
             for pid, pts_, ftm, fta in past_lines(rng, rosters[tid], scores[tid]):
-                lines.append(f"  - {{player: {pid}, team: {tid}, pts: {pts_}, ftm: {ftm}, fta: {fta}}}\n")
+                lines.append(f"  - {{player: {pid}, team: {tid}, pts: {pts_}, ftm: {ftm}, fta: {fta}"
+                             f"{fouls(g['game_id'], pid)}}}\n")
         with open(PAST_OUT / "games" / f"{g['game_id']}.yml", "w", encoding="utf-8") as fh:
             fh.write(header)
             fh.write(f"game_id: {g['game_id']}\ndate: {g['date']}\nhome: {g['home']}\naway: {g['away']}\n"

@@ -6,19 +6,19 @@ away: pa
 type: regular
 final: {cr: 65, pa: 82}
 lines:
-  - {player: rob-k, team: cr, pts: 17, ftm: 5, fta: 5}
-  - {player: chris-b, team: cr, pts: 11, ftm: 1, fta: 2}
-  - {player: scott-a, team: cr, pts: 8, ftm: 1, fta: 2}
-  - {player: tom-g, team: cr, pts: 8, ftm: 0, fta: 0}
-  - {player: pete-s, team: cr, pts: 7, ftm: 0, fta: 0}
-  - {player: randy-j, team: cr, pts: 7, ftm: 1, fta: 2}
-  - {player: luc-b, team: cr, pts: 4, ftm: 1, fta: 2}
-  - {player: darren-v, team: cr, pts: 3, ftm: 0, fta: 0}
-  - {player: dave-m, team: pa, pts: 20, ftm: 4, fta: 4}
-  - {player: greg-t, team: pa, pts: 14, ftm: 1, fta: 1}
-  - {player: kevin-h, team: pa, pts: 12, ftm: 0, fta: 0}
-  - {player: terry-n, team: pa, pts: 12, ftm: 2, fta: 2}
-  - {player: wayne-d, team: pa, pts: 10, ftm: 0, fta: 0}
-  - {player: doug-w, team: pa, pts: 5, ftm: 0, fta: 0}
-  - {player: ian-c, team: pa, pts: 5, ftm: 0, fta: 0}
-  - {player: marc-l, team: pa, pts: 4, ftm: 1, fta: 4}
+  - {player: rob-k, team: cr, pts: 17, ftm: 5, fta: 5, pf: 1}
+  - {player: chris-b, team: cr, pts: 11, ftm: 1, fta: 2, pf: 3}
+  - {player: scott-a, team: cr, pts: 8, ftm: 1, fta: 2, pf: 2}
+  - {player: tom-g, team: cr, pts: 8, ftm: 0, fta: 0, pf: 2}
+  - {player: pete-s, team: cr, pts: 7, ftm: 0, fta: 0, pf: 1}
+  - {player: randy-j, team: cr, pts: 7, ftm: 1, fta: 2, pf: 1}
+  - {player: luc-b, team: cr, pts: 4, ftm: 1, fta: 2, pf: 1, tech: 1}
+  - {player: darren-v, team: cr, pts: 3, ftm: 0, fta: 0, pf: 2}
+  - {player: dave-m, team: pa, pts: 20, ftm: 4, fta: 4, pf: 1}
+  - {player: greg-t, team: pa, pts: 14, ftm: 1, fta: 1, pf: 4}
+  - {player: kevin-h, team: pa, pts: 12, ftm: 0, fta: 0, pf: 2}
+  - {player: terry-n, team: pa, pts: 12, ftm: 2, fta: 2, pf: 3}
+  - {player: wayne-d, team: pa, pts: 10, ftm: 0, fta: 0, pf: 1}
+  - {player: doug-w, team: pa, pts: 5, ftm: 0, fta: 0, pf: 1}
+  - {player: ian-c, team: pa, pts: 5, ftm: 0, fta: 0, pf: 1}
+  - {player: marc-l, team: pa, pts: 4, ftm: 1, fta: 4, pf: 4}

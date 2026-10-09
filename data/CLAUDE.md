@@ -138,9 +138,11 @@ away: lh
 type: regular       # regular | playoff
 final: {pa: 71, lh: 64}
 lines:              # one per player listed on the sheet
-  - {player: dave-m, team: pa, pts: 24, ftm: 6, fta: 7}
+  - {player: dave-m, team: pa, pts: 24, ftm: 6, fta: 7, pf: 3, tech: 1}
   - {player: greg-t, team: pa, pts: 12, ftm: 2, fta: 2}
 ```
+`pf` (personal fouls, 0 to 5) and `tech` (technical fouls, 0 to 2) are
+optional and default to 0: the sheet has 5 foul boxes and 2 T boxes per player.
 Checks the build script must enforce (and fail loudly on):
 - each team's player points add up to its final score
 - `ftm <= fta`, and all numbers are 0 or more
@@ -180,6 +182,14 @@ writes nothing until all of them are fixed.
   exact values, and players with exactly equal values share a rank.
 - **Playoffs:** stored with `type: playoff`, shown separately, never counted in
   regular-season stats or standings.
+- **Technical fouls** are the exception: a player's season total counts every
+  game, playoffs included (`tech`, `tech_playoff`, `tech_games` in
+  `players.json`; the list in `leaders.json` as `technicals`). They show on the
+  player page (a Techs tile, and a badge on each game with one) and in a list at
+  the very bottom of the Stats page. What happens after a number of technicals
+  is an open question; the site only counts them.
+- **Personal fouls** (`pf`) are kept in the computed data (regular season, like
+  the other stats) but shown nowhere.
 
 ## Sample data
 Until real games exist, generate a believable fake season: the 5 sample teams

@@ -6,20 +6,20 @@ away: pa
 type: regular
 final: {fw: 61, pa: 68}
 lines:
-  - {player: joe-p, team: fw, pts: 14, ftm: 0, fta: 0}
-  - {player: glen-a, team: fw, pts: 12, ftm: 0, fta: 0}
-  - {player: paul-l, team: fw, pts: 11, ftm: 1, fta: 1}
-  - {player: nick-t, team: fw, pts: 8, ftm: 2, fta: 4}
-  - {player: ken-w, team: fw, pts: 6, ftm: 1, fta: 3}
-  - {player: ray-d, team: fw, pts: 6, ftm: 0, fta: 0}
-  - {player: tim-r, team: fw, pts: 3, ftm: 0, fta: 1}
-  - {player: barry-s, team: fw, pts: 1, ftm: 1, fta: 4}
-  - {player: dave-m, team: pa, pts: 23, ftm: 2, fta: 3}
-  - {player: greg-t, team: pa, pts: 16, ftm: 0, fta: 0}
-  - {player: kevin-h, team: pa, pts: 8, ftm: 2, fta: 3}
-  - {player: wayne-d, team: pa, pts: 7, ftm: 0, fta: 0}
-  - {player: terry-n, team: pa, pts: 5, ftm: 0, fta: 0}
-  - {player: brian-o, team: pa, pts: 4, ftm: 1, fta: 2}
-  - {player: gord-f, team: pa, pts: 2, ftm: 0, fta: 2}
-  - {player: marc-l, team: pa, pts: 2, ftm: 2, fta: 4}
-  - {player: doug-w, team: pa, pts: 1, ftm: 1, fta: 3}
+  - {player: joe-p, team: fw, pts: 14, ftm: 0, fta: 0, pf: 1}
+  - {player: glen-a, team: fw, pts: 12, ftm: 0, fta: 0, pf: 4}
+  - {player: paul-l, team: fw, pts: 11, ftm: 1, fta: 1, pf: 3}
+  - {player: nick-t, team: fw, pts: 8, ftm: 2, fta: 4, pf: 1}
+  - {player: ken-w, team: fw, pts: 6, ftm: 1, fta: 3, pf: 1}
+  - {player: ray-d, team: fw, pts: 6, ftm: 0, fta: 0, pf: 4}
+  - {player: tim-r, team: fw, pts: 3, ftm: 0, fta: 1, pf: 4}
+  - {player: barry-s, team: fw, pts: 1, ftm: 1, fta: 4, pf: 0}
+  - {player: dave-m, team: pa, pts: 23, ftm: 2, fta: 3, pf: 2}
+  - {player: greg-t, team: pa, pts: 16, ftm: 0, fta: 0, pf: 1}
+  - {player: kevin-h, team: pa, pts: 8, ftm: 2, fta: 3, pf: 0}
+  - {player: wayne-d, team: pa, pts: 7, ftm: 0, fta: 0, pf: 5}
+  - {player: terry-n, team: pa, pts: 5, ftm: 0, fta: 0, pf: 0}
+  - {player: brian-o, team: pa, pts: 4, ftm: 1, fta: 2, pf: 1}
+  - {player: gord-f, team: pa, pts: 2, ftm: 0, fta: 2, pf: 3}
+  - {player: marc-l, team: pa, pts: 2, ftm: 2, fta: 4, pf: 2}
+  - {player: doug-w, team: pa, pts: 1, ftm: 1, fta: 3, pf: 3}

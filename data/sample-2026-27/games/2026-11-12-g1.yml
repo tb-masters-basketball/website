@@ -6,21 +6,21 @@ away: cr
 type: regular
 final: {fw: 56, cr: 57}
 lines:
-  - {player: paul-l, team: fw, pts: 15, ftm: 1, fta: 1}
-  - {player: glen-a, team: fw, pts: 14, ftm: 1, fta: 2}
-  - {player: tim-r, team: fw, pts: 13, ftm: 2, fta: 4}
-  - {player: ken-w, team: fw, pts: 5, ftm: 0, fta: 0}
-  - {player: ray-d, team: fw, pts: 4, ftm: 1, fta: 2}
-  - {player: bill-c, team: fw, pts: 2, ftm: 2, fta: 4}
-  - {player: joe-p, team: fw, pts: 2, ftm: 0, fta: 3}
-  - {player: nick-t, team: fw, pts: 1, ftm: 1, fta: 1}
-  - {player: barry-s, team: fw, pts: 0, ftm: 0, fta: 0}
-  - {player: rob-k, team: cr, pts: 22, ftm: 7, fta: 8}
-  - {player: chris-b, team: cr, pts: 17, ftm: 2, fta: 2}
-  - {player: randy-j, team: cr, pts: 7, ftm: 1, fta: 2}
-  - {player: tom-g, team: cr, pts: 6, ftm: 0, fta: 2}
-  - {player: luc-b, team: cr, pts: 3, ftm: 1, fta: 4}
-  - {player: jason-p, team: cr, pts: 2, ftm: 2, fta: 3}
-  - {player: darren-v, team: cr, pts: 0, ftm: 0, fta: 0}
-  - {player: pete-s, team: cr, pts: 0, ftm: 0, fta: 0}
-  - {player: scott-a, team: cr, pts: 0, ftm: 0, fta: 0}
+  - {player: paul-l, team: fw, pts: 15, ftm: 1, fta: 1, pf: 1}
+  - {player: glen-a, team: fw, pts: 14, ftm: 1, fta: 2, pf: 2}
+  - {player: tim-r, team: fw, pts: 13, ftm: 2, fta: 4, pf: 1}
+  - {player: ken-w, team: fw, pts: 5, ftm: 0, fta: 0, pf: 2}
+  - {player: ray-d, team: fw, pts: 4, ftm: 1, fta: 2, pf: 4}
+  - {player: bill-c, team: fw, pts: 2, ftm: 2, fta: 4, pf: 0}
+  - {player: joe-p, team: fw, pts: 2, ftm: 0, fta: 3, pf: 2}
+  - {player: nick-t, team: fw, pts: 1, ftm: 1, fta: 1, pf: 0}
+  - {player: barry-s, team: fw, pts: 0, ftm: 0, fta: 0, pf: 0}
+  - {player: rob-k, team: cr, pts: 22, ftm: 7, fta: 8, pf: 1}
+  - {player: chris-b, team: cr, pts: 17, ftm: 2, fta: 2, pf: 5}
+  - {player: randy-j, team: cr, pts: 7, ftm: 1, fta: 2, pf: 1}
+  - {player: tom-g, team: cr, pts: 6, ftm: 0, fta: 2, pf: 3}
+  - {player: luc-b, team: cr, pts: 3, ftm: 1, fta: 4, pf: 0}
+  - {player: jason-p, team: cr, pts: 2, ftm: 2, fta: 3, pf: 4}
+  - {player: darren-v, team: cr, pts: 0, ftm: 0, fta: 0, pf: 3}
+  - {player: pete-s, team: cr, pts: 0, ftm: 0, fta: 0, pf: 2}
+  - {player: scott-a, team: cr, pts: 0, ftm: 0, fta: 0, pf: 0}

@@ -6,22 +6,22 @@ away: fw
 type: regular
 final: {pa: 62, fw: 54}
 lines:
-  - {player: dave-m, team: pa, pts: 17, ftm: 3, fta: 4}
-  - {player: greg-t, team: pa, pts: 11, ftm: 2, fta: 4}
-  - {player: marc-l, team: pa, pts: 10, ftm: 0, fta: 2}
-  - {player: wayne-d, team: pa, pts: 7, ftm: 1, fta: 3}
-  - {player: brian-o, team: pa, pts: 5, ftm: 0, fta: 0}
-  - {player: kevin-h, team: pa, pts: 4, ftm: 0, fta: 0}
-  - {player: terry-n, team: pa, pts: 4, ftm: 1, fta: 2}
-  - {player: gord-f, team: pa, pts: 2, ftm: 0, fta: 2}
-  - {player: ian-c, team: pa, pts: 2, ftm: 2, fta: 2}
-  - {player: bill-c, team: fw, pts: 16, ftm: 3, fta: 4}
-  - {player: paul-l, team: fw, pts: 10, ftm: 1, fta: 1}
-  - {player: barry-s, team: fw, pts: 7, ftm: 2, fta: 2}
-  - {player: glen-a, team: fw, pts: 6, ftm: 0, fta: 0}
-  - {player: carl-m, team: fw, pts: 5, ftm: 0, fta: 1}
-  - {player: ray-d, team: fw, pts: 4, ftm: 0, fta: 2}
-  - {player: tim-r, team: fw, pts: 4, ftm: 1, fta: 2}
-  - {player: joe-p, team: fw, pts: 2, ftm: 2, fta: 2}
-  - {player: ken-w, team: fw, pts: 0, ftm: 0, fta: 0}
-  - {player: nick-t, team: fw, pts: 0, ftm: 0, fta: 0}
+  - {player: dave-m, team: pa, pts: 17, ftm: 3, fta: 4, pf: 4}
+  - {player: greg-t, team: pa, pts: 11, ftm: 2, fta: 4, pf: 0}
+  - {player: marc-l, team: pa, pts: 10, ftm: 0, fta: 2, pf: 2}
+  - {player: wayne-d, team: pa, pts: 7, ftm: 1, fta: 3, pf: 0}
+  - {player: brian-o, team: pa, pts: 5, ftm: 0, fta: 0, pf: 1}
+  - {player: kevin-h, team: pa, pts: 4, ftm: 0, fta: 0, pf: 1}
+  - {player: terry-n, team: pa, pts: 4, ftm: 1, fta: 2, pf: 4}
+  - {player: gord-f, team: pa, pts: 2, ftm: 0, fta: 2, pf: 0}
+  - {player: ian-c, team: pa, pts: 2, ftm: 2, fta: 2, pf: 2}
+  - {player: bill-c, team: fw, pts: 16, ftm: 3, fta: 4, pf: 2}
+  - {player: paul-l, team: fw, pts: 10, ftm: 1, fta: 1, pf: 4}
+  - {player: barry-s, team: fw, pts: 7, ftm: 2, fta: 2, pf: 1}
+  - {player: glen-a, team: fw, pts: 6, ftm: 0, fta: 0, pf: 3}
+  - {player: carl-m, team: fw, pts: 5, ftm: 0, fta: 1, pf: 4}
+  - {player: ray-d, team: fw, pts: 4, ftm: 0, fta: 2, pf: 2}
+  - {player: tim-r, team: fw, pts: 4, ftm: 1, fta: 2, pf: 4}
+  - {player: joe-p, team: fw, pts: 2, ftm: 2, fta: 2, pf: 0}
+  - {player: ken-w, team: fw, pts: 0, ftm: 0, fta: 0, pf: 0}
+  - {player: nick-t, team: fw, pts: 0, ftm: 0, fta: 0, pf: 1}

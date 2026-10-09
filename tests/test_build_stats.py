@@ -633,6 +633,46 @@ class SeasonStandInTests(unittest.TestCase):
             shutil.rmtree(tmp)
 
 
+class FoulTests(SeasonFixture):
+    """Game lines may carry pf (0-5) and tech (0-2); technicals count playoffs too."""
+
+    def test_fouls_are_optional(self):
+        out = self.compute()
+        self.assertEqual(out["players.json"]["al-a"]["tech"], 0)
+        self.assertEqual(out["players.json"]["al-a"]["pf"], 0)
+        self.assertEqual(out["leaders.json"]["technicals"], [])
+
+    def test_technicals_count_regular_season_and_playoffs(self):
+        self.edit_game("2026-10-01-g1", "{player: al-a, team: aa, pts: 20, ftm: 4, fta: 5}",
+                       "{player: al-a, team: aa, pts: 20, ftm: 4, fta: 5, pf: 4, tech: 1}")
+        self.edit_game("2027-04-01-g1", "{player: al-a, team: aa, pts: 50, ftm: 0, fta: 0}",
+                       "{player: al-a, team: aa, pts: 50, ftm: 0, fta: 0, tech: 2}")
+        self.edit_game("2026-10-08-g1", "{player: bo-c, team: bb, pts: 25, ftm: 5, fta: 5}",
+                       "{player: bo-c, team: bb, pts: 25, ftm: 5, fta: 5, tech: 1}")
+        out = self.compute()
+        al = out["players.json"]["al-a"]
+        self.assertEqual((al["tech"], al["tech_playoff"], al["tech_games"]), (3, 2, 2))
+        self.assertEqual(al["pf"], 4)                      # personal fouls: regular season, kept not shown
+        self.assertEqual([(r["id"], r["tech"]) for r in out["leaders.json"]["technicals"]],
+                         [("al-a", 3), ("bo-c", 1)])
+        log = out["game_logs.json"]["al-a"]
+        self.assertEqual([g["tech"] for g in log], [1, 0, 2])
+        box = out["games.json"]["2026-10-01-g1"]["home_team"]["lines"]
+        self.assertEqual([(l["player"], l["pf"], l["tech"]) for l in box][0], ("al-a", 4, 1))
+
+    def test_at_most_two_technicals(self):
+        self.edit_game("2026-10-01-g1", "pts: 20, ftm: 4, fta: 5}", "pts: 20, ftm: 4, fta: 5, tech: 3}")
+        self.assertProblem("tech 3 should be a whole number from 0 to 2")
+
+    def test_at_most_five_personal_fouls(self):
+        self.edit_game("2026-10-01-g1", "pts: 20, ftm: 4, fta: 5}", "pts: 20, ftm: 4, fta: 5, pf: 6}")
+        self.assertProblem("pf 6 should be a whole number from 0 to 5")
+
+    def test_fouls_must_be_whole_numbers(self):
+        self.edit_game("2026-10-01-g1", "pts: 20, ftm: 4, fta: 5}", "pts: 20, ftm: 4, fta: 5, pf: -1}")
+        self.assertProblem("pf -1 should be a whole number from 0 to 5")
+
+
 class JerseyNumberTests(SeasonFixture):
     """players.yml may give a jersey `number` (optional, 0 to 99)."""
 

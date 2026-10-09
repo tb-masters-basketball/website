@@ -18,6 +18,8 @@ The site shows a visible `[placeholder]` for each of these until it's answered.
 | Do subs' points count only for the player? (assumed yes) | Stats | |
 | Score sheet layout | `/record-game` skill, Schedule page | The league's form MBL-SS5, made by `scripts/scoresheet/scoresheet.py` (see its README). Still useful: a photo of a filled-in sheet, to build and test `/record-game` |
 | Player jersey numbers (for the score sheets' # box; `number:` in `data/2026-27/players.yml`) | Score sheets | Not yet. Until then the # boxes print empty and are filled in by hand |
+| What happens after technical fouls: two in one game (ejection?), and a number in a season (suspension?) | League rules page, player page, Stats | The site counts each player's technicals (playoffs included) but flags nothing yet |
+| The league rules themselves | League rules page (`rules/index.md`) | Sections are in place, each with a `[placeholder]` |
 | How long is a game? | Team calendars | 90 minutes (calendar events last 90 minutes) |
 | Gym address | Team calendars | 621 Selkirk St S, Thunder Bay, ON P7E 1T9 (`gym_address` in `data/seasons.yml`) |
 | Badge colourway for jerseys/merch (navy, blue or light) | Not on the site | |

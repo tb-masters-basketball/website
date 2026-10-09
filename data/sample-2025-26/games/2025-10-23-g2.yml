@@ -6,18 +6,18 @@ away: fw
 type: regular
 final: {cr: 59, fw: 56}
 lines:
-  - {player: rob-k, team: cr, pts: 17, ftm: 0, fta: 0}
-  - {player: jason-p, team: cr, pts: 12, ftm: 0, fta: 0}
-  - {player: luc-b, team: cr, pts: 12, ftm: 2, fta: 4}
-  - {player: scott-a, team: cr, pts: 7, ftm: 2, fta: 3}
-  - {player: chris-b, team: cr, pts: 4, ftm: 1, fta: 2}
-  - {player: pete-s, team: cr, pts: 4, ftm: 0, fta: 3}
-  - {player: tom-g, team: cr, pts: 3, ftm: 0, fta: 0}
-  - {player: tim-r, team: fw, pts: 19, ftm: 2, fta: 3}
-  - {player: carl-m, team: fw, pts: 12, ftm: 3, fta: 4}
-  - {player: glen-a, team: fw, pts: 7, ftm: 0, fta: 0}
-  - {player: paul-l, team: fw, pts: 6, ftm: 0, fta: 0}
-  - {player: joe-p, team: fw, pts: 5, ftm: 1, fta: 1}
-  - {player: barry-s, team: fw, pts: 3, ftm: 1, fta: 4}
-  - {player: ken-w, team: fw, pts: 2, ftm: 2, fta: 3}
-  - {player: ray-d, team: fw, pts: 2, ftm: 0, fta: 0}
+  - {player: rob-k, team: cr, pts: 17, ftm: 0, fta: 0, pf: 1}
+  - {player: jason-p, team: cr, pts: 12, ftm: 0, fta: 0, pf: 5}
+  - {player: luc-b, team: cr, pts: 12, ftm: 2, fta: 4, pf: 2}
+  - {player: scott-a, team: cr, pts: 7, ftm: 2, fta: 3, pf: 1}
+  - {player: chris-b, team: cr, pts: 4, ftm: 1, fta: 2, pf: 1}
+  - {player: pete-s, team: cr, pts: 4, ftm: 0, fta: 3, pf: 0}
+  - {player: tom-g, team: cr, pts: 3, ftm: 0, fta: 0, pf: 1}
+  - {player: tim-r, team: fw, pts: 19, ftm: 2, fta: 3, pf: 3}
+  - {player: carl-m, team: fw, pts: 12, ftm: 3, fta: 4, pf: 2}
+  - {player: glen-a, team: fw, pts: 7, ftm: 0, fta: 0, pf: 3}
+  - {player: paul-l, team: fw, pts: 6, ftm: 0, fta: 0, pf: 2}
+  - {player: joe-p, team: fw, pts: 5, ftm: 1, fta: 1, pf: 2}
+  - {player: barry-s, team: fw, pts: 3, ftm: 1, fta: 4, pf: 2}
+  - {player: ken-w, team: fw, pts: 2, ftm: 2, fta: 3, pf: 0}
+  - {player: ray-d, team: fw, pts: 2, ftm: 0, fta: 0, pf: 1}

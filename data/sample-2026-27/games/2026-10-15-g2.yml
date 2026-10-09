@@ -6,16 +6,16 @@ away: wf
 type: regular
 final: {cr: 74, wf: 47}
 lines:
-  - {player: randy-j, team: cr, pts: 16, ftm: 0, fta: 0}
-  - {player: rob-k, team: cr, pts: 16, ftm: 3, fta: 5}
-  - {player: luc-b, team: cr, pts: 13, ftm: 0, fta: 0}
-  - {player: darren-v, team: cr, pts: 10, ftm: 0, fta: 0}
-  - {player: chris-b, team: cr, pts: 8, ftm: 1, fta: 2}
-  - {player: tom-g, team: cr, pts: 6, ftm: 0, fta: 1}
-  - {player: pete-s, team: cr, pts: 5, ftm: 2, fta: 2}
-  - {player: al-k, team: wf, pts: 13, ftm: 0, fta: 3}
-  - {player: rick-l, team: wf, pts: 10, ftm: 0, fta: 0}
-  - {player: steve-p, team: wf, pts: 8, ftm: 0, fta: 1}
-  - {player: derek-h, team: wf, pts: 7, ftm: 2, fta: 2}
-  - {player: jeff-s, team: wf, pts: 6, ftm: 2, fta: 2}
-  - {player: trevor-m, team: wf, pts: 3, ftm: 0, fta: 0}
+  - {player: randy-j, team: cr, pts: 16, ftm: 0, fta: 0, pf: 4}
+  - {player: rob-k, team: cr, pts: 16, ftm: 3, fta: 5, pf: 2}
+  - {player: luc-b, team: cr, pts: 13, ftm: 0, fta: 0, pf: 4}
+  - {player: darren-v, team: cr, pts: 10, ftm: 0, fta: 0, pf: 2}
+  - {player: chris-b, team: cr, pts: 8, ftm: 1, fta: 2, pf: 3}
+  - {player: tom-g, team: cr, pts: 6, ftm: 0, fta: 1, pf: 3}
+  - {player: pete-s, team: cr, pts: 5, ftm: 2, fta: 2, pf: 2}
+  - {player: al-k, team: wf, pts: 13, ftm: 0, fta: 3, pf: 2}
+  - {player: rick-l, team: wf, pts: 10, ftm: 0, fta: 0, pf: 2}
+  - {player: steve-p, team: wf, pts: 8, ftm: 0, fta: 1, pf: 2}
+  - {player: derek-h, team: wf, pts: 7, ftm: 2, fta: 2, pf: 0}
+  - {player: jeff-s, team: wf, pts: 6, ftm: 2, fta: 2, pf: 2}
+  - {player: trevor-m, team: wf, pts: 3, ftm: 0, fta: 0, pf: 4}
