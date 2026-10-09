@@ -75,7 +75,9 @@ Built from the parts above, in this order.
    name column, and sort by any column. The team chips filter both views.
    Rank 1 is the card and the list starts at rank 2 ("Showing 7 of 50" counts
    the card). The FT % view only ranks players with the minimum attempts and
-   says so. Without JavaScript: the card, the list (each player links to their
+   says so; the PPG view likewise only ranks players with enough games when
+   the season sets `ppg_min_games` (a note under the controls says so, and a
+   player page shows "Not ranked yet · Ranked after 3 games"). Without JavaScript: the card, the list (each player links to their
    page) and the full table. Desktop isn't mocked: the same single column,
    left-aligned, 760 px wide. Ends with a short "How stats are counted".
 3. **Schedule** (`/schedule/`): weeks newest first, with a sticky week heading

@@ -13,6 +13,7 @@ nav: home
 {%- assign ppg_leaders = stats.leaders.ppg -%}
 {%- assign ppg_leader = ppg_leaders | first -%}
 {%- assign ft_leader = stats.leaders.ft_pct | first -%}
+{%- capture ft_empty %}Needs {{ stats.leaders.ft_min_attempts }} attempts{% endcapture -%}
 {%- assign has_tie = false -%}
 {%- for t in stats.standings.teams %}{% if t.tiebreak %}{% assign has_tie = true %}{% endif %}{% endfor -%}
 
@@ -70,7 +71,7 @@ nav: home
       <div class="leader-grid">
         {% include leader-card.html label="Points / game" tone="hot" player=ppg_leader value=ppg_leader.ppg_display meta=ppg_leader.team_name empty="No games yet" %}
         {%- capture ft_meta %}{{ ft_leader.team_name }} · {{ ft_leader.ftm }} of {{ ft_leader.fta }}{% endcapture %}
-        {% include leader-card.html label="Free throw %" player=ft_leader value=ft_leader.ft_pct_display meta=ft_meta empty="Needs 10 attempts" %}
+        {% include leader-card.html label="Free throw %" player=ft_leader value=ft_leader.ft_pct_display meta=ft_meta empty=ft_empty %}
       </div>
       {%- if ppg_leaders.size > 1 %}
       <div class="rank-list">

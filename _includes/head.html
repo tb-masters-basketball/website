@@ -9,6 +9,9 @@
 {%- assign head_description = page.description | default: site.description %}
 <title>{{ head_title }}</title>
 <meta name="description" content="{{ head_description }}">
+{%- unless site.search_engines %}
+<meta name="robots" content="noindex, nofollow">
+{%- endunless %}
 <meta name="theme-color" content="#032F98" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0A1022" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="{{ page.url | absolute_url }}">

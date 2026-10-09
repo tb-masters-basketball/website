@@ -72,7 +72,7 @@ brand/                  logos, icons, colours, scenes (from the brand kit; don't
 docs/design-brief.md    the design spec: read this before touching any page
 docs/stats-workflow.md  how score sheets become site numbers, for the volunteer (keep it true)
 docs/mockups/           approved mockups (open in a browser) and screenshots
-docs/qa/                full-site QA: report.md, before/after screenshots, contact sheets
+docs/qa/report.md       the full-site QA report (screenshots: run screenshot_all.py)
 .github/workflows/      build stats → build Jekyll → deploy to Pages
 ```
 
@@ -104,8 +104,8 @@ Always run the stats script before previewing data changes (and after changing
 - Players are always shown as "First L." (e.g. "Mike R."), with their jersey
   number first when `players.yml` has one ("#23 Mike R.", via
   `_includes/player-name.html`). Never full names,
-  contact details or photos of players. Score sheet photos stay unpublished
-  (`score_sheet_links: false`) for this reason.
+  contact details or photos of players. Score sheet photos stay in the repo
+  and off the site (`score_sheet_links: false`, the league's decision).
 - Reuse the includes and classes already in `_includes/` and `assets/css/site.css`
   (result card, standings table, rank row, tiles, bars, game row, team card...).
   If a page needs something new, add it as a reusable component, not a one-off.
@@ -122,5 +122,8 @@ Always run the stats script before previewing data changes (and after changing
 - Don't edit `_data/computed/` or anything in `brand/` by hand (except the
   domain and path fixes in `head-snippet.html` and `site.webmanifest`).
 - Don't add analytics, ads, trackers or cookie banners.
+- Don't add a sitemap or anything that invites search engines: the league
+  doesn't want the site on Google (`search_engines: false` puts a `noindex`
+  tag on every page).
 - Don't invent league facts (tiebreakers, playoff format, gym, team colours).
   Leave a visible `[placeholder]` and list it in `docs/open-questions.md`.

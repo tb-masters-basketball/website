@@ -285,6 +285,42 @@ class StatsTests(SeasonFixture):
         self.assertEqual(out["schedule.json"]["weeks"][0]["gyms"], [])
 
 
+class RankingMinimumTests(SeasonFixture):
+    """ppg_min_games and ft_min_attempts from seasons.yml. In the fixture every
+    team has played 2 regular-season games; Amy B. and Sam E. have played 1."""
+
+    def compute_with(self, **minimums):
+        return bs.compute_season(bs.load_season(self.data, "test", minimums=minimums))
+
+    def test_no_minimum_ranks_everyone_who_played(self):
+        leaders = self.compute()["leaders.json"]
+        self.assertEqual(leaders["ppg_min_games"], 0)
+        self.assertEqual([e["id"] for e in leaders["ppg"]], ["cy-d", "al-a", "bo-c", "amy-b", "sam-e"])
+
+    def test_minimum_is_capped_at_the_teams_games(self):
+        # 3 games asked for, but no team has played 3, so 2 (all of them) is enough
+        out = self.compute_with(ppg_min_games=3)
+        self.assertEqual([e["id"] for e in out["leaders.json"]["ppg"]], ["cy-d", "al-a", "bo-c"])
+        rows = out["rankings.json"]
+        # everyone who played is still a row (the Stats table), unranked players last
+        self.assertEqual([r["id"] for r in rows], ["cy-d", "al-a", "bo-c", "amy-b", "sam-e"])
+        amy = next(r for r in rows if r["id"] == "amy-b")
+        self.assertEqual((amy["qualifies_ppg"], amy["rank_ppg"], amy["order_ppg"]), (False, None, None))
+        self.assertEqual(amy["ppg_games_needed"], 2)
+        self.assertEqual(amy["rank_pts"], 4)                 # still ranked for total points
+
+    def test_first_game_day_ranks_everyone(self):
+        for gid in ("2026-10-08-g1", "2026-10-15-g1"):
+            (self.season / "games" / f"{gid}.yml").unlink()
+        leaders = self.compute_with(ppg_min_games=3)["leaders.json"]
+        self.assertEqual([e["id"] for e in leaders["ppg"]], ["al-a", "bo-c", "amy-b", "sam-e"])
+
+    def test_ft_minimum_from_the_season(self):
+        leaders = self.compute_with(ft_min_attempts=8)["leaders.json"]
+        self.assertEqual(leaders["ft_min_attempts"], 8)
+        self.assertEqual([e["id"] for e in leaders["ft_pct"]], ["bo-c", "al-a", "cy-d"])  # 100%, 87.5% (7 of 8), 80%
+
+
 class CancelledGameTests(SeasonFixture):
     """schedule.csv may have a status column: blank, or cancelled."""
 
@@ -463,6 +499,15 @@ class SeasonListTests(unittest.TestCase):
             """)
         self.assertEqual(problems, [])
         self.assertEqual([s["sample"] for s in seasons], [False, True, True])
+
+    def test_ranking_minimums_default_and_check(self):
+        seasons, problems = self.load("""\
+            - {id: real, current: true, ppg_min_games: 3}
+            - {id: fake, sample: true, ft_min_attempts: -1}
+            """)
+        self.assertEqual((seasons[0]["ppg_min_games"], seasons[0]["ft_min_attempts"]), (3, 10))
+        self.assertEqual(seasons[1]["ppg_min_games"], 0)
+        self.assertTrue(any("ft_min_attempts should be a whole number" in p for p in problems), problems)
 
     def test_only_one_stand_in_per_season(self):
         (self.tmp / "fake2").mkdir()

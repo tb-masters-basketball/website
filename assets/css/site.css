@@ -1305,8 +1305,10 @@ html:not(.js) .ranked__details,
 
 html:not(.js) .ranked__item:nth-child(1),
 html:not(.js) .ranked__item:nth-child(n + 8),
+html:not(.js) .ranked__item[data-order-ppg=""],
 .stats-app:not(.is-ready) .ranked__item:nth-child(1),
-.stats-app:not(.is-ready) .ranked__item:nth-child(n + 8) {
+.stats-app:not(.is-ready) .ranked__item:nth-child(n + 8),
+.stats-app:not(.is-ready) .ranked__item[data-order-ppg=""] {
   display: none;
 }
 

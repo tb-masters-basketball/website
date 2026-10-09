@@ -47,7 +47,14 @@ import calendars
 
 ROOT = Path(__file__).resolve().parent.parent
 
+# Ranking minimums, set per season in data/seasons.yml; these are the defaults.
+#   ft_min_attempts  free throws attempted to be ranked for FT %
+#   ppg_min_games    games played to be ranked for points per game, capped at
+#                    the games the player's team has played so far (so early in
+#                    the season everyone who has played is ranked)
 FT_MIN_ATTEMPTS = 10
+PPG_MIN_GAMES = 0
+SEASON_MINIMUMS = {"ppg_min_games": PPG_MIN_GAMES, "ft_min_attempts": FT_MIN_ATTEMPTS}
 SCHEDULE_COLUMNS = ["game_id", "date", "time", "gym", "home", "away", "type", "week", "status", "round"]
 # The last two columns are optional (leave them out, or out from the end):
 #   status  blank (the game goes ahead) or "cancelled"
@@ -205,6 +212,10 @@ def load_seasons(data_dir, problems):
         season.setdefault("label", season["id"])
         season["current"] = bool(season.get("current", False))
         season["sample"] = bool(season.get("sample", False))
+        for key, default in SEASON_MINIMUMS.items():
+            value = season.setdefault(key, default)
+            if not _is_count(value):
+                problems.append(f"{where} ({season['id']}): {key} should be a whole number, 0 or more")
         if season["current"] and season["sample"]:
             problems.append(f"{where}: '{season['id']}' is both current and sample; "
                             "the sample season should never be the current one")
@@ -519,10 +530,11 @@ def find_sheet(season_dir, gid):
     return None
 
 
-def load_season(data_dir, season_id, gym=None):
+def load_season(data_dir, season_id, gym=None, minimums=None):
     """Load and check one season. Raises DataError listing every problem.
     `gym` is the season's default gym (from seasons.yml), used when a
-    schedule row leaves its gym blank."""
+    schedule row leaves its gym blank. `minimums` holds the season's
+    ppg_min_games and ft_min_attempts (defaults: SEASON_MINIMUMS)."""
     problems = []
     season_dir = data_dir / season_id
     teams = load_teams(season_dir, problems)
@@ -534,7 +546,7 @@ def load_season(data_dir, season_id, gym=None):
     for gid, game in games.items():
         game["sheet_path"] = find_sheet(season_dir, gid)
     return {"id": season_id, "gym": gym, "teams": teams, "players": players, "schedule": schedule,
-            "games": games, "publish_sheets": False}
+            "games": games, "publish_sheets": False, "minimums": {**SEASON_MINIMUMS, **(minimums or {})}}
 
 
 # --------------------------------------------------------------- computation
@@ -699,10 +711,19 @@ def _ranked(entries, value_key, exact):
     return out
 
 
-def compute_leaders(totals):
+def ppg_games_needed(totals, team_games, ppg_min_games):
+    """Games each player needs to be ranked for PPG: the season's minimum, or
+    every game their team has played so far if that is fewer."""
+    return {pid: min(ppg_min_games, team_games.get(t["team"], 0)) for pid, t in totals.items()}
+
+
+def compute_leaders(totals, team_games=None, ppg_min_games=PPG_MIN_GAMES, ft_min_attempts=FT_MIN_ATTEMPTS):
+    """team_games: regular-season games played by each team id."""
     played = [t for t in totals.values() if t["gp"] > 0]
-    shooters = [t for t in played if t["fta"] >= FT_MIN_ATTEMPTS]
-    by_ppg = _ranked(played, "ppg", lambda e: ppg(e["pts"], e["gp"]))
+    shooters = [t for t in played if t["fta"] >= ft_min_attempts]
+    needed = ppg_games_needed(totals, team_games or {}, ppg_min_games)
+    qualified = [t for t in played if t["gp"] >= needed[t["id"]]]
+    by_ppg = _ranked(qualified, "ppg", lambda e: ppg(e["pts"], e["gp"]))
     by_pts = _ranked(played, "pts", lambda e: Fraction(e["pts"]))
     by_ft = _ranked(shooters, "ft_pct", lambda e: ft_pct(e["ftm"], e["fta"]))
     for e in by_ppg:
@@ -712,7 +733,8 @@ def compute_leaders(totals):
     for e in by_ft:
         e["value_display"] = e["ft_pct_display"]
     return {
-        "ft_min_attempts": FT_MIN_ATTEMPTS,
+        "ft_min_attempts": ft_min_attempts,
+        "ppg_min_games": ppg_min_games,
         "players_with_games": len(played),
         "ppg": by_ppg,
         "points": by_pts,
@@ -720,19 +742,24 @@ def compute_leaders(totals):
     }
 
 
-def compute_rankings(season, totals, leaders, logs):
-    """One row per player who has played, in points-per-game order, with all
-    three ranks, their position in each ordering, and their regular-season
-    points by game day. The Stats page sorts, filters and expands these."""
+def compute_rankings(season, totals, leaders, logs, needed=None):
+    """One row per player who has played, in points-per-game order (players
+    not yet ranked for PPG last), with all three ranks, their position in each
+    ordering, and their regular-season points by game day. The Stats page
+    sorts, filters and expands these. needed: games each player needs to be
+    ranked for PPG (ppg_games_needed)."""
     teams = season["teams"]
     pos = {
         "ppg": {e["id"]: (i, e["rank"]) for i, e in enumerate(leaders["ppg"])},
         "pts": {e["id"]: (i, e["rank"]) for i, e in enumerate(leaders["points"])},
         "ft": {e["id"]: (i, e["rank"]) for i, e in enumerate(leaders["ft_pct"])},
     }
+    unranked = sorted(
+        (t for t in totals.values() if t["gp"] > 0 and t["id"] not in pos["ppg"]),
+        key=lambda t: (-ppg(t["pts"], t["gp"]), -t["pts"], t["display"], t["id"]),
+    )
     rows = []
-    for entry in leaders["ppg"]:
-        pid = entry["id"]
+    for pid in [e["id"] for e in leaders["ppg"]] + [t["id"] for t in unranked]:
         t = totals[pid]
         team = teams[t["team"]]
         games = [
@@ -760,6 +787,8 @@ def compute_rankings(season, totals, leaders, logs):
             "ft_pct_display": t["ft_pct_display"],
             "season_high": t["season_high"],
             "qualifies_ft": pid in pos["ft"],
+            "qualifies_ppg": pid in pos["ppg"],
+            "ppg_games_needed": (needed or {}).get(pid, 0),
             "games": games,
         }
         for key in ("ppg", "pts", "ft"):
@@ -932,7 +961,13 @@ def compute_season(season):
         "players": {pid: t for pid, t in playoff_totals.items() if t["gp"] > 0},
     }
     add_technicals(totals, regular, playoff)
-    leaders = compute_leaders(totals)
+    team_games = {tid: 0 for tid in season["teams"]}
+    for g in regular:
+        team_games[g["home"]] += 1
+        team_games[g["away"]] += 1
+    minimums = season.get("minimums", SEASON_MINIMUMS)
+    leaders = compute_leaders(totals, team_games, minimums["ppg_min_games"], minimums["ft_min_attempts"])
+    needed = ppg_games_needed(totals, team_games, minimums["ppg_min_games"])
     leaders["through_week"] = through_week
     leaders["technicals"] = technicals_list(totals)
     team_info = {
@@ -945,7 +980,7 @@ def compute_season(season):
         "standings.json": standings,
         "players.json": totals,
         "leaders.json": leaders,
-        "rankings.json": compute_rankings(season, totals, leaders, logs),
+        "rankings.json": compute_rankings(season, totals, leaders, logs, needed),
         "games.json": summaries,
         "game_logs.json": logs,
         "schedule.json": compute_schedule(season, summaries),
@@ -1082,7 +1117,8 @@ def build(data_dir, out_dir, write=True, config=None, root=None):
     outputs, loaded_seasons, summary = {}, {}, []
     for s in seasons:
         try:
-            loaded = load_season(data_dir, s["id"], gym=s.get("gym"))
+            loaded = load_season(data_dir, s["id"], gym=s.get("gym"),
+                                 minimums={k: s[k] for k in SEASON_MINIMUMS})
         except DataError as exc:
             problems.extend(exc.problems)
             continue

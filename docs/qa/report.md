@@ -10,12 +10,10 @@ and the mockups in `docs/mockups/`. The site was built the way the Actions workf
 - **Widths and themes:** 360, 390 and 1440 px, light and dark.
 - **Data:** sample mode on, and sample mode off (the empty real season).
 
-Screenshots: `docs/qa/before/` and `docs/qa/after/`, laid out as `<mode>/<width>/<page>-<theme>.png`.
-Each folder has one contact sheet per width (`contact-360.png`, `contact-390.png`, `contact-1440.png`)
-and the script's `checks.json`.
-
-To capture them again: `python scripts/screenshot_all.py --out docs/qa/after --contact-sheets`
-(it needs `pip install playwright`).
+Screenshots: the before and after sets (`docs/qa/before/` and `docs/qa/after/`, about 41 MB) were
+removed from the repo in October 2026 to keep it small. They are still in git history (the commit
+before "Remove the QA screenshot sets"). To capture a fresh set:
+`python scripts/screenshot_all.py --out /tmp/shots --contact-sheets` (it needs `pip install playwright`).
 
 **Result:** I found 9 issues and fixed 9. 6 differences from the mockups stay as they are, because
 they are decisions you already made or follow from your data. Nothing that would change the approved

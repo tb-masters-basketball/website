@@ -22,6 +22,7 @@
   var emptyMsg = app.querySelector("[data-empty]");
   var count = app.querySelector("[data-count]");
   var ftNote = app.querySelector("[data-ft-note]");
+  var ppgNote = app.querySelector("[data-ppg-note]");
   var ftCard = app.querySelector("[data-ft-card]");
   var ftItems = Array.prototype.slice.call(app.querySelectorAll("[data-ft-list] > li"));
   var ftEmpty = app.querySelector("[data-ft-empty]");
@@ -98,7 +99,10 @@
     var key = cap(metric);
     var candidates = items
       .filter(function (it) {
-        return inTeam(it) && (metric !== "ft" || it.dataset.ft !== "");
+        if (!inTeam(it)) return false;
+        if (metric === "ft") return it.dataset.ft !== "";
+        if (metric === "ppg") return it.dataset.orderPpg !== ""; // has enough games
+        return true;
       })
       .sort(function (a, b) { return number(a.dataset["order" + key]) - number(b.dataset["order" + key]); });
     var others = items.filter(function (it) { return candidates.indexOf(it) < 0; });
@@ -133,12 +137,14 @@
     } else {
       top.card.hidden = true;
       emptyMsg.hidden = false;
-      emptyMsg.textContent = state.team === "all"
-        ? "No one has " + ftMin + " free-throw attempts yet."
-        : "No one on this team has " + ftMin + " free-throw attempts yet.";
+      var who = state.team === "all" ? "No one" : "No one on this team";
+      emptyMsg.textContent = metric === "ppg"
+        ? who + " has played enough games to be ranked yet."
+        : who + " has " + ftMin + " free-throw attempts yet.";
     }
     count.textContent = "Showing " + Math.min(PAGE, n) + " of " + n + (metric === "ft" ? " with " + ftMin + "+ attempts" : "");
     ftNote.hidden = metric !== "ft";
+    if (ppgNote) ppgNote.hidden = metric !== "ppg";
 
     // Free-throw leaders card: top three for the chosen team(s); not needed in the FT % view.
     var shown = 0;
