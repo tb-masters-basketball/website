@@ -10,19 +10,31 @@
 #   gym            the gym, used for any game whose gym is blank in schedule.csv
 #   gym_address    optional: the gym's street address, added to calendar events
 #                  for games at that gym
+#   ppg_min_games  games a player needs to be ranked for points per game
+#                  (0 = no minimum). While their team has played fewer games
+#                  than this, playing all of the team's games is enough, so
+#                  everyone is ranked from the first game day. Players below it
+#                  still appear in the Stats table and on their own page.
+#   ft_min_attempts  free throws attempted to be ranked for FT % (default 10)
 - id: 2026-27
   label: "2026-27"
   current: true
   gym: "St. Pat's"
   gym_address: "621 Selkirk St S, Thunder Bay, ON P7E 1T9"
+  ppg_min_games: 0
+  ft_min_attempts: 10
 
 - id: sample-2026-27
   label: "2026-27"
   sample: true
   stands_in_for: 2026-27
   gym: "St. Pat's"
+  ppg_min_games: 3
+  ft_min_attempts: 10
 
 - id: sample-2025-26
   label: "2025-26"
   sample: true
   gym: "St. Pat's"
+  ppg_min_games: 3
+  ft_min_attempts: 10

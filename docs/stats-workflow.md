@@ -224,6 +224,13 @@ truly equal.
 - **Free-throw leaders** only include players with **10 or more** attempts
   (FTA). Dave M.'s 27 is plenty. A player with 1 of 2 is not ranked, however
   good the percentage.
+- **Points-per-game leaders** can need a minimum number of games
+  (`ppg_min_games`, none for now). While a player's team has played fewer
+  games than the minimum, playing all of the team's games is enough, so the
+  list fills up from the first game day. Players below it still appear in the
+  Stats table and on their own page ("Not ranked yet").
+- Both minimums are set per season in `data/seasons.yml` (`ppg_min_games` and
+  `ft_min_attempts`). See [Change a ranking minimum](#change-a-ranking-minimum).
 - **Subs** get their own line and their own stats. A sub's points also count
   toward their team's score that day.
 - **Playoffs** (`type: playoff`) are kept separate. They never count in the
@@ -326,6 +333,19 @@ their calendar app checks: Apple within a few hours, Google on its own
 schedule, usually within a day (it can't be hurried). Anyone who chose
 **Download** has a one-time copy and needs to download it again.
 
+### Change a ranking minimum
+
+Open `data/seasons.yml` and change the number on the current season:
+
+```yaml
+  ppg_min_games: 3      # games to be ranked for points per game (0 = none)
+  ft_min_attempts: 10   # free throws attempted to be ranked for FT %
+```
+
+Commit it as a pull request. The Stats page, the home page leaders and the
+player pages follow the new numbers when it's merged, and the notes on the
+Stats page say what the rule is. Past seasons keep their own numbers.
+
 ### Edit the league rules
 
 The League rules page (linked in every page's footer) is one text file,
@@ -398,9 +418,12 @@ later together with its entry in `data/seasons.yml`.
   at least one game, so check they have a `lines:` entry in a game file.
 - **A player is missing from the free-throw leaders.** They have fewer than 10
   attempts so far. That is the rule, not a mistake.
-- **A sub tops the points-per-game list after one big game.** The league
-  hasn't decided on a minimum number of games for that list yet (it is in
-  `docs/open-questions.md`).
+- **A sub tops the points-per-game list after one big game.** There is no
+  minimum number of games for that list unless `ppg_min_games` is set in
+  `data/seasons.yml` ([how](#change-a-ranking-minimum)).
+- **A player is missing from the points-per-game list.** They have fewer games
+  than `ppg_min_games` while their team has played that many. They are still
+  in the Stats table and on their own page.
 - **You aren't sure what to do.** Don't merge. A pull request that isn't merged
   never changes the live site, so it is always safe to leave it open and ask.
 

@@ -37,8 +37,10 @@ The full list, with answers so far, is in
 - [ ] **Standings tiebreakers**, including three-way ties. Until then the site
       uses head-to-head, then point differential, and says so under the
       standings.
-- [ ] **Minimum games for the points-per-game leaderboard.** There is none
-      now, so a sub with one big game can lead.
+- [ ] **Minimum games for the points-per-game leaderboard.** It's a setting
+      now: `ppg_min_games` in `data/seasons.yml` (0, no minimum, until the
+      league picks a number). Until a team has played that many games,
+      playing all of them is enough.
 - [ ] **Playoff matchups.** The play-in (G41, Wed Apr 21) is "TBD vs TBD" in
       `schedule.csv`. Fill in each playoff row as the standings decide it.
 - [ ] **League contact for the footer.** Set `contact_url` in `_config.yml`
@@ -177,7 +179,7 @@ generated is committed: `_data/computed/`, the stub folders, `calendar/` and
 
 | File | What it holds | Edited by |
 |---|---|---|
-| `data/seasons.yml` | Every season, newest first. Marks which is `current`, which are sample (fake) data, the gym and its address | hand, once a season |
+| `data/seasons.yml` | Every season, newest first. Marks which is `current`, which are sample (fake) data, the gym and its address, and the ranking minimums (`ppg_min_games`, `ft_min_attempts`) | hand, once a season |
 | `data/<season>/teams.yml` | Team id (2 letters), name, 2-letter code, colour slot (1–5) | hand, once a season |
 | `data/<season>/players.yml` | Player id (`mike-r`), display name ("Mike R."), team, `sub`, jersey `number` (the roster: the only place numbers live) | hand or `/record-game` |
 | `data/<season>/schedule.csv` | One row per game: id, date, time, gym, home, away, `regular`/`playoff`, week, optional `status` (`cancelled`) and `round` (playoff round name) | hand |

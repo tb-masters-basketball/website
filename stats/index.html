@@ -16,8 +16,10 @@ scripts:
 {%- endcomment -%}
 {%- include active-season.html -%}
 {%- assign rows = stats.rankings -%}
-{%- assign top = rows | first -%}
+{%- assign top = rows | where: "qualifies_ppg", true | first -%}
 {%- assign ft_min = stats.leaders.ft_min_attempts -%}
+{%- assign ppg_min = stats.leaders.ppg_min_games | default: 0 -%}
+{%- capture ppg_rule %}Points per game ranks players with at least {{ ppg_min }} games, or all of their team's games while it has played fewer.{% endcapture -%}
 {%- assign week = stats.leaders.through_week -%}
 
 <div class="wrap page">
@@ -42,10 +44,13 @@ scripts:
       {%- endfor %}
     </div>
 
+    {%- if ppg_min > 0 %}
+    <p class="stats-note" data-ppg-note>{{ ppg_rule }}</p>
+    {%- endif %}
     <p class="stats-note" data-ft-note hidden>Free-throw percentage only ranks players with at least {{ ft_min }} attempts.</p>
 
     <div data-list-view>
-      <a class="top-card" href="{{ '/players/' | append: top.id | append: '/' | relative_url }}" data-top>
+      <a class="top-card" href="{% if top %}{{ '/players/' | append: top.id | append: '/' | relative_url }}{% else %}#stats-table{% endif %}" data-top{% unless top %} hidden{% endunless %}>
         <span class="top-card__value" data-top-value>{{ top.ppg_display }}</span>
         <span class="top-card__text">
           <span class="top-card__label" data-top-label>No. 1 · points per game</span>
@@ -54,7 +59,7 @@ scripts:
         </span>
       </a>
 
-      <p class="stats-empty" data-empty hidden></p>
+      <p class="stats-empty" data-empty{% if top %} hidden{% endif %}>{% unless top %}No one has played enough games to be ranked yet.{% endunless %}</p>
 
       <div class="ranked">
         <ol class="ranked__list" data-ranked>
@@ -65,7 +70,7 @@ scripts:
       </div>
 
       <div class="stats-foot">
-        <p class="stats-foot__count" role="status" data-count>Showing {% if rows.size < 7 %}{{ rows.size }}{% else %}7{% endif %} of {{ rows.size }}</p>
+        <p class="stats-foot__count" role="status" data-count>{%- assign ranked_n = stats.leaders.ppg.size -%}Showing {% if ranked_n < 7 %}{{ ranked_n }}{% else %}7{% endif %} of {{ ranked_n }}</p>
         <a class="link-more" href="#stats-table" data-show-table>See all as a table</a>
       </div>
 
@@ -92,7 +97,7 @@ scripts:
         <h2 class="section-title" id="stats-table-title" tabindex="-1">All players</h2>
         <a class="link-more js-only" href="#top" data-show-list>Back to top players</a>
       </div>
-      <p class="stats-note">Free-throw percentage is shown for everyone here. The ranked list only counts players with at least {{ ft_min }} attempts.</p>
+      <p class="stats-note">Everyone who has played is here. The ranked list only counts players with at least {{ ft_min }} free-throw attempts for FT %{% if ppg_min > 0 %}, and players with enough games for PPG ({{ ppg_min }}, or all of their team's games while it has played fewer){% endif %}.</p>
       <p class="stats-foot__count" role="status" data-table-count>{{ rows.size }} players</p>
       <div class="table-card" role="region" aria-label="All players table" tabindex="0">
         <table class="table player-table" data-sortable>
@@ -109,7 +114,7 @@ scripts:
           </thead>
           <tbody data-table-body>
             {%- for p in rows %}
-            <tr data-team="{{ p.team }}" data-order="{{ p.order_ppg }}" data-name="{{ p.display | downcase }}" data-gp="{{ p.gp }}" data-pts="{{ p.pts }}" data-ppg="{{ p.ppg }}" data-ftm="{{ p.ftm }}" data-fta="{{ p.fta }}" data-ft="{{ p.ft_pct }}">
+            <tr data-team="{{ p.team }}" data-order="{{ forloop.index0 }}" data-name="{{ p.display | downcase }}" data-gp="{{ p.gp }}" data-pts="{{ p.pts }}" data-ppg="{{ p.ppg }}" data-ftm="{{ p.ftm }}" data-fta="{{ p.fta }}" data-ft="{{ p.ft_pct }}">
               <th scope="row"><span class="chip chip--{{ p.colour_slot }}" aria-hidden="true"></span><a href="{{ '/players/' | append: p.id | append: '/' | relative_url }}">{% include player-name.html player=p %}</a> <span class="player-table__team">{{ p.team_short }}</span></th>
               <td>{{ p.gp }}</td>
               <td>{{ p.pts }}</td>
@@ -130,7 +135,7 @@ scripts:
     <h2 class="section-title" id="how-counted-title">How stats are counted</h2>
     <dl class="how-counted__list">
       <div><dt>GP</dt><dd>Games played: the games where the player is on the score sheet.</dd></div>
-      <div><dt>PPG</dt><dd>Points per game: total points divided by games played, to one decimal.</dd></div>
+      <div><dt>PPG</dt><dd>Points per game: total points divided by games played, to one decimal.{% if ppg_min > 0 %} {{ ppg_rule }}{% endif %}</dd></div>
       <div><dt>FT%</dt><dd>Free throws made divided by free throws attempted, to one decimal. A player needs at least {{ ft_min | default: 10 }} attempts to be ranked.</dd></div>
       <div><dt>Subs</dt><dd>A sub's points count for them as a player and toward their team's score that day.</dd></div>
       <div><dt>Techs</dt><dd>Technical fouls, from the T boxes on the score sheet. Unlike the other stats, they count for the whole season, playoffs included.</dd></div>

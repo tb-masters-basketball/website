@@ -177,8 +177,12 @@ writes nothing until all of them are fixed.
 
 ## Stat rules
 - **GP:** games where the player is listed on the sheet.
-- **PPG:** points ÷ GP, one decimal.
-- **FT%:** FTM ÷ FTA, one decimal. FT% leaderboards need 10 or more FTA.
+- **PPG:** points ÷ GP, one decimal. PPG leaderboards need `ppg_min_games`
+  GP (from `seasons.yml`, 0 = none), capped at the games the player's team has
+  played so far: min(ppg_min_games, team GP). Unranked players stay in the
+  Stats table (`qualifies_ppg: false`, `ppg_games_needed`).
+- **FT%:** FTM ÷ FTA, one decimal. FT% leaderboards need `ft_min_attempts` FTA
+  (from `seasons.yml`, default 10).
 - **Standings:** sorted by win %. Show W, L, PCT (`.857` style), GB, PF, PA, DIFF.
 - **Tiebreakers:** `[placeholder]`, not yet decided by the league. Until then
   use head-to-head, then point differential, and say so under the standings on

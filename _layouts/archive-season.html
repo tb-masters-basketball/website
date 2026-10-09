@@ -10,6 +10,7 @@ layout: default
 {%- assign ppg_leaders = stats.leaders.ppg -%}
 {%- assign ppg_leader = ppg_leaders | first -%}
 {%- assign ft_leader = stats.leaders.ft_pct | first -%}
+{%- capture ft_empty %}Needs {{ stats.leaders.ft_min_attempts }} attempts{% endcapture -%}
 {%- assign plain = true -%}
 {%- if is_active %}{% assign plain = false %}{% endif -%}
 
@@ -41,7 +42,7 @@ layout: default
     <div class="leader-grid">
       {% include leader-card.html label="Points / game" tone="hot" player=ppg_leader value=ppg_leader.ppg_display meta=ppg_leader.team_name empty="No games yet" plain=plain %}
       {%- capture ft_meta %}{{ ft_leader.team_name }} · {{ ft_leader.ftm }} of {{ ft_leader.fta }}{% endcapture %}
-      {% include leader-card.html label="Free throw %" player=ft_leader value=ft_leader.ft_pct_display meta=ft_meta empty="Needs 10 attempts" plain=plain %}
+      {% include leader-card.html label="Free throw %" player=ft_leader value=ft_leader.ft_pct_display meta=ft_meta empty=ft_empty plain=plain %}
     </div>
     {%- if ppg_leaders.size > 1 %}
     <div class="rank-list">
@@ -50,7 +51,7 @@ layout: default
       {%- endfor %}
     </div>
     {%- endif %}
-    <p class="table-note">Free-throw leaders need at least {{ stats.leaders.ft_min_attempts }} attempts.</p>
+    <p class="table-note">{% if stats.leaders.ppg_min_games > 0 %}Points per game ranks players with at least {{ stats.leaders.ppg_min_games }} games, or all of their team's games while it has played fewer. {% endif %}Free-throw leaders need at least {{ stats.leaders.ft_min_attempts }} attempts.</p>
   </section>
 
   <p class="page-links"><a class="link-more" href="{{ '/archive/' | relative_url }}">All seasons</a></p>
