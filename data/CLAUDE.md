@@ -9,8 +9,9 @@ data/seasons.yml              list of seasons, newest first; marks the current o
 data/2026-27/
   teams.yml                   id, name, short (2 letters), colour_slot, colour_light, colour_dark
   players.yml                 id, display (First L.), team, sub (true/false)
-  schedule.csv                game_id,date,time,gym,home,away,type,week,status (gym blank: the season's gym; no courts;
-                              status blank, or `cancelled`; the status column may be left out)
+  schedule.csv                game_id,date,time,gym,home,away,type,week,status,round (gym blank: the
+                              season's gym; no courts; status blank or `cancelled`; round names a
+                              playoff round; status and round may be left out from the end)
   games/2026-12-03-g1.yml     one file per played game (format below)
   sheets/2026-12-03-g1.jpg    photo of the paper score sheet, kept for checking
 ```
@@ -59,9 +60,11 @@ the gym in the week heading and the next-game panel.
 (git-ignored, rewritten every run, published at `/calendar/...`) through
 `scripts/calendars.py`. They always hold the **current** season, even in sample
 mode, so nobody subscribes to made-up games. One event per game (UID from the
-`game_id`, so subscribed calendars update in place), 75 minutes long (the gap
+`game_id`, so subscribed calendars update in place), 90 minutes long (the gap
 between the printed start times), at the game's gym, Eastern time. Cancelled
-games stay in the feed as cancelled; played games carry the final score. The
+games stay in the feed as cancelled; played games carry the final score. A
+playoff game with placeholder teams is only in `league.ics` until its row names
+the teams; then it joins those two teams' calendars. The
 Schedule page lists every team's calendar and the league's; a team page lists
 its own when that team is in the current season.
 
@@ -81,22 +84,32 @@ publish (they may show full names, and players are only ever "First L."). The bu
 listed here and must not fail on one with no games yet.
 
 ### The real season before the first game
-`data/2026-27/` has the real teams and the full regular-season schedule, both
-from the league's printed schedule (`Masters_League_Print_Schedule_2026-27.pdf`):
+`data/2026-27/` has the real teams and the full schedule, both from the
+league's updated printed schedule (`Masters_Basketball_Schedule_2026-27_UPDATED.pdf`):
 - **Teams:** Bay City Bears (`bb`, BB), Dam Nation (`dn`, DN), Floor Generals
   (`fg`, FG), Hustle (`hu`, HU) and Nor'Westers (`nw`, NW). The codes were made
-  for the site and approved. Colour slots go in alphabetical order (approved; a
-  slot can be swapped any time in `teams.yml`).
-- **Schedule:** 20 Saturdays, Oct 3 to Apr 3, at St. Pat's. Two games each
-  morning, at 9:45 AM (`-g1`) and 11:00 AM (`-g2`), and one team has the bye.
-  Oct 3 was cancelled (`status: cancelled`, week `0`), so Oct 17 is Week 1 and
-  Apr 3 is Week 19. Weeks with no games on the printed schedule (Thanksgiving,
-  the holidays, Feb 13, March break) are simply skipped.
+  for the site and approved.
+- **Colours** (from the league), each matched to the nearest site colour slot:
+  Bay City Bears red (1), Dam Nation blue (2), Floor Generals green (3),
+  Nor'Westers orange → gold (4), Hustle black → purple (5). Black and orange
+  would need new `--mb-team-N` values in `brand/css/brand.css`.
+- **Schedule:** 20 Saturdays, Oct 17 to Apr 17, at St. Pat's (Weeks 1 to 20).
+  Two games each morning, at 9:45 AM (`-g1`) and 11:15 AM (`-g2`), and one team
+  has the bye. Each team plays 16 games and meets every other team 4 times.
+  Weeks with no games on the printed schedule are simply skipped.
 - **Home and away:** the printed schedule has none. The team listed first is in
   the `home` column, but the site never says "home" or "away": the player game
   log always says "vs".
-- **Playoffs:** April 10, 17 and 24, 2027. They aren't in `schedule.csv` yet,
-  because the playoff format and matchups aren't known.
+- **Playoffs** (`type: playoff`, with the league's game numbers in `round`):
+  - Wed Apr 21, 7:30 PM: Play-in (G41), TBD vs TBD (weeks 21 to 23)
+  - Sat Apr 24, 9:45 AM: Semifinal (G42), 2nd vs 3rd
+  - Sat Apr 24, 11:15 AM: Semifinal (G43), 1st vs Winner G41
+  - Wed Apr 28, 7:30 PM: Championship (G44), Winner G42 vs Winner G43
+
+  Until the teams are known, `home` and `away` hold these placeholders (TBD, a
+  place like `2nd`, or `Winner G41`/`Loser G41`; only playoff rows may). The
+  site shows them as written. Replace them with team ids as the standings and
+  results settle; a game file can't be added until its row names both teams.
 
 Still placeholders: one `[placeholder]` player per team (a `display` of exactly
 `[placeholder]` passes the "First L." check for this reason). `games/` and

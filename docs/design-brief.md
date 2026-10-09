@@ -202,3 +202,6 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
   on each team page (that team only). It reuses the game row: the team chip and
   name, then **Subscribe** (webcal://) and **Download** (.ics) links, with a
   short note on Google Calendar.
+- Playoff games whose teams aren't decided show as printed: the round in bold,
+  then the placeholders ("**Semifinal (G42)** · 2nd vs 3rd"), in the same game
+  row and next-game panel. Playoff weeks are headed "Playoffs · Sat Apr 24".

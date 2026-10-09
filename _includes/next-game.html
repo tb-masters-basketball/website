@@ -17,7 +17,7 @@
 {%- endif %}
   <ul class="next-game__games">
     {%- for g in week.games %}
-    <li><span>{{ include.teams[g.home].name }} vs {{ include.teams[g.away].name }}</span>{% if g.cancelled %}<span class="badge">Cancelled</span>{% else %}<time datetime="{{ g.time }}">{{ g.time_display }}</time>{% endif %}</li>
+    <li><span>{% if g.round %}<b>{{ g.round }}</b> · {% endif %}{{ g.home_name }} vs {{ g.away_name }}</span>{% if g.cancelled %}<span class="badge">Cancelled</span>{% else %}<time datetime="{{ g.time }}">{{ g.time_display }}</time>{% endif %}</li>
     {%- endfor %}
   </ul>
   {% include bye-line.html byes=week.byes teams=include.teams class="next-game__bye" %}

@@ -129,7 +129,7 @@ The real message starts with the full path (for example
 | The `game_id` doesn't match the file name | `games/2026-12-03-g1.yml: game_id '2026-12-03-g9' doesn't match the file name '2026-12-03-g1'` |
 | The game isn't in `schedule.csv` | `games/2026-12-11-g1.yml: game_id '2026-12-11-g1' has no row in schedule.csv` |
 | The date, teams or type disagree with `schedule.csv` | `games/2026-12-03-g1.yml: date 2026-12-04 doesn't match schedule.csv (2026-12-03)` |
-| A game file exists for a game marked `cancelled` | `games/2026-10-03-g1.yml: game '2026-10-03-g1' is marked cancelled in schedule.csv. Delete this file, or clear the status if the game was played` |
+| A game file exists for a game marked `cancelled` | `games/2026-11-14-g1.yml: game '2026-11-14-g1' is marked cancelled in schedule.csv. Delete this file, or clear the status if the game was played` |
 | The final score is a tie | `games/2026-12-03-g1.yml: final score is tied 64-64` |
 | A player is listed twice in one game | `games/2026-12-03-g1.yml: line 3 (greg-t): player is listed twice in this game` |
 | A player name isn't written "First L." | `players.yml: player #1 (dave-m): display 'Dave Mitchell' should be 'First L.' (never a full name)` |
@@ -217,13 +217,14 @@ the site (it takes a minute or two).
 
 1. **Check the game is on the schedule.** Open `data/2026-27/schedule.csv`. The
    game needs a row, for example:
-   `2026-10-17-g1,2026-10-17,09:45,,bb,hu,regular,1,`
-   The columns are `game_id, date, time, gym, home, away, type, week, status`. The
+   `2026-10-17-g1,2026-10-17,09:45,,bb,hu,regular,1,,`
+   The columns are `game_id, date, time, gym, home, away, type, week, status, round`. The
    date is `YYYY-MM-DD`, the time is 24-hour (`09:45`), and the id is the date
    plus `-g1`, `-g2` for that day's first and second game. Leave `gym` blank
    to use the season's gym (St. Pat's, set in `data/seasons.yml`); fill it in
    only for a game day played somewhere else. There is no court column. Leave
-   `status` blank (it is only for [cancelled games](#cancel-or-move-a-game)).
+   `status` blank (it is only for [cancelled games](#cancel-or-move-a-game)),
+   and `round` blank for a regular-season game.
 2. **Create the game file.** In `data/2026-27/games/`, choose **Add file →
    Create new file** and name it exactly like the `game_id`, plus `.yml`:
    `2026-12-03-g1.yml`. The easiest start is to copy the example
@@ -243,18 +244,33 @@ the site (it takes a minute or two).
    (`/games/2026-12-03-g1/`), and the Schedule, standings, Stats and every
    player's and team's page update with it.
 
+### Fill in a playoff matchup
+
+The playoff games are already in `schedule.csv`, with placeholders where the
+teams will go, as on the printed schedule:
+
+```
+2027-04-24-g1,2027-04-24,09:45,,2nd,3rd,playoff,22,,Semifinal (G42)
+```
+
+When the standings (or a result) decide who plays, replace the placeholders
+with the two team ids, for example `...,09:45,,dn,hu,playoff,22,,Semifinal (G42)`.
+Do this **before** adding the game file: the check refuses a game file whose
+row still says `2nd`, `TBD` or `Winner G41`. Once a row names both teams, the
+game also appears on their team pages and in their team calendars.
+
 ### Cancel or move a game
 
 Keep the game's row in `data/2026-27/schedule.csv` and change it:
 
-- **Cancelled, not made up:** type `cancelled` in the last column (`status`),
-  for example `2026-10-03-g1,2026-10-03,09:45,,dn,fg,regular,0,cancelled`.
+- **Cancelled, not made up:** type `cancelled` in the `status` column (next to last),
+  for example `2026-11-14-g1,2026-11-14,09:45,,hu,nw,regular,4,cancelled,`.
   The game stays on the Schedule with a **Cancelled** badge. It counts for
   nothing, and the site skips it when it shows the next game day. A game file
   for a cancelled game is an error: the check says so.
   - If every game that day is cancelled, the Schedule shows the date with a
     **Cancelled** badge and no week number, so the week number in those rows
-    doesn't matter (use `0` for a day before the first game).
+    doesn't matter.
 - **Moved to another date or time:** change its `date` and `time`, and change
   the `game_id` to match the new date (and its `-g1`/`-g2`). Give it the
   `week` of the day it is now played on.

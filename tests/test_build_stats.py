@@ -336,6 +336,43 @@ class CancelledGameTests(SeasonFixture):
         self.assertEqual(self.compute()["schedule.json"]["next_week"], 4)
 
 
+class PlayoffPlaceholderTests(SeasonFixture):
+    """A playoff game can name its teams as TBD, a place (2nd) or Winner G41."""
+
+    def add_rows(self, *rows, header="game_id,date,time,gym,home,away,type,week,status,round"):
+        lines = textwrap.dedent(self.SCHEDULE).splitlines()
+        body = [header] + [line + ",," for line in lines[1:]] + list(rows)
+        self.write("schedule.csv", "\n".join(body) + "\n")
+
+    def test_placeholders_and_round_in_the_schedule(self):
+        self.add_rows("2027-04-08-g1,2027-04-08,19:30,1,2nd,Winner G41,playoff,21,,Semifinal (G42)")
+        week = self.compute()["schedule.json"]["weeks"][-1]
+        g = week["games"][0]
+        self.assertEqual((g["home_name"], g["away_name"], g["round"]), ("2nd", "Winner G41", "Semifinal (G42)"))
+        self.assertFalse(g["teams_known"])
+        self.assertEqual(week["byes"], [])
+
+    def test_team_names_are_filled_in_when_known(self):
+        g = self.compute()["schedule.json"]["weeks"][0]["games"][0]
+        self.assertEqual((g["home_name"], g["away_name"], g["teams_known"], g["round"]),
+                         ("Alpha", "Bravo", True, None))
+
+    def test_placeholders_only_for_playoff_games(self):
+        self.add_rows("2026-10-29-g1,2026-10-29,19:00,1,TBD,aa,regular,5,,")
+        self.assertProblem("home team 'TBD' is not in teams.yml")
+
+    def test_unknown_placeholder_is_still_a_typo(self):
+        self.add_rows("2027-04-08-g1,2027-04-08,19:30,1,Winner of 41,aa,playoff,21,,")
+        self.assertProblem("home team 'Winner of 41' is not in teams.yml (a playoff game may also say TBD")
+
+    def test_a_game_file_needs_the_real_teams_in_the_schedule(self):
+        self.add_rows()
+        sched = (self.season / "schedule.csv").read_text().replace(
+            "2027-04-01-g1,2027-04-01,19:00,1,aa,bb,playoff,20,,", "2027-04-01-g1,2027-04-01,19:00,1,1st,2nd,playoff,20,,Final")
+        self.write("schedule.csv", sched)
+        self.assertProblem("schedule.csv still lists this game as 1st vs 2nd")
+
+
 class NoGamesYetTests(SeasonFixture):
     """The real season starts with teams, placeholder players and no games."""
 

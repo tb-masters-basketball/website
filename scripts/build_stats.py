@@ -48,9 +48,14 @@ import calendars
 ROOT = Path(__file__).resolve().parent.parent
 
 FT_MIN_ATTEMPTS = 10
-SCHEDULE_COLUMNS = ["game_id", "date", "time", "gym", "home", "away", "type", "week", "status"]
-# status: blank (the game goes ahead) or "cancelled". The column may be left out.
+SCHEDULE_COLUMNS = ["game_id", "date", "time", "gym", "home", "away", "type", "week", "status", "round"]
+# The last two columns are optional (leave them out, or out from the end):
+#   status  blank (the game goes ahead) or "cancelled"
+#   round   a playoff round's name as the league writes it, e.g. "Semifinal (G42)"
 GAME_STATUSES = ("", "cancelled")
+# A playoff game whose teams aren't known yet names them like the printed
+# schedule does: TBD, a standings place (1st to 5th), or the winner/loser of a game.
+PLACEHOLDER_RE = re.compile(r"^(TBD|[1-9](st|nd|rd|th)|(Winner|Loser) G\d+)$")
 GAME_TYPES = ("regular", "playoff")
 SHEET_EXTENSIONS = (".jpg", ".jpeg", ".png", ".heic", ".pdf")
 TEAM_ID_RE = re.compile(r"^[a-z]{2}$")
@@ -279,7 +284,7 @@ def load_schedule(season_dir, teams, problems):
     try:
         with open(path, encoding="utf-8", newline="") as fh:
             reader = csv.DictReader(fh)
-            if reader.fieldnames not in (SCHEDULE_COLUMNS, SCHEDULE_COLUMNS[:-1]):
+            if reader.fieldnames not in (SCHEDULE_COLUMNS, SCHEDULE_COLUMNS[:-1], SCHEDULE_COLUMNS[:-2]):
                 problems.append(f"{path}: header should be {','.join(SCHEDULE_COLUMNS)}")
                 return schedule
             rows = list(reader)
@@ -305,14 +310,18 @@ def load_schedule(season_dir, teams, problems):
         if not TIME_RE.match(time):
             problems.append(f"{where} ({gid}): time {time!r} should be 24-hour HH:MM")
         home, away = row["home"].strip(), row["away"].strip()
-        for side, tid in (("home", home), ("away", away)):
-            if tid not in teams:
-                problems.append(f"{where} ({gid}): {side} team {tid!r} is not in teams.yml")
-        if home == away:
-            problems.append(f"{where} ({gid}): a team can't play itself")
         gtype = row["type"].strip()
         if gtype not in GAME_TYPES:
             problems.append(f"{where} ({gid}): type {gtype!r} should be regular or playoff")
+        for side, tid in (("home", home), ("away", away)):
+            if tid in teams:
+                continue
+            if gtype == "playoff" and PLACEHOLDER_RE.match(tid):
+                continue   # not known yet: TBD, 2nd, Winner G41...
+            hint = " (a playoff game may also say TBD, a place like 2nd, or Winner G41)" if gtype == "playoff" else ""
+            problems.append(f"{where} ({gid}): {side} team {tid!r} is not in teams.yml{hint}")
+        if home == away and home != "TBD":
+            problems.append(f"{where} ({gid}): a team can't play itself")
         try:
             week = int(row["week"])
         except ValueError:
@@ -324,6 +333,8 @@ def load_schedule(season_dir, teams, problems):
         for tid in (home, away):
             if status == "cancelled":
                 break   # a cancelled game doesn't stop a team playing a make-up that day
+            if tid not in teams:
+                continue
             key = (tid, date)
             if key in team_dates and gtype == "regular":
                 problems.append(f"{where} ({gid}): {tid} already plays on {date} ({team_dates[key]})")
@@ -338,6 +349,8 @@ def load_schedule(season_dir, teams, problems):
             "type": gtype,
             "week": week,
             "cancelled": status == "cancelled",
+            "round": (row.get("round") or "").strip() or None,
+            "teams_known": home in teams and away in teams,
         }
     return schedule
 
@@ -369,6 +382,10 @@ def _check_game(path, game, teams, players, schedule, problems):
     row = schedule.get(gid)
     if row is None:
         problems.append(f"{where}: game_id '{gid}' has no row in schedule.csv")
+        return
+    if not row["teams_known"]:
+        problems.append(f"{where}: schedule.csv still lists this game as {row['home']} vs {row['away']}. "
+                        "Put the two teams' ids in its home and away cells first")
         return
     if row["cancelled"]:
         problems.append(f"{where}: game '{gid}' is marked cancelled in schedule.csv. "
@@ -790,6 +807,11 @@ def compute_schedule(season, summaries):
                 "gym": r["gym"] or season.get("gym"),
                 "home": r["home"],
                 "away": r["away"],
+                # names to show: the team's name, or the placeholder (TBD, 2nd, Winner G41)
+                "home_name": teams[r["home"]]["name"] if r["home"] in teams else r["home"],
+                "away_name": teams[r["away"]]["name"] if r["away"] in teams else r["away"],
+                "round": r["round"],
+                "teams_known": r["teams_known"],
                 "played": played,
                 "cancelled": r["cancelled"],
             }

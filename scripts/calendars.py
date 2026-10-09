@@ -12,14 +12,17 @@ Each game is one event, with a UID made from its game_id, so a calendar app
 that has subscribed updates the event in place when the schedule changes:
 - a cancelled game stays in the feed, marked STATUS:CANCELLED
 - a played game gets the final score in its description
+- a playoff game whose teams aren't known yet (TBD, 2nd, Winner G41) is only
+  in the league calendar; it joins the two teams' calendars once schedule.csv
+  names them
 Times are Eastern (America/Toronto, which is Thunder Bay's time zone).
 """
 
 import datetime as dt
 
-# The printed schedule starts games 75 minutes apart (9:45 and 11:00), so an
-# event lasts 75 minutes. The league hasn't said how long a game is.
-GAME_MINUTES = 75
+# The printed schedule starts games 90 minutes apart (9:45 and 11:15), so an
+# event lasts 90 minutes. The league hasn't said how long a game is.
+GAME_MINUTES = 90
 TZID = "America/Toronto"
 PRODID = "-//Masters Basketball League Thunder Bay//Schedule//EN"
 
@@ -65,14 +68,14 @@ def fold(line):
     return "\r\n ".join(pieces)
 
 
-def game_event(game, teams, site_url, domain, stamp):
+def game_event(game, site_url, domain, stamp):
     """The VEVENT lines for one game from schedule.json."""
-    home, away = teams[game["home"]]["name"], teams[game["away"]]["name"]
+    home, away = game["home_name"], game["away_name"]
     start = dt.datetime.fromisoformat(f"{game['date']}T{game['time']}")
     end = start + dt.timedelta(minutes=GAME_MINUTES)
     title = f"{home} vs {away}"
     if game["type"] == "playoff":
-        title = f"Playoffs: {title}"
+        title = f"Playoffs, {game['round']}: {title}" if game.get("round") else f"Playoffs: {title}"
     notes = [f"Masters Basketball League, {game['label']}."]
     if game["cancelled"]:
         title = f"Cancelled: {title}"
@@ -125,11 +128,11 @@ def build_calendars(season, schedule, teams, site_url, now=None):
     domain = site_url.split("://", 1)[-1].split("/", 1)[0] or "localhost"
     stamp = (now or dt.datetime.now(dt.timezone.utc)).strftime("%Y%m%dT%H%M%SZ")
     games = [dict(g, label=season["label"] + " season") for week in schedule["weeks"] for g in week["games"]]
-    events = {g["game_id"]: game_event(g, teams, site_url, domain, stamp) for g in games}
+    events = {g["game_id"]: game_event(g, site_url, domain, stamp) for g in games}
     files = {"league.ics": calendar(f"Masters Basketball {season['label']}",
                                     [events[g["game_id"]] for g in games])}
     for tid, team in teams.items():
-        mine = [events[g["game_id"]] for g in games if tid in (g["home"], g["away"])]
+        mine = [events[g["game_id"]] for g in games if tid in (g["home"], g["away"]) and g["teams_known"]]
         files[f"{tid}.ics"] = calendar(f"{team['name']} · Masters Basketball {season['label']}", mine)
     return files
 
