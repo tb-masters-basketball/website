@@ -14,7 +14,8 @@ TEAMS = {
     "nw": {"id": "nw", "name": "Nor'Westers", "short": "NW", "colour_slot": 5},
     "hu": {"id": "hu", "name": "Hustle", "short": "HU", "colour_slot": 4},
 }
-SEASON = {"id": "2026-27", "label": "2026-27"}
+SEASON = {"id": "2026-27", "label": "2026-27", "gym": "St. Pat's",
+          "gym_address": "621 Selkirk St S, Thunder Bay, ON P7E 1T9"}
 NOW = dt.datetime(2026, 10, 8, 12, 0, tzinfo=dt.timezone.utc)
 
 
@@ -71,7 +72,7 @@ class CalendarTests(unittest.TestCase):
         self.assertEqual(ev["DTSTART;TZID=America/Toronto"], "20270109T111500")
         self.assertEqual(ev["DTEND;TZID=America/Toronto"], "20270109T124500")   # 90 minutes
         self.assertEqual(ev["SUMMARY"], "Nor'Westers vs Bay City Bears")
-        self.assertEqual(ev["LOCATION"], "St. Pat's")
+        self.assertEqual(ev["LOCATION"], "St. Pat's\\, 621 Selkirk St S\\, Thunder Bay\\, ON P7E 1T9")
         self.assertEqual(ev["DTSTAMP"], "20261008T120000Z")
         self.assertIn("BEGIN:VTIMEZONE\r\nTZID:America/Toronto", self.files["nw.ics"])
 
@@ -98,6 +99,11 @@ class CalendarTests(unittest.TestCase):
             self.assertNotIn("\n", text.replace("\r\n", ""))
             for line in text.split("\r\n"):
                 self.assertLessEqual(len(line.encode("utf-8")), 75)
+
+    def test_another_gym_has_no_address(self):
+        other = dict(SCHEDULE["weeks"][2]["games"][0], gym="Other Gym")
+        self.assertEqual(cal.location(other, SEASON), "Other Gym")
+        self.assertEqual(cal.location(other, {"id": "x", "label": "x", "gym": "Other Gym"}), "Other Gym")
 
     def test_escape_and_fold(self):
         self.assertEqual(cal.escape("a,b;c\\d\ne"), "a\\,b\;c\\\\d\\ne")

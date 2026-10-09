@@ -382,6 +382,13 @@ class NoGamesYetTests(SeasonFixture):
             path.unlink()
         self.write("schedule.csv", "game_id,date,time,gym,home,away,type,week\n")
 
+    def test_builds_with_an_empty_roster(self):
+        self.write("players.yml", "# rosters to come\n[]\n")
+        out = self.compute()
+        self.assertEqual(out["players.json"], {})
+        self.assertEqual(out["rankings.json"], [])
+        self.assertEqual(len(out["teams.json"]), 3)
+
     def test_builds_with_no_games_and_no_schedule(self):
         out = self.compute()
         self.assertEqual(out["rankings.json"], [])

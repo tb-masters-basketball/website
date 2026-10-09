@@ -323,9 +323,10 @@ sample_data: true     # change to false when real results begin
   played yet" and "Not scheduled yet", and the Archive lists only the current
   season.
 
-Before you switch it off, replace the `[placeholder]` rows in
-`data/2026-27/players.yml` with the real players (the teams and the schedule
-are already in). Nothing else needs to change. The sample data can stay
+The teams and the schedule are already in, and the rosters can start empty
+(`data/2026-27/players.yml` is `[]`; team pages then say "No players listed
+yet"). Add players as they're known, at the latest when their first game is
+recorded. Nothing else needs to change. The sample data can stay
 in the repository (it is never shown while the switch is off), or be deleted
 later together with its entry in `data/seasons.yml`.
 

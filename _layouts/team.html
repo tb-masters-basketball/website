@@ -22,8 +22,13 @@ layout: default
     <div class="tile tile--card"><div class="tile__value">{{ row.diff_display }}</div><div class="tile__label"><abbr title="Point differential">DIFF</abbr></div></div>
   </div>
 
+  {%- assign roster_size = 0 -%}
+  {%- for pair in stats.players %}{% if pair[1].team == tid %}{% assign roster_size = roster_size | plus: 1 %}{% endif %}{% endfor %}
   <section class="page-section" aria-labelledby="roster-title">
     <h2 class="section-title" id="roster-title">Roster</h2>
+    {%- if roster_size == 0 %}
+    <p class="empty">No players listed yet.</p>
+    {%- else %}
     <div class="rank-list">
       {%- assign rank_in_team = 0 -%}
       {%- for rp in stats.rankings %}{% if rp.team == tid %}
@@ -35,6 +40,7 @@ layout: default
       {%- include rank-row.html player=rp value="—" meta="No games yet" rank="–" %}
       {%- endif %}{% endfor %}
     </div>
+    {%- endif %}
   </section>
 
   {%- capture team_results %}

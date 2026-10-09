@@ -15,13 +15,14 @@ that has subscribed updates the event in place when the schedule changes:
 - a playoff game whose teams aren't known yet (TBD, 2nd, Winner G41) is only
   in the league calendar; it joins the two teams' calendars once schedule.csv
   names them
-Times are Eastern (America/Toronto, which is Thunder Bay's time zone).
+Times are Eastern (America/Toronto, which is Thunder Bay's time zone). The
+location is the gym, with `gym_address` from seasons.yml when there is one.
 """
 
 import datetime as dt
 
-# The printed schedule starts games 90 minutes apart (9:45 and 11:15), so an
-# event lasts 90 minutes. The league hasn't said how long a game is.
+# A game slot is 90 minutes (confirmed by the league; the printed schedule
+# starts games at 9:45 and 11:15).
 GAME_MINUTES = 90
 TZID = "America/Toronto"
 PRODID = "-//Masters Basketball League Thunder Bay//Schedule//EN"
@@ -68,7 +69,16 @@ def fold(line):
     return "\r\n ".join(pieces)
 
 
-def game_event(game, site_url, domain, stamp):
+def location(game, season):
+    """The gym, plus its street address when it's the season's gym and
+    seasons.yml has one, so a calendar app can map it."""
+    gym = game.get("gym")
+    if gym and gym == season.get("gym") and season.get("gym_address"):
+        return f"{gym}, {season['gym_address']}"
+    return gym
+
+
+def game_event(game, season, site_url, domain, stamp):
     """The VEVENT lines for one game from schedule.json."""
     home, away = game["home_name"], game["away_name"]
     start = dt.datetime.fromisoformat(f"{game['date']}T{game['time']}")
@@ -97,8 +107,9 @@ def game_event(game, site_url, domain, stamp):
         "STATUS:CANCELLED" if game["cancelled"] else "STATUS:CONFIRMED",
         "TRANSP:OPAQUE",
     ]
-    if game.get("gym"):
-        lines.append(f"LOCATION:{escape(game['gym'])}")
+    where = location(game, season)
+    if where:
+        lines.append(f"LOCATION:{escape(where)}")
     lines.append("END:VEVENT")
     return lines
 
@@ -128,7 +139,7 @@ def build_calendars(season, schedule, teams, site_url, now=None):
     domain = site_url.split("://", 1)[-1].split("/", 1)[0] or "localhost"
     stamp = (now or dt.datetime.now(dt.timezone.utc)).strftime("%Y%m%dT%H%M%SZ")
     games = [dict(g, label=season["label"] + " season") for week in schedule["weeks"] for g in week["games"]]
-    events = {g["game_id"]: game_event(g, site_url, domain, stamp) for g in games}
+    events = {g["game_id"]: game_event(g, season, site_url, domain, stamp) for g in games}
     files = {"league.ics": calendar(f"Masters Basketball {season['label']}",
                                     [events[g["game_id"]] for g in games])}
     for tid, team in teams.items():

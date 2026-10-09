@@ -111,9 +111,13 @@ league's updated printed schedule (`Masters_Basketball_Schedule_2026-27_UPDATED.
   site shows them as written. Replace them with team ids as the standings and
   results settle; a game file can't be added until its row names both teams.
 
-Still placeholders: one `[placeholder]` player per team (a `display` of exactly
-`[placeholder]` passes the "First L." check for this reason). `games/` and
-`sheets/` are empty.
+- **Gym address:** `gym_address` in `seasons.yml` (621 Selkirk St S, Thunder
+  Bay, ON P7E 1T9) goes into the calendar events' location.
+
+Still to come: the rosters. `players.yml` is an empty list (`[]`), so team
+pages say "No players listed yet" and there are no player pages. (A `display`
+of exactly `[placeholder]` still passes the "First L." check, if a placeholder
+row is ever useful.) `games/` and `sheets/` are empty.
 
 ### Team colours
 `colour_slot` (1-5) picks `--mb-team-N` in `brand/css/brand.css`, which holds
