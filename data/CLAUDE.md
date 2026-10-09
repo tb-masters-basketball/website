@@ -8,7 +8,7 @@ like `2026-27`. `scripts/build_stats.py` turns them into `_data/computed/`.
 data/seasons.yml              list of seasons, newest first; marks the current one
 data/2026-27/
   teams.yml                   id, name, short (2 letters), colour_slot, colour_light, colour_dark
-  players.yml                 id, display (First L.), team, sub (true/false)
+  players.yml                 id, display (First L.), team, sub (true/false), number (optional jersey #)
   schedule.csv                game_id,date,time,gym,home,away,type,week,status,round (gym blank: the
                               season's gym; no courts; status blank or `cancelled`; round names a
                               playoff round; status and round may be left out from the end)
@@ -159,6 +159,12 @@ writes nothing until all of them are fixed.
 - A sub gets a player id the first time they appear, with `sub: true`. Their
   points count for them as a player. A sub's points still count toward the team
   score in that game.
+- **Jersey number** (optional): `number: 23`, from 0 to 99 (write `"00"` in
+  quotes, or YAML reads it as 0). Two regular players on a team can't share a
+  number; a sub can wear any. The score sheets print it in the # box and sort
+  each roster by it; without one the box is left blank to fill in. It also tells
+  apart two players with the same "First L." name. The sample seasons have
+  made-up numbers; `data/2026-27/` has none until the league sends them.
 
 ## Stat rules
 - **GP:** games where the player is listed on the sheet.

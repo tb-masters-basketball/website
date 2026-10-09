@@ -211,3 +211,11 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
 - Playoff games whose teams aren't decided show as printed: the round in bold,
   then the placeholders ("**Semifinal (G42)** · 2nd vs 3rd"), in the same game
   row and next-game panel. Playoff weeks are headed "Playoffs · Sat Apr 24".
+- Score sheets on the Schedule page (reusable include `score-sheet-links.html`):
+  - Each game day still to play gets **Score sheet (PDF)** (portrait Letter)
+    and a muted **Other layouts** disclosure (a `<details>`, so it works
+    without JavaScript) with portrait Legal and landscape Letter and Legal.
+    Both are `link-more` text links with 44 px tap areas. A link is only drawn
+    when its PDF was generated, so past days and TBD playoff games get none.
+  - A **Score sheets** section at the bottom lists the four blank layouts,
+    with one line: print double-sided, page 2 is only for overflow.

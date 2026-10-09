@@ -1924,6 +1924,55 @@ a.team-card:hover {
   font-variant-numeric: tabular-nums;
 }
 
+/* Score sheet links: "Score sheet (PDF)" and an "Other layouts" disclosure
+   (a <details>, so it works without JavaScript), under a game day on the
+   Schedule; the same list, open, for the blank sheets. */
+.sheet-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 20px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.sheet-links .link-more,
+.sheet-links__more summary {
+  display: inline-block;
+  min-height: 44px;
+  padding: 13px 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.sheet-links__more summary {
+  color: var(--mb-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sheet-links__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sheet-links__list .link-more {
+  display: inline-block;
+  min-height: 44px;
+  padding: 13px 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.sheet-links__list--open {
+  margin-top: 4px;
+}
+
 /* Pill link: a small outlined button with an icon, e.g. "Calendar" beside a
    team's name. 44 px tall. */
 .pill-link {

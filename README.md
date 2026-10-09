@@ -25,6 +25,9 @@ The full list, with answers so far, is in
 - [ ] **Rosters for 2026-27.** Every player as "First L.", their team, and who
       is a sub. `data/2026-27/players.yml` is empty until then, so team pages
       say "No players listed yet".
+- [ ] **Jersey numbers for 2026-27.** They go in `players.yml` as `number:`
+      and print in the score sheets' # box (blank until then). They also tell
+      apart two players with the same "First L." name.
 - [ ] **Standings tiebreakers**, including three-way ties. Until then the site
       uses head-to-head, then point differential, and says so under the
       standings.
@@ -60,12 +63,16 @@ Today a volunteer types each game into a YAML file by hand
 slash command, `/record-game`, that turns a photo or scan of the paper score
 sheet into that file and a pull request:
 
-1. **Get a real, filled-in score sheet** (a photo is fine). Its layout decides
-   everything else, and it's still an open question.
-2. **Read the sheet:**
-   - each team's players
-   - points, free throws made and attempted
-   - the final score
+1. **The sheet is ready:** form MBL-SS5, from `scripts/scoresheet/scoresheet.py`
+   ([README](scripts/scoresheet/README.md)). It has corner squares for
+   straightening a photo, and the Schedule page links each game day's
+   pre-filled sheet. Still needed: a photo of a real, filled-in one to build
+   and test against.
+2. **Read the sheet** ([how each stat comes from it](docs/stats-workflow.md#how-stats-come-from-a-sheet)):
+   - **Here** ticks give GP
+   - running score jumps give each player's points
+   - filled and slashed circles give FTM and FTA
+   - check: last running total = Final box; player points add up to it
 3. **Match names to player ids** in `players.yml`:
    - Ask about anyone it can't match, and add new players or subs (`sub: true`).
    - Never write a full name; players are always "First L.".
@@ -113,9 +120,11 @@ flowchart LR
     B --> D["_data/computed/<br/>JSON numbers"]
     B --> E["_games/ _players/<br/>_teams/ _archive/<br/>stub pages"]
     B --> F["calendar/*.ics"]
+    B --> S["scripts/make_score_sheets.sh<br/>score-sheets/*.pdf"]
     D --> G["Jekyll<br/>layouts + includes"]
     E --> G
     F --> G
+    S --> G
     G --> H["_site/"]
     H --> I["link check"]
     I --> J["GitHub Pages<br/>mastersbasketball.ca"]
@@ -224,7 +233,7 @@ Two small includes turn that into the variables every template uses:
 | URL | File | Shows |
 |---|---|---|
 | `/` | `index.html` | latest results, standings, next game day, leaders |
-| `/schedule/` | `schedule/index.html` | upcoming game days, then results; cancelled games; calendar links |
+| `/schedule/` | `schedule/index.html` | upcoming game days (each with its score sheet PDF), then results; cancelled games; calendar links; blank score sheets |
 | `/stats/` | `stats/index.html` | ranked list (PPG / Points / FT %, by team); full table at `#stats-table` |
 | `/teams/` | `teams/index.html` | a card per team |
 | `/archive/` | `archive/index.html` | a card per season |
@@ -294,26 +303,31 @@ Every page uses `_layouts/default.html`:
 
 `.github/workflows/deploy.yml` runs on every push and pull request:
 
-1. Install Python packages (`requirements.txt`: PyYAML).
+1. Install Python packages (`requirements.txt`: PyYAML, reportlab).
 2. Run the unit tests (`tests/`).
 3. `python scripts/build_stats.py`: check the data and write the JSON, stubs
    and calendars.
-4. `bundle exec jekyll build` (production).
-5. `scripts/check_links.sh`: html-proofer over `_site/`.
-6. **On `main` only:** upload `_site/` and deploy it to GitHub Pages.
+4. `scripts/make_score_sheets.sh`: score sheet PDFs for the season the site
+   shows, into `score-sheets/`. That's every game day from today (Thunder Bay
+   time) in all four layouts, plus blank sheets. The Schedule page links only
+   the files that exist.
+5. `bundle exec jekyll build` (production).
+6. `scripts/check_links.sh`: html-proofer over `_site/`, including the PDF links.
+7. **On `main` only:** upload `_site/` and deploy it to GitHub Pages.
 
-A pull request runs steps 1–5, so a red cross means "don't merge yet". The
+A pull request runs steps 1–6, so a red cross means "don't merge yet". The
 domain is set in the repo's Settings → Pages and in `_config.yml` (`url`) and
 `CNAME`; DNS is at Porkbun ([`docs/domain.md`](docs/domain.md)).
 
 ### Running it on your computer
 
 ```sh
-pip install -r requirements.txt        # Python 3.12, PyYAML
+pip install -r requirements.txt        # Python 3.12, PyYAML, reportlab
 bundle install                         # Ruby and Jekyll 4.4
 
 python -m unittest discover -s tests   # unit tests
 python scripts/build_stats.py          # check data; write JSON, stubs, calendars
+scripts/make_score_sheets.sh           # score sheet PDFs (optional locally)
 bundle exec jekyll serve --livereload  # http://localhost:4000/
 bundle exec jekyll build && scripts/check_links.sh
 
@@ -349,10 +363,12 @@ data/                    league data: the only thing edited week to week
 scripts/
   build_stats.py         checks the data; writes JSON, stub pages, calendars
   calendars.py           the .ics files
+  scoresheet/            the score sheet generator (form MBL-SS5): README, fonts, example data
+  make_score_sheets.sh   score sheet PDFs for the season shown (CI)
   make_sample_season.py  regenerates the sample seasons
   check_links.sh         link check (CI)
   screenshot_all.py      screenshots + page checks for QA
-tests/                   unit tests for build_stats.py and calendars.py
+tests/                   unit tests for build_stats.py, calendars.py and score sheet data loading
 _config.yml              site settings, switches, collections
 _layouts/  _includes/    templates and components
 index.html  schedule/  stats/  teams/  archive/  404.html   fixed pages
@@ -372,5 +388,5 @@ CNAME                    the domain, for GitHub Pages
 ```
 
 Generated on every build and never committed: `_data/computed/`, `_games/`,
-`_players/`, `_teams/`, `_archive/`, `calendar/`, `sheets/` (only when photos
-are published) and `_site/`.
+`_players/`, `_teams/`, `_archive/`, `calendar/`, `score-sheets/`, `sheets/`
+(only when photos are published) and `_site/`.

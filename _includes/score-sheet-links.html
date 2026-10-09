@@ -1,0 +1,49 @@
+{%- comment -%}
+  Score sheet PDF links: the portrait Letter sheet, and an "Other layouts"
+  disclosure (works without JavaScript) with portrait Legal and landscape
+  Letter and Legal. The PDFs come from scripts/make_score_sheets.sh; a link is
+  only drawn when its file was generated (e.g. not for a game day before today,
+  or a playoff game whose teams aren't known yet).
+    date=YYYY-MM-DD   one game day's sheets (score-sheets-<date>-...pdf)
+    blank=true        the blank sheets (score-sheet-blank-...pdf), all four listed
+    label="..."       what the links are for, for screen readers ("Sat Oct 17")
+  Usage: include score-sheet-links.html date=g.date label=week.date_display
+         include score-sheet-links.html blank=true label="blank"
+{%- endcomment -%}
+{%- if include.blank -%}
+{%- assign ssl_stem = "/score-sheets/score-sheet-blank-" -%}
+{%- else -%}
+{%- assign ssl_stem = "/score-sheets/score-sheets-" | append: include.date | append: "-" -%}
+{%- endif -%}
+{%- assign ssl_main_path = ssl_stem | append: "portrait-letter.pdf" -%}
+{%- assign ssl_main = site.static_files | where: "path", ssl_main_path | first -%}
+{%- assign ssl_layouts = "portrait-letter|Portrait, Letter;portrait-legal|Portrait, Legal;landscape-letter|Landscape, Letter;landscape-legal|Landscape, Legal" | split: ";" -%}
+{%- if ssl_main and include.blank -%}
+<ul class="sheet-links__list sheet-links__list--open">
+  {%- for ssl_layout in ssl_layouts %}
+  {%- assign ssl_parts = ssl_layout | split: "|" %}
+  {%- assign ssl_path = ssl_stem | append: ssl_parts[0] | append: ".pdf" %}
+  {%- assign ssl_file = site.static_files | where: "path", ssl_path | first %}
+  {%- if ssl_file %}
+  <li><a class="link-more" href="{{ ssl_path | relative_url }}">{{ ssl_parts[1] }}<span class="visually-hidden"> blank score sheet</span> (PDF)</a></li>
+  {%- endif %}
+  {%- endfor %}
+</ul>
+{%- elsif ssl_main -%}
+<div class="sheet-links">
+  <a class="link-more" href="{{ ssl_main_path | relative_url }}">Score sheet (PDF)<span class="visually-hidden">, {{ include.label }}, portrait Letter</span></a>
+  <details class="sheet-links__more">
+    <summary>Other layouts<span class="visually-hidden"> for the {{ include.label }} score sheet</span></summary>
+    <ul class="sheet-links__list">
+      {%- for ssl_layout in ssl_layouts offset: 1 %}
+      {%- assign ssl_parts = ssl_layout | split: "|" %}
+      {%- assign ssl_path = ssl_stem | append: ssl_parts[0] | append: ".pdf" %}
+      {%- assign ssl_file = site.static_files | where: "path", ssl_path | first %}
+      {%- if ssl_file %}
+      <li><a class="link-more" href="{{ ssl_path | relative_url }}">{{ ssl_parts[1] }}<span class="visually-hidden"> ({{ include.label }} score sheet, PDF)</span></a></li>
+      {%- endif %}
+      {%- endfor %}
+    </ul>
+  </details>
+</div>
+{%- endif -%}

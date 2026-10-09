@@ -255,6 +255,7 @@ def load_players(season_dir, teams, problems):
     path = season_dir / "players.yml"
     raw = _read_yaml(path, problems) or []
     players = {}
+    numbers_taken = {}   # (team, number) -> player id, for regular (non-sub) players
     for i, player in enumerate(raw):
         where = f"{path}: player #{i + 1}"
         if not isinstance(player, dict):
@@ -274,6 +275,20 @@ def load_players(season_dir, teams, problems):
         if player.get("team") not in teams:
             problems.append(f"{where} ({pid}): team {player.get('team')!r} is not in teams.yml")
         player["sub"] = bool(player.get("sub", False))
+        number = player.get("number")
+        if number is not None:
+            # optional jersey number, 0 to 99 ("00" in quotes); printed on the score sheets
+            text = str(number).strip()
+            if isinstance(number, bool) or not re.fullmatch(r"\d{1,2}", text):
+                problems.append(f"{where} ({pid}): number {number!r} should be a jersey number from 0 to 99")
+            else:
+                player["number"] = text
+                if not player["sub"]:
+                    key = (player.get("team"), text)
+                    if key in numbers_taken:
+                        problems.append(f"{where} ({pid}): number {text} is already {numbers_taken[key]}'s on "
+                                        f"team {player.get('team')}")
+                    numbers_taken[key] = pid
         players[pid] = player
     return players
 

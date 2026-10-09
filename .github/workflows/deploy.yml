@@ -29,7 +29,7 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install Python packages
+      - name: Install Python packages (PyYAML, reportlab)
         run: pip install -r requirements.txt
 
       - name: Run unit tests
@@ -37,6 +37,11 @@ jobs:
 
       - name: Check data and compute stats
         run: python scripts/build_stats.py
+
+      # PDFs for the season the site shows, into score-sheets/ so the Jekyll
+      # build publishes them (needs reportlab, from requirements.txt).
+      - name: Make score sheets
+        run: scripts/make_score_sheets.sh
 
       - uses: ruby/setup-ruby@v1
         with:

@@ -3,7 +3,8 @@
   games already played, rows for the ones still to come or cancelled, and the
   bye. With highlight=true (the next game day) the upcoming games use the blue
   next-game panel. A game day where every game was cancelled is headed by its
-  date and a "Cancelled" badge, with no week number.
+  date and a "Cancelled" badge, with no week number. A game day still to play
+  gets its score sheet links (score-sheet-links.html) when the PDFs exist.
   Usage: include schedule-week.html week=week stats=stats highlight=true
 {%- endcomment -%}
 {%- assign sw = include.week -%}
@@ -38,4 +39,12 @@
   {%- unless sw.cancelled %}{% unless include.highlight and sw_open > 0 %}
   {% include bye-line.html byes=sw.byes teams=sw_stats.teams class="bye-note" %}
   {%- endunless %}{% endunless %}
+  {%- if sw_open > 0 %}
+  {%- comment %} Score sheets for the games still to play: one PDF per date (a game day is normally one date). {% endcomment %}
+  {%- assign sw_dates = sw.games | where_exp: "g", "g.played == false and g.cancelled == false" | map: "date" | uniq %}
+  {%- for sw_date in sw_dates %}
+  {%- if sw_dates.size > 1 %}{% assign sw_label = sw_date %}{% else %}{% assign sw_label = sw.date_display %}{% endif %}
+  {% include score-sheet-links.html date=sw_date label=sw_label %}
+  {%- endfor %}
+  {%- endif %}
 </section>

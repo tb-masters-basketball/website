@@ -54,6 +54,38 @@ You only ever touch the game file (and occasionally the player list). The rest
 happens by itself: add a game and its box score page, the players' pages and the
 standings all update on their own.
 
+## The score sheet
+
+The league's score sheet is form **MBL-SS5**, made by
+`scripts/scoresheet/scoresheet.py` ([its README](../scripts/scoresheet/README.md)).
+Every time the site is published:
+
+- **Upcoming game days:** each one on the Schedule gets a **Score sheet (PDF)**
+  link (portrait Letter) and **Other layouts** (portrait Legal, landscape
+  Letter and Legal). The sheet has both games, two pages each, with the date,
+  start time, game ID and team names filled in. Each roster lists the team's
+  regular players (not subs) in jersey-number order. Until the rosters are in
+  `players.yml`, the 12 rows print blank. Every printed name and number is still
+  an editable field, so last-minute changes can be typed in before printing.
+- **Blank sheets:** all four layouts are at the bottom of the Schedule page.
+
+Print double-sided: page 2 is only for overflow (a team past 120 points, or a
+player past 10 free throws).
+
+### How stats come from a sheet
+
+| Stat | Source |
+|---|---|
+| Player points | Running score. The jump from the team's previous total to the next one is that basket's value: 1, 2 or 3. |
+| FTM | Filled circles in the player's row. The running score's 1-point jumps must agree. |
+| FTA | Filled circles plus slashed circles. |
+| GP | **Here** ticks. |
+| Checks | The last running total equals the Final box. Halftime totals equal the half boxes. Player points add up to the team score. |
+
+Those numbers are what goes into the game file: `pts`, `ftm` and `fta` for every
+player ticked **Here**, and each team's final score. The sheet's fouls,
+timeouts and score by half aren't on the site.
+
 ## The data folders
 
 ```
@@ -298,7 +330,9 @@ will tell you.
 ### Add a new player, or a sub
 
 1. Open `data/2026-27/players.yml` and add one line:
-   `- {id: mike-r, display: Mike R., team: lh, sub: false}`
+   `- {id: mike-r, display: Mike R., team: dn, sub: false, number: 23}`
+   (`number` is the jersey number, optional, 0 to 99; it goes on the score
+   sheets)
 2. The **id** is first name plus last initial, lowercase (`mike-r`). If two
    players would get the same id, number the second one: `mike-r2`.
 3. The **display** name is always written **First L.**, never a full name.

@@ -1,0 +1,6 @@
+game_id,date,time,court,home,away,type,week
+2026-12-03-g1,2026-12-03,19:00,[gym],pa,lh,regular,8
+2026-12-03-g2,2026-12-03,20:15,[gym],cr,wf,regular,8
+2026-12-03-bye,2026-12-03,,,fw,,regular,8
+2026-12-10-g1,2026-12-10,19:00,[gym],fw,pa,regular,9
+2026-12-10-g2,2026-12-10,20:15,[gym],lh,cr,regular,9
