@@ -101,26 +101,41 @@ sheet into that file and a pull request:
 It would live in `.claude/skills/record-game/SKILL.md` (or as a command), and
 `docs/stats-workflow.md` would gain a "Record a game from a photo" section.
 
-### 3. Build `players.yml` from team roster CSVs
+### 3. Build `players.yml` from the team rosters (`/build-roster`)
 
-Rosters will arrive one team at a time, probably as a spreadsheet per team. A
-small script (say `scripts/build_roster.py`) would read one CSV per team
-(first name, last name, jersey number, sub or not) and update
-`data/<season>/players.yml`, which stays the one source of truth for ids,
-display names and numbers:
+Rosters will arrive one team at a time, probably as a spreadsheet or CSV per
+team, maybe as a photo or PDF. The goal is a Claude Code command,
+`/build-roster`, like `/record-game`: give it a set of rosters and it updates
+`data/<season>/players.yml` and opens a pull request. `players.yml` stays the
+one source of truth for ids, display names and numbers.
 
-- **Add only players who are new by name.** A row matches an existing player
-  on the same team by "First L." (and, if two share it, by number). Existing
-  ids are never rewritten, because every game file points at them.
-- **New ids** follow the usual rule: `dave-m`, then `dave-m2` for a second
-  "Dave M." in the league. `dave-mo` style ids are also accepted.
-- **Update numbers** from the CSVs. A number lives only in `players.yml`, so a
-  change shows everywhere at once, past box scores included.
-- **Keep only "First L."** in `players.yml`. Full last names in the CSVs are
-  read for matching and never written to the repo.
-- **Fail on a duplicate id**, and on two players on one team with the same
-  "First L." and no numbers to tell them apart (the build already fails on
-  both).
+1. **Read each roster:** first name, last name, jersey number, team, and
+   whether the player is a sub. Ask about anything it can't read or any team
+   it can't match to `teams.yml`.
+2. **Match each row to an existing player** on the same team by "First L.",
+   and if two share it, by number.
+   - **Add only players who are new by name.** Existing ids are never
+     rewritten, because every game file points at them.
+   - **New ids** follow the usual rule: `dave-m`, then `dave-m2` for a second
+     "Dave M." in the league. `dave-mo` style ids are also accepted.
+   - **Update numbers** from the rosters. A number lives only in
+     `players.yml`, so a change shows everywhere at once, past box scores
+     included.
+   - **Players missing from a roster** are listed for the volunteer to
+     decide on, never deleted: their games still point at them.
+3. **Keep only "First L."** in `players.yml`. Full last names are read for
+   matching and never written to the repo (nor are the roster files).
+4. **Run the checks** (`python scripts/build_stats.py --check`). They fail on a
+   duplicate id, a number used twice on one team, and two players on one team
+   with the same "First L." and no numbers to tell them apart.
+5. **Show a summary to confirm** (added, number changes, not on a roster),
+   then open a pull request. Merging it publishes the rosters.
+
+It would live in `.claude/skills/build-roster/SKILL.md` (or
+`.claude/commands/build-roster.md`). If the matching rules prove fiddly, a
+small helper (`scripts/build_roster.py`, with tests) can do the matching and
+id assignment so the command only reads the rosters and confirms.
+`docs/stats-workflow.md` would gain an "Add the rosters" section.
 
 ---
 
