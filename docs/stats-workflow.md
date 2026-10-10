@@ -16,7 +16,7 @@ site.
 - [What a game file looks like](#what-a-game-file-looks-like)
 - [The checks, and what a failure looks like](#the-checks-and-what-a-failure-looks-like)
 - [How each number is calculated](#how-each-number-is-calculated)
-- [How to](#how-to) — add a game, fix a number, add a player or sub, leave sample mode
+- [How to](#how-to) — add a game, fix a number, add a player or sub, change a ranking minimum, the preview copy
 - [If something looks wrong](#if-something-looks-wrong)
 
 ## The path from score sheet to website
@@ -29,7 +29,7 @@ flowchart TD
     C --> D{"scripts/build_stats.py<br/>runs the checks"}
     D -- "a check fails" --> E["Clear error message.<br/>Nothing is published."]
     E -- "fix the file and try again" --> C
-    D -- "all checks pass" --> F["Calculates standings,<br/>points per game, free-throw %"]
+    D -- "all checks pass" --> F["Calculates standings points,<br/>points per game, free-throw %"]
     F --> G["_data/computed/*.json<br/>and one small stub page per game,<br/>player and team (never edited by hand)"]
     G --> H["Jekyll builds every page:<br/>Home, Stats, Schedule, box scores,<br/>player and team pages, Archive"]
     H --> L{"Link check:<br/>any broken link or image?"}
@@ -48,7 +48,7 @@ What each step means in plain words:
 | Calculations | `scripts/build_stats.py` (automatic) | Writes `_data/computed/`. Never edit those files; they are rewritten every time |
 | Pages | Jekyll, the site builder (automatic) | Every page reads `_data/computed/`. The script also writes a tiny stub file for each game, player, team and archive season (folders `_games/`, `_players/`, `_teams/`, `_archive/`, rewritten every time), which is how each one gets its own page |
 | Link check | `scripts/check_links.sh` (automatic) | Stops the publish if any link, image or script in the built site is broken |
-| Publishing | GitHub Actions (automatic) | `.github/workflows/deploy.yml`. It only publishes when a change is **merged into `main`** |
+| Publishing | GitHub Actions (automatic) | `.github/workflows/deploy.yml`. It only publishes when a change is **merged into `main`**, and again every night so the date-based parts stay current. Each publish also updates the [preview copy](#the-preview-copy-sample-data-at-preview) |
 
 You only ever touch the game file (and occasionally the player list). The rest
 happens by itself: add a game and its box score page, the players' pages and the
@@ -100,7 +100,7 @@ start using them in the next change (standings by points).
 ```
 data/
   seasons.yml          which seasons exist, and which one is current
-  2026-27/             the REAL season (starts with [placeholder] rows)
+  2026-27/             the REAL season: real teams and schedule, rosters to come
     teams.yml            the five teams
     players.yml          every player and sub
     schedule.csv         every game day: who plays whom, when
@@ -110,14 +110,16 @@ data/
   sample-2025-26/      FAKE past season, so the Archive has something to show
 ```
 
-- **Real season:** `data/2026-27/`. It starts with `[placeholder]` names and no
-  games. Fill it in as the league decides things.
+- **Real season:** `data/2026-27/`. The teams and the schedule are in;
+  `players.yml` is empty until the rosters arrive, and `games/` fills up as
+  games are played.
 - **Sample seasons:** `data/sample-2026-27/` and `data/sample-2025-26/` are
   made-up data (made by `scripts/make_sample_season.py`) so the site looks real
   before the first game. The first stands in for the current season and the
   second is a short past season for the Archive. While sample mode is on, the
   website shows a banner saying so, and the Archive lists both. With it off,
-  neither is shown anywhere. See
+  neither is shown on the main site, but both are on the hidden
+  [preview copy](#the-preview-copy-sample-data-at-preview) at `/preview/`. See
   [Sample mode](#sample-mode-now-off) (it is off now).
 - **Which season is shown** is decided in one place, `data/seasons.yml`:
   `current: true` marks the real season, and `stands_in_for: 2026-27` marks
@@ -388,7 +390,8 @@ Open the game file, correct the number, and commit it as a pull request. The
 checks run again and every stat that depends on it is recalculated from
 scratch, so there is nothing else to update. If you are changing a player's
 points, change the team's `final:` score too if it is now off, or the check
-will tell you.
+will tell you. A wrong quarter total is fixed the same way, in `quarters:`;
+the standings points follow by themselves.
 
 ### Add a new player, or a sub
 
@@ -458,7 +461,11 @@ later together with its entry in `data/seasons.yml`.
 - **A player is missing from Stats.** Stats only lists players who have played
   at least one game, so check they have a `lines:` entry in a game file.
 - **A player is missing from the free-throw leaders.** They have fewer than 10
-  attempts so far. That is the rule, not a mistake.
+  attempts so far (`ft_min_attempts` in `data/seasons.yml`). That is the rule,
+  not a mistake.
+- **A team's points look wrong.** Points come from the `quarters:` totals: 1
+  for each quarter a team scored more in, and 3 for the win. Check the totals
+  against the sheet's Q1 to Q4 boxes. A tied quarter gives no one a point.
 - **A sub tops the points-per-game list after one big game.** There is no
   minimum number of games for that list unless `ppg_min_games` is set in
   `data/seasons.yml` ([how](#change-a-ranking-minimum)).

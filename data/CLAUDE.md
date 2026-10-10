@@ -22,6 +22,9 @@ data/2026-27/
   label: "2026-27"     # what the site shows
   current: true        # exactly one season is current: the real one
   gym: "St. Pat's"
+  gym_address: "621 Selkirk St S, Thunder Bay, ON P7E 1T9"   # optional, for calendars
+  ppg_min_games: 3     # games to be ranked for PPG, capped at the team's games so far
+  ft_min_attempts: 10  # free throws attempted to be ranked for FT %
 - id: sample-2026-27
   label: "2026-27"
   sample: true         # fake data; never `current`
@@ -39,6 +42,11 @@ banner. With it off, pages read the `current` season and the banner goes.
 `_data/computed/active.json` (the active season, and the seasons the Archive
 lists); the templates only read that file. At most one sample season may stand
 in for a given season.
+
+`preview_site: true` in `_config.yml` builds a second copy of the site on every
+deploy, from the sample season, at `/preview/` (`scripts/build_preview.sh`).
+It runs `build_stats.py` again with `sample_data: true`, so the sample seasons
+must always pass every check, `quarters` included.
 
 ### Pages made from the data
 `build_stats.py` also writes a tiny stub page for each game, player, team and
@@ -231,7 +239,10 @@ appear in the mockups (Port Arthur 6–1, Dave M. 20.1 PPG, and so on). Put it i
 `data/sample-2026-27/` so it is easy to delete.
 
 `scripts/make_sample_season.py` writes it (5 teams, 9 players and a sub each,
-16 games over 8 weeks, an upcoming night, and enough free throws that 16
-players clear the 10-FTA minimum and 34 don't), with a fixed seed so the files are
+16 games over 8 weeks with quarter totals and a few flagrant fouls, an
+upcoming night, and enough free throws that 16 players clear the 10-FTA
+minimum and 34 don't). The quarter splits are tried until the standings by
+points keep the mockup order (Port Arthur, Current River, Westfort, Lakehead,
+Fort William), with a fixed seed so the files are
 the same every run, and checks the result against the mockup numbers. To
 remove it: delete the folder and its entry in `seasons.yml`.

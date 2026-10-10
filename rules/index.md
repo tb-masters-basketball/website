@@ -20,7 +20,7 @@ rule isn't written here yet, it shows as [placeholder].
 
 ## Game format
 
-- **Length:** [placeholder: halves or quarters, and how long each is]
+- **Length:** four quarters. [placeholder: how long each quarter is]
 - **Clock:** [placeholder: running or stopped clock, and when it stops]
 - **Timeouts:** [placeholder: how many per team, and how long]
 - **Overtime:** [placeholder]
