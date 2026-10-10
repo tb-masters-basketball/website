@@ -12,6 +12,27 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_stats as bs  # noqa: E402
+import sheet_rules  # noqa: E402
+import random  # noqa: E402
+import yaml  # noqa: E402
+
+
+def sheet_from_totals(text):
+    """A score sheet file (scripts/sheet_rules.py format) from a short summary
+    of a game: final, quarters and each player's pts/ftm/fta/pf/tech/flagrant.
+    The tests keep these summaries because they read easily; sheet_rules builds
+    the running score, circles and boxes. Jersey numbers are 1, 2, 3... per team."""
+    g = yaml.safe_load(textwrap.dedent(text))
+    home, away = g["home"], g["away"]
+    players = {home: [], away: []}
+    for line in g["lines"]:
+        team = players[line["team"]]
+        team.append({"player": line["player"], "num": len(team) + 1, "pts": line["pts"], "ftm": line["ftm"],
+                     "fta": line["fta"], "pf": line.get("pf", 0), "tech": line.get("tech", 0),
+                     "flagrant": line.get("flagrant", 0)})
+    sheet = sheet_rules.build_sheet(g["game_id"], home, away, g["quarters"], players,
+                                    random.Random(g["game_id"]), final=g["final"])
+    return sheet_rules.dump(sheet)
 
 
 class FormattingTests(unittest.TestCase):
@@ -135,6 +156,7 @@ class SeasonFixture(unittest.TestCase):
         self.data = self.tmp / "data"
         self.season = self.data / "test"
         (self.season / "games").mkdir(parents=True)
+        self.summaries = {}
         self.write("seasons.yml", "- {id: test, label: Test, current: true}\n", base=self.data)
         self.write("teams.yml", self.TEAMS)
         self.write("players.yml", self.PLAYERS)
@@ -148,13 +170,26 @@ class SeasonFixture(unittest.TestCase):
     def write(self, name, text, base=None):
         path = (base or self.season) / name
         path.parent.mkdir(parents=True, exist_ok=True)
+        if name.startswith("games/") and "lines:" in text:      # a game summary: write it as a sheet
+            self.summaries[path.stem] = text
+            text = sheet_from_totals(text)
         path.write_text(textwrap.dedent(text), encoding="utf-8")
 
     def edit_game(self, gid, old, new):
-        path = self.season / "games" / f"{gid}.yml"
-        text = path.read_text()
+        """Edit a game's summary (pts, ftm, final, quarters...) and rewrite its sheet."""
+        text = self.summaries[gid]
         self.assertIn(old, text)
-        path.write_text(text.replace(old, new))
+        self.write(f"games/{gid}.yml", text.replace(old, new))
+
+    def edit_sheet(self, gid, change):
+        """Edit the sheet itself: change(sheet) changes the loaded dict in place."""
+        path = self.season / "games" / f"{gid}.yml"
+        sheet = yaml.safe_load(path.read_text())
+        change(sheet)
+        path.write_text(yaml.safe_dump(sheet, sort_keys=False), encoding="utf-8")
+
+    def row(self, sheet, player):
+        return next(r for t in sheet["teams"].values() for r in t["players"] if r.get("player") == player)
 
     def compute(self):
         return bs.compute_season(bs.load_season(self.data, "test"))
@@ -310,11 +345,13 @@ class QuarterTests(SeasonFixture):
         self.assertEqual(bs.standings_points(game), {"aa": 5, "bb": 0})
 
     def test_overtime(self):
-        self.edit_game("2026-10-01-g1", "final: {aa: 30, bb: 20}", "final: {aa: 34, bb: 30}")
-        self.edit_game("2026-10-01-g1", "quarters: {aa: [10, 12, 22, 30], bb: [5, 10, 11, 20]}",
-                       "quarters: {aa: [10, 12, 22, 28], bb: [5, 10, 11, 28]}")
-        self.edit_game("2026-10-01-g1", "pts: 20, ftm: 4", "pts: 24, ftm: 4")
-        self.edit_game("2026-10-01-g1", "pts: 14, ftm: 6", "pts: 24, ftm: 6")
+        text = (self.summaries["2026-10-01-g1"]
+                .replace("final: {aa: 30, bb: 20}", "final: {aa: 34, bb: 30}")
+                .replace("quarters: {aa: [10, 12, 22, 30], bb: [5, 10, 11, 20]}",
+                         "quarters: {aa: [10, 12, 22, 28], bb: [5, 10, 11, 28]}")
+                .replace("pts: 20, ftm: 4", "pts: 24, ftm: 4")
+                .replace("pts: 14, ftm: 6", "pts: 24, ftm: 6"))
+        self.write("games/2026-10-01-g1.yml", text)
         g = self.compute()["games.json"]["2026-10-01-g1"]
         self.assertTrue(g["ot"])
         self.assertEqual((g["home_team"]["ot"], g["away_team"]["ot"]), (6, 2))
@@ -329,19 +366,20 @@ class QuarterTests(SeasonFixture):
         }
         self.assertEqual(bs.sort_standings(rec, names), [("aa", None), ("bb", None)])
 
-    def test_quarters_are_checked(self):
+    def test_quarter_boxes_are_checked(self):
+        def set_box(key, value):
+            return lambda s: s["boxes"]["aa"].__setitem__(key, value)
         cases = [
-            ("quarters: {aa: [10, 12, 22, 30], bb: [5, 10, 11, 20]}\n", "", "quarters is missing"),
-            ("bb: [5, 10, 11, 20]}", "bb: [5, 10, 20]}", "quarters for bb should be 4 whole numbers"),
-            ("bb: [5, 10, 11, 20]}", "bb: [5, 10, 9, 20]}", "go down"),
-            ("aa: [10, 12, 22, 30]", "aa: [10, 12, 22, 31]", "Q4 total 31 is more than its final score 30"),
-            ("aa: [10, 12, 22, 30]", "aa: [10, 12, 22, 29]", "needs the score tied at the end of Q4"),
-            ("bb: [5, 10, 11, 20]}", "zz: [5, 10, 11, 20]}", "quarters should list exactly the two teams"),
+            (lambda s: s.pop("lines"), "lines.aa: where were aa's end-of-quarter lines drawn?"),
+            (set_box("q2", 13), "boxes.aa.q2: the Q2 box says 13, but the Q2 line is under 12"),
+            (set_box("q4", 29), "boxes.aa.q4: the Q4 box says 29, but the Q4 line is under 30"),
+            (set_box("ot", 30), "boxes.aa.ot: the OT box is filled in, but Q4 already equals the final score"),
+            (lambda s: s["lines"]["aa"].__setitem__(2, 99), "lines.aa.2: the Q3 line is under 99, but aa has no box"),
         ]
-        for old, new, fragment in cases:
+        for change, fragment in cases:
             with self.subTest(fragment=fragment):
                 self.write("games/2026-10-01-g1.yml", self.GAMES["2026-10-01-g1"])
-                self.edit_game("2026-10-01-g1", old, new)
+                self.edit_sheet("2026-10-01-g1", change)
                 self.assertProblem(fragment)
 
 
@@ -359,8 +397,9 @@ class FlagrantTests(SeasonFixture):
         self.assertEqual(log["flagrant"], 1)
 
     def test_a_flagrant_is_also_a_personal_foul(self):
-        self.edit_game("2026-10-01-g1", "pts: 20, ftm: 4, fta: 5}", "pts: 20, ftm: 4, fta: 5, flagrant: 1}")
-        self.assertProblem("flagrant 1 is more than pf 0")
+        self.edit_sheet("2026-10-01-g1", lambda s: s.__setitem__(
+            "notes", [{"team": "aa", "num": 1, "q": 2, "kind": "flagrant", "text": "elbow"}]))
+        self.assertProblem("teams.aa.players.0.fouls: 1 flagrant foul in Notes, but only 0 foul boxes slashed")
 
 
 class RankingMinimumTests(SeasonFixture):
@@ -784,16 +823,16 @@ class FoulTests(SeasonFixture):
         self.assertEqual([(l["player"], l["pf"], l["tech"]) for l in box][0], ("al-a", 4, 1))
 
     def test_at_most_two_technicals(self):
-        self.edit_game("2026-10-01-g1", "pts: 20, ftm: 4, fta: 5}", "pts: 20, ftm: 4, fta: 5, tech: 3}")
-        self.assertProblem("tech 3 should be a whole number from 0 to 2")
+        self.edit_sheet("2026-10-01-g1", lambda s: self.row(s, "al-a").__setitem__("tech", 3))
+        self.assertProblem("teams.aa.players.0.tech: tech 3 should be a whole number from 0 to 2")
 
     def test_at_most_five_personal_fouls(self):
-        self.edit_game("2026-10-01-g1", "pts: 20, ftm: 4, fta: 5}", "pts: 20, ftm: 4, fta: 5, pf: 6}")
-        self.assertProblem("pf 6 should be a whole number from 0 to 5")
+        self.edit_sheet("2026-10-01-g1", lambda s: self.row(s, "al-a").__setitem__("fouls", 6))
+        self.assertProblem("teams.aa.players.0.fouls: fouls 6 should be a whole number from 0 to 5")
 
     def test_fouls_must_be_whole_numbers(self):
-        self.edit_game("2026-10-01-g1", "pts: 20, ftm: 4, fta: 5}", "pts: 20, ftm: 4, fta: 5, pf: -1}")
-        self.assertProblem("pf -1 should be a whole number from 0 to 5")
+        self.edit_sheet("2026-10-01-g1", lambda s: self.row(s, "al-a").__setitem__("fouls", -1))
+        self.assertProblem("fouls -1 should be a whole number from 0 to 5")
 
 
 class PlayerIdTests(unittest.TestCase):
@@ -880,30 +919,25 @@ class JerseyNumberTests(SeasonFixture):
 
 
 class CheckTests(SeasonFixture):
-    def test_points_must_add_up_to_final(self):
-        self.edit_game("2026-10-01-g1", "{aa: 30, bb: 20}", "{aa: 31, bb: 20}")
-        self.assertProblem("aa player points add up to 30, but the final score is 31")
+    def test_final_box_must_match_the_running_score(self):
+        self.edit_sheet("2026-10-01-g1", lambda s: s["boxes"]["aa"].__setitem__("final", 31))
+        self.assertProblem("boxes.aa.final: the Final box says 31, but the running score ends at 30")
 
-    def test_ftm_not_more_than_fta(self):
-        self.edit_game("2026-10-01-g1", "ftm: 4, fta: 5", "ftm: 6, fta: 5")
-        self.assertProblem("ftm 6 is more than fta 5")
-
-    def test_no_negative_numbers(self):
-        self.edit_game("2026-10-01-g1", "amy-b, team: aa, pts: 10, ftm: 0, fta: 2",
-                       "amy-b, team: aa, pts: 10, ftm: 0, fta: -2")
-        self.assertProblem("fta should be whole numbers, 0 or more")
+    def test_free_throw_circles_are_m_or_x(self):
+        self.edit_sheet("2026-10-01-g1", lambda s: self.row(s, "al-a").__setitem__("ft", "MMQ"))
+        self.assertProblem("teams.aa.players.0.ft: ft 'MMQ' should be the circles in order")
 
     def test_unknown_player(self):
-        self.edit_game("2026-10-01-g1", "player: amy-b", "player: amy-z")
-        self.assertProblem("player 'amy-z' is not in players.yml")
+        self.edit_sheet("2026-10-01-g1", lambda s: self.row(s, "amy-b").__setitem__("player", "amy-z"))
+        self.assertProblem("teams.aa.players.1.player: player 'amy-z' is not in players.yml")
 
     def test_unknown_team(self):
         self.write("players.yml", self.PLAYERS + "- {id: zed-z, display: Zed Z., team: zz, sub: true}\n")
         self.assertProblem("team 'zz' is not in teams.yml")
 
     def test_game_id_must_match_file_name(self):
-        self.edit_game("2026-10-01-g1", "game_id: 2026-10-01-g1", "game_id: 2026-10-01-g2")
-        self.assertProblem("doesn't match the file name")
+        self.edit_sheet("2026-10-01-g1", lambda s: s.__setitem__("game_id", "2026-10-01-g2"))
+        self.assertProblem("game_id: game_id '2026-10-01-g2' doesn't match the file name")
 
     def test_game_id_must_be_in_schedule(self):
         body = self.GAMES["2026-10-01-g1"].replace("2026-10-01-g1", "2026-10-02-g1")
@@ -915,8 +949,8 @@ class CheckTests(SeasonFixture):
         self.assertProblem("should be 'First L.'")
 
     def test_every_problem_reported_at_once(self):
-        self.edit_game("2026-10-01-g1", "ftm: 4, fta: 5", "ftm: 6, fta: 5")
-        self.edit_game("2026-10-08-g1", "player: cy-d", "player: nobody-x")
+        self.edit_sheet("2026-10-01-g1", lambda s: s["boxes"]["aa"].__setitem__("final", 31))
+        self.edit_sheet("2026-10-08-g1", lambda s: self.row(s, "cy-d").__setitem__("player", "nobody-x"))
         with self.assertRaises(bs.DataError) as ctx:
             bs.load_season(self.data, "test")
         self.assertGreaterEqual(len(ctx.exception.problems), 2)
@@ -925,7 +959,7 @@ class CheckTests(SeasonFixture):
         out = self.tmp / "computed"
         bs.build(self.data, out)
         self.assertTrue((out / "test" / "standings.json").exists())
-        self.edit_game("2026-10-01-g1", "{aa: 30, bb: 20}", "{aa: 31, bb: 20}")
+        self.edit_sheet("2026-10-01-g1", lambda s: s["boxes"]["aa"].__setitem__("final", 31))
         (out / "marker").write_text("old")
         self.assertEqual(bs.main(["--data", str(self.data), "--out", str(out), "--root", str(self.tmp / "site")]), 1)
         self.assertTrue((out / "marker").exists())                  # old output left alone

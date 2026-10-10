@@ -23,6 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import build_stats  # noqa: E402
+import sheet_rules  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 SEASON = "sample-2026-27"
@@ -331,23 +332,37 @@ def fouls(game_id, pid):
     pf = r.choices(range(6), weights=[14, 24, 26, 20, 11, 5])[0]
     tech = 1 if r.random() < 0.025 else 0
     flagrant = 1 if pf and r.random() < 0.012 else 0      # a flagrant is also one of the pf
-    return f", pf: {pf}" + (f", tech: {tech}" if tech else "") + (f", flagrant: {flagrant}" if flagrant else "")
+    return {"pf": pf, "tech": tech, "flagrant": flagrant}
 
 
-def quarters_line(game_id, scores, salt=0):
-    """`quarters:` for one game: each team's running total at the end of Q1-Q4,
-    from its final score split into four quarters of roughly equal size. A
-    Random of its own (plus `salt`, so main() can try another split), so no
-    other sample number changes. No overtime: Q4 is the final score."""
+def write_sheet(path, header, g, scores, team_lines, numbers, salt=0):
+    """One game file in the score sheet format (scripts/sheet_rules.py): the
+    known totals, laid out as a running score, free-throw circles and boxes.
+    Its own Random, so no other sample number changes."""
+    quarters = quarters_for(g["game_id"], {t: scores[t] for t in (g["home"], g["away"])}, salt)
+    players = {tid: [{"player": pid, "num": numbers[pid], "pts": pts_, "ftm": ftm, "fta": fta,
+                      **fouls(g["game_id"], pid)} for pid, pts_, ftm, fta in team_lines[tid]]
+               for tid in (g["home"], g["away"])}
+    sheet = sheet_rules.build_sheet(g["game_id"], g["home"], g["away"], quarters, players,
+                                    random.Random(f"sheet-{g['game_id']}"))
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(header)
+        fh.write(sheet_rules.dump(sheet))
+
+
+def quarters_for(game_id, scores, salt=0):
+    """Each team's running total at the end of Q1-Q4, from its final score
+    split into four quarters of roughly equal size. A Random of its own (plus
+    `salt`, so main() can try another split), so no other sample number
+    changes. No overtime: Q4 is the final score."""
     r = random.Random(f"quarters-{salt}-{game_id}")
-    parts = []
+    out = {}
     for tid, total in scores.items():
         weights = [r.uniform(0.75, 1.25) for _ in range(build_stats.QUARTERS)]
         per = [int(total * w / sum(weights)) for w in weights]
         per[r.randrange(len(per))] += total - sum(per)
-        running = [sum(per[:i + 1]) for i in range(len(per))]
-        parts.append(f"{tid}: [{', '.join(map(str, running))}]")
-    return "quarters: {" + ", ".join(parts) + "}\n"
+        out[tid] = [sum(per[:i + 1]) for i in range(len(per))]
+    return out
 
 
 def jersey_numbers(tid, pids):
@@ -376,11 +391,13 @@ def write_files(weeks, played, scores, players, present, pts, ft, salt=0):
 
     write_teams(OUT, header)
 
+    all_numbers = {}
     with open(OUT / "players.yml", "w", encoding="utf-8") as fh:
         fh.write(header)
         for tid, *_ in TEAMS:
             team_ids = [pid for pid, p in players.items() if p["team"] == tid]
             numbers = jersey_numbers(tid, team_ids)
+            all_numbers.update(numbers)
             for pid in team_ids:
                 p = players[pid]
                 fh.write(f"- {{id: {pid}, display: {p['display']}, team: {tid}, "
@@ -393,21 +410,11 @@ def write_files(weeks, played, scores, players, present, pts, ft, salt=0):
                 fh.write(f"{g['game_id']},{g['date']},{g['time']},{GYM},{g['home']},{g['away']},regular,{g['week']},,\n")
 
     for key, g in played.items():
-        s = scores[key]
-        lines = []
+        team_lines = {}
         for tid in (g["home"], g["away"]):
             here = sorted(present[(key, tid)], key=lambda p: (-pts[(key, p)], p))
-            for p in here:
-                m, a = ft[(key, p)]
-                lines.append(f"  - {{player: {p}, team: {tid}, pts: {pts[(key, p)]}, ftm: {m}, fta: {a}"
-                             f"{fouls(g['game_id'], p)}}}\n")
-        with open(OUT / "games" / f"{g['game_id']}.yml", "w", encoding="utf-8") as fh:
-            fh.write(header)
-            fh.write(f"game_id: {g['game_id']}\ndate: {g['date']}\nhome: {g['home']}\naway: {g['away']}\n"
-                     f"type: regular\nfinal: {{{g['home']}: {s[g['home']]}, {g['away']}: {s[g['away']]}}}\n")
-            fh.write(quarters_line(g["game_id"], {t: s[t] for t in (g["home"], g["away"])}, salt))
-            fh.write("lines:\n")
-            fh.writelines(lines)
+            team_lines[tid] = [(p, pts[(key, p)], *ft[(key, p)]) for p in here]
+        write_sheet(OUT / "games" / f"{g['game_id']}.yml", header, g, scores[key], team_lines, all_numbers, salt)
 
 
 def check_against_mockups(out):
@@ -497,10 +504,12 @@ def write_past_season():
 
     rosters = {tid: [pid_for(d) for d in names[:8] + names[-1:]] for tid, names in ROSTERS.items()}
     display = {pid_for(d): d for names in ROSTERS.values() for d in names}
+    all_numbers = {}
     with open(PAST_OUT / "players.yml", "w", encoding="utf-8") as fh:
         fh.write(header)
         for tid, *_ in TEAMS:
             numbers = jersey_numbers(tid, rosters[tid])
+            all_numbers.update(numbers)
             for i, pid in enumerate(rosters[tid]):
                 fh.write(f"- {{id: {pid}, display: {display[pid]}, team: {tid}, "
                          f"sub: {'true' if i == len(rosters[tid]) - 1 else 'false'}, number: {numbers[pid]}}}\n")
@@ -536,18 +545,8 @@ def write_past_season():
         for g in schedule:
             fh.write(f"{g['game_id']},{g['date']},{g['time']},{GYM},{g['home']},{g['away']},{g['type']},{g['week']},,\n")
     for g, scores in results:
-        lines = []
-        for tid in (g["home"], g["away"]):
-            for pid, pts_, ftm, fta in past_lines(rng, rosters[tid], scores[tid]):
-                lines.append(f"  - {{player: {pid}, team: {tid}, pts: {pts_}, ftm: {ftm}, fta: {fta}"
-                             f"{fouls(g['game_id'], pid)}}}\n")
-        with open(PAST_OUT / "games" / f"{g['game_id']}.yml", "w", encoding="utf-8") as fh:
-            fh.write(header)
-            fh.write(f"game_id: {g['game_id']}\ndate: {g['date']}\nhome: {g['home']}\naway: {g['away']}\n"
-                     f"type: {g['type']}\nfinal: {{{g['home']}: {scores[g['home']]}, {g['away']}: {scores[g['away']]}}}\n")
-            fh.write(quarters_line(g["game_id"], {t: scores[t] for t in (g["home"], g["away"])}))
-            fh.write("lines:\n")
-            fh.writelines(lines)
+        team_lines = {tid: past_lines(rng, rosters[tid], scores[tid]) for tid in (g["home"], g["away"])}
+        write_sheet(PAST_OUT / "games" / f"{g['game_id']}.yml", header, g, scores, team_lines, all_numbers)
     build_stats.load_season(ROOT / "data", PAST_SEASON)       # raises if any check fails
     print(f"Wrote {PAST_OUT.relative_to(ROOT)}/ ({len(results)} games, final won by {champion})")
 

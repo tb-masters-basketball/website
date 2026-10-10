@@ -44,6 +44,7 @@ from pathlib import Path
 import yaml
 
 import calendars
+import sheet_rules
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -62,7 +63,7 @@ SCHEDULE_COLUMNS = ["game_id", "date", "time", "gym", "home", "away", "type", "w
 GAME_STATUSES = ("", "cancelled")
 # Optional per-player fouls in a game file, as on the score sheet: 5 personal
 # foul boxes and 2 technical (T) boxes. Personal fouls are kept but not shown.
-FOUL_LIMITS = {"pf": 5, "tech": 2}
+FOUL_LIMITS = {"pf": sheet_rules.MAX_FOULS, "tech": sheet_rules.MAX_TECH}
 # Flagrant fouls (from the sheet's Notes) are optional too. A flagrant is also a
 # personal foul, so a player's flagrant count can't be more than their pf.
 # Like technicals, the site counts them for the whole season, playoffs included.
@@ -433,175 +434,29 @@ def load_schedule(season_dir, teams, problems):
     return schedule
 
 
-def load_games(season_dir, teams, players, schedule, problems):
+def load_games(season_dir, teams, players, schedule, problems, warnings=None):
+    """Every finished game: data/<season>/games/*.yml, digital copies of the
+    paper score sheets (see data/CLAUDE.md). scripts/sheet_rules.py checks each
+    one and works out the lines; its errors become problems here, its warnings
+    are passed on. Drafts (data/<season>/drafts/) are never read."""
     games = {}
     games_dir = season_dir / "games"
     paths = sorted(games_dir.glob("*.yml")) + sorted(games_dir.glob("*.yaml"))
+    ctx = {"folder": "games", "teams": teams, "players": players, "schedule": schedule}
     for path in paths:
-        game = _read_yaml(path, problems)
-        if game is None:
+        sheet = _read_yaml(path, problems)
+        if sheet is None:
             continue
-        if not isinstance(game, dict):
-            problems.append(f"{path}: should be a mapping")
-            continue
-        before = len(problems)
-        _check_game(path, game, teams, players, schedule, problems)
-        if len(problems) == before:
+        game, found = sheet_rules.check(sheet, {**ctx, "stem": path.stem})
+        for p in found:
+            where = f"{path}: {p['at']}" if p["at"] else f"{path}"
+            if p["level"] == "error":
+                problems.append(f"{where}: {p['message']}")
+            elif warnings is not None:
+                warnings.append(f"{where}: {p['message']}")
+        if game is not None:
             games[game["game_id"]] = game
     return games
-
-
-def _check_game(path, game, teams, players, schedule, problems):
-    gid = game.get("game_id")
-    where = f"{path}"
-    if gid != path.stem:
-        problems.append(f"{where}: game_id {gid!r} doesn't match the file name '{path.stem}'")
-        return
-    row = schedule.get(gid)
-    if row is None:
-        problems.append(f"{where}: game_id '{gid}' has no row in schedule.csv")
-        return
-    if not row["teams_known"]:
-        problems.append(f"{where}: schedule.csv still lists this game as {row['home']} vs {row['away']}. "
-                        "Put the two teams' ids in its home and away cells first")
-        return
-    if row["cancelled"]:
-        problems.append(f"{where}: game '{gid}' is marked cancelled in schedule.csv. "
-                        "Delete this file, or clear the status if the game was played")
-        return
-
-    date = game.get("date")
-    if isinstance(date, dt.datetime):
-        date = date.date()
-    if not isinstance(date, dt.date):
-        try:
-            date = dt.date.fromisoformat(str(date))
-        except ValueError:
-            problems.append(f"{where}: date {game.get('date')!r} should be YYYY-MM-DD")
-            date = None
-    if date is not None and date != row["date"]:
-        problems.append(f"{where}: date {date} doesn't match schedule.csv ({row['date']})")
-
-    home, away = game.get("home"), game.get("away")
-    for side, tid in (("home", home), ("away", away)):
-        if tid not in teams:
-            problems.append(f"{where}: {side} team {tid!r} is not in teams.yml")
-    if (home, away) != (row["home"], row["away"]):
-        problems.append(
-            f"{where}: home/away {home}/{away} doesn't match schedule.csv "
-            f"({row['home']}/{row['away']})"
-        )
-    if game.get("type") != row["type"]:
-        problems.append(f"{where}: type {game.get('type')!r} doesn't match schedule.csv ({row['type']})")
-
-    final = game.get("final")
-    if not isinstance(final, dict) or set(final) != {home, away}:
-        problems.append(f"{where}: final should list exactly the two teams, like {{{home}: 71, {away}: 64}}")
-        return
-    for tid, score in final.items():
-        if not _is_count(score):
-            problems.append(f"{where}: final score for {tid} should be a whole number, 0 or more")
-            return
-    if final[home] == final[away]:
-        problems.append(f"{where}: final score is tied {final[home]}-{final[away]}")
-    _check_quarters(where, game, home, away, final, problems)
-
-    lines = game.get("lines")
-    if not isinstance(lines, list) or not lines:
-        problems.append(f"{where}: 'lines' should list each player on the sheet")
-        return
-    sums = {home: 0, away: 0}
-    seen = set()
-    for i, line in enumerate(lines, start=1):
-        lw = f"{where}: line {i}"
-        if not isinstance(line, dict):
-            problems.append(f"{lw}: should look like {{player: dave-m, team: pa, pts: 24, ftm: 6, fta: 7}}")
-            continue
-        pid, tid = line.get("player"), line.get("team")
-        lw = f"{lw} ({pid})"
-        if pid not in players:
-            problems.append(f"{lw}: player {pid!r} is not in players.yml")
-        if pid in seen:
-            problems.append(f"{lw}: player is listed twice in this game")
-        seen.add(pid)
-        if tid not in teams:
-            problems.append(f"{lw}: team {tid!r} is not in teams.yml")
-        elif tid not in (home, away):
-            problems.append(f"{lw}: team '{tid}' isn't playing in this game")
-        nums = {k: line.get(k) for k in ("pts", "ftm", "fta")}
-        bad = [k for k, v in nums.items() if not _is_count(v)]
-        if bad:
-            problems.append(f"{lw}: {', '.join(bad)} should be whole numbers, 0 or more")
-            continue
-        # optional fouls from the sheet: pf (5 boxes) and tech (2 T boxes); missing means 0
-        for key, most in FOUL_LIMITS.items():
-            value = line.get(key, 0)
-            if not _is_count(value) or value > most:
-                problems.append(f"{lw}: {key} {value!r} should be a whole number from 0 to {most}")
-            else:
-                line[key] = value
-        # flagrant fouls (from the sheet's Notes): each one is also a personal foul
-        flagrant = line.get("flagrant", 0)
-        if not _is_count(flagrant):
-            problems.append(f"{lw}: flagrant {flagrant!r} should be a whole number, 0 or more")
-        elif _is_count(line.get("pf", 0)) and flagrant > line.get("pf", 0):
-            problems.append(f"{lw}: flagrant {flagrant} is more than pf {line.get('pf', 0)} "
-                            "(a flagrant foul is also a personal foul, so count it in pf too)")
-        else:
-            line["flagrant"] = flagrant
-        if nums["ftm"] > nums["fta"]:
-            problems.append(f"{lw}: ftm {nums['ftm']} is more than fta {nums['fta']}")
-        if nums["ftm"] > nums["pts"]:
-            problems.append(f"{lw}: ftm {nums['ftm']} is more than pts {nums['pts']}")
-        elif nums["pts"] - nums["ftm"] == 1:
-            problems.append(
-                f"{lw}: pts {nums['pts']} with ftm {nums['ftm']} leaves 1 point from field goals"
-            )
-        if tid in sums:
-            sums[tid] += nums["pts"]
-    for tid in (home, away):
-        if tid in final and sums[tid] != final[tid]:
-            problems.append(
-                f"{where}: {tid} player points add up to {sums[tid]}, but the final score is {final[tid]}"
-            )
-
-
-def _check_quarters(where, game, home, away, final, problems):
-    """`quarters`: each team's running total at the end of Q1-Q4, like the
-    sheet's Q1-Q4 boxes. They must climb (or stay level), and Q4 must equal the
-    final score unless the game went to overtime (Q4 tied, then more points)."""
-    example = f"{{{home}: [18, 38, 53, {final[home]}], {away}: [16, 30, 49, {final[away]}]}}"
-    quarters = game.get("quarters")
-    if quarters is None:
-        problems.append(f"{where}: quarters is missing. Add each team's running total at the end of "
-                        f"each quarter, from the sheet's Q1-Q4 boxes, e.g. quarters: {example}")
-        return
-    if not isinstance(quarters, dict) or set(quarters) != {home, away}:
-        problems.append(f"{where}: quarters should list exactly the two teams, like {example}")
-        return
-    for tid in (home, away):
-        totals = quarters[tid]
-        if (not isinstance(totals, list) or len(totals) != QUARTERS
-                or not all(_is_count(t) for t in totals)):
-            problems.append(f"{where}: quarters for {tid} should be {QUARTERS} whole numbers "
-                            f"(the running total at the end of Q1, Q2, Q3 and Q4)")
-            return
-        if any(b < a for a, b in zip(totals, totals[1:])):
-            problems.append(f"{where}: quarters for {tid} {totals} go down; each is the running "
-                            "total at the end of that quarter, so it can only stay level or climb")
-            return
-        if totals[-1] > final[tid]:
-            problems.append(f"{where}: {tid}'s Q4 total {totals[-1]} is more than its final score {final[tid]}")
-            return
-    q4 = {tid: quarters[tid][-1] for tid in (home, away)}
-    if q4 != {home: final[home], away: final[away]}:
-        if q4[home] != q4[away]:
-            problems.append(
-                f"{where}: the Q4 totals ({home} {q4[home]}, {away} {q4[away]}) don't match the final "
-                f"score ({final[home]}-{final[away]}). They only differ after overtime, which needs "
-                "the score tied at the end of Q4")
-            return
-    game["ot"] = q4 != {home: final[home], away: final[away]}
 
 
 def find_sheet(season_dir, gid):
@@ -623,13 +478,15 @@ def load_season(data_dir, season_id, gym=None, minimums=None):
     teams = load_teams(season_dir, problems)
     players = load_players(season_dir, teams, problems)
     schedule = load_schedule(season_dir, teams, problems)
-    games = load_games(season_dir, teams, players, schedule, problems)
+    warnings = []
+    games = load_games(season_dir, teams, players, schedule, problems, warnings)
     if problems:
         raise DataError(problems)
     for gid, game in games.items():
         game["sheet_path"] = find_sheet(season_dir, gid)
     return {"id": season_id, "gym": gym, "teams": teams, "players": players, "schedule": schedule,
-            "games": games, "publish_sheets": False, "minimums": {**SEASON_MINIMUMS, **(minimums or {})}}
+            "games": games, "publish_sheets": False, "minimums": {**SEASON_MINIMUMS, **(minimums or {})},
+            "warnings": warnings}
 
 
 # --------------------------------------------------------------- computation
@@ -1230,6 +1087,7 @@ def build(data_dir, out_dir, write=True, config=None, root=None):
         flag = " (sample data)" if s.get("sample") else ""
         summary.append(f"{s['id']}{flag}: {len(loaded['teams'])} teams, {len(loaded['players'])} players, "
                        f"{played} games played, {progress}")
+        summary += [f"  warning: {w.replace(str(ROOT) + '/', '')}" for w in loaded["warnings"]]
     if problems:
         raise DataError(problems)
 

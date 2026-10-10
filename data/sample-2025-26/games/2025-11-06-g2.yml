@@ -1,25 +1,37 @@
 # Sample data from scripts/make_sample_season.py. Not real.
-game_id: 2025-11-06-g2
-date: 2025-11-06
+game_id: "2025-11-06-g2"
+form: MBL-SS6
+status: final
 home: cr
 away: lh
-type: regular
-final: {cr: 65, lh: 51}
-quarters: {cr: [18, 35, 47, 65], lh: [13, 26, 38, 51]}
+teams:
+  cr:
+    players:
+      - {player: tom-g, num: 6, here: true, fouls: 2}
+      - {player: chris-b, num: 27, here: true, ft: X, fouls: 3}
+      - {player: rob-k, num: 14, here: true, ft: MXMM, fouls: 3}
+      - {player: scott-a, num: 3, here: true, ft: MXM, fouls: 1}
+      - {player: neil-f, num: 53, here: true, ft: X, fouls: 1, tech: 1}
+      - {player: jason-p, num: 54, here: true, ft: XMM}
+      - {player: luc-b, num: 8, here: true, fouls: 1}
+      - {player: pete-s, num: 12, here: true, ft: MM, fouls: 2}
+  lh:
+    players:
+      - {player: lorne-k, num: 36, here: true, ft: XMM, fouls: 3}
+      - {player: craig-s, num: 47, here: true, ft: XMXM}
+      - {player: todd-b, num: 40, here: true, fouls: 3}
+      - {player: andre-g, num: 4, here: true, ft: M, fouls: 1}
+      - {player: pat-o, num: 25, here: true, ft: M, fouls: 5}
+      - {player: brad-e, num: 39, here: true, fouls: 3}
+      - {player: mike-r, num: 42, here: true, ft: XX, fouls: 2}
+      - {player: dan-h, num: 21, here: true, ft: M, fouls: 3}
+running:
+  cr: {2: 27, 5: 53, 6: 12, 7: 12, 9: 6, 11: 53, 14: 14, 15: 54, 18: 6, 20: 6, 23: 14, 25: 3, 27: 3, 29: 8, 31: 27, 32: 54, 35: 6, 37: 3, 39: 27, 41: 14, 44: 27, 47: 6, 49: 14, 51: 27, 53: 27, 54: 3, 56: 3, 57: 14, 59: 3, 62: 6, 63: 14, 64: 14, 65: 3}
+  lh: {2: 25, 3: 47, 6: 47, 7: 47, 9: 36, 11: 39, 12: 36, 13: 36, 15: 36, 16: 25, 19: 4, 21: 25, 23: 47, 25: 42, 26: 21, 29: 40, 31: 47, 33: 40, 35: 40, 36: 4, 38: 36, 40: 4, 42: 4, 44: 36, 46: 40, 49: 39, 51: 25}
 lines:
-  - {player: tom-g, team: cr, pts: 16, ftm: 0, fta: 0, pf: 2}
-  - {player: chris-b, team: cr, pts: 13, ftm: 0, fta: 1, pf: 3}
-  - {player: rob-k, team: cr, pts: 13, ftm: 3, fta: 4, pf: 3}
-  - {player: scott-a, team: cr, pts: 12, ftm: 2, fta: 3, pf: 1}
-  - {player: neil-f, team: cr, pts: 5, ftm: 0, fta: 1, pf: 1, tech: 1}
-  - {player: jason-p, team: cr, pts: 2, ftm: 2, fta: 3, pf: 0}
-  - {player: luc-b, team: cr, pts: 2, ftm: 0, fta: 0, pf: 1}
-  - {player: pete-s, team: cr, pts: 2, ftm: 2, fta: 2, pf: 2}
-  - {player: lorne-k, team: lh, pts: 10, ftm: 2, fta: 3, pf: 3}
-  - {player: craig-s, team: lh, pts: 9, ftm: 2, fta: 4, pf: 0}
-  - {player: todd-b, team: lh, pts: 9, ftm: 0, fta: 0, pf: 3}
-  - {player: andre-g, team: lh, pts: 8, ftm: 1, fta: 1, pf: 1}
-  - {player: pat-o, team: lh, pts: 7, ftm: 1, fta: 1, pf: 5}
-  - {player: brad-e, team: lh, pts: 5, ftm: 0, fta: 0, pf: 3}
-  - {player: mike-r, team: lh, pts: 2, ftm: 0, fta: 2, pf: 2}
-  - {player: dan-h, team: lh, pts: 1, ftm: 1, fta: 1, pf: 3}
+  cr: [18, 35, 47, 65]
+  lh: [13, 26, 38, 51]
+boxes:
+  cr: {q1: 18, q2: 35, q3: 47, q4: 65, ot: null, final: 65}
+  lh: {q1: 13, q2: 26, q3: 38, q4: 51, ot: null, final: 51}
+checked_by: Sam P.
