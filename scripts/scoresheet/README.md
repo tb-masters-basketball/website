@@ -1,6 +1,6 @@
 # Score sheets
 
-`scoresheet.py` makes the printable league score sheet (form MBL-SS5) as a
+`scoresheet.py` makes the printable league score sheet (form MBL-SS6) as a
 fillable PDF. It comes in four layouts: portrait or landscape, Letter or Legal.
 The scorekeeper can pick whichever they like. All four have the same parts, so
 `/record-game` reads them the same way.
@@ -13,9 +13,15 @@ The scorekeeper can pick whichever they like. All four have the same parts, so
   - name ("First L.")
   - 10 **free throw circles**: filled means made, slashed means missed
   - 5 **personal foul** boxes and 2 red **T** boxes for technicals
-- **Under each roster:** team fouls for each half, timeouts, and the score by half and the final score.
-- **Running score from 1 to 100:** the totals run down the middle, with the home scorer's number on the left and the away scorer's on the right.
-- **Page 2, for printing on the back:** carries on in case it's needed, with the running score from 101 to 200 and free throws 11 to 20 for each player. Leave it out with `--front-only`.
+- **Beside each team name:** 3 timeout circles.
+- **Under each roster:** team fouls for each quarter (Q1 to Q4, 5 boxes each), then the score at the end of each quarter (the running total at that point), after overtime (OT), and the final score.
+- **Notes** (page 1): for flagrant fouls (team, player number, quarter, what happened) and anything else worth knowing.
+- **Running score from 1 to 100:** the totals run down the middle, with the home scorer's number on the left and the away scorer's on the right. A line under each team's last number marks the end of each quarter.
+- **Page 2, for printing on the back:**
+  - **How to mark**, the scorekeeper's instructions, in large type.
+  - The running score carries on from 101 with one column fewer than page 1: to 180 on portrait Letter, to 175 on the other layouts.
+  - Free throws 11 to 20 for each player.
+  - Leave the page out with `--front-only`.
 - **Corner squares** so a photo can be straightened.
 
 ## How stats come from a sheet
@@ -27,7 +33,14 @@ The scorekeeper can pick whichever they like. All four have the same parts, so
 | GP | **Here** ticks. |
 | PF | Slashed foul boxes in the player's row (0 to 5). The website keeps them but doesn't show them. |
 | Techs | Slashed red **T** boxes in the player's row (0 to 2). The website counts them for the whole season, playoffs included. |
-| Checks | The last running total equals the Final box. Halftime totals equal the half boxes. Player points add up to the team score. |
+| Quarter scores | The **Q1 to Q4** boxes: each team's running total at the end of each quarter (and **OT** after overtime). A quarter's points are the difference from the quarter before. |
+| Flagrant fouls | **Notes** on page 1: team, player number and quarter for each one. |
+| Checks | The last running total equals the Final box. Each quarter box equals the running total at that quarter's line. Player points add up to the team score. |
+
+Team fouls and timeouts are for the game itself and aren't recorded on the website.
+
+Form **MBL-SS6** (October 2026) replaced MBL-SS5, which had halves instead of
+quarters and the instructions on page 1.
 
 ## Commands
 ```

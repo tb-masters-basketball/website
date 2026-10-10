@@ -76,5 +76,26 @@ class LoadGamesTests(unittest.TestCase):
         self.assertEqual(subprocess.run(cmd + ["--allow-empty"], capture_output=True).returncode, 0)
 
 
+@unittest.skipIf(scoresheet is None, "reportlab isn't installed")
+class LayoutTests(unittest.TestCase):
+    """Form MBL-SS6: page 1 runs 1-100; page 2 carries on with one column fewer."""
+
+    def test_form_and_page_two_totals(self):
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            expected = {("portrait", "letter"): 180, ("portrait", "legal"): 175,
+                        ("landscape", "letter"): 175, ("landscape", "legal"): 175}
+            for (orient, size), last in expected.items():
+                sheet = scoresheet.ScoreSheet(str(tmp / f"{orient}-{size}.pdf"), size, orient)
+                sheet.add_page({})
+                sheet.save()
+                self.assertEqual(sheet.back_last, last, (orient, size))
+                self.assertEqual(sheet.pages, 1)
+            self.assertEqual(scoresheet.FORM, "MBL-SS6")
+            self.assertEqual(scoresheet.QUARTERS, ("Q1", "Q2", "Q3", "Q4"))
+        finally:
+            shutil.rmtree(tmp)
+
+
 if __name__ == "__main__":
     unittest.main()

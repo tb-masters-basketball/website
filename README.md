@@ -51,7 +51,7 @@ Today a volunteer types each game into a YAML file by hand
 slash command, `/record-game`, that turns a photo or scan of the paper score
 sheet into that file and a pull request:
 
-1. **The sheet is ready:** form MBL-SS5, from `scripts/scoresheet/scoresheet.py`
+1. **The sheet is ready:** form MBL-SS6, from `scripts/scoresheet/scoresheet.py`
    ([README](scripts/scoresheet/README.md)). It has corner squares for
    straightening a photo, and the Schedule page links each game day's
    pre-filled sheet. Still needed: a photo of a real, filled-in one to build
@@ -61,7 +61,11 @@ sheet into that file and a pull request:
    - running score jumps give each player's points
    - filled and slashed circles give FTM and FTA
    - slashed foul boxes give `pf`, slashed red T boxes give `tech`
-   - check: last running total = Final box; player points add up to it
+   - the Q1 to Q4 (and OT) boxes give each team's running total at the end of
+     each quarter, for the quarter scores
+   - **Notes** on page 1 give flagrant fouls (team, player number, quarter)
+   - check: last running total = Final box; each quarter box = the running
+     total at that quarter's line; player points add up to the final
 3. **Match names to player ids** in `players.yml`:
    - Player ids are matched by **team, then first name and last initial**
      ("Dave M." on Hustle is `dave-m`). Jersey numbers are kept only in
@@ -386,7 +390,7 @@ data/                    league data: the only thing edited week to week
 scripts/
   build_stats.py         checks the data; writes JSON, stub pages, calendars
   calendars.py           the .ics files
-  scoresheet/            the score sheet generator (form MBL-SS5): README, fonts, example data
+  scoresheet/            the score sheet generator (form MBL-SS6): README, fonts, example data
   make_score_sheets.sh   score sheet PDFs for the season shown (CI)
   make_sample_season.py  regenerates the sample seasons
   check_links.sh         link check (CI)
