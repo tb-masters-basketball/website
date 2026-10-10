@@ -5,6 +5,7 @@ home: fw
 away: cr
 type: regular
 final: {fw: 56, cr: 57}
+quarters: {fw: [15, 28, 42, 56], cr: [14, 25, 43, 57]}
 lines:
   - {player: paul-l, team: fw, pts: 15, ftm: 1, fta: 1, pf: 1}
   - {player: glen-a, team: fw, pts: 14, ftm: 1, fta: 2, pf: 2}

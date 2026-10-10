@@ -20,7 +20,7 @@ rule isn't written here yet, it shows as [placeholder].
 
 ## Game format
 
-- **Length:** [placeholder: halves or quarters, and how long each is]
+- **Length:** four quarters. [placeholder: how long each quarter is]
 - **Clock:** [placeholder: running or stopped clock, and when it stops]
 - **Timeouts:** [placeholder: how many per team, and how long]
 - **Overtime:** [placeholder]
@@ -52,12 +52,19 @@ included, on their player page and at the bottom of the Stats page.
 
 ## Standings and tiebreakers
 
-Teams are ranked by winning percentage.
+Teams are ranked by points. In each regular-season game a team gets:
 
+- **1 point for each quarter it wins** (it scores more than the other team in that quarter)
+- **3 points for winning the game**
+
+So a team can earn up to 7 points a game.
+
+- **Tied quarters:** neither team gets a point. [to be confirmed]
+- **Overtime:** doesn't count as a quarter; it only decides who wins the game. [to be confirmed]
 - **Tiebreakers:** [placeholder]
 
-Until the league decides, the site breaks ties by head-to-head record, then
-point differential, and says so under the standings.
+Until the league decides, the site orders teams level on points by
+head-to-head record, then point differential, and says so under the standings.
 
 ## Playoffs
 

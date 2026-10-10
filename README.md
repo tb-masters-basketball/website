@@ -34,9 +34,12 @@ The full list, with answers so far, is in
 - [ ] **Technical foul rules.** What happens after two in a game, or a number
       in a season? The site counts technicals (playoffs included) but flags
       nothing until this is decided.
-- [ ] **Standings tiebreakers**, including three-way ties. Until then the site
-      uses head-to-head, then point differential, and says so under the
-      standings.
+- [ ] **Standings tiebreakers**, including three-way ties, for teams level on
+      points. Until then the site uses head-to-head, then point differential,
+      and says so under the standings.
+- [ ] **Tied quarters and overtime (to confirm).** Standings points are 1 per
+      quarter won and 3 per win. The site assumes a tied quarter gives neither
+      team a point, and that overtime isn't a quarter.
 - [ ] **Playoff matchups.** The play-in (G41, Wed Apr 21) is "TBD vs TBD" in
       `schedule.csv`. Fill in each playoff row as the standings decide it.
 - [ ] **League contact for the footer.** Set `contact_url` in `_config.yml`
@@ -78,7 +81,8 @@ sheet into that file and a pull request:
    - Never write a full name; players are always "First L.".
 4. **Write the files:**
    - `data/2026-27/games/<game_id>.yml`, with the id taken from `schedule.csv`
-     by date and teams
+     by date and teams, including `quarters` (the Q1 to Q4 boxes) and any
+     `flagrant` fouls from Notes
    - the photo as `data/2026-27/sheets/<game_id>.jpg`
 5. **Run the checks** (`python scripts/build_stats.py --check`) and fix
    anything they report, such as points that don't add up to the final.
@@ -143,6 +147,8 @@ flowchart LR
     F --> G
     S --> G
     G --> H["_site/"]
+    G --> PV["_site/preview/<br/>same pages, sample season"]
+    PV --> I
     H --> I["link check"]
     I --> J["GitHub Pages<br/>mastersbasketball.ca"]
 ```
@@ -156,7 +162,9 @@ flowchart LR
    - one tiny "stub" page per game, player, team and archived season
    - the calendar files
 3. **Jekyll builds the pages.** Templates read the JSON and the stubs and
-   produce plain HTML in `_site/`. No number is typed into a template.
+   produce plain HTML in `_site/`. No number is typed into a template. A second
+   build makes the hidden preview copy from the sample season in
+   `_site/preview/` (`scripts/build_preview.sh`).
 4. **A link check** (`scripts/check_links.sh`) fails the build if any page,
    image, stylesheet or script is missing.
 5. **GitHub Actions publishes `_site/`** to GitHub Pages, but only from `main`
@@ -174,12 +182,12 @@ generated is committed: `_data/computed/`, the stub folders, `calendar/` and
 | `data/<season>/teams.yml` | Team id (2 letters), name, 2-letter code, colour slot (1–5) | hand, once a season |
 | `data/<season>/players.yml` | Player id (`mike-r`), display name ("Mike R."), team, `sub`, jersey `number` (the roster: the only place numbers live) | hand or `/record-game` |
 | `data/<season>/schedule.csv` | One row per game: id, date, time, gym, home, away, `regular`/`playoff`, week, optional `status` (`cancelled`) and `round` (playoff round name) | hand |
-| `data/<season>/games/<game_id>.yml` | One file per played game: final score and a line per player (points, FTM, FTA) | hand or `/record-game` |
+| `data/<season>/games/<game_id>.yml` | One file per played game: final score, `quarters` (each team's running total at the end of Q1–Q4) and a line per player (points, FTM, FTA, and fouls: `pf`, `tech`, `flagrant`) | hand or `/record-game` |
 | `data/<season>/sheets/<game_id>.jpg` | Photo of the paper sheet, kept for checking (not published) | hand or `/record-game` |
 | `_config.yml` | `sample_data` (show the fake season), `score_sheet_links` (publish photos), `preview_site` (the sample copy at `/preview/`), `contact_url`, `search_engines` (off: pages ask not to be listed by Google), the domain | hand, rarely |
 
-The file formats, id rules and stat rules (GP, PPG, FT%, standings, rounding,
-tiebreakers) are in [`data/CLAUDE.md`](data/CLAUDE.md). The seasons are:
+The file formats, id rules and stat rules (GP, PPG, FT%, standings points,
+rounding, tiebreakers) are in [`data/CLAUDE.md`](data/CLAUDE.md). The seasons are:
 - **`2026-27`:** the real, current season.
 - **`sample-2026-27` and `sample-2025-26`:** made-up data from
   `scripts/make_sample_season.py`. They're only shown when `sample_data: true`.
@@ -189,7 +197,11 @@ tiebreakers) are in [`data/CLAUDE.md`](data/CLAUDE.md). The seasons are:
 **Checks.** Every problem is reported at once, and nothing is written until
 there are none:
 - Each team's player points add up to its final score, and there are no ties.
+- `quarters` has 4 running totals per team that never go down, and Q4 equals
+  the final score (or is tied, when the game went to overtime).
 - `ftm ≤ fta`, `ftm ≤ pts`, and no field goals worth 1 point.
+- Fouls fit the sheet (`pf` 0–5, `tech` 0–2), and `flagrant ≤ pf` (a flagrant
+  is also a personal foul).
 - Every player, team and game id exists and is unique.
 - A game file matches its `schedule.csv` row (date, teams, type).
 - No game file for a cancelled game, or for a playoff game whose teams are
@@ -203,16 +215,18 @@ there are none:
 | File | Contents |
 |---|---|
 | `teams.json` | name, code, colour slot per team |
-| `standings.json` | W, L, PCT, GB, PF, PA, DIFF, rank; tiebreak notes; "through week N" |
-| `players.json` | each player's totals: GP, PTS, PPG, FTM, FTA, FT%, season high; PF (kept, not shown); technical fouls for the whole season, playoffs included |
-| `leaders.json` | PPG and FT% leaders (FT% needs 10+ attempts); everyone with a technical foul |
+| `standings.json` | PTS (standings points), W, L, QW (quarters won), PCT, PF, PA, DIFF, rank; tiebreak notes; "through week N" |
+| `players.json` | each player's totals: GP, PTS, PPG, FTM, FTA, FT%, season high; PF (kept, not shown); technical and flagrant fouls for the whole season, playoffs included |
+| `leaders.json` | PPG and FT% leaders (the minimums `ppg_min_games` and `ft_min_attempts` come from `seasons.yml`); everyone with a technical foul; everyone with a flagrant foul |
 | `rankings.json` | every player with their rank in each stat, for the Stats page |
-| `games.json` | every played game's box score |
+| `games.json` | every played game's box score, with the points in each quarter, quarters won and the standings points earned |
 | `game_logs.json` | each player's game-by-game lines |
 | `schedule.json` | game days (weeks) with their games, byes, played/cancelled state, and which week is latest and next |
 | `playoffs.json` | playoff games and totals, kept apart from the regular season |
 
-Playoff games never count toward regular-season stats or standings.
+Playoff games never count toward regular-season stats or standings. Standings
+points are 1 per quarter won and 3 per win (`POINTS_PER_QUARTER` and
+`POINTS_PER_WIN` in `build_stats.py`).
 
 **Chooses the active season** and writes `_data/computed/active.json`: the
 `current` season, or its sample stand-in while `sample_data: true`. It also
@@ -249,9 +263,9 @@ Two small includes turn that into the variables every template uses:
 
 | URL | File | Shows |
 |---|---|---|
-| `/` | `index.html` | latest results, standings, next game day, leaders |
+| `/` | `index.html` | latest results, standings (by points), next game day, leaders |
 | `/schedule/` | `schedule/index.html` | upcoming game days (each with its score sheet PDF), then results; cancelled games; calendar links; blank score sheets |
-| `/stats/` | `stats/index.html` | ranked list (PPG / Points / FT %, by team); full table at `#stats-table`; technical fouls list at the bottom |
+| `/stats/` | `stats/index.html` | ranked list (PPG / Points / FT %, by team); full table at `#stats-table`; technical and flagrant foul lists at the bottom |
 | `/teams/` | `teams/index.html` | a card per team |
 | `/archive/` | `archive/index.html` | a card per season |
 | `/rules/` | `rules/index.md` (layout `text`) | the league rules, written in Markdown; linked from the footer |
@@ -262,9 +276,9 @@ collections; their `defaults` give each stub a layout and a nav tab.
 
 | URL | Stub folder | Layout | Shows |
 |---|---|---|---|
-| `/games/<game_id>/` | `_games/` | `_layouts/game.html` | box score: both teams, every player, top scorer |
-| `/players/<id>/` | `_players/` | `_layouts/player.html` | totals, points-by-game-day bars, game log |
-| `/teams/<id>/` | `_teams/` | `_layouts/team.html` | record, roster, results, upcoming games, calendar |
+| `/games/<game_id>/` | `_games/` | `_layouts/game.html` | box score: score by quarter, both teams, every player, top scorer |
+| `/players/<id>/` | `_players/` | `_layouts/player.html` | totals, techs and flagrant fouls, points-by-game-day bars, game log |
+| `/teams/<id>/` | `_teams/` | `_layouts/team.html` | record, points, rank, roster, results, upcoming games, calendar |
 | `/archive/<season>/` | `_archive/` | `_layouts/archive-season.html` | final standings, playoffs, leaders |
 
 For example, the box score at `/games/2026-10-17-g1/`:
@@ -272,8 +286,8 @@ For example, the box score at `/games/2026-10-17-g1/`:
    `game_id: 2026-10-17-g1`).
 2. Jekyll gives it `layout: game` (from `defaults`).
 3. `game.html` includes `page-season.html`, looks up
-   `stats.games["2026-10-17-g1"]` and draws it with `result-card.html` and
-   `box-score-table.html`.
+   `stats.games["2026-10-17-g1"]` and draws it with `result-card.html`,
+   `line-score.html` and `box-score-table.html`.
 
 Every page uses `_layouts/default.html`:
 - `head.html`
@@ -288,9 +302,11 @@ Every page uses `_layouts/default.html`:
 |---|---|
 | `head.html` | title, description, share tags, icons, fonts, CSS, the no-flash theme script |
 | `header.html` / `footer.html` | badge, nav, theme button and the Sleeping Giant scene / wordmark and links (Teams, Past seasons, Score sheets, League rules, Contact when set) |
-| `sample-banner.html` | "Preview with sample data" (sample mode only) |
+| `sample-banner.html` | "Preview with sample data" (sample mode and the `/preview/` copy, which also links to the live site) |
+| `player-name.html` | a player as "#23 Dave M." (number from `players.yml`, when known) |
 | `result-card.html` | a played game's score card |
-| `standings-table.html` | the 8-column standings table (scrolls sideways on phones, team column pinned) |
+| `standings-table.html` / `standings-points-note.html` | the standings table, ranked by points: PTS, W, L, QW, PCT, PF, PA, DIFF (scrolls sideways on phones, team column pinned) / the one-line note on how points work |
+| `line-score.html` | a box score's "Score by quarter" table: Q1–Q4, OT, final, standings points |
 | `next-game.html` | the blue "Next game day" panel |
 | `leader-card.html` / `rank-row.html` | a leader's big number / a ranked player row |
 | `stats-row.html` / `game-bars.html` | a Stats list row that expands / points-by-game-day bars |
@@ -356,7 +372,7 @@ python -m unittest discover -s tests   # unit tests
 python scripts/build_stats.py          # check data; write JSON, stubs, calendars
 scripts/make_score_sheets.sh           # score sheet PDFs (optional locally)
 bundle exec jekyll serve --livereload  # http://localhost:4000/
-bundle exec jekyll build && scripts/check_links.sh
+bundle exec jekyll build && scripts/build_preview.sh && scripts/check_links.sh   # both copies
 
 # every page at 360/390/1440 px, light and dark, sample and real data
 # (needs: pip install playwright pillow)
@@ -377,7 +393,8 @@ Run `build_stats.py` again after changing anything in `data/` or the
 | Cancel, move or make up a game | edit its row in `schedule.csv` ([guide](docs/stats-workflow.md#cancel-or-move-a-game)) |
 | Set a playoff matchup | replace `TBD` / `2nd` / `Winner G41` with team ids in `schedule.csv` |
 | Change a team's colour | its `colour_slot` (1–5) in `teams.yml` |
-| Preview with fake numbers | `sample_data: true` in `_config.yml` |
+| See a change with fake numbers | open `/preview/` after it's merged (the sample-season copy), or set `sample_data: true` in `_config.yml` locally |
+| Change a ranking minimum | `ppg_min_games` / `ft_min_attempts` in `data/seasons.yml` ([guide](docs/stats-workflow.md#change-a-ranking-minimum)) |
 | Start a new season | add `data/<new season>/` (teams, players, schedule, empty `games/`), add it to the top of `seasons.yml` with `current: true`, and remove `current` from the old one. The old season moves to the Archive, keeping its standings, leaders and box scores, but no player or team pages. |
 
 ### Repository map
@@ -394,6 +411,7 @@ scripts/
   scoresheet/            the score sheet generator (form MBL-SS6): README, fonts, example data
   make_score_sheets.sh   score sheet PDFs for the season shown (CI)
   make_sample_season.py  regenerates the sample seasons
+  build_preview.sh       the sample-season copy at /preview/ (CI)
   check_links.sh         link check (CI)
   screenshot_all.py      screenshots + page checks for QA
 tests/                   unit tests for build_stats.py, calendars.py and score sheet data loading
@@ -409,7 +427,7 @@ docs/
   design-brief.md        the design spec and decisions
   mockups/               approved mockups
   domain.md              domain and DNS
-  qa/                    full-site QA report and screenshots
+  qa/                    full-site QA report (screenshots: run screenshot_all.py)
   screenshots/           screenshots from the build steps
 .github/workflows/deploy.yml   build, check and publish
 CNAME                    the domain, for GitHub Pages

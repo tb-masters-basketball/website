@@ -21,6 +21,7 @@ layout: default
   <section class="page-section" aria-labelledby="standings-title">
     <h2 class="section-title" id="standings-title">{% if is_active %}Standings so far{% else %}Final standings{% endif %}</h2>
     {% include standings-table.html standings=stats.standings link_teams=is_active %}
+    <p class="table-note">{% include standings-points-note.html %}</p>
   </section>
 
   <section class="page-section" aria-labelledby="playoffs-title">

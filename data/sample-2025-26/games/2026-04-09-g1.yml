@@ -5,6 +5,7 @@ home: pa
 away: cr
 type: playoff
 final: {pa: 68, cr: 64}
+quarters: {pa: [15, 33, 53, 68], cr: [13, 29, 49, 64]}
 lines:
   - {player: dave-m, team: pa, pts: 23, ftm: 0, fta: 0, pf: 2}
   - {player: gord-f, team: pa, pts: 14, ftm: 0, fta: 0, pf: 2}

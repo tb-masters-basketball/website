@@ -676,11 +676,24 @@ a.card:hover {
   color: var(--mb-muted);
 }
 
-.standings .chip {
+.standings .chip,
+.line-score .chip {
   width: 8px;
   height: 8px;
   margin-right: 8px;
   border-radius: 2px;
+}
+
+/* Standings points: what the table is ranked by */
+.standings__pts,
+.line-score__final {
+  font-weight: 700;
+}
+
+/* Score by quarter: the team that won each quarter */
+.line-score__won {
+  font-weight: 700;
+  color: var(--mb-text);
 }
 
 .table-note {
@@ -1334,6 +1347,10 @@ html:not(.js) .ranked__item[data-order-ppg=""],
   text-align: center;
 }
 
+.tiles--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .tile {
   padding: 8px 4px;
   border-radius: 8px;
@@ -1867,6 +1884,11 @@ a.team-card:hover {
   margin-top: 6px;
   font: 700 40px/1 var(--mb-font-display);
   color: var(--mb-accent);
+}
+
+.team-card__points {
+  font-size: 22px;
+  color: var(--mb-text);
 }
 
 .team-card__rank {

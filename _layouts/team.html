@@ -24,8 +24,9 @@ layout: default
     {%- endif %}
   </header>
 
-  <div class="tiles">
+  <div class="tiles tiles--4">
     <div class="tile tile--card"><div class="tile__value">{{ row.w }}-{{ row.l }}</div><div class="tile__label">Record</div></div>
+    <div class="tile tile--card"><div class="tile__value">{{ row.points }}</div><div class="tile__label"><abbr title="Standings points">PTS</abbr></div></div>
     <div class="tile tile--card"><div class="tile__value">{% if row.gp > 0 %}No. {{ row.rank }}{% else %}—{% endif %}</div><div class="tile__label">Rank</div></div>
     <div class="tile tile--card"><div class="tile__value">{{ row.diff_display }}</div><div class="tile__label"><abbr title="Point differential">DIFF</abbr></div></div>
   </div>

@@ -16,7 +16,7 @@ site.
 - [What a game file looks like](#what-a-game-file-looks-like)
 - [The checks, and what a failure looks like](#the-checks-and-what-a-failure-looks-like)
 - [How each number is calculated](#how-each-number-is-calculated)
-- [How to](#how-to) — add a game, fix a number, add a player or sub, leave sample mode
+- [How to](#how-to) — add a game, fix a number, add a player or sub, change a ranking minimum, the preview copy
 - [If something looks wrong](#if-something-looks-wrong)
 
 ## The path from score sheet to website
@@ -29,7 +29,7 @@ flowchart TD
     C --> D{"scripts/build_stats.py<br/>runs the checks"}
     D -- "a check fails" --> E["Clear error message.<br/>Nothing is published."]
     E -- "fix the file and try again" --> C
-    D -- "all checks pass" --> F["Calculates standings,<br/>points per game, free-throw %"]
+    D -- "all checks pass" --> F["Calculates standings points,<br/>points per game, free-throw %"]
     F --> G["_data/computed/*.json<br/>and one small stub page per game,<br/>player and team (never edited by hand)"]
     G --> H["Jekyll builds every page:<br/>Home, Stats, Schedule, box scores,<br/>player and team pages, Archive"]
     H --> L{"Link check:<br/>any broken link or image?"}
@@ -48,7 +48,7 @@ What each step means in plain words:
 | Calculations | `scripts/build_stats.py` (automatic) | Writes `_data/computed/`. Never edit those files; they are rewritten every time |
 | Pages | Jekyll, the site builder (automatic) | Every page reads `_data/computed/`. The script also writes a tiny stub file for each game, player, team and archive season (folders `_games/`, `_players/`, `_teams/`, `_archive/`, rewritten every time), which is how each one gets its own page |
 | Link check | `scripts/check_links.sh` (automatic) | Stops the publish if any link, image or script in the built site is broken |
-| Publishing | GitHub Actions (automatic) | `.github/workflows/deploy.yml`. It only publishes when a change is **merged into `main`** |
+| Publishing | GitHub Actions (automatic) | `.github/workflows/deploy.yml`. It only publishes when a change is **merged into `main`**, and again every night so the date-based parts stay current. Each publish also updates the [preview copy](#the-preview-copy-sample-data-at-preview) |
 
 You only ever touch the game file (and occasionally the player list). The rest
 happens by itself: add a game and its box score page, the players' pages and the
@@ -100,7 +100,7 @@ start using them in the next change (standings by points).
 ```
 data/
   seasons.yml          which seasons exist, and which one is current
-  2026-27/             the REAL season (starts with [placeholder] rows)
+  2026-27/             the REAL season: real teams and schedule, rosters to come
     teams.yml            the five teams
     players.yml          every player and sub
     schedule.csv         every game day: who plays whom, when
@@ -110,14 +110,16 @@ data/
   sample-2025-26/      FAKE past season, so the Archive has something to show
 ```
 
-- **Real season:** `data/2026-27/`. It starts with `[placeholder]` names and no
-  games. Fill it in as the league decides things.
+- **Real season:** `data/2026-27/`. The teams and the schedule are in;
+  `players.yml` is empty until the rosters arrive, and `games/` fills up as
+  games are played.
 - **Sample seasons:** `data/sample-2026-27/` and `data/sample-2025-26/` are
   made-up data (made by `scripts/make_sample_season.py`) so the site looks real
   before the first game. The first stands in for the current season and the
   second is a short past season for the Archive. While sample mode is on, the
   website shows a banner saying so, and the Archive lists both. With it off,
-  neither is shown anywhere. See
+  neither is shown on the main site, but both are on the hidden
+  [preview copy](#the-preview-copy-sample-data-at-preview) at `/preview/`. See
   [Sample mode](#sample-mode-now-off) (it is off now).
 - **Which season is shown** is decided in one place, `data/seasons.yml`:
   `current: true` marks the real season, and `stands_in_for: 2026-27` marks
@@ -135,18 +137,27 @@ home: pa                    # team ids, two letters (see teams.yml)
 away: lh
 type: regular               # regular, or playoff
 final: {pa: 71, lh: 64}     # the final score from the sheet
+quarters: {pa: [19, 36, 53, 71], lh: [15, 31, 49, 64]}   # the sheet's Q1-Q4 boxes
 lines:                      # one line per player listed on the sheet
   - {player: dave-m, team: pa, pts: 24, ftm: 6, fta: 7, pf: 3}
-  - {player: greg-t, team: pa, pts: 12, ftm: 2, fta: 2, pf: 1, tech: 1}
+  - {player: greg-t, team: pa, pts: 12, ftm: 2, fta: 2, pf: 2, tech: 1, flagrant: 1}
   - {player: mike-r, team: lh, pts: 16, ftm: 1, fta: 2}
   # ...and so on for everyone on the sheet
 ```
 
+**`quarters`** is copied from the sheet's **Q1 to Q4** boxes under each
+roster: each team's running total at the end of each quarter, in order. The
+last one is the final score, unless the game went to overtime (then Q4 is tied
+and the final is higher). The site works out the points scored in each quarter
+from these, and from those who won each quarter.
+
 For each player: **`pts`** = total points, **`ftm`** = free throws made,
 **`fta`** = free throws attempted. Two more are optional and can be left out
 when they're 0: **`pf`** = personal fouls (0 to 5; kept, not shown on the site)
-and **`tech`** = technical fouls (0 to 2; shown on the player page and the
-Stats page, counting the whole season, playoffs included). A player who was on the sheet but didn't
+**`tech`** = technical fouls (0 to 2; shown on the player page and the
+Stats page, counting the whole season, playoffs included) and **`flagrant`** =
+flagrant fouls (from the sheet's Notes; counted like technicals). A flagrant
+is also a personal foul, so count it in `pf` too. A player who was on the sheet but didn't
 score still gets a line with zeros, because being on the sheet counts as
 playing in the game.
 
@@ -179,6 +190,10 @@ The real message starts with the full path (for example
 | A player is listed twice in one game | `games/2026-12-03-g1.yml: line 3 (greg-t): player is listed twice in this game` |
 | A player name isn't written "First L." | `players.yml: player #1 (dave-m): display 'Dave Mitchell' should be 'First L.' (never a full name)` |
 | Two players on one team share a "First L." and one has no number | ``players.yml: mike-r, mike-r2 on team dn are all "Mike R."; give each a jersey `number` ...`` |
+| The quarter totals are missing | ``games/2026-12-03-g1.yml: quarters is missing. Add each team's running total at the end of each quarter, from the sheet's Q1-Q4 boxes, e.g. quarters: {...}`` |
+| The Q4 totals don't match the final score | `games/2026-12-03-g1.yml: the Q4 totals (pa 70, lh 64) don't match the final score (71-64). They only differ after overtime, which needs the score tied at the end of Q4` |
+| A quarter total goes down | `games/2026-12-03-g1.yml: quarters for lh [15, 31, 29, 64] go down; each is the running total at the end of that quarter, so it can only stay level or climb` |
+| More flagrant fouls than personal fouls | `games/2026-12-03-g1.yml: line 2 (greg-t): flagrant 1 is more than pf 0 (a flagrant foul is also a personal foul, so count it in pf too)` |
 | The file isn't valid (a missing bracket, wrong indent) | `games/2026-12-03-g1.yml: not valid YAML (...)` followed by the line and column |
 
 It also catches: the same `game_id` used in two seasons that are shown on the
@@ -243,20 +258,26 @@ truly equal.
 - **Playoffs** (`type: playoff`) are kept separate. They never count in the
   standings or in the Stats page.
 
-**Standings** work the same way, from the final scores. Port Arthur in the
-sample season:
+**Standings** are by **points**: in each regular-season game a team gets
+**1 point for each quarter it wins** and **3 points for winning the game**, so
+7 at most. A quarter's winner is the team that scored more in it (from the
+`quarters` totals). Two things are assumed until the league confirms them: a
+**tied quarter** gives neither team a point, and **overtime** isn't a quarter
+(it only decides who wins the game). Port Arthur in the sample season:
 
 | Column | Rule | Port Arthur |
 |---|---|---|
+| PTS | Quarters won + 3 for each win | 19 + 3 × 6 = **37** |
 | W-L | Wins and losses | 6-1 |
+| QW | Quarters won | 19 of 28 |
 | PCT | W ÷ (W + L), three decimals | 6 ÷ 7 = **.857** |
-| GB (games behind) | ((leader's W − W) + (L − leader's L)) ÷ 2 | Current River is 5-2, so ((6 − 5) + (2 − 1)) ÷ 2 = **1** |
 | PF / PA | Points scored for / against, all games | 482 / 421 |
 | DIFF | PF − PA | **+61** |
 
-The order is by PCT. **Tiebreakers have not been decided by the league yet**
-(`[placeholder]`). Until then the site breaks ties by head-to-head record, then
-point differential, and says so under the standings when it has to.
+The order is by PTS. **Tiebreakers have not been decided by the league yet**
+(`[placeholder]`). Until then the site orders teams level on points by
+head-to-head record, then point differential, and says so under the standings
+when it has to. Playoff games give no standings points: they go to the winner.
 
 ## How to
 
@@ -282,9 +303,10 @@ the site (it takes a minute or two).
    Create new file** and name it exactly like the `game_id`, plus `.yml`:
    `2026-12-03-g1.yml`. The easiest start is to copy the example
    [above](#what-a-game-file-looks-like) and replace the numbers.
-3. **Type in the sheet.** One `lines:` entry for every player on the sheet, with
-   their `pts`, `ftm` and `fta`. The `final:` score must equal each team's
-   points added up.
+3. **Type in the sheet.** The `final:` score, the `quarters:` totals from the
+   Q1 to Q4 boxes, and one `lines:` entry for every player on the sheet, with
+   their `pts`, `ftm` and `fta` (and `pf`, `tech`, `flagrant` when not 0). The
+   `final:` score must equal each team's points added up.
 4. **Optional: save the photo** of the sheet as
    `data/2026-27/sheets/2026-12-03-g1.jpg` (same name as the game). It is kept
    for checking. It is **not** shown on the site: the box score's "Score sheet
@@ -368,7 +390,8 @@ Open the game file, correct the number, and commit it as a pull request. The
 checks run again and every stat that depends on it is recalculated from
 scratch, so there is nothing else to update. If you are changing a player's
 points, change the team's `final:` score too if it is now off, or the check
-will tell you.
+will tell you. A wrong quarter total is fixed the same way, in `quarters:`;
+the standings points follow by themselves.
 
 ### Add a new player, or a sub
 
@@ -438,7 +461,11 @@ later together with its entry in `data/seasons.yml`.
 - **A player is missing from Stats.** Stats only lists players who have played
   at least one game, so check they have a `lines:` entry in a game file.
 - **A player is missing from the free-throw leaders.** They have fewer than 10
-  attempts so far. That is the rule, not a mistake.
+  attempts so far (`ft_min_attempts` in `data/seasons.yml`). That is the rule,
+  not a mistake.
+- **A team's points look wrong.** Points come from the `quarters:` totals: 1
+  for each quarter a team scored more in, and 3 for the win. Check the totals
+  against the sheet's Q1 to Q4 boxes. A tied quarter gives no one a point.
 - **A sub tops the points-per-game list after one big game.** There is no
   minimum number of games for that list unless `ppg_min_games` is set in
   `data/seasons.yml` ([how](#change-a-ranking-minimum)).

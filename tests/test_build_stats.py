@@ -35,11 +35,6 @@ class FormattingTests(unittest.TestCase):
         self.assertEqual(bs.fmt_pct3(3, 0), "1.000")
         self.assertEqual(bs.fmt_pct3(0, 0), ".000")
 
-    def test_games_behind(self):
-        self.assertEqual(bs.fmt_gb(bs.games_behind(6, 1, 6, 1)), "—")
-        self.assertEqual(bs.fmt_gb(bs.games_behind(6, 1, 5, 2)), "1")
-        self.assertEqual(bs.fmt_gb(bs.games_behind(6, 1, 3, 3)), "2.5")
-        self.assertEqual(bs.fmt_gb(bs.games_behind(6, 1, 0, 6)), "5.5")
 
     def test_signed_and_dates(self):
         self.assertEqual(bs.fmt_signed(61), "+61")
@@ -90,6 +85,7 @@ class SeasonFixture(unittest.TestCase):
             away: bb
             type: regular
             final: {aa: 30, bb: 20}
+            quarters: {aa: [10, 12, 22, 30], bb: [5, 10, 11, 20]}
             lines:
               - {player: al-a, team: aa, pts: 20, ftm: 4, fta: 5}
               - {player: amy-b, team: aa, pts: 10, ftm: 0, fta: 2}
@@ -103,6 +99,7 @@ class SeasonFixture(unittest.TestCase):
             away: cc
             type: regular
             final: {bb: 25, cc: 22}
+            quarters: {bb: [8, 10, 18, 25], cc: [4, 10, 14, 22]}
             lines:
               - {player: bo-c, team: bb, pts: 25, ftm: 5, fta: 5}
               - {player: cy-d, team: cc, pts: 22, ftm: 2, fta: 3}
@@ -114,6 +111,7 @@ class SeasonFixture(unittest.TestCase):
             away: aa
             type: regular
             final: {cc: 40, aa: 21}
+            quarters: {cc: [15, 20, 35, 40], aa: [5, 11, 15, 21]}
             lines:
               - {player: cy-d, team: cc, pts: 40, ftm: 10, fta: 12}
               - {player: al-a, team: aa, pts: 21, ftm: 3, fta: 3}
@@ -125,6 +123,7 @@ class SeasonFixture(unittest.TestCase):
             away: bb
             type: playoff
             final: {aa: 50, bb: 10}
+            quarters: {aa: [12, 25, 38, 50], bb: [2, 4, 7, 10]}
             lines:
               - {player: al-a, team: aa, pts: 50, ftm: 0, fta: 0}
               - {player: bo-c, team: bb, pts: 10, ftm: 0, fta: 0}
@@ -209,19 +208,20 @@ class StatsTests(SeasonFixture):
         self.assertEqual((alpha["w"], alpha["l"], alpha["pf"], alpha["pa"]), (1, 1, 51, 60))
 
     def test_three_way_tie(self):
-        # All three teams are 1-1 and 1-1 against each other, so point
+        # Every game split its quarters 2-2, so each team has 3 + 2 for its win
+        # and 2 for its loss: 7 points. All are 1-1 against each other, so point
         # differential decides: CC +16, BB -7, AA -9.
         teams = self.compute()["standings.json"]["teams"]
-        self.assertEqual([t["team"] for t in teams], ["cc", "bb", "aa"])
+        self.assertEqual([(t["team"], t["points"], t["qw"]) for t in teams], [("cc", 7, 4), ("bb", 7, 4), ("aa", 7, 4)])
         self.assertEqual({t["tiebreak"] for t in teams}, {"point differential"})
-        self.assertTrue(all(t["gb_display"] == "—" for t in teams))
+        self.assertNotIn("gb_display", teams[0])
 
     def test_head_to_head_two_teams(self):
         names = {"aa": "A", "bb": "B", "cc": "C"}
         rec = {
-            "aa": {"w": 2, "l": 1, "pf": 90, "pa": 70, "h2h": {"bb": [0, 1]}},
-            "bb": {"w": 2, "l": 1, "pf": 70, "pa": 80, "h2h": {"aa": [1, 0]}},
-            "cc": {"w": 0, "l": 3, "pf": 60, "pa": 70, "h2h": {}},
+            "aa": {"w": 2, "l": 1, "pf": 90, "pa": 70, "points": 12, "h2h": {"bb": [0, 1]}},
+            "bb": {"w": 2, "l": 1, "pf": 70, "pa": 80, "points": 12, "h2h": {"aa": [1, 0]}},
+            "cc": {"w": 0, "l": 3, "pf": 60, "pa": 70, "points": 4, "h2h": {}},
         }
         order = bs.sort_standings(rec, names)
         self.assertEqual(order, [("bb", "head-to-head"), ("aa", "head-to-head"), ("cc", None)])
@@ -229,8 +229,8 @@ class StatsTests(SeasonFixture):
     def test_head_to_head_skipped_if_tied_teams_have_not_met(self):
         names = {"aa": "A", "bb": "B"}
         rec = {
-            "aa": {"w": 1, "l": 0, "pf": 50, "pa": 40, "h2h": {"cc": [1, 0]}},
-            "bb": {"w": 1, "l": 0, "pf": 70, "pa": 40, "h2h": {"dd": [1, 0]}},
+            "aa": {"w": 1, "l": 0, "pf": 50, "pa": 40, "points": 5, "h2h": {"cc": [1, 0]}},
+            "bb": {"w": 1, "l": 0, "pf": 70, "pa": 40, "points": 5, "h2h": {"dd": [1, 0]}},
         }
         self.assertEqual(bs.sort_standings(rec, names), [("bb", "point differential"), ("aa", "point differential")])
 
@@ -244,7 +244,8 @@ class StatsTests(SeasonFixture):
         self.assertEqual(ppg[0]["id"], "cy-d")          # 62 / 2 = 31.0
         self.assertEqual(ppg[0]["value_display"], "31.0")
         self.write("games/2026-10-15-g1.yml", self.GAMES["2026-10-15-g1"].replace(
-            "{cc: 40, aa: 21}", "{cc: 19, aa: 21}").replace("pts: 40, ftm: 10, fta: 12", "pts: 19, ftm: 1, fta: 2"))
+            "{cc: 40, aa: 21}", "{cc: 19, aa: 21}").replace("pts: 40, ftm: 10, fta: 12", "pts: 19, ftm: 1, fta: 2")
+            .replace("cc: [15, 20, 35, 40]", "cc: [5, 9, 14, 19]"))
         ppg = self.compute()["leaders.json"]["ppg"]
         top = [(e["id"], e["rank"]) for e in ppg[:3]]
         # Al A. 41/2 and Cy D. 41/2 tie at 20.5 and share rank 1; Bo C. 39/2 is 3rd.
@@ -283,6 +284,83 @@ class StatsTests(SeasonFixture):
         out = self.compute()
         self.assertIsNone(out["schedule.json"]["weeks"][0]["games"][0]["gym"])
         self.assertEqual(out["schedule.json"]["weeks"][0]["gyms"], [])
+
+
+class QuarterTests(SeasonFixture):
+    """quarters: running totals at the end of Q1-Q4. Standings points: 1 per
+    quarter won, 3 for the win; tied quarters and overtime give none."""
+
+    def test_points_by_quarter_and_standings_points(self):
+        g = self.compute()["games.json"]["2026-10-01-g1"]
+        aa, bb = g["home_team"], g["away_team"]
+        self.assertEqual((aa["quarters"], bb["quarters"]), ([10, 2, 10, 8], [5, 5, 1, 9]))
+        self.assertEqual((aa["quarters_won"], aa["standings_points"]), (2, 5))
+        self.assertEqual((bb["quarters_won"], bb["standings_points"]), (2, 2))
+        self.assertEqual((g["ot"], aa["ot"]), (False, None))
+
+    def test_playoff_games_give_no_standings_points(self):
+        g = self.compute()["games.json"]["2027-04-01-g1"]
+        self.assertEqual(g["home_team"]["quarters_won"], 4)
+        self.assertIsNone(g["home_team"]["standings_points"])
+
+    def test_a_tied_quarter_counts_for_neither(self):
+        game = {"home": "aa", "away": "bb", "final": {"aa": 30, "bb": 20},
+                "quarters": {"aa": [5, 10, 20, 30], "bb": [5, 10, 15, 20]}}
+        self.assertEqual(bs.quarters_won(game), {"aa": 2, "bb": 0})        # Q1 and Q2 tied
+        self.assertEqual(bs.standings_points(game), {"aa": 5, "bb": 0})
+
+    def test_overtime(self):
+        self.edit_game("2026-10-01-g1", "final: {aa: 30, bb: 20}", "final: {aa: 34, bb: 30}")
+        self.edit_game("2026-10-01-g1", "quarters: {aa: [10, 12, 22, 30], bb: [5, 10, 11, 20]}",
+                       "quarters: {aa: [10, 12, 22, 28], bb: [5, 10, 11, 28]}")
+        self.edit_game("2026-10-01-g1", "pts: 20, ftm: 4", "pts: 24, ftm: 4")
+        self.edit_game("2026-10-01-g1", "pts: 14, ftm: 6", "pts: 24, ftm: 6")
+        g = self.compute()["games.json"]["2026-10-01-g1"]
+        self.assertTrue(g["ot"])
+        self.assertEqual((g["home_team"]["ot"], g["away_team"]["ot"]), (6, 2))
+        # Q4 was 28-28; overtime isn't a quarter: AA won Q1 and Q3 (+3 for the win), BB Q2 and Q4
+        self.assertEqual((g["home_team"]["standings_points"], g["away_team"]["standings_points"]), (5, 2))
+
+    def test_standings_sort_by_points_before_wins(self):
+        names = {"aa": "A", "bb": "B"}
+        rec = {
+            "aa": {"w": 1, "l": 1, "pf": 60, "pa": 60, "points": 10, "h2h": {}},
+            "bb": {"w": 2, "l": 0, "pf": 60, "pa": 50, "points": 8, "h2h": {}},
+        }
+        self.assertEqual(bs.sort_standings(rec, names), [("aa", None), ("bb", None)])
+
+    def test_quarters_are_checked(self):
+        cases = [
+            ("quarters: {aa: [10, 12, 22, 30], bb: [5, 10, 11, 20]}\n", "", "quarters is missing"),
+            ("bb: [5, 10, 11, 20]}", "bb: [5, 10, 20]}", "quarters for bb should be 4 whole numbers"),
+            ("bb: [5, 10, 11, 20]}", "bb: [5, 10, 9, 20]}", "go down"),
+            ("aa: [10, 12, 22, 30]", "aa: [10, 12, 22, 31]", "Q4 total 31 is more than its final score 30"),
+            ("aa: [10, 12, 22, 30]", "aa: [10, 12, 22, 29]", "needs the score tied at the end of Q4"),
+            ("bb: [5, 10, 11, 20]}", "zz: [5, 10, 11, 20]}", "quarters should list exactly the two teams"),
+        ]
+        for old, new, fragment in cases:
+            with self.subTest(fragment=fragment):
+                self.write("games/2026-10-01-g1.yml", self.GAMES["2026-10-01-g1"])
+                self.edit_game("2026-10-01-g1", old, new)
+                self.assertProblem(fragment)
+
+
+class FlagrantTests(SeasonFixture):
+    def test_flagrants_count_for_the_season_playoffs_included(self):
+        self.edit_game("2026-10-01-g1", "pts: 20, ftm: 4, fta: 5}", "pts: 20, ftm: 4, fta: 5, pf: 2, flagrant: 1}")
+        self.edit_game("2027-04-01-g1", "pts: 50, ftm: 0, fta: 0}", "pts: 50, ftm: 0, fta: 0, pf: 1, flagrant: 1}")
+        out = self.compute()
+        al = out["players.json"]["al-a"]
+        self.assertEqual((al["flagrant"], al["flagrant_playoff"], al["flagrant_games"]), (2, 1, 2))
+        self.assertEqual([(r["id"], r["flagrant"]) for r in out["leaders.json"]["flagrants"]], [("al-a", 2)])
+        line = out["games.json"]["2026-10-01-g1"]["home_team"]["lines"][0]
+        self.assertEqual((line["player"], line["flagrant"], line["pf"]), ("al-a", 1, 2))
+        log = out["game_logs.json"]["al-a"][0]
+        self.assertEqual(log["flagrant"], 1)
+
+    def test_a_flagrant_is_also_a_personal_foul(self):
+        self.edit_game("2026-10-01-g1", "pts: 20, ftm: 4, fta: 5}", "pts: 20, ftm: 4, fta: 5, flagrant: 1}")
+        self.assertProblem("flagrant 1 is more than pf 0")
 
 
 class RankingMinimumTests(SeasonFixture):
@@ -435,7 +513,7 @@ class NoGamesYetTests(SeasonFixture):
         self.assertEqual(out["games.json"], {})
         teams = out["standings.json"]["teams"]
         self.assertEqual(len(teams), 3)
-        self.assertTrue(all((t["w"], t["l"], t["pct"], t["gb_display"]) == (0, 0, ".000", "\u2014") for t in teams))
+        self.assertTrue(all((t["points"], t["w"], t["l"], t["qw"], t["pct"]) == (0, 0, 0, 0, ".000") for t in teams))
 
     def test_placeholder_rows_are_accepted(self):
         self.write("players.yml", "- {id: placeholder-a, display: \"[placeholder]\", team: aa, sub: false}\n")

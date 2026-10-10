@@ -330,7 +330,24 @@ def fouls(game_id, pid):
     r = random.Random(f"fouls-{game_id}-{pid}")
     pf = r.choices(range(6), weights=[14, 24, 26, 20, 11, 5])[0]
     tech = 1 if r.random() < 0.025 else 0
-    return f", pf: {pf}" + (f", tech: {tech}" if tech else "")
+    flagrant = 1 if pf and r.random() < 0.012 else 0      # a flagrant is also one of the pf
+    return f", pf: {pf}" + (f", tech: {tech}" if tech else "") + (f", flagrant: {flagrant}" if flagrant else "")
+
+
+def quarters_line(game_id, scores, salt=0):
+    """`quarters:` for one game: each team's running total at the end of Q1-Q4,
+    from its final score split into four quarters of roughly equal size. A
+    Random of its own (plus `salt`, so main() can try another split), so no
+    other sample number changes. No overtime: Q4 is the final score."""
+    r = random.Random(f"quarters-{salt}-{game_id}")
+    parts = []
+    for tid, total in scores.items():
+        weights = [r.uniform(0.75, 1.25) for _ in range(build_stats.QUARTERS)]
+        per = [int(total * w / sum(weights)) for w in weights]
+        per[r.randrange(len(per))] += total - sum(per)
+        running = [sum(per[:i + 1]) for i in range(len(per))]
+        parts.append(f"{tid}: [{', '.join(map(str, running))}]")
+    return "quarters: {" + ", ".join(parts) + "}\n"
 
 
 def jersey_numbers(tid, pids):
@@ -349,7 +366,7 @@ def write_teams(out, header):
                      f"  colour_light: \"{light}\"\n  colour_dark: \"{dark}\"\n")
 
 
-def write_files(weeks, played, scores, players, present, pts, ft):
+def write_files(weeks, played, scores, players, present, pts, ft, salt=0):
     if OUT.exists():
         shutil.rmtree(OUT)
     (OUT / "games").mkdir(parents=True)
@@ -387,8 +404,9 @@ def write_files(weeks, played, scores, players, present, pts, ft):
         with open(OUT / "games" / f"{g['game_id']}.yml", "w", encoding="utf-8") as fh:
             fh.write(header)
             fh.write(f"game_id: {g['game_id']}\ndate: {g['date']}\nhome: {g['home']}\naway: {g['away']}\n"
-                     f"type: regular\nfinal: {{{g['home']}: {s[g['home']]}, {g['away']}: {s[g['away']]}}}\n"
-                     "lines:\n")
+                     f"type: regular\nfinal: {{{g['home']}: {s[g['home']]}, {g['away']}: {s[g['away']]}}}\n")
+            fh.write(quarters_line(g["game_id"], {t: s[t] for t in (g["home"], g["away"])}, salt))
+            fh.write("lines:\n")
             fh.writelines(lines)
 
 
@@ -526,8 +544,9 @@ def write_past_season():
         with open(PAST_OUT / "games" / f"{g['game_id']}.yml", "w", encoding="utf-8") as fh:
             fh.write(header)
             fh.write(f"game_id: {g['game_id']}\ndate: {g['date']}\nhome: {g['home']}\naway: {g['away']}\n"
-                     f"type: {g['type']}\nfinal: {{{g['home']}: {scores[g['home']]}, {g['away']}: {scores[g['away']]}}}\n"
-                     "lines:\n")
+                     f"type: {g['type']}\nfinal: {{{g['home']}: {scores[g['home']]}, {g['away']}: {scores[g['away']]}}}\n")
+            fh.write(quarters_line(g["game_id"], {t: scores[t] for t in (g["home"], g["away"])}))
+            fh.write("lines:\n")
             fh.writelines(lines)
     build_stats.load_season(ROOT / "data", PAST_SEASON)       # raises if any check fails
     print(f"Wrote {PAST_OUT.relative_to(ROOT)}/ ({len(results)} games, final won by {champion})")
@@ -537,14 +556,20 @@ def main():
     for seed in range(1, 500):
         try:
             result = generate(seed)
-            write_files(*result)
-            loaded = build_stats.load_season(ROOT / "data", SEASON)
-            check_against_mockups(build_stats.compute_season(loaded))
-        except (Retry, build_stats.DataError):
+        except Retry:
             continue
-        print(f"Wrote {OUT.relative_to(ROOT)}/ (seed {seed})")
-        write_past_season()
-        return 0
+        # Standings are by points (quarters won count), so try a few quarter
+        # splits of the same games until the order still matches the mockups.
+        for salt in range(60):
+            try:
+                write_files(*result, salt=salt)
+                loaded = build_stats.load_season(ROOT / "data", SEASON)
+                check_against_mockups(build_stats.compute_season(loaded))
+            except (Retry, build_stats.DataError):
+                continue
+            print(f"Wrote {OUT.relative_to(ROOT)}/ (seed {seed}, quarter split {salt})")
+            write_past_season()
+            return 0
     print("No seed produced data matching the mockups.", file=sys.stderr)
     return 1
 

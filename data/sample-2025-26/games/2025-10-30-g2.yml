@@ -5,6 +5,7 @@ home: lh
 away: wf
 type: regular
 final: {lh: 48, wf: 58}
+quarters: {lh: [12, 22, 32, 48], wf: [15, 31, 45, 58]}
 lines:
   - {player: todd-b, team: lh, pts: 15, ftm: 2, fta: 2, pf: 1}
   - {player: mike-r, team: lh, pts: 14, ftm: 1, fta: 2, pf: 1}

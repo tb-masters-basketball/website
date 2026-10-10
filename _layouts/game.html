@@ -14,6 +14,8 @@ layout: default
 
   {% include result-card.html game=game large=true link_teams=is_active link_players=is_active %}
 
+  {% include line-score.html game=game %}
+
   {% include box-score-table.html team=game.home_team game=game linked=is_active %}
   {% include box-score-table.html team=game.away_team game=game linked=is_active %}
 

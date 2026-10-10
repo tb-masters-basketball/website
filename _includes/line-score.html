@@ -1,0 +1,45 @@
+{%- comment -%}
+  Score by quarter for one game: each team's points in Q1-Q4 (and OT), the
+  final, and, for a regular-season game, the standings points it earned. The
+  higher score in each quarter is bold: that team won the quarter.
+  Usage: include line-score.html game=game
+{%- endcomment -%}
+{%- assign ls = include.game -%}
+{%- assign ls_regular = false %}{% if ls.type == "regular" %}{% assign ls_regular = true %}{% endif -%}
+<section class="page-section" aria-labelledby="by-quarter-title">
+  <h2 class="section-title" id="by-quarter-title">Score by quarter</h2>
+  <div class="table-card" role="region" aria-label="Score by quarter" tabindex="0">
+    <table class="table line-score">
+      <caption class="visually-hidden">Points scored in each quarter{% if ls.ot %} and overtime{% endif %}</caption>
+      <thead>
+        <tr>
+          <th scope="col">Team</th>
+          {%- for q in ls.home_team.quarters %}
+          <th scope="col">Q{{ forloop.index }}</th>
+          {%- endfor %}
+          {%- if ls.ot %}<th scope="col"><abbr title="Overtime">OT</abbr></th>{% endif %}
+          <th scope="col"><abbr title="Final score">Final</abbr></th>
+          {%- if ls_regular %}<th scope="col"><abbr title="Standings points">PTS</abbr></th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {%- assign ls_sides = "home_team,away_team" | split: "," %}
+        {%- for side in ls_sides %}
+        {%- assign lt = ls[side] -%}
+        {%- if side == "home_team" %}{% assign lo = ls.away_team %}{% else %}{% assign lo = ls.home_team %}{% endif %}
+        <tr>
+          <th scope="row"><span class="chip chip--{{ lt.colour_slot }}" aria-hidden="true"></span>{{ lt.name }}</th>
+          {%- for q in lt.quarters %}
+          {%- assign oq = lo.quarters[forloop.index0] %}
+          <td{% if q > oq %} class="line-score__won"{% endif %}>{{ q }}{% if q > oq %}<span class="visually-hidden"> (won the quarter)</span>{% endif %}</td>
+          {%- endfor %}
+          {%- if ls.ot %}<td>{{ lt.ot }}</td>{% endif %}
+          <td class="line-score__final">{{ lt.score }}</td>
+          {%- if ls_regular %}<td>{{ lt.standings_points }}</td>{% endif %}
+        </tr>
+        {%- endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="table-note">{% if ls_regular %}Bold: won the quarter. {% include standings-points-note.html %}{% if ls.ot %} Overtime doesn't count as a quarter.{% endif %}{% else %}Bold: won the quarter. Playoff games don't give standings points.{% endif %}</p>
+</section>

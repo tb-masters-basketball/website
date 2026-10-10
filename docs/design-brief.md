@@ -52,8 +52,9 @@ league) and "Masters Basketball League · Thunder Bay, Ontario".
   bold. Below a divider: "Top: [player] [pts]" and a "Box score ›" link.
 - **Next game panel:** `--mb-panel` background, date, gym, and one row per game
   with its time, plus a bye line.
-- **Standings table:** rank, team colour chip and name, then W, L, PCT, GB, plus
-  PF, PA, DIFF, all on every screen size. On phones the table scrolls sideways
+- **Standings table:** rank, team colour chip and name, then PTS (bold: what
+  the table is ranked by), W, L, QW, PCT, PF, PA, DIFF, all on every screen
+  size, with a one-line note under it on how points work. On phones the table scrolls sideways
   inside its card and the team column stays fixed. There is no separate
   standings page: Home always shows the full table, with every team and no
   link to another page.
@@ -258,3 +259,18 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
   scores and the player page heading. Captions, page titles and alt-style
   text keep the plain name.
 - Score sheet links on the Schedule page lead with **landscape Legal**.
+
+## Quarters and standings points
+
+- Standings are by points: PTS is the first number column, in bold; QW
+  (quarters won) follows L; GB is gone. A note under the table: "PTS: 1 for
+  each quarter won (QW) and 3 for a win, so up to 7 a game."
+- **Teams page:** each team card reads "6-1 · 37 pts" (the points smaller, in
+  the text colour). **Team page:** four tiles: Record, PTS, Rank, DIFF.
+- **Box score:** a "Score by quarter" table (reusable include
+  `line-score.html`) between the result card and the box scores: team, Q1-Q4,
+  OT when played, Final and PTS (regular season only). The higher score in
+  each quarter is bold, with "won the quarter" for screen readers.
+- **Flagrant fouls:** a line under the player page tiles when a player has one,
+  a "Flagrant" badge on that game in the game log, and a "Flagrant fouls" list
+  under "Technical fouls" at the bottom of the Stats page.

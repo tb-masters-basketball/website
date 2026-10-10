@@ -5,6 +5,6 @@
 {%- assign tc = include.row -%}
 <a class="card team-card chip--{{ tc.colour_slot }}" href="{{ '/teams/' | append: tc.team | append: '/' | relative_url }}">
   <span class="team-card__name">{{ tc.name }}</span>
-  <span class="team-card__record">{{ tc.w }}-{{ tc.l }}</span>
+  <span class="team-card__record">{{ tc.w }}-{{ tc.l }}<span class="team-card__points"> · {{ tc.points }} pts</span></span>
   <span class="team-card__rank">{% if tc.gp > 0 %}No. {{ tc.rank }} in the standings{% else %}No games yet{% endif %}</span>
 </a>

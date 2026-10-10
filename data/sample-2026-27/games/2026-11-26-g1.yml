@@ -5,6 +5,7 @@ home: wf
 away: cr
 type: regular
 final: {wf: 76, cr: 71}
+quarters: {wf: [20, 41, 56, 76], cr: [20, 37, 51, 71]}
 lines:
   - {player: steve-p, team: wf, pts: 23, ftm: 2, fta: 3, pf: 3}
   - {player: jamie-c, team: wf, pts: 17, ftm: 2, fta: 2, pf: 0}
@@ -19,6 +20,6 @@ lines:
   - {player: randy-j, team: cr, pts: 8, ftm: 0, fta: 0, pf: 1, tech: 1}
   - {player: scott-a, team: cr, pts: 8, ftm: 0, fta: 0, pf: 1}
   - {player: pete-s, team: cr, pts: 6, ftm: 0, fta: 0, pf: 4}
-  - {player: tom-g, team: cr, pts: 6, ftm: 0, fta: 1, pf: 1}
+  - {player: tom-g, team: cr, pts: 6, ftm: 0, fta: 1, pf: 1, flagrant: 1}
   - {player: luc-b, team: cr, pts: 5, ftm: 1, fta: 2, pf: 2}
   - {player: darren-v, team: cr, pts: 2, ftm: 0, fta: 0, pf: 2}

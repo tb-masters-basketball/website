@@ -5,6 +5,7 @@ home: wf
 away: cr
 type: regular
 final: {wf: 69, cr: 73}
+quarters: {wf: [15, 32, 54, 69], cr: [24, 42, 57, 73]}
 lines:
   - {player: jeff-s, team: wf, pts: 15, ftm: 0, fta: 1, pf: 2}
   - {player: derek-h, team: wf, pts: 11, ftm: 2, fta: 2, pf: 4}
