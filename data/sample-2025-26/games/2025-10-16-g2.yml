@@ -5,9 +5,10 @@ home: pa
 away: fw
 type: regular
 final: {pa: 69, fw: 61}
+quarters: {pa: [21, 38, 55, 69], fw: [15, 34, 46, 61]}
 lines:
   - {player: dave-m, team: pa, pts: 17, ftm: 0, fta: 0, pf: 1}
-  - {player: greg-t, team: pa, pts: 12, ftm: 3, fta: 3, pf: 1}
+  - {player: greg-t, team: pa, pts: 12, ftm: 3, fta: 3, pf: 1, flagrant: 1}
   - {player: kevin-h, team: pa, pts: 10, ftm: 0, fta: 0, pf: 3}
   - {player: doug-w, team: pa, pts: 9, ftm: 1, fta: 2, pf: 2}
   - {player: terry-n, team: pa, pts: 9, ftm: 1, fta: 3, pf: 0, tech: 1}

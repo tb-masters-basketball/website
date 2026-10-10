@@ -63,6 +63,17 @@ GAME_STATUSES = ("", "cancelled")
 # Optional per-player fouls in a game file, as on the score sheet: 5 personal
 # foul boxes and 2 technical (T) boxes. Personal fouls are kept but not shown.
 FOUL_LIMITS = {"pf": 5, "tech": 2}
+# Flagrant fouls (from the sheet's Notes) are optional too. A flagrant is also a
+# personal foul, so a player's flagrant count can't be more than their pf.
+# Like technicals, the site counts them for the whole season, playoffs included.
+# Games are played in quarters. `quarters` in a game file holds each team's
+# running total at the end of Q1-Q4, as written in the sheet's Q1-Q4 boxes.
+QUARTERS = 4
+# Standings points (regular season): 1 for each quarter won and 3 for winning
+# the game, so 7 at most. A tied quarter gives neither team a point, and
+# overtime isn't a quarter: both assumed, to be confirmed by the league.
+POINTS_PER_QUARTER = 1
+POINTS_PER_WIN = 3
 # A playoff game whose teams aren't known yet names them like the printed
 # schedule does: TBD, a standings place (1st to 5th), or the winner/loser of a game.
 PLACEHOLDER_RE = re.compile(r"^(TBD|[1-9](st|nd|rd|th)|(Winner|Loser) G\d+)$")
@@ -77,7 +88,7 @@ MINUS = "−"
 DASH = "—"
 TIEBREAK_NOTE = (
     "[placeholder] The league hasn't set tiebreakers yet. "
-    "Ties are broken by head-to-head record, then point differential."
+    "Teams level on points are ranked by head-to-head record, then point differential."
 )
 
 
@@ -122,14 +133,38 @@ def fmt_pct3(wins, losses):
     return text[1:] if text.startswith("0") else text
 
 
-def games_behind(leader_w, leader_l, w, l):
-    return Fraction((leader_w - w) + (l - leader_l), 2)
+def quarter_points(game):
+    """Points each team scored in each quarter, from the running totals in
+    `quarters`, plus overtime points (0 when there was no overtime)."""
+    out = {}
+    for tid, totals in game["quarters"].items():
+        prev, per = 0, []
+        for total in totals:
+            per.append(total - prev)
+            prev = total
+        out[tid] = {"quarters": per, "ot": game["final"][tid] - totals[-1]}
+    return out
 
 
-def fmt_gb(gb):
-    if gb == 0:
-        return DASH
-    return str(int(gb)) if gb.denominator == 1 else f"{float(gb):.1f}"
+def quarters_won(game):
+    """{team: quarters won} for one game. A tied quarter counts for neither."""
+    qp = quarter_points(game)
+    home, away = game["home"], game["away"]
+    won = {home: 0, away: 0}
+    for h, a in zip(qp[home]["quarters"], qp[away]["quarters"]):
+        if h > a:
+            won[home] += 1
+        elif a > h:
+            won[away] += 1
+    return won
+
+
+def standings_points(game):
+    """{team: standings points} for one game: 1 per quarter won, 3 for the win."""
+    won = quarters_won(game)
+    home, away = game["home"], game["away"]
+    winner = home if game["final"][home] > game["final"][away] else away
+    return {tid: won[tid] * POINTS_PER_QUARTER + (POINTS_PER_WIN if tid == winner else 0) for tid in won}
 
 
 def fmt_signed(n):
@@ -469,6 +504,7 @@ def _check_game(path, game, teams, players, schedule, problems):
             return
     if final[home] == final[away]:
         problems.append(f"{where}: final score is tied {final[home]}-{final[away]}")
+    _check_quarters(where, game, home, away, final, problems)
 
     lines = game.get("lines")
     if not isinstance(lines, list) or not lines:
@@ -504,6 +540,15 @@ def _check_game(path, game, teams, players, schedule, problems):
                 problems.append(f"{lw}: {key} {value!r} should be a whole number from 0 to {most}")
             else:
                 line[key] = value
+        # flagrant fouls (from the sheet's Notes): each one is also a personal foul
+        flagrant = line.get("flagrant", 0)
+        if not _is_count(flagrant):
+            problems.append(f"{lw}: flagrant {flagrant!r} should be a whole number, 0 or more")
+        elif _is_count(line.get("pf", 0)) and flagrant > line.get("pf", 0):
+            problems.append(f"{lw}: flagrant {flagrant} is more than pf {line.get('pf', 0)} "
+                            "(a flagrant foul is also a personal foul, so count it in pf too)")
+        else:
+            line["flagrant"] = flagrant
         if nums["ftm"] > nums["fta"]:
             problems.append(f"{lw}: ftm {nums['ftm']} is more than fta {nums['fta']}")
         if nums["ftm"] > nums["pts"]:
@@ -519,6 +564,44 @@ def _check_game(path, game, teams, players, schedule, problems):
             problems.append(
                 f"{where}: {tid} player points add up to {sums[tid]}, but the final score is {final[tid]}"
             )
+
+
+def _check_quarters(where, game, home, away, final, problems):
+    """`quarters`: each team's running total at the end of Q1-Q4, like the
+    sheet's Q1-Q4 boxes. They must climb (or stay level), and Q4 must equal the
+    final score unless the game went to overtime (Q4 tied, then more points)."""
+    example = f"{{{home}: [18, 38, 53, {final[home]}], {away}: [16, 30, 49, {final[away]}]}}"
+    quarters = game.get("quarters")
+    if quarters is None:
+        problems.append(f"{where}: quarters is missing. Add each team's running total at the end of "
+                        f"each quarter, from the sheet's Q1-Q4 boxes, e.g. quarters: {example}")
+        return
+    if not isinstance(quarters, dict) or set(quarters) != {home, away}:
+        problems.append(f"{where}: quarters should list exactly the two teams, like {example}")
+        return
+    for tid in (home, away):
+        totals = quarters[tid]
+        if (not isinstance(totals, list) or len(totals) != QUARTERS
+                or not all(_is_count(t) for t in totals)):
+            problems.append(f"{where}: quarters for {tid} should be {QUARTERS} whole numbers "
+                            f"(the running total at the end of Q1, Q2, Q3 and Q4)")
+            return
+        if any(b < a for a, b in zip(totals, totals[1:])):
+            problems.append(f"{where}: quarters for {tid} {totals} go down; each is the running "
+                            "total at the end of that quarter, so it can only stay level or climb")
+            return
+        if totals[-1] > final[tid]:
+            problems.append(f"{where}: {tid}'s Q4 total {totals[-1]} is more than its final score {final[tid]}")
+            return
+    q4 = {tid: quarters[tid][-1] for tid in (home, away)}
+    if q4 != {home: final[home], away: final[away]}:
+        if q4[home] != q4[away]:
+            problems.append(
+                f"{where}: the Q4 totals ({home} {q4[home]}, {away} {q4[away]}) don't match the final "
+                f"score ({final[home]}-{final[away]}). They only differ after overtime, which needs "
+                "the score tied at the end of Q4")
+            return
+    game["ot"] = q4 != {home: final[home], away: final[away]}
 
 
 def find_sheet(season_dir, gid):
@@ -552,11 +635,16 @@ def load_season(data_dir, season_id, gym=None, minimums=None):
 # --------------------------------------------------------------- computation
 
 def team_records(team_ids, games):
-    """W, L, PF, PA per team, plus head-to-head wins, from finished games."""
-    rec = {t: {"w": 0, "l": 0, "pf": 0, "pa": 0, "h2h": {}} for t in team_ids}
+    """W, L, PF, PA, quarters won and standings points per team, plus
+    head-to-head wins, from finished games."""
+    rec = {t: {"w": 0, "l": 0, "pf": 0, "pa": 0, "qw": 0, "points": 0, "h2h": {}} for t in team_ids}
     for game in games:
         home, away = game["home"], game["away"]
         hs, as_ = game["final"][home], game["final"][away]
+        for tid, n in quarters_won(game).items():
+            rec[tid]["qw"] += n
+        for tid, n in standings_points(game).items():
+            rec[tid]["points"] += n
         for tid, opp, own, other in ((home, away, hs, as_), (away, home, as_, hs)):
             r = rec[tid]
             r["pf"] += own
@@ -573,15 +661,16 @@ def _win_frac(w, l):
 
 
 def sort_standings(rec, names):
-    """Order teams by win %, then head-to-head among tied teams, then point
-    differential, then name. Head-to-head is skipped when a tied team hasn't
-    played any of the others yet. Returns [(team_id, tiebreak_used_or_None)]."""
+    """Order teams by standings points, then head-to-head record among teams
+    level on points, then point differential, then name. Head-to-head is
+    skipped when a tied team hasn't played any of the others yet.
+    Returns [(team_id, tiebreak_used_or_None)]."""
     groups = {}
     for tid, r in rec.items():
-        groups.setdefault(_win_frac(r["w"], r["l"]), []).append(tid)
+        groups.setdefault(r["points"], []).append(tid)
     order = []
-    for pct in sorted(groups, reverse=True):
-        tied = groups[pct]
+    for points in sorted(groups, reverse=True):
+        tied = groups[points]
         if len(tied) == 1:
             order.append((tied[0], None))
             continue
@@ -615,11 +704,9 @@ def compute_standings(season, regular_games):
     names = {t: teams[t]["name"] for t in teams}
     rec = team_records(teams, regular_games)
     order = sort_standings(rec, names)
-    leader = rec[order[0][0]] if order else None
     rows = []
     for rank, (tid, tiebreak) in enumerate(order, start=1):
         r = rec[tid]
-        gb = games_behind(leader["w"], leader["l"], r["w"], r["l"])
         diff = r["pf"] - r["pa"]
         rows.append({
             "rank": rank,
@@ -628,12 +715,12 @@ def compute_standings(season, regular_games):
             "short": teams[tid]["short"],
             "colour_slot": teams[tid]["colour_slot"],
             "gp": r["w"] + r["l"],
+            "points": r["points"],
             "w": r["w"],
             "l": r["l"],
+            "qw": r["qw"],
             "pct": fmt_pct3(r["w"], r["l"]),
             "pct_value": round_half_up(_win_frac(r["w"], r["l"]), 3),
-            "gb": float(gb),
-            "gb_display": fmt_gb(gb),
             "pf": r["pf"],
             "pa": r["pa"],
             "diff": diff,
@@ -677,26 +764,29 @@ def player_totals(players, teams, games):
 
 def add_technicals(totals, regular, playoff):
     """Technical fouls count for the whole season, playoffs included (unlike
-    every other stat): adds tech, tech_playoff and tech_games to each player."""
+    every other stat): adds tech, tech_playoff and tech_games to each player.
+    Flagrant fouls count the same way: flagrant, flagrant_playoff, flagrant_games."""
     for t in totals.values():
-        t.update(tech=0, tech_playoff=0, tech_games=0)
+        t.update(tech=0, tech_playoff=0, tech_games=0, flagrant=0, flagrant_playoff=0, flagrant_games=0)
     for games, playoffs in ((regular, False), (playoff, True)):
         for game in games:
             for line in game["lines"]:
-                n = line.get("tech", 0)
-                if n:
-                    t = totals[line["player"]]
-                    t["tech"] += n
-                    t["tech_games"] += 1
-                    if playoffs:
-                        t["tech_playoff"] += n
+                t = totals[line["player"]]
+                for key in ("tech", "flagrant"):
+                    n = line.get(key, 0)
+                    if n:
+                        t[key] += n
+                        t[f"{key}_games"] += 1
+                        if playoffs:
+                            t[f"{key}_playoff"] += n
 
 
-def technicals_list(totals):
-    """Everyone with a technical foul this season, most first, then by name."""
-    keys = ("id", "display", "number", "team", "team_name", "sub", "tech", "tech_playoff", "tech_games")
-    rows = [{k: t[k] for k in keys} for t in totals.values() if t["tech"] > 0]
-    return sorted(rows, key=lambda r: (-r["tech"], r["display"], r["id"]))
+def technicals_list(totals, key="tech"):
+    """Everyone with a technical foul this season (or a flagrant foul, with
+    key="flagrant"), most first, then by name."""
+    keys = ("id", "display", "number", "team", "team_name", "sub", key, f"{key}_playoff", f"{key}_games")
+    rows = [{k: t[k] for k in keys} for t in totals.values() if t[key] > 0]
+    return sorted(rows, key=lambda r: (-r[key], r["display"], r["id"]))
 
 
 def _ranked(entries, value_key, exact):
@@ -803,6 +893,8 @@ def game_summary(game, sched_row, season):
     teams, players = season["teams"], season["players"]
     home, away = game["home"], game["away"]
     final = game["final"]
+    qp, qwon = quarter_points(game), quarters_won(game)
+    spoints = standings_points(game) if game["type"] == "regular" else {home: None, away: None}
     by_team = {}
     for tid in (home, away):
         lines = [
@@ -812,7 +904,7 @@ def game_summary(game, sched_row, season):
                 "sub": players[l["player"]]["sub"],
                 "number": players[l["player"]].get("number"),
                 "pts": l["pts"], "ftm": l["ftm"], "fta": l["fta"],
-                "pf": l.get("pf", 0), "tech": l.get("tech", 0),
+                "pf": l.get("pf", 0), "tech": l.get("tech", 0), "flagrant": l.get("flagrant", 0),
             }
             for l in game["lines"] if l["team"] == tid
         ]
@@ -824,6 +916,10 @@ def game_summary(game, sched_row, season):
             "colour_slot": teams[tid]["colour_slot"],
             "score": final[tid],
             "won": final[tid] > final[home if tid == away else away],
+            "quarters": qp[tid]["quarters"],      # points scored in Q1-Q4
+            "ot": qp[tid]["ot"] if game.get("ot") else None,
+            "quarters_won": qwon[tid],
+            "standings_points": spoints[tid],     # None for playoff games
             "lines": lines,
             "totals": {
                 "pts": sum(l["pts"] for l in lines),
@@ -847,6 +943,7 @@ def game_summary(game, sched_row, season):
         "home": home,
         "away": away,
         "winner": home if final[home] > final[away] else away,
+        "ot": bool(game.get("ot")),
         "home_team": by_team[home],
         "away_team": by_team[away],
         "top": [
@@ -881,6 +978,7 @@ def compute_game_logs(season, summaries):
                     "fta": line["fta"],
                     "pf": line.get("pf", 0),
                     "tech": line.get("tech", 0),
+                    "flagrant": line.get("flagrant", 0),
                 })
     return logs
 
@@ -970,6 +1068,7 @@ def compute_season(season):
     needed = ppg_games_needed(totals, team_games, minimums["ppg_min_games"])
     leaders["through_week"] = through_week
     leaders["technicals"] = technicals_list(totals)
+    leaders["flagrants"] = technicals_list(totals, "flagrant")
     team_info = {
         tid: {"id": tid, "name": t["name"], "short": t["short"], "colour_slot": t["colour_slot"]}
         for tid, t in season["teams"].items()

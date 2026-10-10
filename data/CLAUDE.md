@@ -137,10 +137,18 @@ home: pa            # team ids
 away: lh
 type: regular       # regular | playoff
 final: {pa: 71, lh: 64}
+quarters: {pa: [19, 36, 53, 71], lh: [15, 31, 49, 64]}   # running total at the end of Q1-Q4
 lines:              # one per player listed on the sheet
   - {player: dave-m, team: pa, pts: 24, ftm: 6, fta: 7, pf: 3, tech: 1}
-  - {player: greg-t, team: pa, pts: 12, ftm: 2, fta: 2}
+  - {player: greg-t, team: pa, pts: 12, ftm: 2, fta: 2, pf: 2, flagrant: 1}
 ```
+`quarters` (required) is each team's running total at the end of each quarter,
+as written in the sheet's Q1 to Q4 boxes. The build works out the points in
+each quarter (19, 17, 17, 18 for `pa` above). Q4 equals the final score, unless
+the game went to overtime: then Q4 is tied and the final is higher (the OT
+points are the difference).
+`flagrant` (optional, from the sheet's Notes) counts flagrant fouls. A flagrant
+is also a personal foul, so it can't be more than `pf`.
 `pf` (personal fouls, 0 to 5, flagrant fouls included: a flagrant is also a personal foul) and `tech` (technical fouls, 0 to 2) are
 optional and default to 0: the sheet has 5 foul boxes and 2 T boxes per player.
 Checks the build script must enforce (and fail loudly on):
@@ -150,7 +158,9 @@ Checks the build script must enforce (and fail loudly on):
 - `game_id` matches the file name and a row in `schedule.csv`
 
 It also checks: the date, home, away and type match `schedule.csv`; the final
-score isn't tied; no player is listed twice in a game; `ftm` isn't more than
+score isn't tied; `quarters` has 4 running totals per team that never go down,
+and Q4 equals the final score (or is tied, for overtime); `flagrant` isn't more
+than `pf`; no player is listed twice in a game; `ftm` isn't more than
 `pts` and `pts - ftm` isn't 1 (field goals can't add up to 1 point); display
 names are "First L."; ids are unique. It reports every problem at once and
 writes nothing until all of them are fixed.
@@ -183,16 +193,28 @@ writes nothing until all of them are fixed.
   Stats table (`qualifies_ppg: false`, `ppg_games_needed`).
 - **FT%:** FTM ÷ FTA, one decimal. FT% leaderboards need `ft_min_attempts` FTA
   (from `seasons.yml`, default 10).
-- **Standings:** sorted by win %. Show W, L, PCT (`.857` style), GB, PF, PA, DIFF.
+- **Standings points** (regular season): 1 for each quarter won and 3 for
+  winning the game, so 7 at most. A tied quarter gives neither team a point and
+  overtime isn't a quarter (both assumed, to be confirmed by the league).
+  Constants `POINTS_PER_QUARTER` and `POINTS_PER_WIN` in `build_stats.py`.
+- **Standings:** sorted by points. Show PTS, W, L, QW (quarters won), PCT
+  (`.857` style), PF, PA, DIFF. No games-behind column.
 - **Tiebreakers:** `[placeholder]`, not yet decided by the league. Until then
-  use head-to-head, then point differential, and say so under the standings on
-  Home (shown when a tie was broken this way).
+  teams level on points are ordered by head-to-head, then point differential,
+  and the site says so under the standings on Home (shown when a tie was
+  broken this way).
   Head-to-head is win % in games among all the tied teams, and is skipped if
   any tied team hasn't played the others yet. Ties left after that go by name.
 - **Rounding:** PPG, FT% and PCT round half up (20.15 → 20.2). Rankings use the
   exact values, and players with exactly equal values share a rank.
 - **Playoffs:** stored with `type: playoff`, shown separately, never counted in
-  regular-season stats or standings.
+  regular-season stats or standings. A playoff game is decided by its winner
+  alone: no standings points (its box score still shows the score by quarter).
+- **Flagrant fouls** count like technicals: the whole season, playoffs included
+  (`flagrant`, `flagrant_playoff`, `flagrant_games` in `players.json`; the
+  `flagrants` list in `leaders.json`). They show on the player page (a line
+  under the tiles, a Flagrant badge in the game log) and in a list at the bottom
+  of the Stats page, under the technical fouls.
 - **Technical fouls** are the exception: a player's season total counts every
   game, playoffs included (`tech`, `tech_playoff`, `tech_games` in
   `players.json`; the list in `leaders.json` as `technicals`). They show on the

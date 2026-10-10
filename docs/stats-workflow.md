@@ -135,18 +135,27 @@ home: pa                    # team ids, two letters (see teams.yml)
 away: lh
 type: regular               # regular, or playoff
 final: {pa: 71, lh: 64}     # the final score from the sheet
+quarters: {pa: [19, 36, 53, 71], lh: [15, 31, 49, 64]}   # the sheet's Q1-Q4 boxes
 lines:                      # one line per player listed on the sheet
   - {player: dave-m, team: pa, pts: 24, ftm: 6, fta: 7, pf: 3}
-  - {player: greg-t, team: pa, pts: 12, ftm: 2, fta: 2, pf: 1, tech: 1}
+  - {player: greg-t, team: pa, pts: 12, ftm: 2, fta: 2, pf: 2, tech: 1, flagrant: 1}
   - {player: mike-r, team: lh, pts: 16, ftm: 1, fta: 2}
   # ...and so on for everyone on the sheet
 ```
 
+**`quarters`** is copied from the sheet's **Q1 to Q4** boxes under each
+roster: each team's running total at the end of each quarter, in order. The
+last one is the final score, unless the game went to overtime (then Q4 is tied
+and the final is higher). The site works out the points scored in each quarter
+from these, and from those who won each quarter.
+
 For each player: **`pts`** = total points, **`ftm`** = free throws made,
 **`fta`** = free throws attempted. Two more are optional and can be left out
 when they're 0: **`pf`** = personal fouls (0 to 5; kept, not shown on the site)
-and **`tech`** = technical fouls (0 to 2; shown on the player page and the
-Stats page, counting the whole season, playoffs included). A player who was on the sheet but didn't
+**`tech`** = technical fouls (0 to 2; shown on the player page and the
+Stats page, counting the whole season, playoffs included) and **`flagrant`** =
+flagrant fouls (from the sheet's Notes; counted like technicals). A flagrant
+is also a personal foul, so count it in `pf` too. A player who was on the sheet but didn't
 score still gets a line with zeros, because being on the sheet counts as
 playing in the game.
 
@@ -179,6 +188,10 @@ The real message starts with the full path (for example
 | A player is listed twice in one game | `games/2026-12-03-g1.yml: line 3 (greg-t): player is listed twice in this game` |
 | A player name isn't written "First L." | `players.yml: player #1 (dave-m): display 'Dave Mitchell' should be 'First L.' (never a full name)` |
 | Two players on one team share a "First L." and one has no number | ``players.yml: mike-r, mike-r2 on team dn are all "Mike R."; give each a jersey `number` ...`` |
+| The quarter totals are missing | ``games/2026-12-03-g1.yml: quarters is missing. Add each team's running total at the end of each quarter, from the sheet's Q1-Q4 boxes, e.g. quarters: {...}`` |
+| The Q4 totals don't match the final score | `games/2026-12-03-g1.yml: the Q4 totals (pa 70, lh 64) don't match the final score (71-64). They only differ after overtime, which needs the score tied at the end of Q4` |
+| A quarter total goes down | `games/2026-12-03-g1.yml: quarters for lh [15, 31, 29, 64] go down; each is the running total at the end of that quarter, so it can only stay level or climb` |
+| More flagrant fouls than personal fouls | `games/2026-12-03-g1.yml: line 2 (greg-t): flagrant 1 is more than pf 0 (a flagrant foul is also a personal foul, so count it in pf too)` |
 | The file isn't valid (a missing bracket, wrong indent) | `games/2026-12-03-g1.yml: not valid YAML (...)` followed by the line and column |
 
 It also catches: the same `game_id` used in two seasons that are shown on the
@@ -243,20 +256,26 @@ truly equal.
 - **Playoffs** (`type: playoff`) are kept separate. They never count in the
   standings or in the Stats page.
 
-**Standings** work the same way, from the final scores. Port Arthur in the
-sample season:
+**Standings** are by **points**: in each regular-season game a team gets
+**1 point for each quarter it wins** and **3 points for winning the game**, so
+7 at most. A quarter's winner is the team that scored more in it (from the
+`quarters` totals). Two things are assumed until the league confirms them: a
+**tied quarter** gives neither team a point, and **overtime** isn't a quarter
+(it only decides who wins the game). Port Arthur in the sample season:
 
 | Column | Rule | Port Arthur |
 |---|---|---|
+| PTS | Quarters won + 3 for each win | 19 + 3 × 6 = **37** |
 | W-L | Wins and losses | 6-1 |
+| QW | Quarters won | 19 of 28 |
 | PCT | W ÷ (W + L), three decimals | 6 ÷ 7 = **.857** |
-| GB (games behind) | ((leader's W − W) + (L − leader's L)) ÷ 2 | Current River is 5-2, so ((6 − 5) + (2 − 1)) ÷ 2 = **1** |
 | PF / PA | Points scored for / against, all games | 482 / 421 |
 | DIFF | PF − PA | **+61** |
 
-The order is by PCT. **Tiebreakers have not been decided by the league yet**
-(`[placeholder]`). Until then the site breaks ties by head-to-head record, then
-point differential, and says so under the standings when it has to.
+The order is by PTS. **Tiebreakers have not been decided by the league yet**
+(`[placeholder]`). Until then the site orders teams level on points by
+head-to-head record, then point differential, and says so under the standings
+when it has to. Playoff games give no standings points: they go to the winner.
 
 ## How to
 
@@ -282,9 +301,10 @@ the site (it takes a minute or two).
    Create new file** and name it exactly like the `game_id`, plus `.yml`:
    `2026-12-03-g1.yml`. The easiest start is to copy the example
    [above](#what-a-game-file-looks-like) and replace the numbers.
-3. **Type in the sheet.** One `lines:` entry for every player on the sheet, with
-   their `pts`, `ftm` and `fta`. The `final:` score must equal each team's
-   points added up.
+3. **Type in the sheet.** The `final:` score, the `quarters:` totals from the
+   Q1 to Q4 boxes, and one `lines:` entry for every player on the sheet, with
+   their `pts`, `ftm` and `fta` (and `pf`, `tech`, `flagrant` when not 0). The
+   `final:` score must equal each team's points added up.
 4. **Optional: save the photo** of the sheet as
    `data/2026-27/sheets/2026-12-03-g1.jpg` (same name as the game). It is kept
    for checking. It is **not** shown on the site: the box score's "Score sheet

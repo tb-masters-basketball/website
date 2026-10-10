@@ -5,6 +5,7 @@ home: wf
 away: fw
 type: regular
 final: {wf: 80, fw: 52}
+quarters: {wf: [19, 38, 59, 80], fw: [11, 23, 40, 52]}
 lines:
   - {player: jeff-s, team: wf, pts: 17, ftm: 2, fta: 3, pf: 2}
   - {player: steve-p, team: wf, pts: 14, ftm: 7, fta: 7, pf: 3}
@@ -12,7 +13,7 @@ lines:
   - {player: rick-l, team: wf, pts: 10, ftm: 0, fta: 2, pf: 1}
   - {player: trevor-m, team: wf, pts: 10, ftm: 2, fta: 2, pf: 2}
   - {player: derek-h, team: wf, pts: 8, ftm: 1, fta: 1, pf: 4}
-  - {player: mark-d, team: wf, pts: 5, ftm: 0, fta: 0, pf: 2}
+  - {player: mark-d, team: wf, pts: 5, ftm: 0, fta: 0, pf: 2, flagrant: 1}
   - {player: jamie-c, team: wf, pts: 4, ftm: 2, fta: 2, pf: 3}
   - {player: paul-l, team: fw, pts: 16, ftm: 2, fta: 2, pf: 1}
   - {player: glen-a, team: fw, pts: 8, ftm: 0, fta: 0, pf: 3}

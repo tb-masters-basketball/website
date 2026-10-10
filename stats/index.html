@@ -139,7 +139,8 @@ scripts:
       <div><dt>FT%</dt><dd>Free throws made divided by free throws attempted, to one decimal. A player needs at least {{ ft_min | default: 10 }} attempts to be ranked.</dd></div>
       <div><dt>Subs</dt><dd>A sub's points count for them as a player and toward their team's score that day.</dd></div>
       <div><dt>Techs</dt><dd>Technical fouls, from the T boxes on the score sheet. Unlike the other stats, they count for the whole season, playoffs included.</dd></div>
-      <div><dt>Playoffs</dt><dd>Kept separate. Playoff games never count in these stats (technical fouls aside) or in the standings.</dd></div>
+      <div><dt>Flagrants</dt><dd>Flagrant fouls, from the Notes on the score sheet. Each one also counts as a personal foul. Like techs, they count for the whole season, playoffs included.</dd></div>
+      <div><dt>Playoffs</dt><dd>Kept separate. Playoff games never count in these stats (technical and flagrant fouls aside) or in the standings.</dd></div>
       <div><dt>Source</dt><dd>The league's paper score sheets, typed into the site's game files. The numbers are recalculated every time the site is published.</dd></div>
     </dl>
   </section>
@@ -158,6 +159,23 @@ scripts:
     </div>
     {%- else %}
     <p class="empty">No technical fouls yet.</p>
+    {%- endif %}
+  </section>
+
+  {%- comment %} Then everyone with a flagrant foul this season (playoffs included). {% endcomment %}
+  {%- assign flagrants = stats.leaders.flagrants %}
+  <section class="page-section" aria-labelledby="flagrants-title">
+    <h2 class="section-title" id="flagrants-title">Flagrant fouls</h2>
+    <p class="table-note">This season, playoffs included. Most first.</p>
+    {%- if flagrants.size > 0 %}
+    <div class="rank-list">
+      {%- for fp in flagrants %}
+      {%- capture fp_meta %}{{ fp.team_name }} · {% if fp.flagrant_games == 1 %}1 game{% else %}{{ fp.flagrant_games }} games{% endif %}{% if fp.flagrant_playoff > 0 %} · {{ fp.flagrant_playoff }} in playoffs{% endif %}{% endcapture %}
+      {%- include rank-row.html player=fp value=fp.flagrant meta=fp_meta rank=forloop.index %}
+      {%- endfor %}
+    </div>
+    {%- else %}
+    <p class="empty">No flagrant fouls yet.</p>
     {%- endif %}
   </section>
 </div>

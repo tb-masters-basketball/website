@@ -22,8 +22,10 @@ and `CNAME`. (`site.webmanifest` uses relative paths, so it needs no change.)
 - **`scripts/build_stats.py`** (Python 3, standard library plus PyYAML) reads
   every season in `data/seasons.yml` and writes `_data/computed/<season>/*.json`:
   standings, player totals, leaders, per-player rankings and per-game logs.
-  Game lines may carry `pf` and `tech` (see data/CLAUDE.md): technical fouls
-  count the whole season, playoffs included, and personal fouls aren't shown.
+  Game lines may carry `pf`, `tech` and `flagrant` (see data/CLAUDE.md):
+  technical and flagrant fouls count the whole season, playoffs included, and
+  personal fouls aren't shown. Every game file has `quarters` (running totals
+  at the end of Q1-Q4); standings are by points: 1 per quarter won, 3 per win.
 - **Sample data switch:** pages never name a season. `build_stats.py` picks the
   active season (the sample stand-in while `sample_data: true` in `_config.yml`,
   else the `current` one) and writes `_data/computed/active.json`;

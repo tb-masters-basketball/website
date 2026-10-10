@@ -1,5 +1,7 @@
 {%- comment -%}
   Standings table inside a scrolling card. Lists every team and every column.
+  Teams are ranked by standings points (PTS): 1 for each quarter won (QW) and
+  3 for each win. include standings-points-note.html explains it under the table.
   On narrow screens the card scrolls sideways and the team column stays put.
   link_teams=true makes each team name a link to its page (only the season the
   site is showing has team pages).
@@ -11,10 +13,11 @@
     <thead>
       <tr>
         <th scope="col">Team</th>
+        <th scope="col"><abbr title="Standings points">PTS</abbr></th>
         <th scope="col"><abbr title="Wins">W</abbr></th>
         <th scope="col"><abbr title="Losses">L</abbr></th>
+        <th scope="col"><abbr title="Quarters won">QW</abbr></th>
         <th scope="col"><abbr title="Win percentage">PCT</abbr></th>
-        <th scope="col"><abbr title="Games behind">GB</abbr></th>
         <th scope="col"><abbr title="Points for">PF</abbr></th>
         <th scope="col"><abbr title="Points against">PA</abbr></th>
         <th scope="col"><abbr title="Point differential">DIFF</abbr></th>
@@ -24,10 +27,11 @@
       {%- for t in include.standings.teams %}
       <tr>
         <th scope="row"><span class="standings__rank">{{ t.rank }}</span><span class="chip chip--{{ t.colour_slot }}" aria-hidden="true"></span>{% if include.link_teams %}<a href="{{ '/teams/' | append: t.team | append: '/' | relative_url }}">{{ t.name }}</a>{% else %}{{ t.name }}{% endif %}</th>
+        <td class="standings__pts">{{ t.points }}</td>
         <td>{{ t.w }}</td>
         <td>{{ t.l }}</td>
+        <td>{{ t.qw }}</td>
         <td>{{ t.pct }}</td>
-        <td>{{ t.gb_display }}</td>
         <td>{{ t.pf }}</td>
         <td>{{ t.pa }}</td>
         <td class="standings__diff">{{ t.diff_display }}</td>

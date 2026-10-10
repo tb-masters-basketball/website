@@ -34,9 +34,12 @@ The full list, with answers so far, is in
 - [ ] **Technical foul rules.** What happens after two in a game, or a number
       in a season? The site counts technicals (playoffs included) but flags
       nothing until this is decided.
-- [ ] **Standings tiebreakers**, including three-way ties. Until then the site
-      uses head-to-head, then point differential, and says so under the
-      standings.
+- [ ] **Standings tiebreakers**, including three-way ties, for teams level on
+      points. Until then the site uses head-to-head, then point differential,
+      and says so under the standings.
+- [ ] **Tied quarters and overtime (to confirm).** Standings points are 1 per
+      quarter won and 3 per win. The site assumes a tied quarter gives neither
+      team a point, and that overtime isn't a quarter.
 - [ ] **Playoff matchups.** The play-in (G41, Wed Apr 21) is "TBD vs TBD" in
       `schedule.csv`. Fill in each playoff row as the standings decide it.
 - [ ] **League contact for the footer.** Set `contact_url` in `_config.yml`
@@ -78,7 +81,8 @@ sheet into that file and a pull request:
    - Never write a full name; players are always "First L.".
 4. **Write the files:**
    - `data/2026-27/games/<game_id>.yml`, with the id taken from `schedule.csv`
-     by date and teams
+     by date and teams, including `quarters` (the Q1 to Q4 boxes) and any
+     `flagrant` fouls from Notes
    - the photo as `data/2026-27/sheets/<game_id>.jpg`
 5. **Run the checks** (`python scripts/build_stats.py --check`) and fix
    anything they report, such as points that don't add up to the final.
@@ -203,7 +207,7 @@ there are none:
 | File | Contents |
 |---|---|
 | `teams.json` | name, code, colour slot per team |
-| `standings.json` | W, L, PCT, GB, PF, PA, DIFF, rank; tiebreak notes; "through week N" |
+| `standings.json` | PTS (standings points), W, L, QW (quarters won), PCT, PF, PA, DIFF, rank; tiebreak notes; "through week N" |
 | `players.json` | each player's totals: GP, PTS, PPG, FTM, FTA, FT%, season high; PF (kept, not shown); technical fouls for the whole season, playoffs included |
 | `leaders.json` | PPG and FT% leaders (FT% needs 10+ attempts); everyone with a technical foul |
 | `rankings.json` | every player with their rank in each stat, for the Stats page |
