@@ -382,6 +382,20 @@ will tell you.
 5. Once they are in `players.yml` they get a player page (`/players/mike-r/`)
    and appear on their team's roster, even before their first game.
 
+### The preview copy (sample data at /preview/)
+
+Every deploy also builds a second copy of the site from the made-up sample
+season, at **mastersbasketball.ca/preview/**. It looks exactly like the real
+site, with a full season of fake numbers, and a banner that says so and links
+back to the live site. Use it to see what a change looks like with data, while
+the real site carries on showing the real season.
+
+- Nothing links to it and search engines are asked not to list it, but it is
+  not private: anyone with the address can open it.
+- It shows what is merged into `main`, a minute or two after the merge. A pull
+  request that isn't merged yet doesn't appear there.
+- The switch is `preview_site: true` in `_config.yml` (`false` turns it off).
+
 ### Sample mode (now off)
 
 Sample mode was switched off in October 2026, once the real teams and schedule

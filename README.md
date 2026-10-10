@@ -171,7 +171,7 @@ generated is committed: `_data/computed/`, the stub folders, `calendar/` and
 | `data/<season>/schedule.csv` | One row per game: id, date, time, gym, home, away, `regular`/`playoff`, week, optional `status` (`cancelled`) and `round` (playoff round name) | hand |
 | `data/<season>/games/<game_id>.yml` | One file per played game: final score and a line per player (points, FTM, FTA) | hand or `/record-game` |
 | `data/<season>/sheets/<game_id>.jpg` | Photo of the paper sheet, kept for checking (not published) | hand or `/record-game` |
-| `_config.yml` | `sample_data` (show the fake season), `score_sheet_links` (publish photos), `contact_url`, `search_engines` (off: pages ask not to be listed by Google), the domain | hand, rarely |
+| `_config.yml` | `sample_data` (show the fake season), `score_sheet_links` (publish photos), `preview_site` (the sample copy at `/preview/`), `contact_url`, `search_engines` (off: pages ask not to be listed by Google), the domain | hand, rarely |
 
 The file formats, id rules and stat rules (GP, PPG, FT%, standings, rounding,
 tiebreakers) are in [`data/CLAUDE.md`](data/CLAUDE.md). The seasons are:
@@ -326,10 +326,14 @@ night at about 4 AM Thunder Bay time (08:17 UTC):
    time) in all four layouts, plus blank sheets. The Schedule page links only
    the files that exist.
 5. `bundle exec jekyll build` (production).
-6. `scripts/check_links.sh`: html-proofer over `_site/`, including the PDF links.
-7. **On `main` only:** upload `_site/` and deploy it to GitHub Pages.
+6. `scripts/build_preview.sh`: the hidden preview copy, the same site built
+   from the sample season into `_site/preview/` (published at `/preview/`, with
+   the sample banner). Off with `preview_site: false` in `_config.yml`.
+7. `scripts/check_links.sh`: html-proofer over `_site/` (both copies), including
+   the PDF links.
+8. **On `main` only:** upload `_site/` and deploy it to GitHub Pages.
 
-A pull request runs steps 1–6, so a red cross means "don't merge yet". The
+A pull request runs steps 1–7, so a red cross means "don't merge yet". The
 nightly run rebuilds `main` with nothing changed, so the parts that depend on
 today's date stay current: the score sheets (from today on), the "next game
 day" panel and the calendar files. GitHub pauses scheduled runs after 60 days

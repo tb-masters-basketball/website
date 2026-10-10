@@ -1046,6 +1046,17 @@ a.leader-card--hot:hover {
   font-weight: 700;
 }
 
+/* "Go to the live site" on the /preview/ copy: a 44 px tall tap area in a slim bar */
+.sample-banner a {
+  display: inline-block;
+  padding: 14px 0;
+  margin: -14px 0;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ------------------------------------------------------------ Stats page */
 
 .page {

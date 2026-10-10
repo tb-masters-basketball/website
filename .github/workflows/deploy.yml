@@ -57,6 +57,13 @@ jobs:
         env:
           JEKYLL_ENV: production
 
+      # The hidden copy at /preview/, from the sample season (preview_site in
+      # _config.yml). After the main build, which would otherwise remove it.
+      - name: Build preview site
+        run: scripts/build_preview.sh
+        env:
+          JEKYLL_ENV: production
+
       # Fails the build (and so the deploy) on a broken internal link, image,
       # script or anchor anywhere in the built site.
       - name: Check links and images

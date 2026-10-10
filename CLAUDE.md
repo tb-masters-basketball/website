@@ -54,11 +54,13 @@ which reads sheets by that exact layout. Changes to how it reads the data
 data/<season>/          source of truth, edited by hand or by /record-game (see data/CLAUDE.md)
                         data/2026-27/ is the real season; data/sample-2026-27/ is fake data
 _config.yml             `sample_data: true` makes every page read the sample season (+ banner);
+                        `preview_site: true` also builds a sample copy at /preview/ on every deploy;
                         `score_sheet_links` (off) publishes score sheet photos; collections for the stubs
 scripts/build_stats.py  computes _data/computed/ (git-ignored) — never edit those files by hand
 scripts/calendars.py    writes calendar/<team>.ics and league.ics (git-ignored) from the real season;
                         called by build_stats.py, linked from Schedule and team pages
 scripts/make_sample_season.py  regenerates data/sample-2026-27/ and sample-2025-26/ (fake data)
+scripts/build_preview.sh  after the main build: the sample-season copy into _site/preview/ (runs in CI)
 scripts/check_links.sh  fails on broken links/images in _site/ (html-proofer; runs in CI)
 scripts/scoresheet/     the score sheet generator (README, fonts, badge, example data)
 scripts/make_score_sheets.sh  score-sheets/*.pdf (git-ignored) for the season shown; runs in CI
@@ -82,7 +84,7 @@ python -m unittest discover -s tests     # unit tests
 python scripts/build_stats.py            # check data, recompute stats, write the stub pages
 scripts/make_score_sheets.sh             # score sheet PDFs into score-sheets/ (needs reportlab)
 bundle exec jekyll serve --livereload    # preview at http://localhost:4000/
-bundle exec jekyll build && scripts/check_links.sh   # build, then check every link and image
+bundle exec jekyll build && scripts/build_preview.sh && scripts/check_links.sh   # build both copies, check links
 python scripts/screenshot_all.py --out /tmp/shots --contact-sheets   # every page, both modes (needs Playwright)
 ```
 Always run the stats script before previewing data changes (and after changing

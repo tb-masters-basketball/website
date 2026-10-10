@@ -15,6 +15,13 @@ baseurl: ""
 # data/2026-27/. Turn it back on to preview the site with sample numbers.
 sample_data: false
 
+# The hidden preview copy. true: every deploy also builds the site from the
+# sample season at /preview/ (mastersbasketball.ca/preview/), with the sample
+# banner, so changes can be seen with a full season of made-up numbers while
+# the real site stays live. Nothing links to it, but it isn't private: anyone
+# with the address can open it. scripts/build_preview.sh builds it.
+preview_site: true
+
 # Score sheet photos. Off: the box score page has no "Score sheet photo" link.
 # On: scripts/build_stats.py copies the photos from data/<season>/sheets/ into
 # the site and each box score links to its photo. The league keeps the photos
