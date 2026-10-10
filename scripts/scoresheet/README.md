@@ -34,7 +34,7 @@ The scorekeeper can pick whichever they like. All four have the same parts, so
 | PF | Slashed foul boxes in the player's row (0 to 5). The website keeps them but doesn't show them. |
 | Techs | Slashed red **T** boxes in the player's row (0 to 2). The website counts them for the whole season, playoffs included. |
 | Quarter scores | The **Q1 to Q4** boxes: each team's running total at the end of each quarter (and **OT** after overtime). A quarter's points are the difference from the quarter before. |
-| Flagrant fouls | **Notes** on page 1: team, player number and quarter for each one. |
+| Flagrant fouls | **Notes** on page 1: team, player number and quarter for each one. A flagrant also counts as a personal foul, so it is in that player's foul boxes (and PF) too. |
 | Checks | The last running total equals the Final box. Each quarter box equals the running total at that quarter's line. Player points add up to the team score. |
 
 Team fouls and timeouts are for the game itself and aren't recorded on the website.

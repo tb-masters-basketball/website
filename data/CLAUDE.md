@@ -141,7 +141,7 @@ lines:              # one per player listed on the sheet
   - {player: dave-m, team: pa, pts: 24, ftm: 6, fta: 7, pf: 3, tech: 1}
   - {player: greg-t, team: pa, pts: 12, ftm: 2, fta: 2}
 ```
-`pf` (personal fouls, 0 to 5) and `tech` (technical fouls, 0 to 2) are
+`pf` (personal fouls, 0 to 5, flagrant fouls included: a flagrant is also a personal foul) and `tech` (technical fouls, 0 to 2) are
 optional and default to 0: the sheet has 5 foul boxes and 2 T boxes per player.
 Checks the build script must enforce (and fail loudly on):
 - each team's player points add up to its final score

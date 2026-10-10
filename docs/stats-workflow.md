@@ -86,7 +86,7 @@ each quarter in the Q1 to Q4 boxes.
 | PF (personal fouls) | Slashed foul boxes in the player's row (0 to 5). Kept, but not shown on the site. |
 | Techs (technical fouls) | Slashed red **T** boxes in the player's row (0 to 2). |
 | Quarter scores | The **Q1 to Q4** boxes (and **OT**): each team's running total at the end of each quarter. |
-| Flagrant fouls | **Notes** on page 1: team, player number and quarter. |
+| Flagrant fouls | **Notes** on page 1: team, player number and quarter. A flagrant also counts as a personal foul, so it is in the player's foul boxes (and `pf`) too. |
 | Checks | The last running total equals the Final box. Each quarter box equals the running total at that quarter's line. Player points add up to the team score. |
 
 Those numbers are what goes into the game file: `pts`, `ftm` and `fta` for every

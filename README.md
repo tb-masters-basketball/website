@@ -63,7 +63,8 @@ sheet into that file and a pull request:
    - slashed foul boxes give `pf`, slashed red T boxes give `tech`
    - the Q1 to Q4 (and OT) boxes give each team's running total at the end of
      each quarter, for the quarter scores
-   - **Notes** on page 1 give flagrant fouls (team, player number, quarter)
+   - **Notes** on page 1 give flagrant fouls (team, player number, quarter).
+     A flagrant is also a personal foul, so it's in the foul boxes (`pf`) too
    - check: last running total = Final box; each quarter box = the running
      total at that quarter's line; player points add up to the final
 3. **Match names to player ids** in `players.yml`:

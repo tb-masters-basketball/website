@@ -300,8 +300,8 @@ class ScoreSheet:
         ("Players", "Tick Here for everyone who plays. Fill a circle for each free throw made; slash one "
          "for each miss. Slash a foul box for each personal foul and a T box for each technical."),
         ("Team fouls", "Slash one box in that quarter's row for each team foul."),
-        ("Flagrant fouls", "Write each one in Notes on page 1: the team, the player's number, the quarter "
-         "and what happened."),
+        ("Flagrant fouls", "A flagrant foul is also a personal foul: slash a foul box for it as usual. "
+         "Then write it in Notes on page 1: the team, the player's number, the quarter and what happened."),
         ("This page", "Use it only if a team passes 100 points or a player takes more than 10 free "
          "throws. Keep marking exactly as on page 1: the running score carries on from 101. Write the "
          "final score on page 1."),
