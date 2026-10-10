@@ -60,12 +60,45 @@ TINT = HexColor("#E7ECF7")
 SHADE = HexColor("#F1F3F9")
 PEN = HexColor("#1F3FB8")      # example handwriting only
 
-FORM = "MBL-SS6"          # SS6: quarters (was halves), Notes on page 1, how-to on page 2
-ROSTER_ROWS = 12
-FT_CIRCLES = 10
-MAX_POINTS = 100          # page 1 runs 1-100; page 2 continues from 101 with one column fewer
-QUARTERS = ("Q1", "Q2", "Q3", "Q4")
-TEAM_FOUL_BOXES = 5       # per quarter
+# Everything structural about the printed sheet, in one place. The drawing code
+# reads only this; `--spec OUT.json` writes it (plus each layout's running-score
+# ranges) for the game file checks and the entry page. Change the printed sheet
+# here, then bump "form" (and update /record-game and scripts/sheet_rules.py).
+SPEC = {
+    "form": "MBL-SS6",                 # SS6: quarters (was halves), Notes on page 1, how-to on page 2
+    "roster_rows": 12,                 # player rows per team (same rows on both pages)
+    "ft_circles_per_page": 10,         # free-throw circles per player row: 1-10 on page 1, 11-20 on page 2
+    "personal_foul_boxes": 5,
+    "technical_boxes": 2,
+    "timeouts": 3,                     # circles beside each team name
+    "quarters": ["Q1", "Q2", "Q3", "Q4"],
+    "team_foul_boxes_per_quarter": 5,
+    # The score boxes under each roster: the running total at the end of each
+    # quarter, after overtime, and the final ("digits" = boxes printed).
+    "score_boxes": [
+        {"key": "q1", "label": "Q1", "digits": 2},
+        {"key": "q2", "label": "Q2", "digits": 2},
+        {"key": "q3", "label": "Q3", "digits": 2},
+        {"key": "q4", "label": "Q4", "digits": 3},
+        {"key": "ot", "label": "OT", "digits": 3},
+        {"key": "final", "label": "Final", "digits": 3},
+    ],
+    "points_per_page": 100,            # page 1's running score: 1-100
+    # Running-score columns on page 1, by layout; each column holds
+    # points_per_page / columns totals. Page 2 continues from 101 with
+    # page2_columns_fewer columns fewer, the same totals per column.
+    "running_columns": {"portrait-letter": 5, "default": 4},
+    "page2_columns_fewer": 1,
+    "notes_box": True,                 # page 1: flagrant fouls and anything else
+}
+FORM = SPEC["form"]
+ROSTER_ROWS = SPEC["roster_rows"]
+FT_CIRCLES = SPEC["ft_circles_per_page"]
+MAX_POINTS = SPEC["points_per_page"]
+QUARTERS = tuple(SPEC["quarters"])
+TEAM_FOUL_BOXES = SPEC["team_foul_boxes_per_quarter"]
+PF_BOXES = SPEC["personal_foul_boxes"]
+T_BOXES = SPEC["technical_boxes"]
 PAD = 36
 FID, FID_IN = 14, 16
 SIZES = {"letter": letter, "legal": legal}
@@ -176,7 +209,7 @@ class ScoreSheet:
         c = self.c
         ft_pitch = 9.2
         ft_w = FT_CIRCLES * ft_pitch + 4 + 8
-        foul_w = 5 * 9 + 4 + 2 * 9 + 1.5 + 6
+        foul_w = PF_BOXES * 9 + 4 + T_BOXES * 9 + 1.5 + 6
         if back:
             cols = [("#", 20), ("Player", w - 20 - ft_w - 8), ("Free throws 11-20", ft_w + 8)]
         else:
@@ -197,7 +230,7 @@ class ScoreSheet:
         if not back:   # timeouts: one circle per timeout taken
             tx = x + 76 + name_w + 6
             self.label(tx, by + 7.4, "Timeouts")
-            for i in range(3):
+            for i in range(SPEC["timeouts"]):
                 self.circle(tx + self.lwidth("Timeouts") + 8 + i * 9.5, by + bar / 2, 3.4, lw=0.7)
         # column header
         hh = 15
@@ -235,14 +268,14 @@ class ScoreSheet:
             # fouls 1-5 + T
             f0 = xs[4] + 3
             fboxes = []
-            for i in range(5):
+            for i in range(PF_BOXES):
                 bx = f0 + i * 9
                 self.box(bx, y + (rh - bs) / 2, 8, bs, stroke=RULE, lw=0.6, fill=white)
                 self.text(bx + 4, y + (rh - bs) / 2 + 2.3, str(i + 1), "Body", 4.4, RULE, anchor="c")
                 fboxes.append(bx)
             techs = []
-            for k in range(2):
-                tx = f0 + 5 * 9 + 4 + k * 10.5
+            for k in range(T_BOXES):
+                tx = f0 + PF_BOXES * 9 + 4 + k * 10.5
                 self.box(tx, y + (rh - bs) / 2, 9, bs, stroke=RED, lw=0.9, fill=white)
                 self.text(tx + 4.5, y + (rh - bs) / 2 + 2.2, "T", "CondSemi", 5.2, RED, anchor="c")
                 techs.append(tx)
@@ -275,7 +308,7 @@ class ScoreSheet:
         self.box(x, sy, w, sh, lw=1.2, fill=white)
         self.label(x + 6, sy + 15.5, "Score at")
         self.label(x + 6, sy + 7.5, "end of")
-        cells_ = [(q, 2) for q in QUARTERS[:3]] + [(QUARTERS[3], 3), ("OT", 3), ("Final", 3)]
+        cells_ = [(b["label"], b["digits"]) for b in SPEC["score_boxes"]]
         dw_, dgap = 9.2, 1.2
         widths = [n * dw_ + (n - 1) * dgap for _, n in cells_]
         sx = x + 40
@@ -381,7 +414,7 @@ class ScoreSheet:
         per = MAX_POINTS // sets
         front_w = (w - gap * (sets - 1)) / sets
         col_w = front_w * 0.85
-        cols = sets - 1
+        cols = sets - SPEC["page2_columns_fewer"]
         used = cols * col_w + (cols - 1) * gap
         self.running(x, top, used, bottom, cols, MAX_POINTS + 1, per, col_w)
         self.how_to(x + used + 10, top, w - used - 10, bottom)
@@ -398,7 +431,7 @@ class ScoreSheet:
     # ---- pages ------------------------------------------------------------------
     def score_sets(self):
         # portrait letter is the narrowest grid: 5 columns of 20; the rest 4 of 25
-        return 5 if (self.orient, self.size) == ("portrait", "letter") else 4
+        return running_columns(self.orient, self.size)
 
     def add_page(self, game=None, example=False, back=True):
         """Front page for one game, plus the continuation page unless back=False."""
@@ -543,6 +576,36 @@ class ScoreSheet:
 
 
 # --------------------------------------------------------------------------
+# The spec as data
+LAYOUTS = [(o, s) for o in ("portrait", "landscape") for s in ("letter", "legal")]
+
+
+def running_columns(orient, size):
+    cols = SPEC["running_columns"]
+    return cols.get(f"{orient}-{size}", cols["default"])
+
+
+def spec_json():
+    """SPEC plus, for each layout, the running-score totals printed on each page."""
+    out = dict(SPEC)
+    layouts = {}
+    for orient, size in LAYOUTS:
+        cols = running_columns(orient, size)
+        per = SPEC["points_per_page"] // cols
+        back_cols = cols - SPEC["page2_columns_fewer"]
+        layouts[f"{orient}-{size}"] = {
+            "page1": {"first": 1, "last": SPEC["points_per_page"], "columns": cols, "per_column": per},
+            "page2": {"first": SPEC["points_per_page"] + 1, "last": SPEC["points_per_page"] + back_cols * per,
+                      "columns": back_cols, "per_column": per},
+        }
+    out["layouts"] = layouts
+    # Totals any layout can hold; the game file checks use this as the limit.
+    out["max_running_total"] = min(l["page2"]["last"] for l in layouts.values())
+    out["ft_circles"] = SPEC["ft_circles_per_page"] * 2
+    return out
+
+
+# --------------------------------------------------------------------------
 # Data loading
 def load_yaml(path):
     import yaml
@@ -634,8 +697,17 @@ def main():
     ap.add_argument("--front-only", action="store_true", help="leave out the continuation page")
     ap.add_argument("--allow-empty", action="store_true",
                     help="no matching games is fine (e.g. --from-today after the last game night): make nothing, exit 0")
-    ap.add_argument("--out", required=True, help="output folder")
+    ap.add_argument("--out", help="output folder")
+    ap.add_argument("--spec", metavar="OUT.json", help="write the sheet spec as JSON and stop")
     a = ap.parse_args()
+    if a.spec:
+        with open(a.spec, "w") as f:
+            json.dump(spec_json(), f, indent=2)
+            f.write("\n")
+        print(a.spec)
+        return
+    if not a.out:
+        ap.error("give --out (or --spec)")
 
     layouts = ([(o, s) for o in ("portrait", "landscape") for s in ("letter", "legal")]
                if a.all_layouts else [(a.orient, a.size)])
