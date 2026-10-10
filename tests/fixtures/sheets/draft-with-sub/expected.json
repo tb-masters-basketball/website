@@ -1,0 +1,104 @@
+{
+  "folder": "drafts",
+  "game": {
+    "final": {
+      "aa": 22,
+      "bb": 19
+    },
+    "quarters": {
+      "aa": [
+        5,
+        12,
+        17,
+        22
+      ],
+      "bb": [
+        5,
+        10,
+        16,
+        19
+      ]
+    },
+    "ot": false,
+    "lines": [
+      {
+        "player": "al-a",
+        "team": "aa",
+        "num": "4",
+        "pts": 9,
+        "ftm": 2,
+        "fta": 3,
+        "pf": 2,
+        "tech": 0,
+        "flagrant": 0
+      },
+      {
+        "player": "amy-b",
+        "team": "aa",
+        "num": "10",
+        "pts": 6,
+        "ftm": 0,
+        "fta": 1,
+        "pf": 0,
+        "tech": 0,
+        "flagrant": 0
+      },
+      {
+        "player": "ann-c",
+        "team": "aa",
+        "num": "22",
+        "pts": 7,
+        "ftm": 1,
+        "fta": 1,
+        "pf": 1,
+        "tech": 0,
+        "flagrant": 0
+      },
+      {
+        "player": "bo-c",
+        "team": "bb",
+        "num": "5",
+        "pts": 8,
+        "ftm": 1,
+        "fta": 1,
+        "pf": 3,
+        "tech": 1,
+        "flagrant": 0
+      },
+      {
+        "player": "bev-d",
+        "team": "bb",
+        "num": "11",
+        "pts": 7,
+        "ftm": 1,
+        "fta": 2,
+        "pf": 0,
+        "tech": 0,
+        "flagrant": 0
+      },
+      {
+        "player": "bud-e",
+        "team": "bb",
+        "num": "30",
+        "pts": 1,
+        "ftm": 1,
+        "fta": 2,
+        "pf": 0,
+        "tech": 0,
+        "flagrant": 0
+      }
+    ]
+  },
+  "problems": [
+    {
+      "level": "warning",
+      "at": "teams.bb.players.3.player",
+      "message": "Jim K. isn't matched to a player id yet. Pick one from players.yml, or add them there (a sub: sub: true, with this team and number)"
+    },
+    {
+      "level": "warning",
+      "at": "running.bb.14",
+      "message": "to review: 31 or 37?"
+    }
+  ]
+}

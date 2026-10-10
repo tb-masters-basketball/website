@@ -1,0 +1,3 @@
+# The two teams every sheet fixture uses.
+- {id: aa, name: Alpha, short: AL, colour_slot: 1}
+- {id: bb, name: Bravo, short: BR, colour_slot: 2}

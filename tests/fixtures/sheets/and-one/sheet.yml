@@ -1,0 +1,29 @@
+# An and-one: Ann C. (#22) scores a basket to 17, then the free throw to 18.
+game_id: 2026-10-17-g1
+form: MBL-SS6
+status: final
+home: aa
+away: bb
+scorekeeper: Pat S.
+teams:
+  aa:
+    players:
+      - {player: al-a, num: 4, here: true, ft: MX, fouls: 2}
+      - {player: amy-b, num: 10, here: true, ft: X}
+      - {player: ann-c, num: 22, here: true, ft: MM, fouls: 1}
+      - {player: ari-d, num: 7, here: false}
+  bb:
+    players:
+      - {player: bo-c, num: 5, here: true, ft: M, fouls: 3, tech: 1}
+      - {player: bev-d, num: 11, here: true, ft: XM}
+      - {player: bud-e, num: 30, here: true, ft: MX}
+running:
+  aa: {2: 4, 4: 10, 5: 4, 7: 22, 10: 4, 12: 10, 13: 22, 15: 4, 17: 22, 18: 22, 20: 10, 22: 4}
+  bb: {3: 5, 5: 11, 6: 30, 8: 5, 10: 11, 11: 5, 14: 30, 16: 11, 17: 11, 19: 5}
+lines:
+  aa: [5, 12, 17, 22]
+  bb: [5, 10, 16, 19]
+boxes:
+  aa: {q1: 5, q2: 12, q3: 17, q4: 22, ot: null, final: 22}
+  bb: {q1: 5, q2: 10, q3: 16, q4: 19, ot: null, final: 19}
+checked_by: Lee M.

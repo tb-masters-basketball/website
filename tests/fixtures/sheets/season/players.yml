@@ -1,0 +1,7 @@
+- {id: al-a, display: Al A., team: aa, sub: false, number: 4}
+- {id: amy-b, display: Amy B., team: aa, sub: false, number: 10}
+- {id: ann-c, display: Ann C., team: aa, sub: false, number: 22}
+- {id: ari-d, display: Ari D., team: aa, sub: false, number: 7}
+- {id: bo-c, display: Bo C., team: bb, sub: false, number: 5}
+- {id: bev-d, display: Bev D., team: bb, sub: false, number: 11}
+- {id: bud-e, display: Bud E., team: bb, sub: false, number: 30}
