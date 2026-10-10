@@ -39,7 +39,7 @@ and `CNAME`. (`site.webmanifest` uses relative paths, so it needs no change.)
   with JS off.
 
 ## Score sheets
-The printable score sheet (form MBL-SS5) comes from
+The printable score sheet (form MBL-SS6) comes from
 `scripts/scoresheet/scoresheet.py`; read `scripts/scoresheet/README.md` first.
 `scripts/make_score_sheets.sh` runs it on every deploy, after `build_stats.py`
 and before Jekyll, for the season the site shows. It writes `score-sheets/`

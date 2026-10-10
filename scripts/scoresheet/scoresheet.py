@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Masters Basketball League score sheets (form MBL-SS5).
+"""Masters Basketball League score sheets (form MBL-SS6).
 
 Makes printable, fillable PDF score sheets in four layouts:
 portrait or landscape, Letter or Legal.
 
-Each sheet has two rosters (jersey #, here tick, name, 10 free-throw circles,
-5 personal fouls + 2 technicals) and a running score from 1 to 100, with a
-continuation page (101-200, free throws 11-20) printed on the back: totals in
-the middle, home scorer's number on the left, away scorer's on the right.
+Page 1: two rosters (jersey #, here tick, name, 10 free-throw circles,
+5 personal fouls + 2 technicals), timeouts, team fouls per quarter, the score
+at the end of each quarter (Q1-Q4, OT) and the final, a Notes box for flagrant
+fouls, and a running score from 1 to 100: totals in the middle, home scorer's
+number on the left, away scorer's on the right.
+Page 2, printed on the back: How to mark (the instructions), the running score
+from 101 with one column fewer (to 180 or 175), and free throws 11-20.
 
 Usage
 -----
@@ -57,10 +60,12 @@ TINT = HexColor("#E7ECF7")
 SHADE = HexColor("#F1F3F9")
 PEN = HexColor("#1F3FB8")      # example handwriting only
 
-FORM = "MBL-SS5"
+FORM = "MBL-SS6"          # SS6: quarters (was halves), Notes on page 1, how-to on page 2
 ROSTER_ROWS = 12
 FT_CIRCLES = 10
-MAX_POINTS = 100          # per page; the back page continues 101-200
+MAX_POINTS = 100          # page 1 runs 1-100; page 2 continues from 101 with one column fewer
+QUARTERS = ("Q1", "Q2", "Q3", "Q4")
+TEAM_FOUL_BOXES = 5       # per quarter
 PAD = 36
 FID, FID_IN = 14, 16
 SIZES = {"letter": letter, "legal": legal}
@@ -186,8 +191,14 @@ class ScoreSheet:
         self.text(x + 24, by + 6.5, side.upper(), "Cond", 11.5, white, anchor="c", tracking=1)
         self.box(x, by, w, bar, lw=1.2)
         self.label(x + 54, by + 7.4, "Team")
-        self.box(x + 76, by + 3, w - 80, bar - 6, lw=0.6, fill=white)
-        self.field(f"{key}_team", x + 78, by + 4, w - 84, bar - 8, team.get("name", ""), size=9.5)
+        name_w = w - 80 if back else w - 80 - 76
+        self.box(x + 76, by + 3, name_w, bar - 6, lw=0.6, fill=white)
+        self.field(f"{key}_team", x + 78, by + 4, name_w - 4, bar - 8, team.get("name", ""), size=9.5)
+        if not back:   # timeouts: one circle per timeout taken
+            tx = x + 76 + name_w + 6
+            self.label(tx, by + 7.4, "Timeouts")
+            for i in range(3):
+                self.circle(tx + self.lwidth("Timeouts") + 8 + i * 9.5, by + bar / 2, 3.4, lw=0.7)
         # column header
         hh = 15
         hy = by - hh
@@ -243,72 +254,100 @@ class ScoreSheet:
         if back:
             self.box(x, y, w, top - y, lw=1.2)
             return y, None
-        # team fouls + timeouts
+        # team fouls, one row of boxes per quarter
         ty = y - 17
         self.box(x, ty, w, 17, lw=0.8, fill=SHADE)
         self.label(x + 6, ty + 6, "Team fouls")
-        bx = x + 52
-        for half in ("1st", "2nd"):
-            self.label(bx, ty + 6, half, color=NAVY)
-            for i in range(5):
-                self.box(bx + 13 + i * 9.5, ty + 4, 8, 9, lw=0.6, fill=white)
-            bx += 13 + 5 * 9.5 + 8
-        self.label(bx + 4, ty + 6, "Timeouts")
-        for i in range(3):
-            self.circle(bx + 46 + i * 10, ty + 8.5, 3.6, lw=0.7)
-        # score by half
-        sy = ty - 22
-        self.box(x, sy, w, 22, lw=1.2, fill=white)
-        self.label(x + 6, sy + 8, "Score")
-        sx = x + 34
+        pitch = 7.9
+        slot = (w - 52 - 4) / len(QUARTERS)
+        team_fouls = {}
+        for qi, q in enumerate(QUARTERS):
+            bx = x + 52 + qi * slot
+            self.label(bx, ty + 6, q, color=NAVY)
+            team_fouls[q] = []
+            for i in range(TEAM_FOUL_BOXES):
+                fx = bx + 11 + i * pitch
+                self.box(fx, ty + 4, 6.0, 9, lw=0.6, fill=white)
+                team_fouls[q].append(fx)
+        # the score at the end of each quarter (the running total), then OT and final
+        sh = 27
+        sy = ty - sh
+        self.box(x, sy, w, sh, lw=1.2, fill=white)
+        self.label(x + 6, sy + 15.5, "Score at")
+        self.label(x + 6, sy + 7.5, "end of")
+        cells_ = [(q, 2) for q in QUARTERS[:3]] + [(QUARTERS[3], 3), ("OT", 3), ("Final", 3)]
+        dw_, dgap = 9.2, 1.2
+        widths = [n * dw_ + (n - 1) * dgap for _, n in cells_]
+        sx = x + 40
+        gap = (x + w - 6 - sx - sum(widths)) / (len(cells_) - 1)
         score_boxes = []
-        for lab, n in (("1st half", 2), ("2nd half", 2), ("OT", 2), ("Final", 3)):
-            self.label(sx, sy + 8, lab, color=NAVY)
-            lw_ = self.lwidth(lab) + 4
-            dw = self.digits(sx + lw_, sy + 4, n, lw=1.4 if lab == "Final" else 0.9)
-            score_boxes.append((sx + lw_, sy + 4, n))
-            sx += lw_ + dw + 9
+        for (lab, n), cwid in zip(cells_, widths):
+            self.label(sx + cwid / 2, sy + 18.5, lab, anchor="c", color=NAVY if lab != "Final" else BLUE)
+            self.digits(sx, sy + 3.5, n, w=dw_, h=13, gap=dgap, lw=1.4 if lab == "Final" else 0.9)
+            score_boxes.append((sx, sy + 3.5, n, lab))
+            sx += cwid + gap
         self.box(x, sy, w, top - sy, lw=1.2)
-        return sy, dict(rows=rows, score=score_boxes)
+        return sy, dict(rows=rows, score=score_boxes, team_fouls=team_fouls, team_fouls_y=ty + 4)
 
-    FRONT_HELP = [
-        "Running score: every time a team scores, write the scorer's number in that team's box beside "
-        "the new total. Leave skipped totals empty. A jump of 1 is a free throw; 2 or 3 is a basket. "
-        "And-one: write the basket, then the free throw.",
-        "Player rows: fill a circle for each free throw made, slash one for each miss. Slash a foul box "
-        "per personal foul; slash a T box per technical. Tick Here for everyone who plays. "
-        "Halftime: draw a line under each team's last number. Past 100, or more than 10 free throws: "
-        "carry on over the page.",
+    # How to mark: on page 2, in the space of its last running-score column.
+    HOW_TO = [
+        ("Running score", "Each time a team scores, write the scorer's number in that team's box "
+         "beside the new total. Leave skipped totals empty. A jump of 1 is a free throw; 2 or 3 is a "
+         "basket. And-one: write the basket, then the free throw."),
+        ("End of each quarter", "Draw a line under each team's last number. Write each team's running "
+         "total in its Q1, Q2, Q3 or Q4 box under the roster, the total after overtime in OT, and the "
+         "final score in Final."),
+        ("Players", "Tick Here for everyone who plays. Fill a circle for each free throw made; slash one "
+         "for each miss. Slash a foul box for each personal foul and a T box for each technical."),
+        ("Team fouls", "Slash one box in that quarter's row for each team foul."),
+        ("Flagrant fouls", "A flagrant foul is also a personal foul: slash a foul box for it as usual. "
+         "Then write it in Notes on page 1: the team, the player's number, the quarter and what happened."),
+        ("This page", "Use it only if a team passes 100 points or a player takes more than 10 free "
+         "throws. Keep marking exactly as on page 1: the running score carries on from 101. Write the "
+         "final score on page 1."),
     ]
-    BACK_HELP = [
-        "Continuation. Use this side only if a team passes 100 points or a player takes more than 10 free "
-        "throws. Keep marking exactly as on the front; the running score carries on from 101. "
-        "Write the final score on the front.",
-    ]
+    NOTES_LABEL = "Notes  ·  flagrant fouls: team, player #, quarter, what happened"
+    NOTES_H = 50
 
-    def legend_lines(self, w, paras):
-        lines = []
-        for para in paras:
-            lines += self.wrap(para, w - 16)
-        return lines
+    def how_to(self, x, top, w, bottom):
+        """The marking instructions, in the biggest type that fits the box."""
+        h = top - bottom
+        self.box(x, bottom, w, h, stroke=RULE, lw=0.6, fill=SHADE)
+        inner = w - 16
+        for size in (10.4, 10.0, 9.6, 9.2, 8.8, 8.4, 8.0, 7.6, 7.2, 6.8):
+            lead = size * 1.24
+            head_size = max(6.8, size * 0.8)
+            paras = [(head, self.wrap(body, inner, size=size)) for head, body in self.HOW_TO]
+            need = 22 + sum(lead * len(lines) + head_size + 5 + 6 for _, lines in paras)
+            if need <= h:
+                break
+        self.label(x + 8, top - 13, "How to mark", size=7.6)
+        y = top - 28
+        for head, lines in paras:
+            self.label(x + 8, y, head, size=head_size, color=NAVY)
+            y -= head_size + 5
+            for line in lines:
+                self.text(x + 8, y, line, "Body", size, NAVY)
+                y -= lead
+            y -= 6
 
-    def legend_height(self, w, paras):
-        return 14 + 8.6 * len(self.legend_lines(w, paras)) + 4
-
-    def legend(self, x, top, w, paras):
-        lines = self.legend_lines(w, paras)
-        h = self.legend_height(w, paras)
-        self.box(x, top - h, w, h, stroke=RULE, lw=0.6, fill=SHADE)
-        self.label(x + 8, top - 10, "How to mark" if paras is self.FRONT_HELP else "Page 2", size=6.8)
-        for i, s in enumerate(lines):
-            self.text(x + 8, top - 19.5 - i * 8.6, s, "Body", 6.9, NAVY)
+    def notes(self, x, top, w, h):
+        """Page 1 notes box, for flagrant fouls (and anything else worth knowing)."""
+        self.box(x, top - h, w, h, lw=0.9, fill=white)
+        self.label(x + 8, top - 10, self.NOTES_LABEL, size=6.6)
+        self.text(x + w - 8, top - 10, "How to mark: page 2", "Body", 6.4, RULE, anchor="r")
+        self.c.setStrokeColor(RULE); self.c.setLineWidth(0.5)
+        for ly in range(int(top - 26), int(top - h + 4), -13):
+            self.c.line(x + 8, ly, x + w - 8, ly)
         return top - h
 
-    def running(self, x, top, w, bottom, sets=4, start=1):
+    def running(self, x, top, w, bottom, sets=4, start=1, per=None, col_w=None):
+        """Running score: `sets` columns of `per` totals from `start`, each `col_w`
+        wide (default: the full width shared out). Returns the cells by total."""
         c = self.c
-        per = MAX_POINTS // sets
+        per = per or MAX_POINTS // sets
         gap = 8
-        sw = (w - gap * (sets - 1)) / sets
+        sw = col_w or (w - gap * (sets - 1)) / sets
         num_w = min(30, sw * 0.26)
         bw = (sw - num_w) / 2
         hh = 14
@@ -334,6 +373,20 @@ class ScoreSheet:
             for lx in (sx + bw, sx + bw + num_w):
                 c.line(lx, top - hh - per * rh, lx, top - hh)
         return cells
+
+    def back_running(self, x, top, w, bottom, sets):
+        """Page 2: the running score carries on from 101 with one column fewer than
+        page 1 (same totals per column), and How to mark fills the space left."""
+        gap = 8
+        per = MAX_POINTS // sets
+        front_w = (w - gap * (sets - 1)) / sets
+        col_w = front_w * 0.85
+        cols = sets - 1
+        used = cols * col_w + (cols - 1) * gap
+        self.running(x, top, used, bottom, cols, MAX_POINTS + 1, per, col_w)
+        self.how_to(x + used + 10, top, w - used - 10, bottom)
+        self.back_last = MAX_POINTS + cols * per   # the last total on page 2
+        return self.back_last
 
     def footer(self, page_label=""):
         s = ("Masters Basketball League · Thunder Bay, Ontario  ·  Photograph the whole sheet, flat, "
@@ -370,21 +423,23 @@ class ScoreSheet:
         top = self.header(self.H - PAD + 4, g, sub)
         bottom = FID_IN + FID + 4
         home, away = g.get("home", {}), g.get("away", {})
-        helptext = self.BACK_HELP if back else self.FRONT_HELP
-        start = MAX_POINTS + 1 if back else 1
         sets = self.score_sets()
-        geo = {}
-        fixed = 20 + 15 + (0 if back else 17 + 22)
+        geo, cells = {}, None
+        fixed = 20 + 15 + (0 if back else 17 + 27)
         if self.orient == "portrait":
             gap = 14
             w = (self.cw - gap) / 2
-            rh = 22 if self.size == "legal" else 17.5
+            rh = 22 if self.size == "legal" else 17
             if back:
                 rh = 18 if self.size == "legal" else 14
             y, geo["home"] = self.roster(self.x0, top - 6, w, rh, "Home", "home", home, back)
             _, geo["away"] = self.roster(self.x0 + w + gap, top - 6, w, rh, "Away", "away", away, back)
-            y = self.legend(self.x0, y - 8, self.cw, helptext)
-            cells = self.running(self.x0, y - 6, self.cw, bottom, sets, start)
+            if back:
+                self.back_running(self.x0, y - 8, self.cw, bottom, sets)
+            else:
+                geo["notes"] = (self.x0, y - 8, self.cw, self.NOTES_H)
+                y = self.notes(self.x0, y - 8, self.cw, self.NOTES_H)
+                cells = self.running(self.x0, y - 6, self.cw, bottom, sets, 1)
         else:
             lw = 300 if self.size == "legal" else 284
             gap_v = 8
@@ -396,9 +451,12 @@ class ScoreSheet:
             _, geo["away"] = self.roster(self.x0, y - gap_v, lw, rh, "Away", "away", away, back)
             rx = self.x0 + lw + 14
             rw = self.cw - lw - 14
-            legend_h = self.legend_height(rw, helptext)
-            self.legend(rx, bottom + legend_h, rw, helptext)
-            cells = self.running(rx, top - 6, rw, bottom + legend_h + 6, sets, start)
+            if back:
+                self.back_running(rx, top - 6, rw, bottom, sets)
+            else:
+                geo["notes"] = (rx, bottom + self.NOTES_H, rw, self.NOTES_H)
+                self.notes(rx, bottom + self.NOTES_H, rw, self.NOTES_H)
+                cells = self.running(rx, top - 6, rw, bottom + self.NOTES_H + 6, sets, 1)
         return cells, geo
 
     def save(self):
@@ -412,7 +470,8 @@ class ScoreSheet:
         here = {"home": nums["home"][:9], "away": nums["away"][:8]}
         wts = {"home": [9, 6, 8, 3, 4, 2, 2, 3, 1], "away": [8, 5, 3, 6, 3, 2, 3, 1]}
         score = {"home": 0, "away": 0}
-        events, ftseq, fouls, tech, half = [], {"home": {}, "away": {}}, {"home": {}, "away": {}}, ("away", None), None
+        events, ftseq, fouls, tech = [], {"home": {}, "away": {}}, {"home": {}, "away": {}}, ("away", None)
+        ends, team_fouls, q = [], {"home": [0] * 4, "away": [0] * 4}, 0
         for i in range(80):
             t = "home" if rnd.random() < 0.53 else "away"
             n = rnd.choices(here[t], wts[t][:len(here[t])])[0]
@@ -425,10 +484,12 @@ class ScoreSheet:
                     if made:
                         score[t] += 1; events.append((t, n, score[t]))
                 f = rnd.choice(here[opp]); fouls[opp][f] = min(5, fouls[opp].get(f, 0) + 1)
+                team_fouls[opp][q] = min(TEAM_FOUL_BOXES, team_fouls[opp][q] + 1)
             else:
                 score[t] += 3 if r > 0.88 else 2; events.append((t, n, score[t]))
-            if i == 34: half = dict(score)
+            if i in (17, 34, 51): ends.append(dict(score)); q += 1
             if max(score.values()) >= 62: break
+        ends.append(dict(score))
         tech = ("away", here["away"][3])
 
         def pen(x, y, s, size):
@@ -437,9 +498,11 @@ class ScoreSheet:
         for t, n, total in events:
             bx, by, bw, rh = cells[total][t]
             pen(bx + bw / 2, by + rh / 2 - min(10.5, rh * 0.62) * 0.36, n, min(10.5, rh * 0.62))
-        for t in ("home", "away"):
-            bx, by, bw, rh = cells[half[t]][t]
-            c.setStrokeColor(PEN); c.setLineWidth(1.4); c.line(bx + 2, by + 0.8, bx + bw - 2, by + 0.8)
+        for end in ends[:-1]:          # a line at the end of each quarter
+            for t in ("home", "away"):
+                if end[t] in cells:
+                    bx, by, bw, rh = cells[end[t]][t]
+                    c.setStrokeColor(PEN); c.setLineWidth(1.4); c.line(bx + 2, by + 0.8, bx + bw - 2, by + 0.8)
         for t in ("home", "away"):
             for r, pl in enumerate(g[t]["players"]):
                 if pl.get("num") not in here[t]: continue
@@ -463,11 +526,20 @@ class ScoreSheet:
                     tx = row["tech"][0]
                     c.setStrokeColor(PEN); c.setLineWidth(1.1)
                     c.line(tx + 1.5, y + (rh - bs) / 2 + 1.5, tx + 7.5, y + (rh + bs) / 2 - 1.5)
-            final = score[t]
-            for (bx, by, n), v in zip(geo[t]["score"], [half[t], final - half[t], None, final]):
+            values = {q_: end[t] for q_, end in zip(QUARTERS, ends)}
+            values["Final"] = score[t]
+            for bx, by, n, lab in geo[t]["score"]:
+                v = values.get(lab)
                 if v is None: continue
                 for j, ch in enumerate(str(v).rjust(n)):
-                    if ch != " ": pen(bx + j * 12 + 5.25, by + 3.6, ch, 10)
+                    if ch != " ": pen(bx + j * 10.4 + 4.6, by + 3.4, ch, 9.5)
+            for qi, q_ in enumerate(QUARTERS):
+                for fx in geo[t]["team_fouls"][q_][:team_fouls[t][qi]]:
+                    c.setStrokeColor(PEN); c.setLineWidth(1.0)
+                    c.line(fx + 1, geo[t]["team_fouls_y"] + 1.5, fx + 5, geo[t]["team_fouls_y"] + 7.5)
+        nx, ntop, nw, nh = geo["notes"]
+        self.text(nx + 10, ntop - 23, f"Away #{here['away'][1]} flagrant foul, Q3: swung elbow on a rebound",
+                  "CondSemi", 9.5, PEN)
 
 
 # --------------------------------------------------------------------------

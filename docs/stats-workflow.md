@@ -56,7 +56,7 @@ standings all update on their own.
 
 ## The score sheet
 
-The league's score sheet is form **MBL-SS5**, made by
+The league's score sheet is form **MBL-SS6**, made by
 `scripts/scoresheet/scoresheet.py` ([its README](../scripts/scoresheet/README.md)).
 Every time the site is published:
 
@@ -69,8 +69,11 @@ Every time the site is published:
   an editable field, so last-minute changes can be typed in before printing.
 - **Blank sheets:** all four layouts are at the bottom of the Schedule page.
 
-Print double-sided: page 2 is only for overflow (a team past 100 points, or a
-player past 10 free throws).
+Print double-sided. Page 2 has **How to mark** (the scorekeeper's
+instructions) and the overflow: the running score past 100 points and free
+throws past 10. Page 1 has a **Notes** box for flagrant fouls. Games are played
+in quarters: the scorekeeper writes each team's running total at the end of
+each quarter in the Q1 to Q4 boxes.
 
 ### How stats come from a sheet
 
@@ -82,11 +85,15 @@ player past 10 free throws).
 | GP | **Here** ticks. |
 | PF (personal fouls) | Slashed foul boxes in the player's row (0 to 5). Kept, but not shown on the site. |
 | Techs (technical fouls) | Slashed red **T** boxes in the player's row (0 to 2). |
-| Checks | The last running total equals the Final box. Halftime totals equal the half boxes. Player points add up to the team score. |
+| Quarter scores | The **Q1 to Q4** boxes (and **OT**): each team's running total at the end of each quarter. |
+| Flagrant fouls | **Notes** on page 1: team, player number and quarter. A flagrant also counts as a personal foul, so it is in the player's foul boxes (and `pf`) too. |
+| Checks | The last running total equals the Final box. Each quarter box equals the running total at that quarter's line. Player points add up to the team score. |
 
 Those numbers are what goes into the game file: `pts`, `ftm` and `fta` for every
 player ticked **Here** (plus `pf` and `tech` when they're not 0), and each team's
-final score. The sheet's team fouls, timeouts and score by half aren't on the site.
+final score. The sheet's team fouls and timeouts aren't on the site. Quarter
+scores and flagrant fouls are on the sheet now; the game files and standings
+start using them in the next change (standings by points).
 
 ## The data folders
 

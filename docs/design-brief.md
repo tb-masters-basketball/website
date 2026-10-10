@@ -223,7 +223,7 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
     Both are `link-more` text links with 44 px tap areas. A link is only drawn
     when its PDF was generated, so past days and TBD playoff games get none.
   - A **Score sheets** section at the bottom lists the four blank layouts,
-    with one line: print double-sided, page 2 is only for overflow.
+    with one line: print double-sided, page 2 has the instructions and the overflow.
 
 ## League rules, footer links and technical fouls
 
