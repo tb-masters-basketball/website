@@ -1,6 +1,14 @@
-{%- comment -%} Shown on every page while the site is showing the sample season. {%- endcomment -%}
+{%- comment -%}
+  Shown on every page while the site is showing the sample season. On the
+  hidden preview copy (/preview/, scripts/build_preview.sh) it links back to
+  the live site.
+{%- endcomment -%}
 {%- if site.data.computed.active.sample_mode %}
 <section class="sample-banner" aria-label="Sample data notice">
+  {%- if site.preview_build %}
+  <p class="wrap sample-banner__text"><strong>Preview with sample data.</strong> Made-up numbers, for trying out changes. <a href="{{ site.url }}/">Go to the live site</a></p>
+  {%- else %}
   <p class="wrap sample-banner__text"><strong>Preview with sample data.</strong> Real results start after the first game day.</p>
+  {%- endif %}
 </section>
 {%- endif %}

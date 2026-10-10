@@ -102,7 +102,10 @@ Built from the parts above, in this order.
 ## Behaviour
 - While `sample_data: true` in `_config.yml`, every page reads the sample season
   and shows a slim banner under the header: "Preview with sample data. Real
-  results start after the first game day."
+  results start after the first game day." On the hidden preview copy at
+  `/preview/` (`preview_site`) the banner reads "Preview with sample data.
+  Made-up numbers, for trying out changes." with a "Go to the live site" link
+  (44 px tap area).
 - The current season is the default everywhere. A season switcher only lives in
   the Archive.
 - All dates in Eastern time, written "Thu Dec 10", with times like "7:00 PM".
