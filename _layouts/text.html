@@ -6,9 +6,13 @@ layout: default
   (rules/index.md). Front matter: title, description, and optionally
   `updated` (shown as "Last updated ..."; left blank, the page is marked as a
   draft). Markdown headings (##) become the site's section titles.
+  `heading_in_content: true` leaves out the page title heading, for a page
+  whose Markdown has its own "# " headings (the rules page has two).
 {%- endcomment -%}
 <div class="wrap page">
+  {%- unless page.heading_in_content %}
   <h1 class="page-title">{{ page.title }}</h1>
+  {%- endunless %}
   {%- assign text_updated = page.updated | strip %}
   <p class="page-sub">{% if text_updated != "" %}Last updated {{ text_updated }}{% else %}Draft: the league is still writing these{% endif %}</p>
   <div class="prose">

@@ -31,11 +31,30 @@ The full list, with answers so far, is in
       show as "#23 Dave M." wherever a player is named, and print in the score
       sheets' # box (blank until then). Two players on one team with the same
       "First L." must both have one, or the build stops.
-- [ ] **League rules.** `rules/index.md` (the League rules page, linked in the
-      footer) has every section with a `[placeholder]` to replace.
-- [ ] **Technical foul rules.** What happens after two in a game, or a number
-      in a season? The site counts technicals (playoffs included) but flags
-      nothing until this is decided.
+- [x] **League rules.** `rules/index.md` now holds the league's draft playing
+      rules and the player code of conduct (from their two Word documents,
+      October 2026). Put the date in `updated:` once the league approves them.
+- [ ] **Where the rules and the site disagree.** The rules need a decision
+      before the site can follow them:
+  - **Ties (rule 4):** a regular-season game still tied after one overtime
+    "may be recorded as a tie". The site rejects a tied final score, and the
+    standings have no ties column. Allow ties (and how many standings points
+    is a tie worth: the quarters won, plus nothing for the game?), or always
+    play on?
+  - **Forfeits (rule 24):** recorded as Q1 1-0, Q2 1-0, Q3 1-0, Q4 1-0. The
+    site has no way to record a forfeit: a game file is a score sheet. It
+    needs a `forfeit` marker on the schedule row (winner gets 7 points, 4-0
+    in quarters), or a short forfeit file.
+  - **Timeouts (rule 9):** two per half plus one per overtime period. The
+    score sheet prints three timeout circles per team; five are needed.
+  - **Technical fouls (code of conduct 4):** T1 sits the player for the rest
+    of the quarter, T2 in a game is an ejection, and 2 to 5 in a season bring
+    suspensions. The site counts technicals; it could also show "suspended
+    next game" on the player page if wanted.
+  - **Tied quarters:** rule 30 confirms 1 point per quarter won and 3 for a
+    win, but doesn't say what a tied quarter gives (the site assumes nothing).
+  - **Reseeding (rule 31):** after 6 games teams may be reseeded and play more
+    games against nearby seeds, so the schedule after week 6 may change.
 - [ ] **Standings tiebreakers**, including three-way ties, for teams level on
       points. Until then the site uses head-to-head, then point differential,
       and says so under the standings.
@@ -44,9 +63,10 @@ The full list, with answers so far, is in
       team a point, and that overtime isn't a quarter.
 - [ ] **Playoff matchups.** The play-in (G41, Wed Apr 21) is "TBD vs TBD" in
       `schedule.csv`. Fill in each playoff row as the standings decide it.
-- [ ] **Free throws worth 2 or 3.** Confirmed that a free throw can be worth
-      1, 2 or 3 points (so the site takes FTM and FTA only from the circles);
-      the League rules page still needs the rule for when.
+- [x] **Free throws worth 2 or 3.** Rule 12: one free throw for a shooting
+      foul, worth what the shot would have been; after a made basket, and for
+      bonus and penalty free throws, one point. The site takes FTM and FTA only
+      from the circles.
 - [x] **League contact for the footer.** `contact_url` in `_config.yml` is
       `mailto:mastersbasketballthunderbay@gmail.com` (October 2026). An email
       link can be read by spam bots; a form (e.g. a Google Form) would keep the
@@ -332,7 +352,7 @@ Two small includes turn that into the variables every template uses:
 | `/stats/` | `stats/index.html` | ranked list (PPG / Points / FT %, by team); full table at `#stats-table`; technical and flagrant foul lists at the bottom |
 | `/teams/` | `teams/index.html` | a card per team |
 | `/archive/` | `archive/index.html` | a card per season |
-| `/rules/` | `rules/index.md` (layout `text`) | the league rules, written in Markdown; linked from the footer |
+| `/rules/` | `rules/index.md` (layout `text`) | the league's playing rules and player code of conduct (two `#` headings, numbered rules as `##`, a table of contents made by kramdown's `{:toc}`); linked from the footer |
 | `/enter/` | `enter/index.html` | the score sheet entry page (unlisted, needs JavaScript): type up or check a game against the photo, then save the file to GitHub. Reads `enter/sheet-spec.json` and `enter/data/`; script `assets/js/enter.js` |
 | `/404.html` | `404.html` | page not found |
 

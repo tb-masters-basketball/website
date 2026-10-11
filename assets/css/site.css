@@ -1983,6 +1983,107 @@ a.team-card:hover {
   margin-top: 12px;
 }
 
+/* A page whose Markdown has its own "# " headings (the rules page: the
+   playing rules, then the code of conduct). Sized like the page title. */
+.prose h1 {
+  margin-top: 44px;
+  padding-top: 16px;
+  border-top: 2px solid var(--mb-line);
+  font: 700 30px/1.1 var(--mb-font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.prose h1 + p em {
+  color: var(--mb-muted);
+}
+
+.prose :target {
+  scroll-margin-top: 12px;
+}
+
+/* The rules page's table of contents (kramdown's {:toc}): the two documents,
+   each with its numbered rules underneath, two columns where there's room */
+.rules-toc {
+  margin-top: 18px;
+  padding: 14px 16px 10px;
+  background: var(--mb-surface);
+  border: 1px solid var(--mb-line);
+  border-radius: 12px;
+}
+
+.rules-toc__title {
+  font: 700 13px/normal var(--mb-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mb-muted);
+}
+
+.prose .rules-toc ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prose .rules-toc li + li {
+  margin-top: 0;
+}
+
+.rules-toc a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 4px 0;
+  text-decoration: none;
+  line-height: 1.3;
+}
+
+.rules-toc a:hover {
+  text-decoration: underline;
+}
+
+.rules-toc > ul > li > a {
+  font: 700 18px/1.2 var(--mb-font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.prose .rules-toc > ul > li > ul {
+  margin: 0 0 8px;
+  padding-left: 12px;
+  border-left: 2px solid var(--mb-line);
+}
+
+.prose .rules-toc > ul > li > ul a {
+  min-height: 36px;
+  font-size: 15px;
+}
+
+@media (pointer: coarse) {
+  .prose .rules-toc > ul > li > ul a {
+    min-height: 44px;
+  }
+}
+
+@media (min-width: 600px) {
+  .prose .rules-toc > ul > li > ul {
+    columns: 2;
+    column-gap: 24px;
+  }
+
+  .prose .rules-toc > ul > li > ul > li {
+    break-inside: avoid;
+  }
+}
+
+.rules-toc__back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .prose h2 {
   margin-top: 28px;
   font: 700 22px/normal var(--mb-font-display);

@@ -46,6 +46,8 @@ search_engines: false
 
 timezone: America/Toronto
 markdown: kramdown
+kramdown:
+  toc_levels: 1..2       # the rules page's table of contents: documents and numbered rules
 permalink: pretty
 
 exclude:
