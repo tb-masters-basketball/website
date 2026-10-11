@@ -3,8 +3,10 @@
 The league's website: standings, schedule, team pages, player stats and past
 seasons. Live at **https://mastersbasketball.ca/**.
 
-It is a static site. Volunteers type game results into small text files in
-`data/`. A Python script checks them and works out every number. Jekyll turns
+It is a static site. Volunteers copy each paper score sheet into a small text
+file in `data/`, box for box, usually on the site's entry page (`/enter/`),
+which checks it as they type. A Python script checks the files again and works
+out every number. Jekyll turns
 the numbers into pages, and GitHub Actions publishes them to GitHub Pages
 whenever `main` changes.
 
@@ -42,6 +44,9 @@ The full list, with answers so far, is in
       team a point, and that overtime isn't a quarter.
 - [ ] **Playoff matchups.** The play-in (G41, Wed Apr 21) is "TBD vs TBD" in
       `schedule.csv`. Fill in each playoff row as the standings decide it.
+- [ ] **Free throws worth 2 or 3.** Confirmed that a free throw can be worth
+      1, 2 or 3 points (so the site takes FTM and FTA only from the circles);
+      the League rules page still needs the rule for when.
 - [ ] **League contact for the footer.** Set `contact_url` in `_config.yml`
       (an email `mailto:` link or a form). The footer shows no contact link
       while it's blank. A form (e.g. a Google Form) keeps the address away
@@ -49,53 +54,88 @@ The full list, with answers so far, is in
 
 ### 2. Record a game from a photo of the score sheet (`/record-game`)
 
-Today a volunteer types each game into a YAML file by hand
-([how](docs/stats-workflow.md#add-a-game)). The goal is a Claude Code skill or
-slash command, `/record-game`, that turns a photo or scan of the paper score
-sheet into that file and a pull request:
+Today a game is typed up on the entry page (`/enter/`), box by box, with the
+photo beside it ([how](docs/stats-workflow.md#enter-or-check-a-game-on-the-entry-page)).
+The goal is a Claude Code command, `/record-game`, that reads the photo and
+does the typing: it writes a **draft** with every box it isn't sure of flagged,
+and a person checks the draft on the entry page and saves it as final. The
+command never publishes a game by itself.
 
-1. **The sheet is ready:** form MBL-SS6, from `scripts/scoresheet/scoresheet.py`
-   ([README](scripts/scoresheet/README.md)). It has corner squares for
-   straightening a photo, and the Schedule page links each game day's
-   pre-filled sheet. Still needed: a photo of a real, filled-in one to build
-   and test against.
-2. **Read the sheet** ([how each stat comes from it](docs/stats-workflow.md#how-stats-come-from-a-sheet)):
-   - **Here** ticks give GP
-   - running score jumps give each player's points
-   - filled and slashed circles give FTM and FTA
-   - slashed foul boxes give `pf`, slashed red T boxes give `tech`
-   - the Q1 to Q4 (and OT) boxes give each team's running total at the end of
-     each quarter, for the quarter scores
-   - **Notes** on page 1 give flagrant fouls (team, player number, quarter).
-     A flagrant is also a personal foul, so it's in the foul boxes (`pf`) too
-   - check: last running total = Final box; each quarter box = the running
-     total at that quarter's line; every scorer's number is on that team's
-     roster and ticked Here
-3. **Match names to player ids** in `players.yml`:
-   - Player ids are matched by **team, then first name and last initial**
-     ("Dave M." on Hustle is `dave-m`). Jersey numbers are kept only in
-     `players.yml` (the roster file), so a number change is one edit there.
-   - **When a team has two players with the same "First L."**, the jersey
-     number decides. The build insists both have a `number`, and the sheet
-     prints it beside each name.
-   - Ask about anyone it can't match, and add new players or subs (`sub: true`).
-   - Never write a full name; players are always "First L.".
-4. **Write the files:**
-   - the sheet, box for box, in the game file format
-     ([`docs/game-file-format.md`](docs/game-file-format.md)): first as
-     `data/2026-27/drafts/<game_id>.yml` with `review` notes on any box it
-     can't read, then, once confirmed, as `data/2026-27/games/<game_id>.yml`
-     (`status: final`, `checked_by`). The id comes from `schedule.csv` by date
-     and teams. `scripts/sheet_rules.py` gives every problem with the box it's
-     about, and `tests/fixtures/sheets/` has test sheets to try it on
-   - the photo as `data/2026-27/sheets/<game_id>.jpg`
-5. **Run the checks** (`python scripts/build_stats.py --check`) and fix
-   anything they report, such as points that don't add up to the final.
-6. **Show a summary to confirm**, then open a pull request. Merging it
-   publishes the game.
+**Already in place** (what the command builds on):
+- **The sheet:** form MBL-SS6 from `scripts/scoresheet/scoresheet.py`
+  ([README](scripts/scoresheet/README.md)), with corner squares for
+  straightening a photo. Game ID, date, time and the regular players (in
+  jersey order) are printed on it, so most of the header and the rosters are
+  known before the photo is read. Its structure (rows, circles, boxes,
+  running-score pages per layout) is in `scripts/scoresheet/spec.json`.
+- **The file it writes:** the game file, box for box
+  ([`docs/game-file-format.md`](docs/game-file-format.md)), as a draft:
+  `status: draft` in `data/<season>/drafts/<game_id>.yml`, with a `review`
+  entry (`{at: running.lh.27, note: "23 or 28?"}`) for every doubtful box.
+- **The checks:** `scripts/sheet_rules.py` gives every problem with the path of
+  its box. The entry page runs the same rules (ported to JavaScript), lists
+  drafts with their flag count, shows the photo beside the sheet, and has
+  **Mark as checked** and **Save as final**.
+- **Test material:** `tests/fixtures/sheets/` (eight small cases with expected
+  results) and `tests/fixtures/record-game/`: four practice games, each with
+  an answer key (`answer.yml`), a sheet filled in from it and an empty sheet
+  ([README](tests/fixtures/record-game/README.md)).
 
-It would live in `.claude/skills/record-game/SKILL.md` (or as a command), and
-`docs/stats-workflow.md` would gain a "Record a game from a photo" section.
+**Still needed before building it:**
+- [ ] **Photos to test on.** Print the four practice games' filled and empty
+      sheets, have people copy each filled sheet onto its empty one by hand,
+      and photograph the copies (flat, all four corner squares in view). Save
+      them as `tests/fixtures/record-game/<game_id>/photo.jpg`. A photo of a
+      real game's sheet will help too.
+- [ ] **A way to check one file from the command line.** `build_stats.py
+      --check` never reads drafts. Add `scripts/check_game.py <file>`: runs
+      `sheet_rules.check` on one game file (draft or final) against its
+      season and prints each problem with its box path. The command uses it,
+      and so can anyone editing a file by hand.
+- [ ] **A way to score a transcription.** `scripts/compare_game.py <draft>
+      <answer.yml>`: lists every box that differs, and whether each was
+      flagged for review. The goal: no wrong box that isn't flagged.
+
+**What `/record-game` does:**
+1. **Takes the photo(s)** of page 1 (and page 2 if the game used it) and
+   finds the game: the printed Game ID, checked against `schedule.csv` (date
+   and teams). It asks if they disagree.
+2. **Reads every box** into the game file (field names as in the format doc):
+   - each roster row: `num`, the **Here** tick (`here`), the circles in order
+     (`ft`: `M` filled, `X` slashed), slashed foul boxes (`fouls`) and red T
+     boxes (`tech`)
+   - the running score: every filled box as `total: jersey number`, for both
+     teams (page 2 carries on from 101)
+   - `lines`: the running total each end-of-quarter line is drawn under, Q1 to
+     Q4 (needed for a final file)
+   - `boxes`: what's written in Q1 to Q4, OT and Final
+   - `notes`: each Notes entry (team, number, quarter, `kind: flagrant` or
+     `note`, the text), and the scorekeeper
+3. **Matches rows to players** in `players.yml`. A printed row is a regular
+   player (team, number and "First L." all on the sheet). A row written in by
+   hand is a sub: match by team, "First L." and number; if there's no match,
+   keep `name: "Jim K."` without a `player` id (a draft may) and say so. Never
+   write a full name.
+4. **Flags rather than guesses.** Every box it can't read with confidence gets
+   a `review` entry with a short note. It doesn't change what's written to make
+   the checks pass: a Final box that disagrees with the running score is
+   copied as written, and the check says so.
+5. **Runs the checks** (`scripts/check_game.py`) and reports them with the
+   flags.
+6. **Writes** the draft and the photo (`data/<season>/sheets/<game_id>.jpg`)
+   and opens a pull request with both. Merging it publishes nothing: drafts
+   are never built.
+7. **A person finishes it on the entry page:** opens the draft (it's listed
+   with its flag count), checks each flagged box against the photo, presses
+   **Mark as checked**, fixes any errors, and saves it as final. That's a
+   second pull request, the one that publishes the game. Then they delete the
+   draft (the save dialog links to it).
+
+It would live in `.claude/skills/record-game/SKILL.md` (or
+`.claude/commands/record-game.md`). Test it on the practice photos with
+`compare_game.py` before using it on real games. `docs/stats-workflow.md`
+then gains a "Record a game from a photo" section, and its workflow diagram
+loses the word "planned".
 
 ### 3. Build `players.yml` from the team rosters (`/build-roster`)
 
@@ -114,7 +154,8 @@ one source of truth for ids, display names and numbers.
      rewritten, because every game file points at them.
    - **New ids** follow the usual rule: `dave-m`, then `dave-m2` for a second
      "Dave M." in the league. `dave-mo` style ids are also accepted.
-   - **Update numbers** from the rosters. A number lives only in
+   - **Update numbers** from the rosters (two regular players on a team
+     can't share one; a sub can wear any). A number lives only in
      `players.yml`, so a change shows everywhere at once, past box scores
      included.
    - **Players missing from a roster** are listed for the volunteer to
@@ -133,6 +174,19 @@ small helper (`scripts/build_roster.py`, with tests) can do the matching and
 id assignment so the command only reads the rosters and confirms.
 `docs/stats-workflow.md` would gain an "Add the rosters" section.
 
+### 4. Smaller follow-ups
+
+- [ ] **Try "Save to GitHub" on a real game.** The entry page sends the whole
+      file in the link to GitHub's new-file page. A 100-point game makes a
+      link of about 6,300 characters; it couldn't be tested against GitHub
+      itself. Past 8,000 the page copies the file and opens an empty new
+      file instead (`MAX_URL` in `assets/js/sheet-rules.js`). If GitHub
+      refuses a long link, lower that number.
+- [ ] **Saving the photo is a separate step.** The entry page never uploads
+      the photo, so it goes into `data/<season>/sheets/<game_id>.jpg` by hand
+      (GitHub: *Add file → Upload files*). `/record-game` will add it with the
+      draft.
+
 ---
 
 ## How the site works
@@ -146,6 +200,8 @@ flowchart LR
     B --> D["_data/computed/<br/>JSON numbers"]
     B --> E["_games/ _players/<br/>_teams/ _archive/<br/>stub pages"]
     B --> F["calendar/*.ics"]
+    B --> EN["enter/data/<br/>for the entry page"]
+    EN --> G
     B --> S["scripts/make_score_sheets.sh<br/>score-sheets/*.pdf"]
     D --> G["Jekyll<br/>layouts + includes"]
     E --> G
@@ -176,8 +232,9 @@ flowchart LR
    and only when every step passed.
 
 Everything in steps 2–3 is regenerated from scratch on every build. Nothing
-generated is committed: `_data/computed/`, the stub folders, `calendar/` and
-`_site/` are all git-ignored.
+generated is committed: `_data/computed/`, the stub folders, `calendar/`,
+`score-sheets/`, `enter/data/`, `enter/sheet-spec.json` and `_site/` are all
+git-ignored.
 
 ### Where the data lives
 
@@ -185,11 +242,11 @@ generated is committed: `_data/computed/`, the stub folders, `calendar/` and
 |---|---|---|
 | `data/seasons.yml` | Every season, newest first. Marks which is `current`, which are sample (fake) data, the gym and its address, and the ranking minimums (`ppg_min_games`, `ft_min_attempts`) | hand, once a season |
 | `data/<season>/teams.yml` | Team id (2 letters), name, 2-letter code, colour slot (1–5) | hand, once a season |
-| `data/<season>/players.yml` | Player id (`mike-r`), display name ("Mike R."), team, `sub`, jersey `number` (the roster: the only place numbers live) | hand or `/record-game` |
+| `data/<season>/players.yml` | Player id (`mike-r`), display name ("Mike R."), team, `sub`, jersey `number` (the roster: the only place numbers live) | hand (later `/build-roster` and `/record-game`, both planned) |
 | `data/<season>/schedule.csv` | One row per game: id, date, time, gym, home, away, `regular`/`playoff`, week, optional `status` (`cancelled`) and `round` (playoff round name) | hand |
-| `data/<season>/games/<game_id>.yml` | One file per played game: a digital copy of the score sheet, box for box (roster rows with Here, free-throw circles and fouls; the running score; quarter lines and score boxes; Notes). Format: [`docs/game-file-format.md`](docs/game-file-format.md) | hand, the entry page (`/enter/`) or `/record-game` |
-| `data/<season>/drafts/<game_id>.yml` | A game still being entered or checked (`status: draft`); never read by the build | the entry page or `/record-game` |
-| `data/<season>/sheets/<game_id>.jpg` | Photo of the paper sheet, kept for checking (not published) | hand or `/record-game` |
+| `data/<season>/games/<game_id>.yml` | One file per played game: a digital copy of the score sheet, box for box (roster rows with Here, free-throw circles and fouls; the running score; quarter lines and score boxes; Notes). Format: [`docs/game-file-format.md`](docs/game-file-format.md) | the entry page (`/enter/`) or hand (later `/record-game`, planned) |
+| `data/<season>/drafts/<game_id>.yml` | A game still being entered or checked (`status: draft`, with `review` flags on boxes still in doubt); never read by the build, not even `--check`; checked on the entry page | the entry page (later `/record-game`, planned) |
+| `data/<season>/sheets/<game_id>.jpg` | Photo of the paper sheet, kept for checking (not published) | hand (later `/record-game`, planned) |
 | `_config.yml` | `sample_data` (show the fake season), `score_sheet_links` (publish photos), `preview_site` (the sample copy at `/preview/`), `contact_url`, `search_engines` (off: pages ask not to be listed by Google), the domain | hand, rarely |
 
 The file formats, id rules and stat rules (GP, PPG, FT%, standings points,
@@ -214,7 +271,7 @@ there are none:
 - No game file for a cancelled game, or for a playoff game whose teams are
   still `TBD`/`2nd`/`Winner G41`.
 - Names are "First L.", times are 24-hour, dates are real, and a team doesn't
-  play twice in one day.
+  play two regular-season games in one day.
 
 **Calculates**, for every season in `seasons.yml`, written to
 `_data/computed/<season>/`:
@@ -224,7 +281,7 @@ there are none:
 | `teams.json` | name, code, colour slot per team |
 | `standings.json` | PTS (standings points), W, L, QW (quarters won), PCT, PF, PA, DIFF, rank; tiebreak notes; "through week N" |
 | `players.json` | each player's totals: GP, PTS, PPG, FTM, FTA, FT%, season high; PF (kept, not shown); technical and flagrant fouls for the whole season, playoffs included |
-| `leaders.json` | PPG and FT% leaders (the minimums `ppg_min_games` and `ft_min_attempts` come from `seasons.yml`); everyone with a technical foul; everyone with a flagrant foul |
+| `leaders.json` | PPG, points and FT% leaders (the minimums `ppg_min_games` and `ft_min_attempts` come from `seasons.yml`); everyone with a technical foul; everyone with a flagrant foul |
 | `rankings.json` | every player with their rank in each stat, for the Stats page |
 | `games.json` | every played game's box score, with the points in each quarter, quarters won and the standings points earned |
 | `game_logs.json` | each player's game-by-game lines |
@@ -276,6 +333,7 @@ Two small includes turn that into the variables every template uses:
 | `/teams/` | `teams/index.html` | a card per team |
 | `/archive/` | `archive/index.html` | a card per season |
 | `/rules/` | `rules/index.md` (layout `text`) | the league rules, written in Markdown; linked from the footer |
+| `/enter/` | `enter/index.html` | the score sheet entry page (unlisted, needs JavaScript): type up or check a game against the photo, then save the file to GitHub. Reads `enter/sheet-spec.json` and `enter/data/`; script `assets/js/enter.js` |
 | `/404.html` | `404.html` | page not found |
 
 **Generated pages:** a stub plus a layout. `_config.yml` declares four
@@ -320,7 +378,8 @@ Every page uses `_layouts/default.html`:
 | `schedule-week.html` / `game-row.html` / `bye-line.html` | a game day on the Schedule / one upcoming or cancelled game / who has the bye |
 | `box-score-table.html` | one team's half of a box score |
 | `team-card.html` / `season-card.html` | the cards on Teams and Archive |
-| `calendar-links.html` | Subscribe / Download rows for the calendars |
+| `calendar-links.html` / `calendar-help.html` | Subscribe / Download rows for the calendars / how to add one on each kind of device |
+| `score-sheet-links.html` | a game day's score sheet PDF link, with "Other layouts" |
 
 ### Look and behaviour
 
@@ -349,7 +408,7 @@ Every page uses `_layouts/default.html`:
 `.github/workflows/deploy.yml` runs on every push and pull request, and every
 night at about 4 AM Thunder Bay time (08:17 UTC):
 
-1. Install Python packages (`requirements.txt`: PyYAML, reportlab).
+1. Install Python packages (`requirements.txt`: PyYAML, reportlab, pytest).
 2. Run every test with pytest (`tests/`, including the score sheet rules against
    the shared fixtures in `tests/fixtures/sheets/`).
 3. Run the JavaScript tests with Node 22 (`node --test "tests/js/*.test.mjs"`):
@@ -381,7 +440,7 @@ domain is set in the repo's Settings → Pages and in `_config.yml` (`url`) and
 ### Running it on your computer
 
 ```sh
-pip install -r requirements.txt        # Python 3.12, PyYAML, reportlab
+pip install -r requirements.txt        # Python 3.12, PyYAML, reportlab, pytest
 bundle install                         # Ruby and Jekyll 4.4
 
 python -m pytest                       # every test (unit tests + score sheet fixtures)
@@ -404,7 +463,7 @@ Run `build_stats.py` again after changing anything in `data/` or the
 
 | I want to… | Do this |
 |---|---|
-| Add a game result | add `data/2026-27/games/<game_id>.yml` ([guide](docs/stats-workflow.md#add-a-game)), or type it up on `/enter/` ([guide](docs/stats-workflow.md#enter-or-check-a-game-on-the-entry-page)) |
+| Add a game result | type it up on `/enter/` ([guide](docs/stats-workflow.md#enter-or-check-a-game-on-the-entry-page)), or add `data/2026-27/games/<game_id>.yml` by hand ([guide](docs/stats-workflow.md#add-a-game-by-hand)) |
 | Check a draft against the paper | open it on `/enter/`, with the photo beside it |
 | Fix a number | edit the game file (or reopen the game on `/enter/`); everything is recalculated |
 | Add a player or sub | one line in `data/2026-27/players.yml` |
@@ -414,14 +473,14 @@ Run `build_stats.py` again after changing anything in `data/` or the
 | Change a team's colour | its `colour_slot` (1–5) in `teams.yml` |
 | See a change with fake numbers | open `/preview/` after it's merged (the sample-season copy), or set `sample_data: true` in `_config.yml` locally |
 | Change a ranking minimum | `ppg_min_games` / `ft_min_attempts` in `data/seasons.yml` ([guide](docs/stats-workflow.md#change-a-ranking-minimum)) |
-| Start a new season | add `data/<new season>/` (teams, players, schedule, empty `games/`), add it to the top of `seasons.yml` with `current: true`, and remove `current` from the old one. The old season moves to the Archive, keeping its standings, leaders and box scores, but no player or team pages. |
+| Start a new season | add `data/<new season>/` (teams, players, schedule, empty `games/`, `drafts/` and `sheets/`), add it to the top of `seasons.yml` with `current: true`, and remove `current` from the old one. The old season moves to the Archive, keeping its standings, leaders and box scores, but no player or team pages. |
 
 ### Repository map
 
 ```
 data/                    league data: the only thing edited week to week
   seasons.yml
-  2026-27/               the real season: teams, players, schedule, games/, sheets/
+  2026-27/               the real season: teams, players, schedule, games/, drafts/, sheets/
   sample-2026-27/        made-up data (sample mode only)
   sample-2025-26/
 scripts/
@@ -430,12 +489,14 @@ scripts/
   calendars.py           the .ics files
   scoresheet/            the score sheet generator (form MBL-SS6): README, fonts, example data
   make_score_sheets.sh   score sheet PDFs for the season shown (CI)
-  make_sample_season.py  regenerates the sample seasons
+  make_sample_season.py  regenerates the sample seasons (and their two drafts)
+  make_practice_games.py the practice sheets for /record-game (tests/fixtures/record-game/)
   build_preview.sh       the sample-season copy at /preview/ (CI)
   check_links.sh         link check (CI)
   screenshot_all.py      screenshots + page checks for QA
 tests/                   unit tests (build_stats, calendars, score sheets) and the sheet rules tests
-  fixtures/sheets/       test game files with their expected results (shared with the entry page)
+  fixtures/sheets/       test game files with their expected results (Python and JS rules both run them)
+  fixtures/record-game/  four practice games: answer key, filled sheet, empty sheet (see its README)
   js/                    the entry page's JavaScript rules on the same fixtures (node --test)
 _config.yml              site settings, switches, collections
 _layouts/  _includes/    templates and components
@@ -458,5 +519,6 @@ CNAME                    the domain, for GitHub Pages
 ```
 
 Generated on every build and never committed: `_data/computed/`, `_games/`,
-`_players/`, `_teams/`, `_archive/`, `calendar/`, `score-sheets/`, `sheets/`
-(only when photos are published) and `_site/`.
+`_players/`, `_teams/`, `_archive/`, `calendar/`, `score-sheets/`,
+`enter/data/`, `enter/sheet-spec.json`, `sheets/` (only when photos are
+published) and `_site/`.

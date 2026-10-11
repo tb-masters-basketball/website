@@ -2,8 +2,8 @@
 
 Four made-up games from the sample season (`data/sample-2026-27/`), for
 testing the command that reads a photo of a score sheet. Made by
-`python scripts/make_practice_games.py` (same output every run; it replaces
-this folder, so keep photos and notes elsewhere or re-add them after a rerun).
+`python scripts/make_practice_games.py` (same output every run; it rewrites
+its own files and leaves anything else, such as photos, alone).
 
 Each game's folder has:
 
@@ -15,8 +15,10 @@ Each game's folder has:
 
 To make test photos: print the filled sheet and the empty one, have someone
 copy the filled sheet onto the empty one by hand (real handwriting, real
-pens), then photograph the copy flat with all four corner squares in view.
-Run `/record-game` on the photo and compare its draft with `answer.yml`.
+pens), then photograph the copy flat with all four corner squares in view. Save it
+in the game's folder as `photo.jpg` (`photo-2.jpg` for page 2, if used).
+Once `/record-game` exists, run it on the photo and compare its draft with
+`answer.yml` (the planned `scripts/compare_game.py`; see the README's to-do list).
 
 | Game | Layout | Teams (home first) | Final | What it tests |
 |---|---|---|---|---|

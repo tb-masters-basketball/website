@@ -61,14 +61,16 @@ SCHEDULE_COLUMNS = ["game_id", "date", "time", "gym", "home", "away", "type", "w
 #   status  blank (the game goes ahead) or "cancelled"
 #   round   a playoff round's name as the league writes it, e.g. "Semifinal (G42)"
 GAME_STATUSES = ("", "cancelled")
-# Optional per-player fouls in a game file, as on the score sheet: 5 personal
-# foul boxes and 2 technical (T) boxes. Personal fouls are kept but not shown.
+# Per-player fouls, from the score sheet's 5 personal foul boxes (`fouls` in a
+# game file, `pf` here) and 2 technical (T) boxes (`tech`). Personal fouls are
+# kept but not shown.
 FOUL_LIMITS = {"pf": sheet_rules.MAX_FOULS, "tech": sheet_rules.MAX_TECH}
-# Flagrant fouls (from the sheet's Notes) are optional too. A flagrant is also a
-# personal foul, so a player's flagrant count can't be more than their pf.
-# Like technicals, the site counts them for the whole season, playoffs included.
-# Games are played in quarters. `quarters` in a game file holds each team's
-# running total at the end of Q1-Q4, as written in the sheet's Q1-Q4 boxes.
+# Flagrant fouls come from the sheet's Notes. A flagrant is also a personal
+# foul, so a player's flagrant count can't be more than their slashed foul
+# boxes. Like technicals, the site counts them for the whole season, playoffs
+# included.
+# Games are played in quarters: each team's running total at the end of Q1-Q4
+# comes from the sheet's Q1-Q4 boxes (`boxes` in a game file).
 QUARTERS = 4
 # Standings points (regular season): 1 for each quarter won and 3 for winning
 # the game, so 7 at most. A tied quarter gives neither team a point, and

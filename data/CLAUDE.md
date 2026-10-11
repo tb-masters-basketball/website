@@ -47,7 +47,7 @@ in for a given season.
 `preview_site: true` in `_config.yml` builds a second copy of the site on every
 deploy, from the sample season, at `/preview/` (`scripts/build_preview.sh`).
 It runs `build_stats.py` again with `sample_data: true`, so the sample seasons
-must always pass every check, `quarters` included.
+must always pass every check (the quarter `lines` and `boxes` included).
 
 ### Pages made from the data
 `build_stats.py` also writes a tiny stub page for each game, player, team and
@@ -130,7 +130,7 @@ league's updated printed schedule (`Masters_Basketball_Schedule_2026-27_UPDATED.
 Still to come: the rosters. `players.yml` is an empty list (`[]`), so team
 pages say "No players listed yet" and there are no player pages. (A `display`
 of exactly `[placeholder]` still passes the "First L." check, if a placeholder
-row is ever useful.) `games/` and `sheets/` are empty.
+row is ever useful.) `games/`, `drafts/` and `sheets/` are empty.
 
 ### Team colours
 `colour_slot` (1-5) picks `--mb-team-N` in `brand/css/brand.css`, which holds
@@ -141,7 +141,9 @@ and `colour_dark` are kept as a record of the hex values and should match
 ### Game file
 A game file is a digital copy of the paper score sheet (form MBL-SS6), box for
 box. **The full format, every check and the problem paths are in
-[`docs/game-file-format.md`](../docs/game-file-format.md).** In short:
+[`docs/game-file-format.md`](../docs/game-file-format.md).** In short (an excerpt,
+one row and a few boxes of each part, so the totals don't add up; the full,
+valid example is in that doc):
 
 ```yaml
 game_id: 2026-10-17-g1
@@ -166,7 +168,8 @@ checked_by: Lee M.
 
 - **Where:** finished games in `data/<season>/games/<game_id>.yml`
   (`status: final`); drafts in `data/<season>/drafts/` (never read by the
-  build); photos in `data/<season>/sheets/<game_id>.jpg`.
+  build, not even by `--check`; checked on the entry page); photos in
+  `data/<season>/sheets/<game_id>.jpg`.
 - **Rules:** `scripts/sheet_rules.py`, the one place they live. Points come
   from running-score jumps; FTM/FTA from the circles (`M` made, `X` missed),
   never from the running score, because a free throw can be worth 1, 2 or 3;
@@ -206,7 +209,8 @@ checked_by: Lee M.
   league sends them.
 
 ## Stat rules
-- **GP:** games where the player is listed on the sheet.
+- **GP:** games where the player's row is ticked **Here** on the sheet (a row
+  not ticked gets no line and no game played).
 - **PPG:** points ÷ GP, one decimal. PPG leaderboards need `ppg_min_games`
   GP (from `seasons.yml`, 0 = none), capped at the games the player's team has
   played so far: min(ppg_min_games, team GP). Unranked players stay in the
@@ -253,8 +257,8 @@ appear in the mockups (Port Arthur 6–1, Dave M. 20.1 PPG, and so on). Put it i
 `scripts/make_sample_season.py` writes it (5 teams, 9 players and a sub each,
 16 games over 8 weeks with quarter totals and a few flagrant fouls, an
 upcoming night with two drafts in `drafts/` for trying the entry page (one
-with two review flags and a sub written in by hand, one with errors), and enough free throws that 16 players clear the 10-FTA
-minimum and 34 don't). The quarter splits are tried until the standings by
+with two review flags and a sub written in by hand, one with errors), and
+enough free throws that 16 players clear the 10-FTA minimum and 34 don't). The quarter splits are tried until the standings by
 points keep the mockup order (Port Arthur, Current River, Westfort, Lakehead,
 Fort William), with a fixed seed so the files are
 the same every run, and checks the result against the mockup numbers. To

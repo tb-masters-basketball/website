@@ -14,10 +14,10 @@ from 101 with one column fewer (to 180 or 175), and free throws 11-20.
 
 Usage
 -----
-Sheets for every game in the schedule (one PDF per game night):
+Sheets for every game in the schedule (one PDF per game day):
   python scoresheet.py --data data/2026-27 --out dist/score-sheets
 
-Only one night, or one game:
+Only one day, or one game:
   python scoresheet.py --data data/2026-27 --date 2026-12-03 --out dist/score-sheets
   python scoresheet.py --data data/2026-27 --game 2026-12-03-g1 --out dist/score-sheets
 
@@ -31,12 +31,19 @@ Blank sheets (names and numbers left as fillable fields):
 Data it reads (see data/CLAUDE.md in the website repo):
   teams.yml     list of {id, name, ...}
   players.yml   list of {id, display, team, sub, number}   (number optional)
-  schedule.csv  game_id,date,time,court,home,away,type,week[,status,...]
+  schedule.csv  game_id,date,time,gym,home,away,type,week[,status,round]
                 (rows whose status is "cancelled" are skipped)
 Regular players (sub: false) are pre-printed, sorted by jersey number; the
 remaining rows are left blank for subs. Every field stays editable in the PDF.
 
-Needs: reportlab, PyYAML (pypdf only for --check).
+A game file written onto its sheet as handwriting (practice sheets for
+/record-game; see scripts/make_practice_games.py):
+  python scoresheet.py --data data/sample-2026-27 --fill GAME.yml --out ...
+
+The sheet's structure as JSON (for the game file checks and the entry page):
+  python scoresheet.py --spec scripts/scoresheet/spec.json
+
+Needs: reportlab, PyYAML.
 """
 import argparse, csv, datetime as dt, json, os, random, sys
 from reportlab.lib.pagesizes import letter, legal
@@ -63,7 +70,8 @@ PEN = HexColor("#1F3FB8")      # example handwriting only
 # Everything structural about the printed sheet, in one place. The drawing code
 # reads only this; `--spec OUT.json` writes it (plus each layout's running-score
 # ranges) for the game file checks and the entry page. Change the printed sheet
-# here, then bump "form" (and update /record-game and scripts/sheet_rules.py).
+# here, then bump "form" (and update scripts/sheet_rules.py, its JS port and,
+# once it exists, /record-game).
 SPEC = {
     "form": "MBL-SS6",                 # SS6: quarters (was halves), Notes on page 1, how-to on page 2
     "roster_rows": 12,                 # player rows per team (same rows on both pages)
@@ -327,8 +335,8 @@ class ScoreSheet:
     # How to mark: on page 2, in the space of its last running-score column.
     HOW_TO = [
         ("Running score", "Each time a team scores, write the scorer's number in that team's box "
-         "beside the new total. Leave skipped totals empty. A jump of 1 is a free throw; 2 or 3 is a "
-         "basket. And-one: write the basket, then the free throw."),
+         "beside the new total. Leave skipped totals empty. A score is 1, 2 or 3 points (so is a "
+         "free throw). And-one: write the basket, then the free throw."),
         ("End of each quarter", "Draw a line under each team's last number. Write each team's running "
          "total in its Q1, Q2, Q3 or Q4 box under the roster, the total after overtime in OT, and the "
          "final score in Final."),
@@ -821,7 +829,7 @@ def main():
     ap.add_argument("--fill", metavar="GAME.yml",
                     help="with --data: write this game file onto its sheet as handwriting (practice sheets)")
     ap.add_argument("--allow-empty", action="store_true",
-                    help="no matching games is fine (e.g. --from-today after the last game night): make nothing, exit 0")
+                    help="no matching games is fine (e.g. --from-today after the last game day): make nothing, exit 0")
     ap.add_argument("--out", help="output folder")
     ap.add_argument("--spec", metavar="OUT.json", help="write the sheet spec as JSON and stop")
     a = ap.parse_args()

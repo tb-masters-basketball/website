@@ -3,7 +3,8 @@
 `scoresheet.py` makes the printable league score sheet (form MBL-SS6) as a
 fillable PDF. It comes in four layouts: portrait or landscape, Letter or Legal.
 The scorekeeper can pick whichever they like. All four have the same parts, so
-`/record-game` reads them the same way.
+a game file (and the entry page, `/enter/`, and the planned `/record-game`)
+reads them the same way.
 
 ## What's on the sheet
 - **Game details:** date, start time, court, game ID, scorekeeper.
@@ -27,7 +28,7 @@ The scorekeeper can pick whichever they like. All four have the same parts, so
 ## How stats come from a sheet
 | Stat | Source |
 |---|---|
-| Player points | Running score. The jump from the team's previous total to the next one is that basket's value: 1, 2 or 3. |
+| Player points | Running score. The jump from the team's previous total to the next one is that score's value: 1, 2 or 3 (a basket or a free throw). |
 | FTM | Filled circles in the player's row. Never the running score: a free throw can be worth 1, 2 or 3 points under league rules. More made free throws than the player's scores is flagged as a warning. |
 | FTA | Filled circles plus slashed circles. |
 | GP | **Here** ticks. |
@@ -35,7 +36,7 @@ The scorekeeper can pick whichever they like. All four have the same parts, so
 | Techs | Slashed red **T** boxes in the player's row (0 to 2). The website counts them for the whole season, playoffs included. |
 | Quarter scores | The **Q1 to Q4** boxes: each team's running total at the end of each quarter (and **OT** after overtime). A quarter's points are the difference from the quarter before. |
 | Flagrant fouls | **Notes** on page 1: team, player number and quarter for each one. A flagrant also counts as a personal foul, so it is in that player's foul boxes (and PF) too. |
-| Checks | The last running total equals the Final box. Each quarter box equals the running total at that quarter's line. Player points add up to the team score. |
+| Checks | Every jump is 1, 2 or 3. Every scorer's number is on that team's roster and ticked Here. The last running total equals the Final box. Each quarter box equals the running total at that quarter's line. (Player points always add up to the team score, since both come from the running score.) The full list is in [`docs/game-file-format.md`](../../docs/game-file-format.md#the-checks). |
 
 Team fouls and timeouts are for the game itself and aren't recorded on the website.
 
@@ -46,10 +47,10 @@ quarters and the instructions on page 1.
 ```
 pip install reportlab pyyaml
 
-# every game night in a season, one PDF per night (two pages per game, for double-sided printing)
+# every game day in a season, one PDF per day (two pages per game, for double-sided printing)
 python scripts/scoresheet/scoresheet.py --data data/2026-27 --out dist/score-sheets
 
-# one night or one game
+# one day or one game
 python scripts/scoresheet/scoresheet.py --data data/2026-27 --date 2026-12-03 --out dist/score-sheets
 python scripts/scoresheet/scoresheet.py --data data/2026-27 --game 2026-12-03-g1 --out dist/score-sheets
 
@@ -63,11 +64,20 @@ python scripts/scoresheet/scoresheet.py --blank --all-layouts --out dist/score-s
 Other options:
 - `--from-today`: skips games dated before today.
 - `--allow-empty`: if no games match (say, `--from-today` after the last game
-  night), make nothing and exit without an error. The website's deploy uses it.
+  day), make nothing and exit without an error. The website's deploy uses it.
 - `--front-only`: leaves out the page 2 continuation.
-- `--per-game`: makes one file per game instead of one per night.
+- `--per-game`: makes one file per game instead of one per day.
 - `--include-subs`: also pre-prints subs.
-- `--example`: adds sample handwriting, for previews only.
+- `--example`: adds made-up sample handwriting, for previews only.
+- `--fill GAME.yml` (with `--data`): writes a game file onto its sheet as
+  handwriting: Here ticks, circles, foul and T boxes, the running score, the
+  quarter lines, the score boxes, Notes, and any sub written in on a blank
+  row. Page 1 only (up to 100 points and 10 free throws a player). It makes
+  the practice sheets for `/record-game` (`scripts/make_practice_games.py`,
+  into `tests/fixtures/record-game/`).
+- `--prefill GAME.json`: one game's header and rosters from a JSON file instead
+  of `--data`.
+- `--spec OUT.json`: writes the spec (below) and stops.
 
 ## Data it needs
 It reads `teams.yml`, `players.yml` and `schedule.csv` from the season folder.

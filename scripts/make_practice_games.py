@@ -10,7 +10,8 @@ sample season, each as
 People copy each filled sheet onto its empty one by hand; photos of those are
 what /record-game is tested on, and its draft is compared with answer.yml.
 Everything is fake (the sample season's teams and players) and written into
-tests/fixtures/record-game/<game_id>/. Same output every run.
+tests/fixtures/record-game/<game_id>/. Same output every run; anything else
+in those folders (photos of the hand-copied sheets) is left alone.
 
     python scripts/make_practice_games.py
 
@@ -159,16 +160,17 @@ def check(sheet, teams, players, schedule):
 
 def main():
     teams, players, schedule = season()
-    if OUT.exists():
-        shutil.rmtree(OUT)
     for (gid, orient, kind), keeper in zip(GAMES, SCOREKEEPERS):
         sheet = make_game(gid, kind, keeper, teams, players, schedule)
         game = check(sheet, teams, players, schedule)
         folder = OUT / gid
-        folder.mkdir(parents=True)
+        folder.mkdir(parents=True, exist_ok=True)
+        for old in folder.glob("*.pdf"):                # only what this script makes: photos stay
+            old.unlink()
         (folder / "answer.yml").write_text(HEADER + sheet_rules.dump(sheet), encoding="utf-8")
         layout = f"{orient}-letter"
         tmp = folder / "tmp"
+        shutil.rmtree(tmp, ignore_errors=True)
         common = [sys.executable, str(ROOT / "scripts" / "scoresheet" / "scoresheet.py"), "--data", str(SEASON),
                   "--orient", orient, "--size", "letter", "--out", str(tmp)]
         subprocess.run(common + ["--fill", str(folder / "answer.yml")], check=True, capture_output=True)
