@@ -1,0 +1,67 @@
+---
+layout: default
+title: Flagrant fouls
+permalink: /flagrant/
+description: Flagrant fouls this season in the Masters Basketball League.
+---
+{%- comment -%}
+  Flagrant fouls: kept off the Stats page, at the league's request, and not
+  linked from anywhere on the site (like every page, it has the noindex tag).
+  Everything comes from leaders.json: `flagrants` (each player's count) and
+  `flagrant_log` (each one, with the note written in the score sheet's Notes
+  box). The whole season, playoffs included, like technical fouls.
+{%- endcomment -%}
+{%- include active-season.html -%}
+{%- assign flagrants = stats.leaders.flagrants -%}
+{%- assign log = stats.leaders.flagrant_log -%}
+
+<div class="wrap page">
+  <h1 class="page-title">Flagrant fouls</h1>
+  <p class="page-sub">{{ season.label }} season, playoffs included. A flagrant foul also counts as a personal foul.</p>
+
+  <section class="page-section" aria-labelledby="flagrant-players-title">
+    <h2 class="section-title" id="flagrant-players-title">By player</h2>
+    <p class="table-note">Most first.</p>
+    {%- if flagrants.size > 0 %}
+    <div class="rank-list">
+      {%- for fp in flagrants %}
+      {%- capture fp_meta %}{{ fp.team_name }} · {% if fp.flagrant_games == 1 %}1 game{% else %}{{ fp.flagrant_games }} games{% endif %}{% if fp.flagrant_playoff > 0 %} · {{ fp.flagrant_playoff }} in playoffs{% endif %}{% endcapture %}
+      {%- include rank-row.html player=fp value=fp.flagrant meta=fp_meta rank=forloop.index %}
+      {%- endfor %}
+    </div>
+    {%- else %}
+    <p class="empty">No flagrant fouls yet.</p>
+    {%- endif %}
+  </section>
+
+  <section class="page-section" aria-labelledby="flagrant-log-title">
+    <h2 class="section-title" id="flagrant-log-title">Every flagrant foul</h2>
+    <p class="table-note">Newest first, with the note from the score sheet.</p>
+    {%- if log.size > 0 %}
+    <div class="table-card">
+      <table class="table flagrant-log">
+        <thead>
+          <tr>
+            <th scope="col">Game</th>
+            <th scope="col">Player</th>
+            <th scope="col">Qtr</th>
+            <th scope="col">Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for f in log %}
+          <tr>
+            <th scope="row"><a href="{{ '/games/' | append: f.game_id | append: '/' | relative_url }}">{{ f.date_display }}</a>{% if f.type == "playoff" %} <span class="badge">Playoff</span>{% endif %}<span class="flagrant-log__vs">vs {{ f.opponent_name }}</span></th>
+            <td>{% if f.player %}<a href="{{ '/players/' | append: f.player | append: '/' | relative_url }}">{% include player-name.html player=f %}</a>{% else %}#{{ f.num }}{% endif %}<span class="flagrant-log__vs">{{ f.team_name }}</span></td>
+            <td>{{ f.q }}</td>
+            <td class="flagrant-log__note">{{ f.note | default: "—" }}</td>
+          </tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+    </div>
+    {%- else %}
+    <p class="empty">No flagrant fouls yet.</p>
+    {%- endif %}
+  </section>
+</div>

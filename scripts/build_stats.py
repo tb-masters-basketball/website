@@ -648,6 +648,27 @@ def technicals_list(totals, key="tech"):
     return sorted(rows, key=lambda r: (-r[key], r["display"], r["id"]))
 
 
+def flagrant_log(season, games, summaries):
+    """Every flagrant foul this season (playoffs included), newest first: the
+    game, the player, the quarter and the note the scorekeeper wrote. For the
+    unlisted /flagrant/ page."""
+    out = []
+    for gid, game in games.items():
+        s = summaries[gid]
+        for f in game.get("flagrants", []):
+            p = season["players"].get(f["player"]) if f.get("player") else None
+            opp = game["away"] if f["team"] == game["home"] else game["home"]
+            out.append({
+                "game_id": gid, "date": s["date"], "date_display": s["date_display"], "type": game["type"],
+                "team": f["team"], "team_name": season["teams"][f["team"]]["name"],
+                "opponent": opp, "opponent_name": season["teams"][opp]["name"],
+                "player": f.get("player"), "display": p["display"] if p else None,
+                "number": p.get("number") if p else None, "sub": p["sub"] if p else False,
+                "num": f["num"], "q": "OT" if f["q"] == "OT" else f"Q{f['q']}", "note": f["text"],
+            })
+    return sorted(out, key=lambda e: (e["date"], e["game_id"]), reverse=True)
+
+
 def _ranked(entries, value_key, exact):
     """Sort by exact value (high first) and give tied values the same rank."""
     entries = sorted(entries, key=lambda e: (-exact(e), -e["pts"], e["display"], e["id"]))
@@ -928,6 +949,7 @@ def compute_season(season):
     leaders["through_week"] = through_week
     leaders["technicals"] = technicals_list(totals)
     leaders["flagrants"] = technicals_list(totals, "flagrant")
+    leaders["flagrant_log"] = flagrant_log(season, games, summaries)
     team_info = {
         tid: {"id": tid, "name": t["name"], "short": t["short"], "colour_slot": t["colour_slot"]}
         for tid, t in season["teams"].items()

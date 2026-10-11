@@ -97,7 +97,7 @@ neither, and a final file can't have `review`.)
 | FTM, FTA | The circles: FTM = `M`s, FTA = `M`s + `X`s. Never the running score: under league rules a free throw can be worth 1, 2 or 3, so any jump might be one |
 | GP | `here: true` (rows not ticked get no line) |
 | PF, techs | `fouls`, `tech` |
-| Flagrant fouls | Notes entries with `kind: flagrant`, per team and number |
+| Flagrant fouls | Notes entries with `kind: flagrant`, per team and number; each one's quarter and `text` are listed on the flagrant fouls page (`/flagrant/`) |
 | Quarter scores | `boxes` q1-q4 (running totals); overtime when the final is above a tied Q4 |
 | Final score | The last running total (the Final box must agree) |
 

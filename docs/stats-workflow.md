@@ -223,7 +223,10 @@ How to copy each part of the sheet:
 - **`boxes`**: the Q1 to Q4, OT and Final boxes under each roster, as written
   (`ot: null` when there was no overtime).
 - **Flagrant fouls** from the Notes box go in a `notes:` list:
-  `- {team: bb, num: 5, q: 3, kind: flagrant, text: what happened}`.
+  `- {team: bb, num: 5, q: 3, kind: flagrant, text: what happened}`. The
+  `text` is shown, as written, on the flagrant fouls page (`/flagrant/`, not
+  linked from the site), so copy it as the scorekeeper wrote it, players as
+  "First L." only.
 - **A sub written in by hand** needs a `players.yml` line first (see
   [Add a new player, or a sub](#add-a-new-player-or-a-sub)); then their row
   uses that id. Until then a draft can say `name: Jim K.` instead of `player:`.

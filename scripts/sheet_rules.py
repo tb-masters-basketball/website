@@ -317,6 +317,7 @@ def check(sheet, ctx):
 
     # ---- notes: flagrant fouls ------------------------------------------------
     flagrants = {tid: {} for tid in sides}
+    flagrant_notes = []       # each flagrant, as written in Notes, for the site's list
     notes = sheet.get("notes") or []
     if not isinstance(notes, list):
         err("notes", "notes should be a list, e.g. - {team: lh, num: 11, q: 3, kind: flagrant, text: ...}")
@@ -339,6 +340,8 @@ def check(sheet, ctx):
         else:
             i = by_num[tid][num]
             flagrants[tid][i] = flagrants[tid].get(i, 0) + 1
+            flagrant_notes.append({"team": tid, "row": i, "num": num, "q": note.get("q"),
+                                   "text": str(note.get("text") or "").strip()})
         if note.get("q") not in (1, 2, 3, 4, "OT"):
             err(f"{at}.q", f"q should be the quarter, 1 to 4 (or OT), not {note.get('q')!r}")
     for tid in sides:
@@ -383,6 +386,9 @@ def check(sheet, ctx):
         "quarters": {tid: list(ends[tid]["q"]) for tid in sides},
         "ot": went_ot,
         "lines": game_lines,
+        # each flagrant foul in Notes: team, player id, jersey, quarter and the note
+        "flagrants": [{"team": f["team"], "player": dict(rows[f["team"]])[f["row"]].get("player"),
+                       "num": f["num"], "q": f["q"], "text": f["text"]} for f in flagrant_notes],
         "scorekeeper": sheet.get("scorekeeper"),
         "checked_by": sheet.get("checked_by"),
     }

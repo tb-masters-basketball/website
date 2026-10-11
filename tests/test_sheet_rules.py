@@ -160,3 +160,14 @@ def test_the_practice_answer_keys_pass(game):
     result, found = sheet_rules.check(sheet, {"stem": game, "folder": "games", "teams": teams,
                                               "players": players, "schedule": schedule})
     assert found == [] and result is not None
+
+
+def test_each_flagrant_keeps_its_quarter_and_note(season):
+    """The site lists every flagrant with the note from the sheet's Notes box."""
+    sheet, _, _ = run("clean", season)
+    sheet["notes"] = [{"team": "bb", "num": 5, "q": 3, "kind": "flagrant", "text": " elbow on a rebound "},
+                      {"team": "aa", "num": 4, "q": 1, "kind": "note", "text": "late start"}]
+    game, problems = sheet_rules.check(sheet, {**season, "stem": sheet["game_id"], "folder": "games"})
+    assert problems == []
+    assert game["flagrants"] == [{"team": "bb", "player": "bo-c", "num": "5", "q": 3, "text": "elbow on a rebound"}]
+    assert next(l for l in game["lines"] if l["player"] == "bo-c")["flagrant"] == 1

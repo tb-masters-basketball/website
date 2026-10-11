@@ -89,6 +89,7 @@ tests/js/               node --test: the JS sheet rules against the same fixture
 tests/fixtures/sheets/  test game files + expected results (run by both the Python and the JS rules)
 tests/fixtures/record-game/  four practice games for the planned /record-game (see its README)
 _layouts/ _includes/    templates (_layouts/text.html: Markdown pages such as rules/index.md)
+flagrant/index.html     flagrant fouls by player and each one with its note (unlinked; not on Stats)
 rules/index.md          the League rules page: playing rules + player code of conduct (Markdown, two # headings,
                         numbered ## rules, auto table of contents; linked from the footer)
 assets/css/site.css     page styles, built on brand/css/brand.css variables

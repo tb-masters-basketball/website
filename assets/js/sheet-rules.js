@@ -343,6 +343,7 @@
       // ---- notes: flagrant fouls ------------------------------------------------
       const flagrants = {};
       for (const tid of sides) flagrants[tid] = {};
+      const flagrantNotes = [];   // each flagrant, as written in Notes, for the site's list
       let notes = or(get(sheet, "notes"), []);
       if (!Array.isArray(notes)) {
         err("notes", "notes should be a list, e.g. - {team: lh, num: 11, q: 3, kind: flagrant, text: ...}");
@@ -365,6 +366,8 @@
         } else {
           const i = byNum[tid][num];
           flagrants[tid][i] = (flagrants[tid][i] || 0) + 1;
+          const t = get(note, "text", "");
+          flagrantNotes.push({ team: tid, row: i, num, q: get(note, "q", null), text: t === null || t === undefined ? "" : String(t).trim() });
         }
         if (![1, 2, 3, 4, "OT"].includes(get(note, "q"))) {
           err(`${at}.q`, `q should be the quarter, 1 to 4 (or OT), not ${repr(get(note, "q"))}`);
@@ -417,6 +420,10 @@
         home, away, final, quarters,
         ot: wentOt,
         lines: gameLines,
+        flagrants: flagrantNotes.map((f) => ({
+          team: f.team, player: get(rows[f.team].find(([j]) => j === f.row)[1], "player", null),
+          num: f.num, q: f.q, text: f.text,
+        })),
         scorekeeper: get(sheet, "scorekeeper", null),
         checked_by: get(sheet, "checked_by", null),
       });

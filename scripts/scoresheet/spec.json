@@ -4,7 +4,20 @@
   "ft_circles_per_page": 10,
   "personal_foul_boxes": 5,
   "technical_boxes": 2,
-  "timeouts": 3,
+  "timeouts": [
+    {
+      "label": "H1",
+      "count": 2
+    },
+    {
+      "label": "H2",
+      "count": 2
+    },
+    {
+      "label": "OT",
+      "count": 1
+    }
+  ],
   "quarters": [
     "Q1",
     "Q2",

@@ -277,8 +277,13 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
   OT when played, Final and PTS (regular season only). The higher score in
   each quarter is bold, with "won the quarter" for screen readers.
 - **Flagrant fouls:** a line under the player page tiles when a player has one,
-  a "Flagrant" badge on that game in the game log, and a "Flagrant fouls" list
-  under "Technical fouls" at the bottom of the Stats page.
+  and a "Flagrant" badge on that game in the game log. Not on the Stats page
+  (the league's decision, October 2026): they have their own page,
+  `/flagrant/` (`flagrant/index.html`), which nothing links to. It has a "By
+  player" ranked list (rank rows, as Technical fouls on Stats) and "Every
+  flagrant foul": a table of game (date, linking to the box score, and
+  opponent), player and team, quarter, and the note from the score sheet,
+  newest first.
 
 ## Score sheet entry page (`/enter/`)
 

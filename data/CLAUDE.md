@@ -236,9 +236,11 @@ checked_by: Lee M.
   alone: no standings points (its box score still shows the score by quarter).
 - **Flagrant fouls** count like technicals: the whole season, playoffs included
   (`flagrant`, `flagrant_playoff`, `flagrant_games` in `players.json`; the
-  `flagrants` list in `leaders.json`). They show on the player page (a line
-  under the tiles, a Flagrant badge in the game log) and in a list at the bottom
-  of the Stats page, under the technical fouls.
+  `flagrants` list in `leaders.json`, and `flagrant_log`: each one with its
+  game, quarter and the note written in Notes). They show on the player page
+  (a line under the tiles, a Flagrant badge in the game log) and on their own
+  page, `/flagrant/`, which nothing links to: the league doesn't want them on
+  the Stats page.
 - **Technical fouls** are the exception: a player's season total counts every
   game, playoffs included (`tech`, `tech_playoff`, `tech_games` in
   `players.json`; the list in `leaders.json` as `technicals`). They show on the
