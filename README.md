@@ -31,38 +31,19 @@ The full list, with answers so far, is in
       show as "#23 Dave M." wherever a player is named, and print in the score
       sheets' # box (blank until then). Two players on one team with the same
       "First L." must both have one, or the build stops.
-- [x] **League rules.** `rules/index.md` now holds the league's draft playing
-      rules and the player code of conduct (from their two Word documents,
-      October 2026). Put the date in `updated:` once the league approves them.
-- [ ] **Where the rules and the site disagree.** Decided so far (October 2026):
-  - [x] **Ties (rule 4):** a regular-season game still tied after overtime is
-    a tie: quarters still give their points, overtime and the win none. The
-    standings have a T column; PCT counts a tie as half a win.
-  - [x] **Forfeits (rule 24):** a nearly blank game file, `forfeit: <team>`,
-    counted as 1-0 in each quarter (7 points to the winner, no player stats).
-    The entry page has a Forfeit button.
-  - [x] **Timeouts (rule 9):** the score sheet now prints two circles for each
-    half and one for overtime (H1, H2, OT).
-  - [x] **Technical fouls (code of conduct 4):** the site just counts them.
-  - **Tied quarters:** zero points for either team for now (what the site
-    does); still an open question for the league.
-  - **Reseeding (rule 31):** probably no longer done; to confirm.
+- [ ] **Approve the league rules.** The rules page holds the league's draft
+      playing rules and code of conduct. Once they're approved, put the date in
+      `updated:` at the top of `rules/index.md` (until then the page says it's
+      a draft).
 - [ ] **Standings tiebreakers**, including three-way ties, for teams level on
       points. Until then the site uses head-to-head, then point differential,
       and says so under the standings.
-- [ ] **Tied quarters and overtime (to confirm).** Standings points are 1 per
-      quarter won and 3 per win. The site assumes a tied quarter gives neither
-      team a point, and that overtime isn't a quarter.
+- [ ] **Tied quarters.** The site gives neither team a point for a tied
+      quarter (zero for now); the league still has to confirm.
+- [ ] **Reseeding after 6 games (rule 31).** Probably no longer done; to
+      confirm.
 - [ ] **Playoff matchups.** The play-in (G41, Wed Apr 21) is "TBD vs TBD" in
       `schedule.csv`. Fill in each playoff row as the standings decide it.
-- [x] **Free throws worth 2 or 3.** Rule 12: one free throw for a shooting
-      foul, worth what the shot would have been; after a made basket, and for
-      bonus and penalty free throws, one point. The site takes FTM and FTA only
-      from the circles.
-- [x] **League contact for the footer.** `contact_url` in `_config.yml` is
-      `mailto:mastersbasketballthunderbay@gmail.com` (October 2026). An email
-      link can be read by spam bots; a form (e.g. a Google Form) would keep the
-      address off the page, if spam becomes a problem.
 
 ### 2. Record a game from a photo of the score sheet (`/record-game`)
 
@@ -188,12 +169,6 @@ id assignment so the command only reads the rosters and confirms.
 
 ### 4. Smaller follow-ups
 
-- [ ] **Try "Save to GitHub" on a real game.** The entry page sends the whole
-      file in the link to GitHub's new-file page. A 100-point game makes a
-      link of about 6,300 characters; it couldn't be tested against GitHub
-      itself. Past 8,000 the page copies the file and opens an empty new
-      file instead (`MAX_URL` in `assets/js/sheet-rules.js`). If GitHub
-      refuses a long link, lower that number.
 - [ ] **Saving the photo is a separate step.** The entry page never uploads
       the photo, so it goes into `data/<season>/sheets/<game_id>.jpg` by hand
       (GitHub: *Add file → Upload files*). `/record-game` will add it with the
