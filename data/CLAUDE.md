@@ -243,8 +243,9 @@ checked_by: Lee M.
   game, playoffs included (`tech`, `tech_playoff`, `tech_games` in
   `players.json`; the list in `leaders.json` as `technicals`). They show on the
   player page (a Techs tile, and a badge on each game with one) and in a list at
-  the very bottom of the Stats page. What happens after a number of technicals
-  is an open question; the site only counts them.
+  the very bottom of the Stats page. What happens after them is in the code
+  of conduct on the rules page (T2 in a game is an ejection; 2 to 5 in a
+  season bring suspensions); the site only counts them.
 - **Personal fouls** (`pf`) are kept in the computed data (regular season, like
   the other stats) but shown nowhere.
 

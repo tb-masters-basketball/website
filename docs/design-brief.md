@@ -232,10 +232,15 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
   the Schedule page) · **League rules** · Contact (when set). The links wrap on
   phones; each is a 44 px target.
 - **League rules page** (`/rules/`): Markdown in `rules/index.md`, drawn by the
-  reusable `text` layout. The page title, then "Last updated …" (or "Draft"
-  while `updated` is blank), then the text in a readable column (`.prose`,
-  68 characters wide) with the site's section-title style for `##` headings.
-  It's in the footer only, not the header nav.
+  reusable `text` layout. "Last updated …" (or "Draft" while `updated` is
+  blank), then an "On this page" contents card (`.rules-toc`: the two
+  documents, each with its numbered rules, two columns from 600 px, 44 px
+  targets on touch), then the text in a readable column (`.prose`, 68
+  characters wide). The page has two `#` headings, League Rules and Player
+  Code of Conduct, styled like the page title (`heading_in_content: true`
+  leaves out the layout's own title); `##` rules use the section-title style.
+  Each document ends with "Back to the contents". It's in the footer only,
+  not the header nav.
 - **Technical fouls:**
   - **Player page:** a fifth tile, **Techs**. It's one row of five on phones,
     and beside the points card on desktop. A line under the tiles appears when

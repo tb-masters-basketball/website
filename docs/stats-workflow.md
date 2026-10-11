@@ -493,11 +493,15 @@ Stats page say what the rule is. Past seasons keep their own numbers.
 ### Edit the league rules
 
 The League rules page (linked in every page's footer) is one text file,
-`rules/index.md`. Open it on GitHub, click the pencil, and replace each
-`[placeholder]` with the real rule. Each line starting with `## ` is a section
-heading; lines starting with `- ` are bullet points. When you're done, put the
-date in `updated:` near the top (for example `updated: "Oct 17, 2026"`); until
-then the page says it's a draft. Commit as a pull request and merge it.
+`rules/index.md`: the playing rules, then the player code of conduct. Open it
+on GitHub and click the pencil. A line starting with `# ` is one of the two
+documents, `## 12. Free Throws` is a numbered rule and `### 2.1 Teams` a
+sub-rule; keep the numbers in the headings. Lines starting with `- ` are
+bullet points. The table of contents at the top builds itself from the `#`
+and `##` headings, so a new or renamed rule appears there on its own. When the
+league approves the rules, put the date in `updated:` near the top (for
+example `updated: "Oct 17, 2026"`); until then the page says it's a draft.
+Commit as a pull request and merge it.
 
 ### Fix a wrong number
 
