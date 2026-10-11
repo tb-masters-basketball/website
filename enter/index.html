@@ -1,0 +1,140 @@
+---
+layout: default
+title: Score sheet entry
+permalink: /enter/
+description: A working copy of the league score sheet, for typing up and checking a game.
+scripts:
+  - lib/js-yaml.min.js
+  - sheet-rules.js
+  - enter.js
+---
+{%- comment -%}
+  The score sheet entry page. Unlisted: no nav entry, and (like every page)
+  noindex. It is the one page that needs JavaScript (see CLAUDE.md).
+
+  Everything about the sheet's shape comes from sheet-spec.json, which the
+  deploy writes next to this page with `scoresheet.py --spec`; the season's
+  teams, players, schedule and file list come from data/, which
+  build_stats.py writes. assets/js/enter.js builds the sheet from both, and
+  assets/js/sheet-rules.js (the Python rules, ported) checks it as you type.
+{%- endcomment -%}
+<div class="wrap wrap--tool page enter" data-enter data-base="{{ '/enter/' | relative_url }}">
+  <h1 class="page-title">Score sheet entry</h1>
+  <p class="page-sub">A working copy of the paper score sheet, for typing up a game or checking one against the paper. Nothing here changes the site until the file is saved on GitHub.</p>
+
+  <noscript>
+    <p class="enter-msg enter-msg--error">This page needs JavaScript. Without it, type the game file up by hand: the format is in <code>docs/game-file-format.md</code> in the website's repository.</p>
+  </noscript>
+  <p class="enter-msg" data-enter-status role="status">Loading the score sheet…</p>
+
+  <section class="enter-start" data-start hidden aria-labelledby="enter-start-title">
+    <h2 class="section-title" id="enter-start-title">Open a game</h2>
+    <div class="enter-start__grid">
+      <div class="enter-card">
+        <h3 class="enter-card__title">Drafts to check</h3>
+        <p class="enter-hint" data-drafts-source>Looking for drafts…</p>
+        <ul class="enter-list" data-drafts></ul>
+      </div>
+      <div class="enter-card">
+        <h3 class="enter-card__title"><label for="enter-game">A game from the schedule</label></h3>
+        <select class="enter-select" id="enter-game" data-game-pick></select>
+        <p class="enter-hint" data-game-note></p>
+        <button class="btn" type="button" data-game-open>Start an empty sheet</button>
+      </div>
+      <div class="enter-card enter-drop" data-drop>
+        <h3 class="enter-card__title">A file on this computer</h3>
+        <p class="enter-hint">Drop a game file (.yml) here, or choose one.</p>
+        <input class="visually-hidden" type="file" id="enter-file" accept=".yml,.yaml" data-file>
+        <label class="btn btn--quiet" for="enter-file">Choose a file</label>
+      </div>
+    </div>
+    <div class="enter-card enter-local" data-local hidden>
+      <h3 class="enter-card__title">Unsaved work on this device</h3>
+      <ul class="enter-list" data-local-list></ul>
+    </div>
+  </section>
+
+  <div class="enter-work" data-work hidden>
+    <div class="enter-bar">
+      <div class="enter-bar__title">
+        <h2 class="section-title" data-work-title>Game</h2>
+        <p class="enter-hint" data-work-sub></p>
+      </div>
+      <div class="enter-bar__tools">
+        <label class="enter-field enter-field--inline">
+          <span>Paper</span>
+          <select class="enter-select enter-select--small" data-layout></select>
+        </label>
+        <button class="btn btn--quiet" type="button" aria-pressed="false" data-page2>Page 2</button>
+        <input class="visually-hidden" type="file" id="enter-photo-file" accept="image/*" data-photo-file>
+        <label class="btn btn--quiet" for="enter-photo-file">Open photo</label>
+        <button class="btn btn--quiet" type="button" data-change-game>Change game</button>
+      </div>
+    </div>
+    <div class="enter-banner" data-resume hidden>
+      <p data-resume-text></p>
+      <button class="btn" type="button" data-resume-use>Use my unsaved work</button>
+      <button class="btn btn--quiet" type="button" data-resume-drop>Start from the file</button>
+    </div>
+
+    <div class="enter-grid">
+      <div class="enter-main">
+        <div class="sheet" data-sheet></div>
+      </div>
+      <aside class="enter-side" aria-label="Photo, checks and saving">
+        <section class="enter-panel enter-photo" data-photo hidden aria-labelledby="enter-photo-title">
+          <div class="enter-panel__head">
+            <h2 class="enter-panel__title" id="enter-photo-title">Photo</h2>
+            <span class="enter-hint">On this computer only: never uploaded</span>
+          </div>
+          <div class="enter-photo__tools">
+            <button class="enter-icon-btn" type="button" data-zoom="-1" aria-label="Zoom out">−</button>
+            <button class="enter-icon-btn" type="button" data-zoom="1" aria-label="Zoom in">+</button>
+            <button class="enter-icon-btn" type="button" data-zoom-fit aria-label="Fit the photo">Fit</button>
+            <button class="enter-icon-btn" type="button" data-rotate aria-label="Turn the photo a quarter turn">⟳</button>
+            <button class="enter-icon-btn" type="button" data-photo-close aria-label="Close the photo">✕</button>
+          </div>
+          <div class="enter-photo__view" data-photo-view tabindex="0" role="img" aria-label="The score sheet photo. Drag or use the arrow keys to move it; scroll, pinch or press + and − to zoom."></div>
+        </section>
+
+        <section class="enter-panel enter-checks" aria-labelledby="enter-checks-title">
+          <div class="enter-panel__head">
+            <h2 class="enter-panel__title" id="enter-checks-title">Checks</h2>
+            <p class="enter-checks__sum" data-checks-sum role="status"></p>
+          </div>
+          <div data-checks></div>
+        </section>
+
+        <section class="enter-panel enter-save" aria-labelledby="enter-save-title">
+          <div class="enter-panel__head">
+            <h2 class="enter-panel__title" id="enter-save-title">Save</h2>
+          </div>
+          <label class="enter-field" data-at="checked_by">
+            <span>Checked against the paper by (First L.)</span>
+            <input class="enter-input" type="text" autocomplete="off" placeholder="Lee M." data-checked-by>
+          </label>
+          <p class="enter-hint" data-save-reason></p>
+          <div class="enter-save__buttons">
+            <button class="btn" type="button" data-save-final>Save as final</button>
+            <button class="btn btn--quiet" type="button" data-save-draft>Save anyway as a draft</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <dialog class="enter-dialog" data-dialog aria-labelledby="enter-dialog-title">
+    <div class="enter-dialog__head">
+      <h2 class="enter-panel__title" id="enter-dialog-title" data-dialog-title>Save</h2>
+      <button class="enter-icon-btn" type="button" data-dialog-close aria-label="Close">✕</button>
+    </div>
+    <p class="enter-dialog__path"><code data-dialog-path></code></p>
+    <ol class="enter-steps" data-dialog-steps></ol>
+    <div class="enter-save__buttons" data-dialog-buttons></div>
+    <p class="enter-hint" data-dialog-note role="status"></p>
+    <details class="enter-dialog__file">
+      <summary>Show the file</summary>
+      <pre data-dialog-yaml></pre>
+    </details>
+  </dialog>
+</div>

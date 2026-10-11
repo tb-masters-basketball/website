@@ -1,0 +1,41 @@
+# Sample draft from scripts/make_sample_season.py. Not real.
+game_id: "2026-12-10-g1"
+form: MBL-SS6
+status: draft
+home: wf
+away: pa
+scorekeeper: Pat S.
+teams:
+  wf:
+    players:
+      - {player: steve-p, num: 19, here: true, ft: MMM, fouls: 1}
+      - {player: jeff-s, num: 55, here: true, ft: XXMX, fouls: 1}
+      - {player: mark-d, num: 5, here: true, ft: X, fouls: 2}
+      - {player: rick-l, num: 24, here: true, ft: X, fouls: 3}
+      - {player: jamie-c, num: 44, here: true, ft: M, fouls: 2}
+      - {player: trevor-m, num: 34, here: true, ft: M, fouls: 1}
+      - {player: al-k, num: 16, here: true, ft: MMM, fouls: 3}
+      - {player: derek-h, num: 0, here: true, ft: XX, fouls: 2}
+  pa:
+    players:
+      - {player: dave-m, num: 54, here: true, ft: M, fouls: 3}
+      - {player: greg-t, num: 22, here: true, ft: MMM, fouls: 2}
+      - {player: kevin-h, num: 17, here: true, ft: XXMX, fouls: 1}
+      - {player: doug-w, num: 3, here: true, fouls: 1}
+      - {player: terry-n, num: 38, here: true, ft: X}
+      - {player: brian-o, num: 53, here: true, fouls: 2}
+      - {player: gord-f, num: 19, here: true, ft: MM, fouls: 1}
+      - {player: marc-l, num: 48, here: true, ft: MMM, fouls: 1}
+      - {name: Jim K., num: 31, here: true}
+running:
+  wf: {2: 19, 5: 55, 7: 34, 9: 0, 11: 5, 13: 44, 16: 24, 19: 0, 21: 16, 23: 5, 25: 5, 28: 16, 31: 5, 33: 16, 34: 19, 35: 16, 36: 19, 37: 44, 38: 19, 39: 55, 41: 0, 44: 19, 45: 16, 46: 16, 48: 55, 49: 34, 51: 55, 53: 55}
+  pa: {3: 3, 5: 38, 7: 22, 8: 19, 9: 48, 12: 53, 15: 22, 16: 22, 17: 22, 18: 22, 20: 48, 21: 48, 23: 48, 26: 54, 27: 48, 28: 19, 29: 17, 30: 54, 33: 19}
+lines:
+  wf: [11, 25, 39, 53]
+  pa: [9, 18, 23, 33]
+boxes:
+  wf: {q1: 11, q2: 25, q3: 39, q4: 53, ot: null, final: 53}
+  pa: {q1: 9, q2: 18, q3: 23, q4: 33, ot: null, final: 33}
+review:
+  - {at: running.pa.18, note: "22 or 54?"}
+  - {at: teams.wf.players.0.ft.1, note: "filled or slashed? hard to read"}

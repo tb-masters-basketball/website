@@ -42,6 +42,7 @@ and `CNAME`. (`site.webmanifest` uses relative paths, so it needs no change.)
   stat-table sorting and expanding player rows (`assets/js/site.js`, and
   `assets/js/stats.js` on the Stats page). Every page must make sense
   with JS off.
+  **Exception:** the unlisted score sheet entry page (`/enter/`) is a tool and needs JavaScript (it says so with JS off).
 
 ## Score sheets
 The printable score sheet (form MBL-SS6) comes from
@@ -54,8 +55,8 @@ Every structural number (rows, circles, foul boxes, score boxes, running-score
 pages) is in its `SPEC` dict; `scoresheet.py --spec scripts/scoresheet/spec.json`
 writes it out for `sheet_rules.py` (a test keeps the two in step).
 **Don't change the sheet's layout or `FORM` without updating `/record-game`,
-`sheet_rules.py` and the game file format**, which read sheets by that exact
-layout. Changes to how it reads the data (which games, which players) are fine.
+`sheet_rules.py` (and its JS port) and the game file format**, which read sheets by that exact
+layout. The entry page (`/enter/`) draws its sheet from the spec, so it follows on its own. Changes to how it reads the data (which games, which players) are fine.
 
 ## Layout
 ```
@@ -67,6 +68,11 @@ _config.yml             `sample_data: true` makes every page read the sample sea
                         `score_sheet_links` (off) publishes score sheet photos; collections for the stubs
 scripts/build_stats.py  computes _data/computed/ (git-ignored) — never edit those files by hand
 scripts/sheet_rules.py  the score sheet rules: game file checks (with box paths) and per-player lines
+assets/js/sheet-rules.js  the same rules ported to JS for /enter/ (change the Python first, then this;
+                        tests/js keeps them in step)
+enter/index.html        the score sheet entry page (unlisted, noindex): built from enter/sheet-spec.json
+                        (the deploy writes it with `scoresheet.py --spec`) and enter/data/ (build_stats.py);
+                        UI in assets/js/enter.js, js-yaml vendored in assets/js/lib/
 scripts/calendars.py    writes calendar/<team>.ics and league.ics (git-ignored) from the real season;
                         called by build_stats.py, linked from Schedule and team pages
 scripts/make_sample_season.py  regenerates data/sample-2026-27/ and sample-2025-26/ (fake data)
@@ -77,6 +83,7 @@ scripts/make_score_sheets.sh  score-sheets/*.pdf (git-ignored) for the season sh
 scripts/screenshot_all.py  builds sample + real mode, screenshots every page (360/390/1440, light/dark),
                         checks sideways scroll, console errors and failed requests
 tests/                  pytest: build_stats, calendars, score sheets, sheet rules
+tests/js/               node --test: the JS sheet rules against the same fixtures (runs in CI)
 tests/fixtures/sheets/  test game files + expected results (shared with the entry page)
 _layouts/ _includes/    templates (_layouts/text.html: Markdown pages such as rules/index.md)
 rules/index.md          the League rules page (Markdown, [placeholder] sections; linked from the footer)
@@ -93,6 +100,8 @@ docs/qa/report.md       the full-site QA report (screenshots: run screenshot_all
 ## Commands
 ```
 python -m pytest                         # every test (runs in CI before the build)
+node --test "tests/js/*.test.mjs"        # the JS sheet rules against the same fixtures (Node 22)
+python scripts/scoresheet/scoresheet.py --spec enter/sheet-spec.json   # the sheet layout /enter/ reads
 python scripts/build_stats.py            # check data, recompute stats, write the stub pages
 scripts/make_score_sheets.sh             # score sheet PDFs into score-sheets/ (needs reportlab)
 bundle exec jekyll serve --livereload    # preview at http://localhost:4000/

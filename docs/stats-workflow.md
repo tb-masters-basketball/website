@@ -323,6 +323,8 @@ the site (it takes a minute or two).
    only for a game day played somewhere else. There is no court column. Leave
    `status` blank (it is only for [cancelled games](#cancel-or-move-a-game)),
    and `round` blank for a regular-season game.
+   (Or type the whole game on the [entry page](#enter-or-check-a-game-on-the-entry-page),
+   which checks it as you go and writes the file for you.)
 2. **Create the game file.** In `data/2026-27/games/`, choose **Add file →
    Create new file** and name it exactly like the `game_id`, plus `.yml`:
    `2026-12-03-g1.yml`. The easiest start is to copy the example
@@ -346,6 +348,44 @@ the site (it takes a minute or two).
    When it is published the game has its own box score page
    (`/games/2026-12-03-g1/`), and the Schedule, standings, Stats and every
    player's and team's page update with it.
+
+### Enter or check a game on the entry page
+
+The site has an unlisted page for this: **mastersbasketball.ca/enter/** (not in
+the menu, hidden from search engines). It shows the paper score sheet as
+boxes you can fill in, checks everything as you type, and writes the game file
+for you. It needs JavaScript and works best on a laptop.
+
+1. **Open the game.** Pick a draft waiting to be checked ("Westfort vs Port
+   Arthur · 2 flags"), a game from the schedule (an empty sheet with both
+   rosters filled in), a `.yml` file from your computer (drop it on the page),
+   or a published game to correct it.
+2. **Open the photo** of the sheet (*Open photo*) to see it beside the boxes.
+   Zoom with the buttons, the scroll wheel or a pinch; drag to move it. The
+   photo stays on your computer: it's never uploaded or saved.
+3. **Copy the sheet.** Type each scorer's number beside the total in the
+   running score (arrows and Enter move between boxes). Tap a free-throw circle
+   to cycle it: empty, filled (made), slashed (missed). Tap the Here, foul and
+   T boxes to tick or slash them. Fill in the score boxes and where each
+   quarter's line was drawn.
+4. **Clear the checks.** Errors are marked in red on their box, boxes flagged
+   for review in blue, warnings with a dashed outline, and every one is listed
+   under its part of the sheet and in the Checks panel (tap one to jump to its
+   box). Compare each flagged box with the paper, fix it if needed, then press
+   **Mark as checked**. The panel also shows each player's points, FTM and FTA
+   as the sheet works them out.
+5. **Save.** Put your name in *Checked against the paper by* and press **Save
+   as final** (it stays greyed out until there are no errors and no flags
+   left). Then **Save to GitHub** opens GitHub's new-file page with the file
+   already filled in: choose **Create a new branch and start a pull request**,
+   and merge when the check is green. You can also download the file or copy it.
+   Not finished? **Save anyway as a draft** puts it in `drafts/` instead.
+6. **Correcting a published game** can't be filled in from a link, so the page
+   lists the steps: copy the file, open it in GitHub's editor, select all,
+   paste, and commit.
+
+Your work is kept in the browser as you go: open the same game again on the
+same computer and the page offers to pick up where you left off.
 
 ### Fill in a playoff matchup
 
@@ -414,8 +454,8 @@ then the page says it's a draft. Commit as a pull request and merge it.
 
 ### Fix a wrong number
 
-Open the game file, correct the box that was copied wrong, and commit it as a
-pull request. The checks run again and every stat that depends on it is
+Open the game file (or reopen the game on the [entry page](#enter-or-check-a-game-on-the-entry-page)),
+correct the box that was copied wrong, and commit it as a pull request. The checks run again and every stat that depends on it is
 recalculated from scratch, so there is nothing else to update. A player's
 points are fixed in the running score (the number beside the total), free
 throws in their `ft` circles, quarter scores in `lines` and `boxes`; the

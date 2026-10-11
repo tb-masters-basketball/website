@@ -42,6 +42,15 @@ jobs:
       - name: Run tests
         run: python -m pytest -q tests
 
+      # The same rules in JavaScript (assets/js/sheet-rules.js, used by the
+      # score sheet entry page at /enter/) against the same fixtures.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run JavaScript tests
+        run: node --test "tests/js/*.test.mjs"
+
       - name: Check data and compute stats
         run: python scripts/build_stats.py
 
@@ -49,6 +58,11 @@ jobs:
       # build publishes them (needs reportlab, from requirements.txt).
       - name: Make score sheets
         run: scripts/make_score_sheets.sh
+
+      # The sheet's structure, for the entry page: /enter/ builds its sheet
+      # from this file (rows, circles, boxes, running-score pages).
+      - name: Write the sheet layout for the entry page
+        run: python scripts/scoresheet/scoresheet.py --spec enter/sheet-spec.json
 
       - uses: ruby/setup-ruby@v1
         with:

@@ -2,8 +2,10 @@
 form MBL-SS6), check it, and work out each player's numbers.
 
 This is the one place the rules live. build_stats.py uses it for every file in
-data/<season>/games/; the entry page and /record-game will use the same paths
-to point at boxes. The format is described in data/CLAUDE.md ("Game file").
+data/<season>/games/; the entry page (/enter/) and /record-game use the same
+paths to point at boxes. The entry page runs a line-for-line JavaScript port,
+assets/js/sheet-rules.js: change this file first, then that one, and keep the
+messages identical (tests/js runs it on the same fixtures). The format is described in data/CLAUDE.md ("Game file").
 
     check(sheet, ctx) -> (game, problems)
 

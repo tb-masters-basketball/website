@@ -1137,11 +1137,64 @@ def build(data_dir, out_dir, write=True, config=None, root=None):
             summary.append(f"Wrote {write_stubs(root, active, listed, outputs)} stub pages")
             summary.append(f"Wrote calendars for {current['id']} ({len(outputs[current['id']]['teams.json'])} teams "
                            "and the league) to calendar/")
+            n_games, n_drafts = write_entry_data(root, data_dir, active, loaded_seasons[active["id"]], config)
+            summary.append(f"Wrote the entry page's data for {active['id']} ({n_games} games, "
+                           f"{n_drafts} drafts) to enter/data/")
             if publish_sheets:
                 summary.append(f"Copied {copy_sheets(root, listed, loaded_seasons)} score sheet photos")
             else:
                 shutil.rmtree(root / "sheets", ignore_errors=True)
     return summary
+
+
+def write_entry_data(root, data_dir, season, loaded, config):
+    """What the score-sheet entry page (/enter/) needs, for the season the site
+    shows, into enter/data/ (git-ignored, rewritten every build):
+      season.json  teams, every player (id, "First L.", team, number, sub) and
+                   the schedule, plus where the season's files live on GitHub
+      index.json   the game ids with a final file, and every draft with its
+                   number of review flags
+      <season>/games/*.yml, <season>/drafts/*.yml
+                   copies of the files, so the page can still load them when
+                   GitHub's API is out of reach (they're as of this build)
+    Returns (games, drafts) counts."""
+    out = root / "enter" / "data"
+    shutil.rmtree(out, ignore_errors=True)
+    sid = season["id"]
+    src = data_dir / sid
+    games, drafts = [], []
+    for kind, bucket in (("games", games), ("drafts", drafts)):
+        folder = src / kind
+        if not folder.is_dir():
+            continue
+        for path in sorted(folder.glob("*.yml")):
+            dest = out / sid / kind / path.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(path, dest)
+            if kind == "games":
+                bucket.append(path.stem)
+            else:
+                try:
+                    review = (yaml.safe_load(path.read_text(encoding="utf-8")) or {}).get("review") or []
+                except (yaml.YAMLError, AttributeError):
+                    review = []
+                bucket.append({"game_id": path.stem, "flags": len(review) if isinstance(review, list) else 0})
+    teams = {tid: {"id": tid, "name": t["name"], "short": t["short"], "slot": t.get("colour_slot")} for tid, t in loaded["teams"].items()}
+    players = {pid: {"id": pid, "display": p["display"], "team": p["team"], "sub": p["sub"],
+                     "number": p.get("number")} for pid, p in loaded["players"].items()}
+    schedule = {gid: {"game_id": gid, "date": r["date"].isoformat(), "date_display": fmt_date(r["date"]),
+                      "time": r["time"], "home": r["home"], "away": r["away"], "type": r["type"],
+                      "week": r["week"], "cancelled": r["cancelled"], "teams_known": r["teams_known"],
+                      "round": r["round"]}
+                for gid, r in sorted(loaded["schedule"].items(), key=lambda kv: (kv[1]["date"], kv[0]))}
+    _write_json(out / "season.json", {
+        "season": sid, "label": season.get("label", sid), "sample": bool(season.get("sample")),
+        "repo": config.get("github_repo"), "branch": config.get("github_branch", "main"),
+        "teams": teams, "players": players, "schedule": schedule,
+    })
+    built = dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")
+    _write_json(out / "index.json", {"season": sid, "built": built, "games": games, "drafts": drafts})
+    return len(games), len(drafts)
 
 
 def _write_json(path, data):

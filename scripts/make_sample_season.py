@@ -14,12 +14,15 @@ data/seasons.yml) once real games exist.
 Usage: python scripts/make_sample_season.py
 """
 
+import csv
 import datetime as dt
 import math
 import random
 import shutil
 import sys
 from pathlib import Path
+
+import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import build_stats  # noqa: E402
@@ -417,6 +420,57 @@ def write_files(weeks, played, scores, players, present, pts, ft, salt=0):
         write_sheet(OUT / "games" / f"{g['game_id']}.yml", header, g, scores[key], team_lines, all_numbers, salt)
 
 
+def write_drafts():
+    """Two drafts for the upcoming night (Dec 10), for trying the entry page
+    (/enter/): one with two boxes flagged for review and a sub written in by
+    hand (warnings only), one with errors to fix. The build never reads
+    drafts. Their own Random, so no other sample number changes."""
+    header = "# Sample draft from scripts/make_sample_season.py. Not real.\n"
+    players = yaml.safe_load((OUT / "players.yml").read_text(encoding="utf-8"))
+    with open(OUT / "schedule.csv", encoding="utf-8") as fh:
+        schedule = {r["game_id"]: r for r in csv.DictReader(fh)}
+    (OUT / "drafts").mkdir(exist_ok=True)
+    for gid, kind in (("2026-12-10-g1", "flags"), ("2026-12-10-g2", "errors")):
+        rng = random.Random(f"draft-{gid}")
+        g = schedule[gid]
+        lines, totals = {}, {}
+        for tid in (g["home"], g["away"]):
+            roster = [p for p in players if p["team"] == tid and not p["sub"]][:8]
+            lines[tid] = []
+            for p in roster:
+                fta = rng.randint(0, 4)
+                ftm = rng.randint(0, fta)
+                pts = ftm + rng.choice([0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14])
+                lines[tid].append({"player": p["id"], "num": p["number"], "pts": pts, "ftm": ftm, "fta": fta,
+                                   "pf": rng.choice([0, 1, 1, 2, 2, 3])})
+            totals[tid] = sum(x["pts"] for x in lines[tid])
+        if totals[g["home"]] == totals[g["away"]]:
+            lines[g["home"]][0]["pts"] += 2
+            totals[g["home"]] += 2
+        sheet = sheet_rules.build_sheet(gid, g["home"], g["away"], quarters_for(gid, totals), lines,
+                                        random.Random(f"draft-sheet-{gid}"), status="draft")
+        del sheet["checked_by"]
+        sheet = {"game_id": sheet.pop("game_id"), "form": sheet.pop("form"), "status": sheet.pop("status"),
+                 "home": sheet.pop("home"), "away": sheet.pop("away"), "scorekeeper": "Pat S.", **sheet}
+        home, away = g["home"], g["away"]
+        run = sheet["running"][away]
+        total = sorted(run)[len(run) // 2]
+        others = [x["num"] for x in lines[away] if x["num"] != run[total]]
+        review = [{"at": f"running.{away}.{total}", "note": f"{run[total]} or {others[0]}?"}]
+        if kind == "flags":
+            row = next(i for i, r in enumerate(sheet["teams"][home]["players"]) if len(r.get("ft", "")) >= 2)
+            review.append({"at": f"teams.{home}.players.{row}.ft.1", "note": "filled or slashed? hard to read"})
+            sheet["teams"][away]["players"].append({"name": "Jim K.", "num": 31, "here": True})
+        else:
+            sheet["boxes"][home]["final"] += 2                       # the Final box disagrees
+            first = min(sheet["running"][home])
+            sheet["running"][home][first] = 77                       # a number on no row
+        sheet["review"] = review
+        with open(OUT / "drafts" / f"{gid}.yml", "w", encoding="utf-8") as fh:
+            fh.write(header)
+            fh.write(sheet_rules.dump(sheet))
+
+
 def check_against_mockups(out):
     """Raise Retry unless the computed numbers match docs/mockups/."""
     standings = {r["team"]: r for r in out["standings.json"]["teams"]}
@@ -566,7 +620,8 @@ def main():
                 check_against_mockups(build_stats.compute_season(loaded))
             except (Retry, build_stats.DataError):
                 continue
-            print(f"Wrote {OUT.relative_to(ROOT)}/ (seed {seed}, quarter split {salt})")
+            write_drafts()
+            print(f"Wrote {OUT.relative_to(ROOT)}/ (seed {seed}, quarter split {salt}), with 2 drafts")
             write_past_season()
             return 0
     print("No seed produced data matching the mockups.", file=sys.stderr)

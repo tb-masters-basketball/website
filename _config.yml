@@ -32,6 +32,12 @@ score_sheet_links: false
 # Leave it blank and the footer shows no contact link.
 contact_url: ""
 
+# Where the league's files live on GitHub. The score-sheet entry page (/enter/)
+# lists and loads drafts and games from here, and its "Save to GitHub" button
+# opens a new file in this repository.
+github_repo: tb-masters-basketball/website
+github_branch: main
+
 # Search engines. false: every page asks Google and others not to list it
 # (<meta name="robots" content="noindex, nofollow">). The league doesn't want
 # the site in search results. Set true to let them list it.
