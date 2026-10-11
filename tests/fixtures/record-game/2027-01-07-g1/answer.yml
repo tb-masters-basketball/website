@@ -1,0 +1,42 @@
+# Practice game from scripts/make_practice_games.py. Made up; the answer key for /record-game.
+game_id: "2027-01-07-g1"
+form: MBL-SS6
+status: final
+home: lh
+away: cr
+scorekeeper: Sam P.
+teams:
+  lh:
+    players:
+      - {player: andre-g, num: 4, here: true, ft: XX, fouls: 1}
+      - {player: dan-h, num: 21, here: true, ft: MM, fouls: 3}
+      - {player: pat-o, num: 25, here: true, ft: MM, fouls: 1, tech: 1}
+      - {player: sean-m, num: 33, here: true, ft: XX, fouls: 1}
+      - {player: lorne-k, num: 36, here: true, fouls: 3}
+      - {player: brad-e, num: 39, here: true, fouls: 2}
+      - {player: todd-b, num: 40, here: true}
+      - {player: mike-r, num: 42, here: true, ft: XX, fouls: 2}
+      - {player: craig-s, num: 47, here: true, ft: MM, fouls: 2}
+  cr:
+    players:
+      - {player: scott-a, num: 3, here: true, ft: XM, fouls: 2}
+      - {player: tom-g, num: 6, here: true, ft: XX, fouls: 2}
+      - {player: luc-b, num: 8, here: true, ft: XXM, fouls: 2}
+      - {player: pete-s, num: 12, here: true, ft: MMM, fouls: 1}
+      - {player: rob-k, num: 14, here: true, ft: XX}
+      - {player: chris-b, num: 27, here: true, fouls: 2}
+      - {player: darren-v, num: 30, here: true, ft: XMMX, fouls: 2}
+      - {player: randy-j, num: 53, here: true, ft: XX, fouls: 3}
+      - {player: jason-p, num: 54, here: true, ft: M, fouls: 1}
+running:
+  lh: {3: 39, 5: 25, 7: 40, 9: 25, 12: 42, 13: 47, 16: 42, 18: 25, 20: 42, 21: 21, 22: 47, 24: 33, 25: 21, 27: 36, 29: 47, 31: 47, 33: 33, 35: 21, 38: 40, 40: 47, 42: 4, 44: 33, 46: 33, 48: 33, 51: 25, 53: 21, 54: 25, 56: 21, 58: 39, 59: 25, 61: 4, 63: 21}
+  cr: {3: 27, 5: 27, 7: 14, 9: 6, 10: 30, 11: 54, 13: 8, 15: 54, 16: 12, 18: 53, 20: 30, 22: 12, 24: 8, 26: 12, 27: 3, 29: 30, 31: 30, 33: 12, 36: 12, 37: 30, 39: 8, 41: 53, 43: 53, 44: 12, 47: 54, 49: 54, 50: 8, 53: 54, 54: 12}
+lines:
+  lh: [13, 27, 42, 63]
+  cr: [16, 27, 41, 54]
+boxes:
+  lh: {q1: 13, q2: 27, q3: 42, q4: 63, ot: null, final: 63}
+  cr: {q1: 16, q2: 27, q3: 41, q4: 54, ot: null, final: 54}
+notes:
+  - {team: cr, num: 6, q: 4, kind: flagrant, text: elbow to the face on a rebound}
+checked_by: Lee M.

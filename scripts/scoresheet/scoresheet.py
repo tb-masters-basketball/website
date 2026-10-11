@@ -182,6 +182,7 @@ class ScoreSheet:
 
     def header(self, top, g, subtitle="SCORE SHEET  ·  THUNDER BAY"):
         c, x0, cw = self.c, self.x0, self.cw
+        self.header_boxes = {}
         bh = 44
         if os.path.exists(BADGE):
             c.drawImage(BADGE, x0, top - bh, bh, bh, mask="auto")
@@ -197,6 +198,7 @@ class ScoreSheet:
             y = top - 21 - ri * 24
             x = right - (sum(w for *_, w in row) + 6 * (len(row) - 1))
             for lab, key, w in row:
+                self.header_boxes[key] = (x, y, w)
                 self.label(x, y + 17, lab)
                 self.box(x, y, w, 15, lw=0.8, fill=white)
                 self.field(key, x + 2, y + 1, w - 4, 13, g.get(key, ""), size=8.5)
@@ -433,8 +435,9 @@ class ScoreSheet:
         # portrait letter is the narrowest grid: 5 columns of 20; the rest 4 of 25
         return running_columns(self.orient, self.size)
 
-    def add_page(self, game=None, example=False, back=True):
-        """Front page for one game, plus the continuation page unless back=False."""
+    def add_page(self, game=None, example=False, back=True, fill=None):
+        """Front page for one game, plus the continuation page unless back=False.
+        fill: a game file (dict) to write onto the sheet as handwriting."""
         g = game or {}
         self.pages += 1
         base = f"g{self.pages}_" if self.pages > 1 or getattr(self, "_multi", False) else ""
@@ -442,6 +445,8 @@ class ScoreSheet:
         cells, geo = self._page(g, back=False)
         if example:
             self.example_marks(g, geo, cells)
+        if fill:
+            self.fill_marks(fill, g, geo, cells)
         self.footer("Page 1 of 2" if back else "")
         self.c.showPage()
         if back:
@@ -575,6 +580,123 @@ class ScoreSheet:
                   "CondSemi", 9.5, PEN)
 
 
+    # ---- a game file, written onto the sheet (practice sheets) ----------------
+    def fill_marks(self, sheet, g, geo, cells):
+        """Write a game file onto page 1 as handwriting: the scorekeeper, subs
+        written in, Here ticks, circles, foul and T boxes, every running-score
+        box, the end-of-quarter lines, the score boxes and Notes. Team fouls are
+        made up (the file doesn't record them). Page 1 only: the file must stay
+        within 100 points and 10 free throws a player."""
+        c = self.c
+        rnd = random.Random(str(sheet.get("game_id")))
+        sides = {"home": sheet["home"], "away": sheet["away"]}
+
+        def pen(x, y, s, size, anchor="c"):
+            # a little wobble, so it reads as handwriting
+            self.text(x + rnd.uniform(-0.6, 0.6), y + rnd.uniform(-0.5, 0.5), str(s), "CondSemi",
+                      size * rnd.uniform(0.94, 1.06), PEN, anchor=anchor)
+
+        def slash(x1, y1, x2, y2, lw=1.1):
+            c.setStrokeColor(PEN); c.setLineWidth(lw); c.line(x1, y1, x2, y2)
+
+        if sheet.get("scorekeeper") and "scorekeeper" in self.header_boxes:
+            x, y, w = self.header_boxes["scorekeeper"]
+            pen(x + 6, y + 3.5, sheet["scorekeeper"], 10, anchor="l")
+        for side, tid in sides.items():
+            rows = sheet["teams"][tid]["players"]
+            if len(rows) > ROSTER_ROWS:
+                raise SystemExit(f"{tid} has more rows than the sheet")
+            grow = geo[side]["rows"]
+            rh = grow[0]["y"] - grow[1]["y"]
+            for r, pl in enumerate(rows):
+                row = grow[r]
+                y, xs, bs = row["y"], row["xs"], row["bs"]
+                cy = y + rh / 2
+                printed = r < len(g[side]["players"]) and g[side]["players"][r].get("name")
+                if not printed:                       # a sub, written in by hand
+                    pen(xs[0] + 10, cy - 3.4, pl.get("num", ""), 9.5)
+                    name = pl.get("name") or (self.player_names or {}).get(pl.get("player"), "")
+                    pen(xs[2] + 4, cy - 3.4, name, 9.5, anchor="l")
+                if pl.get("here"):
+                    tx = xs[1] + 9
+                    c.setStrokeColor(PEN); c.setLineWidth(1.3)
+                    p = c.beginPath(); p.moveTo(tx - 3.2, cy); p.lineTo(tx - 0.8, cy - 3); p.lineTo(tx + 4, cy + 4)
+                    c.drawPath(p, stroke=1, fill=0)
+                ft = pl.get("ft", "") or ""
+                if len(ft) > FT_CIRCLES:
+                    raise SystemExit(f"{tid} row {r + 1}: more free throws than page 1 holds")
+                for i, mark in enumerate(ft):
+                    fx, rr = row["ft"][i], row["r"]
+                    if mark == "M":
+                        c.setFillColor(PEN); c.circle(fx, cy, rr - 0.7, stroke=0, fill=1)
+                    else:
+                        slash(fx - rr, cy - rr, fx + rr, cy + rr, 1.3)
+                for i in range(pl.get("fouls", 0) or 0):
+                    bx = row["fouls"][i]
+                    slash(bx + 1.5, y + (rh - bs) / 2 + 1.5, bx + 6.5, y + (rh + bs) / 2 - 1.5)
+                for i in range(pl.get("tech", 0) or 0):
+                    tx = row["tech"][i]
+                    slash(tx + 1.5, y + (rh - bs) / 2 + 1.5, tx + 7.5, y + (rh + bs) / 2 - 1.5)
+            for total, num in sorted((sheet.get("running") or {}).get(tid, {}).items()):
+                if total not in cells:
+                    raise SystemExit(f"{tid}: {total} is past page 1")
+                bx, by, bw, rh_ = cells[total][side]
+                size = min(10.5, rh_ * 0.62)
+                pen(bx + bw / 2, by + rh_ / 2 - size * 0.36, num, size)
+            for x in (sheet.get("lines") or {}).get(tid, []):
+                if x in cells:
+                    bx, by, bw, _ = cells[x][side]
+                    slash(bx + 2, by + 0.8, bx + bw - 2, by + 0.8 + rnd.uniform(-0.4, 0.4), 1.4)
+            boxes = (sheet.get("boxes") or {}).get(tid, {})
+            labels = {b["label"]: b["key"] for b in SPEC["score_boxes"]}
+            for bx, by, n, lab in geo[side]["score"]:
+                v = boxes.get(labels[lab])
+                if v is None:
+                    continue
+                for j, ch in enumerate(str(v).rjust(n)):
+                    if ch != " ":
+                        pen(bx + j * 10.4 + 4.6, by + 3.4, ch, 9.5)
+            # team fouls: the players' fouls, spread over the quarters
+            per_q = [0] * len(QUARTERS)
+            for _ in range(sum(p.get("fouls", 0) or 0 for p in rows)):
+                q = rnd.randrange(len(QUARTERS))
+                per_q[q] = min(TEAM_FOUL_BOXES, per_q[q] + 1)
+            for qi, q_ in enumerate(QUARTERS):
+                for fx in geo[side]["team_fouls"][q_][:per_q[qi]]:
+                    slash(fx + 1, geo[side]["team_fouls_y"] + 1.5, fx + 5, geo[side]["team_fouls_y"] + 7.5, 1.0)
+        nx, ntop, nw, nh = geo["notes"]
+        for k, n in enumerate(sheet.get("notes") or []):
+            side = "Home" if n.get("team") == sheet["home"] else "Away"
+            q = n.get("q")
+            what = "flagrant foul" if n.get("kind") == "flagrant" else "note"
+            line = f"{side} #{n.get('num')} {what}, {'OT' if q == 'OT' else f'Q{q}'}: {n.get('text', '')}"
+            pen(nx + 10, ntop - 23 - k * 13, line, 9.5, anchor="l")
+
+
+def game_from_file(data_dir, sheet):
+    """The printed part of a sheet for a game file: the schedule's date, time
+    and id, and each team's rows in the file's order (printed rosters list
+    players.yml's regular players; a sub's row stays blank, to be written in)."""
+    teams = {t["id"]: t for t in as_list(load_yaml(os.path.join(data_dir, "teams.yml")), "teams")}
+    players = {p["id"]: p for p in as_list(load_yaml(os.path.join(data_dir, "players.yml")), "players")}
+    row = next(r for r in csv.DictReader(open(os.path.join(data_dir, "schedule.csv")))
+               if r["game_id"].strip() == sheet["game_id"])
+    g = {"game_id": sheet["game_id"], "iso_date": row["date"], "date": nice_date(row["date"]),
+         "time": nice_time(row.get("time")), "court": ""}
+    for side in ("home", "away"):
+        tid = sheet[side]
+        out = []
+        for r in sheet["teams"][tid]["players"]:
+            p = players.get(r.get("player"))
+            if p and not p.get("sub"):
+                out.append({"num": str(r.get("num", "")), "name": p.get("display", "")})
+            else:
+                out.append({})
+        g[side] = {"name": teams[tid]["name"], "players": out}
+    names = {pid: p.get("display", "") for pid, p in players.items()}
+    return g, names
+
+
 # --------------------------------------------------------------------------
 # The spec as data
 LAYOUTS = [(o, s) for o in ("portrait", "landscape") for s in ("letter", "legal")]
@@ -672,11 +794,12 @@ def load_games(data_dir, include_subs=False):
 
 
 # --------------------------------------------------------------------------
-def build(path, games, size, orient, example=False, back=True):
+def build(path, games, size, orient, example=False, back=True, fill=None, names=None):
     s = ScoreSheet(path, size, orient)
     s._multi = len(games) > 1
+    s.player_names = names
     for g in games:
-        s.add_page(g, example=example, back=back)
+        s.add_page(g, example=example, back=back, fill=fill)
     s.save()
 
 
@@ -695,6 +818,8 @@ def main():
     ap.add_argument("--include-subs", action="store_true", help="also pre-print subs")
     ap.add_argument("--example", action="store_true", help="add sample handwriting (previews only)")
     ap.add_argument("--front-only", action="store_true", help="leave out the continuation page")
+    ap.add_argument("--fill", metavar="GAME.yml",
+                    help="with --data: write this game file onto its sheet as handwriting (practice sheets)")
     ap.add_argument("--allow-empty", action="store_true",
                     help="no matching games is fine (e.g. --from-today after the last game night): make nothing, exit 0")
     ap.add_argument("--out", help="output folder")
@@ -714,7 +839,15 @@ def main():
     os.makedirs(a.out, exist_ok=True)
     made = []
 
-    if a.blank or a.prefill:
+    if a.fill:
+        if not a.data:
+            ap.error("--fill needs --data (the season folder the game is from)")
+        sheet = load_yaml(a.fill)
+        g, names = game_from_file(a.data, sheet)
+        for o, s in layouts:
+            p = os.path.join(a.out, f"score-sheet-filled-{sheet['game_id']}-{o}-{s}.pdf")
+            build(p, [g], s, o, back=not a.front_only, fill=sheet, names=names); made.append(p)
+    elif a.blank or a.prefill:
         g = json.load(open(a.prefill)) if a.prefill else {}
         stem = "example" if a.example else ("game" if a.prefill else "blank")
         for o, s in layouts:
