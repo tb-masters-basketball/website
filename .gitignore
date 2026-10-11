@@ -17,6 +17,9 @@ _data/computed/
 /sheets/
 /calendar/
 /score-sheets/
+# The score-sheet entry page's data (season, game and draft copies) and the sheet spec
+/enter/data/
+/enter/sheet-spec.json
 
 # Python
 __pycache__/
