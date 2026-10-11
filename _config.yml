@@ -28,9 +28,10 @@ preview_site: true
 # in the repo (data/<season>/sheets/) but not on the site, so this stays off.
 score_sheet_links: false
 
-# Where the footer's "Contact the league" link goes (a mailto: link or a form).
+# Where the footer's "Contact the league" link goes: an email address
+# ("mailto:" is added if it's missing) or a form's web address.
 # Leave it blank and the footer shows no contact link.
-contact_url: "mastersbasketballthunderbay@gmail.com"
+contact_url: "mailto:mastersbasketballthunderbay@gmail.com"
 
 # Where the league's files live on GitHub. The score-sheet entry page (/enter/)
 # lists and loads drafts and games from here, and its "Save to GitHub" button

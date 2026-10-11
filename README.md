@@ -47,10 +47,10 @@ The full list, with answers so far, is in
 - [ ] **Free throws worth 2 or 3.** Confirmed that a free throw can be worth
       1, 2 or 3 points (so the site takes FTM and FTA only from the circles);
       the League rules page still needs the rule for when.
-- [ ] **League contact for the footer.** Set `contact_url` in `_config.yml`
-      (an email `mailto:` link or a form). The footer shows no contact link
-      while it's blank. A form (e.g. a Google Form) keeps the address away
-      from spam bots, which read email links straight from the page.
+- [x] **League contact for the footer.** `contact_url` in `_config.yml` is
+      `mailto:mastersbasketballthunderbay@gmail.com` (October 2026). An email
+      link can be read by spam bots; a form (e.g. a Google Form) would keep the
+      address off the page, if spam becomes a problem.
 
 ### 2. Record a game from a photo of the score sheet (`/record-game`)
 
