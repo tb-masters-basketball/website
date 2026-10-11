@@ -9,7 +9,8 @@ a link: under 3 KB for a typical game, and under 6 KB even for 100 points a side
 - **Finished games:** `data/<season>/games/<game_id>.yml`, `status: final`.
   The build reads these, and any error stops it.
 - **Drafts:** `data/<season>/drafts/<game_id>.yml`, `status: draft`. The build
-  never reads them; they're checked by the entry page and `/record-game`.
+  never reads them (`build_stats.py --check` doesn't either); the entry page
+  (`/enter/`) checks them, and so will `/record-game` when it's built.
 - **Photos:** `data/<season>/sheets/<game_id>.jpg`, kept in the repo, never on
   the site.
 
@@ -117,6 +118,7 @@ the same path the entry page highlights:
 | `game_id`, `status`, `checked_by`... | Header fields |
 
 **Errors** (the build stops on any in `games/`):
+- the file: a key that isn't one of the fields above (at the top or in a row)
 - the header: `form`, `status` (and its folder), `game_id` (file name, schedule
   row, not cancelled, teams known), `home`/`away` against the schedule
 - rows: a jersey number on two rows, an unknown or repeated player id, no
@@ -128,15 +130,18 @@ the same path the entry page highlights:
   Q box that disagrees with its line, the Final box not equal to the last
   running total, Q4 above the final, an OT box when there was no overtime (or
   none when there was), overtime without a tied Q4, a tied final
-- notes: a flagrant for a number on no row; more flagrants than slashed foul
+- notes: `kind` not `flagrant` or `note`, `q` not 1-4 or `OT`, a flagrant for a
+  team not in the game or a number on no row; more flagrants than slashed foul
   boxes (a flagrant is also a personal foul)
+- a final file with no `lines` for a team
 - final files: `review` left in, no `checked_by`
 
 **Warnings** (shown, never stop the build):
 - more free throws made (filled circles) than the player has scores in the
   running score: possible, but worth a look
-- a row with no player id yet (drafts)
-- each `review` entry (drafts)
+- a row with no player id yet (drafts; an error in a final file)
+- no `lines` for a team (drafts; an error in a final file)
+- each `review` entry (drafts; a final file can't have any)
 
 ## A sub written in by hand
 
@@ -155,6 +160,10 @@ bad final, a free-throw mismatch, an and-one, an unknown jersey number, an
 overtime game, a game that runs onto page 2, and a draft with a sub. The entry
 page's JavaScript rules must give exactly the same results. Run
 `python -m pytest` and `node --test "tests/js/*.test.mjs"` (both run in CI).
+
+`tests/fixtures/record-game/` holds four practice games for `/record-game`
+(an answer key, a filled sheet and an empty sheet each; see its README), made
+by `scripts/make_practice_games.py`. A test checks every answer key passes.
 
 ## The entry page
 

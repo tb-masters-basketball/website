@@ -42,9 +42,12 @@ score that day.
 - **Personal fouls:** [placeholder: fouls to foul out, team fouls and bonus free throws]
 - **Technical fouls:** [placeholder: what earns a technical, and what happens after two in a game]
 - **Over a season:** [placeholder: what happens after a number of technical fouls in a season]
+- **Flagrant fouls:** [placeholder: what earns one, and what happens after it]. A flagrant foul is also a personal foul.
+- **Free throws:** a free throw can be worth 1, 2 or 3 points. [placeholder: when it's worth 2 or 3]
 
-The site counts each player's technical fouls for the whole season, playoffs
-included, on their player page and at the bottom of the Stats page.
+The site counts each player's technical and flagrant fouls for the whole
+season, playoffs included, on their player page and at the bottom of the
+Stats page.
 
 ## Forfeits, cancellations and rescheduled games
 

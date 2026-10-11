@@ -1,0 +1,41 @@
+# Practice game from scripts/make_practice_games.py. Made up; the answer key for /record-game.
+game_id: "2027-01-07-g2"
+form: MBL-SS6
+status: final
+home: wf
+away: fw
+scorekeeper: Chris D.
+teams:
+  wf:
+    players:
+      - {player: derek-h, num: 0, here: true, fouls: 2}
+      - {player: mark-d, num: 5, here: true}
+      - {player: al-k, num: 16, here: true}
+      - {player: steve-p, num: 19, here: true, fouls: 2}
+      - {player: rick-l, num: 24, here: true, ft: XXM, fouls: 2}
+      - {player: shawn-t, num: 28, here: true, ft: MM, fouls: 2}
+      - {player: trevor-m, num: 34, here: true, ft: XX, fouls: 1}
+      - {player: jamie-c, num: 44, here: true, ft: MX, fouls: 3}
+      - {player: jeff-s, num: 55, here: true, fouls: 2}
+  fw:
+    players:
+      - {player: tim-r, num: 3, here: true, ft: XX, fouls: 2}
+      - {player: nick-t, num: 6, here: true, ft: XM, fouls: 1}
+      - {player: ken-w, num: 17, here: true, ft: M, fouls: 2}
+      - {player: ray-d, num: 26, here: true}
+      - {player: barry-s, num: 35, here: true, ft: MMM, fouls: 1}
+      - {player: glen-a, num: 46, here: true, fouls: 2}
+      - {player: joe-p, num: 48, here: true, ft: MMM, fouls: 3}
+      - {player: bill-c, num: 52, here: true, ft: XXXX, fouls: 3}
+      - {player: paul-l, num: 54, here: true, ft: XXXX, fouls: 1}
+      - {player: carl-m, num: 34, here: true, ft: MMX, fouls: 2}
+running:
+  wf: {2: 5, 4: 55, 6: 16, 7: 28, 9: 19, 12: 55, 14: 19, 17: 19, 19: 44, 21: 34, 22: 44, 24: 24, 27: 19, 28: 24, 30: 44, 32: 5, 33: 28, 35: 24, 37: 5, 39: 5, 41: 44, 43: 44, 45: 44, 47: 5}
+  fw: {2: 17, 4: 48, 7: 6, 9: 26, 11: 54, 13: 34, 14: 17, 16: 34, 17: 48, 19: 52, 22: 52, 23: 48, 26: 52, 29: 17, 32: 35, 35: 35, 37: 35, 39: 54, 41: 6, 44: 3, 46: 46, 47: 34, 49: 54, 51: 3, 52: 35, 53: 48, 55: 3, 57: 54, 58: 34, 59: 35, 60: 6, 61: 35, 64: 3}
+lines:
+  wf: [12, 22, 33, 47]
+  fw: [14, 32, 47, 64]
+boxes:
+  wf: {q1: 12, q2: 22, q3: 33, q4: 47, ot: null, final: 47}
+  fw: {q1: 14, q2: 32, q3: 47, q4: 64, ot: null, final: 64}
+checked_by: Lee M.

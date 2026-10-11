@@ -44,8 +44,9 @@ it as clean templates and CSS classes; don't copy it as is.
 
 ### Footer (every page)
 The Giant silhouette in `--mb-footer` colour, then the footer band: wordmark B
-(`masters-wordmark-type-dark.svg`), links (Teams, Past seasons, Contact the
-league) and "Masters Basketball League · Thunder Bay, Ontario".
+(`masters-wordmark-type-dark.svg`), links (Teams, Past seasons, Score sheets,
+League rules, and Contact the league once `contact_url` is set) and "Masters
+Basketball League · Thunder Bay, Ontario".
 
 ### Components (all in the mockups)
 - **Result card:** both teams with colour chips and scores, with the winner in
@@ -83,7 +84,7 @@ Built from the parts above, in this order.
    left-aligned, 760 px wide. Ends with a short "How stats are counted".
 3. **Schedule** (`/schedule/`): weeks newest first, with a sticky week heading
    ("Week 8 · Thu Dec 3"). Played games use result cards; upcoming games use
-   rows like the next-game panel's (teams, time, court). Byes are listed under
+   rows like the next-game panel's (teams, time; there are no courts). Byes are listed under
    the week. The next game day is highlighted.
 4. **Teams** (`/teams/`): five team cards, each with a colour chip, name, W-L
    and rank. **Team page** (`/teams/<id>/`): team name with a colour bar,
@@ -114,11 +115,10 @@ Built from the parts above, in this order.
   ranked list is just a list, and each player links to their player page.
 
 ## Open questions (use placeholders until answered)
-- League domain and GitHub organization name
-- ~~Gym name and courts~~ (answered: St. Pats, no courts; a game's gym is read from `schedule.csv`, blank meaning the season's gym)
-- Real team names and colours (the five in the mockups are samples)
-- Tiebreaker rules and playoff format
-- Score sheet layout (affects the `/record-game` skill, not the site)
+The live list is [`docs/open-questions.md`](open-questions.md). Of the ones
+first listed here, the domain and GitHub organization, the gym (St. Pat's, no
+courts), the team names and colours, the playoff format and the score sheet
+layout (MBL-SS6) are answered; the tiebreakers are still open.
 
 ## Decisions made while building the remaining pages (step 4)
 The brief didn't cover these. They are in the code now; change any of them here

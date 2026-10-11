@@ -1,0 +1,40 @@
+# Practice game from scripts/make_practice_games.py. Made up; the answer key for /record-game.
+game_id: "2026-12-17-g2"
+form: MBL-SS6
+status: final
+home: cr
+away: lh
+scorekeeper: Lee M.
+teams:
+  cr:
+    players:
+      - {player: scott-a, num: 3, here: true, ft: MM, fouls: 3}
+      - {player: tom-g, num: 6, here: true, ft: MM, fouls: 1}
+      - {player: luc-b, num: 8, here: true, ft: MM, fouls: 1}
+      - {player: pete-s, num: 12, here: true, fouls: 2}
+      - {player: rob-k, num: 14, here: true, ft: M, fouls: 2}
+      - {player: chris-b, num: 27, here: true, ft: XMM, fouls: 2}
+      - {player: darren-v, num: 30, here: true, ft: XMMM, fouls: 3}
+      - {player: randy-j, num: 53, here: true}
+      - {player: jason-p, num: 54, here: true, ft: X}
+  lh:
+    players:
+      - {player: andre-g, num: 4, here: true, ft: XXXX, fouls: 2}
+      - {player: dan-h, num: 21, here: true, ft: XX, fouls: 2}
+      - {player: pat-o, num: 25, here: true, ft: MM, fouls: 2}
+      - {player: sean-m, num: 33, here: true, ft: MM, fouls: 2}
+      - {player: lorne-k, num: 36, here: true, fouls: 3}
+      - {player: brad-e, num: 39, here: true, ft: XMMM, fouls: 1}
+      - {player: todd-b, num: 40, here: true, fouls: 3}
+      - {player: mike-r, num: 42, here: true, ft: XMXX, fouls: 2}
+      - {player: craig-s, num: 47, here: true, ft: XX, fouls: 2}
+running:
+  cr: {2: 54, 3: 30, 5: 12, 7: 6, 8: 30, 11: 54, 13: 6, 15: 53, 17: 3, 19: 53, 21: 54, 23: 3, 25: 3, 26: 3, 28: 12, 29: 30, 31: 6, 33: 27, 36: 14, 37: 6, 38: 8, 40: 3, 43: 54, 45: 8, 47: 14, 49: 27, 51: 14, 52: 8, 53: 14, 54: 6, 56: 8, 57: 3, 58: 27, 59: 27, 61: 27, 63: 27}
+  lh: {2: 33, 4: 47, 6: 47, 9: 42, 11: 40, 13: 25, 14: 25, 15: 25, 17: 39, 19: 36, 21: 47, 24: 36, 25: 33, 27: 36, 28: 33, 31: 42, 33: 4, 35: 33, 38: 39, 40: 33, 43: 4, 44: 39, 46: 33, 47: 42, 49: 40, 51: 25, 54: 47, 56: 25, 57: 39, 58: 39}
+lines:
+  cr: [13, 26, 40, 54]
+  lh: [14, 28, 40, 54]
+boxes:
+  cr: {q1: 13, q2: 26, q3: 40, q4: 54, ot: 63, final: 63}
+  lh: {q1: 14, q2: 28, q3: 40, q4: 54, ot: 58, final: 58}
+checked_by: Lee M.

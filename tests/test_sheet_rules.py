@@ -141,3 +141,22 @@ def test_the_spec_json_matches_the_generator():
     sys.path.insert(0, str(ROOT / "scripts" / "scoresheet"))
     import scoresheet
     assert json.loads(sheet_rules.SPEC_PATH.read_text()) == json.loads(json.dumps(scoresheet.spec_json()))
+
+
+PRACTICE = ROOT / "tests" / "fixtures" / "record-game"
+
+
+@pytest.mark.parametrize("game", sorted(p.name for p in PRACTICE.iterdir() if (p / "answer.yml").exists())
+                         if PRACTICE.exists() else [])
+def test_the_practice_answer_keys_pass(game):
+    """The /record-game practice games (scripts/make_practice_games.py) are valid
+    final game files for the sample season."""
+    season_dir = ROOT / "data" / "sample-2026-27"
+    problems = []
+    teams = build_stats.load_teams(season_dir, problems)
+    players = build_stats.load_players(season_dir, teams, problems)
+    schedule = build_stats.load_schedule(season_dir, teams, problems)
+    sheet = yaml.safe_load((PRACTICE / game / "answer.yml").read_text())
+    result, found = sheet_rules.check(sheet, {"stem": game, "folder": "games", "teams": teams,
+                                              "players": players, "schedule": schedule})
+    assert found == [] and result is not None

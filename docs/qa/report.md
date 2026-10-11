@@ -1,5 +1,15 @@
 # Full-site QA report (step 5)
 
+> **A snapshot from 8 October 2026, kept as a record.** A lot has changed
+> since, so don't read it as the site's current state: the site moved to
+> `mastersbasketball.ca` (no `/website` baseurl); the real teams and schedule
+> are in; standings are by points, with QW and no GB column; games are in
+> quarters, and game files copy the score sheet box for box; the PPG minimum
+> is 3 games; the "game night" wording is now "game day"; and there's a score
+> sheet entry page at `/enter/`. For the current state see the
+> [README](../../README.md) and the other docs. The open questions it lists
+> are tracked in [`docs/open-questions.md`](../open-questions.md).
+
 Checked on 8 October 2026 against `CLAUDE.md`, `docs/design-brief.md`, `docs/open-questions.md`
 and the mockups in `docs/mockups/`. The site was built the way the Actions workflow builds it:
 `build_stats.py`, then `JEKYLL_ENV=production jekyll build` with the `/website` baseurl, then
@@ -13,7 +23,7 @@ and the mockups in `docs/mockups/`. The site was built the way the Actions workf
 Screenshots: the before and after sets (`docs/qa/before/` and `docs/qa/after/`, about 41 MB) were
 removed from the repo in October 2026 to keep it small. They are still in git history (the commit
 before "Remove the QA screenshot sets"). To capture a fresh set:
-`python scripts/screenshot_all.py --out /tmp/shots --contact-sheets` (it needs `pip install playwright`).
+`python scripts/screenshot_all.py --out /tmp/shots --contact-sheets` (it needs `pip install playwright pillow pyyaml`).
 
 **Result:** I found 9 issues and fixed 9. 6 differences from the mockups stay as they are, because
 they are decisions you already made or follow from your data. Nothing that would change the approved

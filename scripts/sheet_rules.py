@@ -2,10 +2,10 @@
 form MBL-SS6), check it, and work out each player's numbers.
 
 This is the one place the rules live. build_stats.py uses it for every file in
-data/<season>/games/; the entry page (/enter/) and /record-game use the same
-paths to point at boxes. The entry page runs a line-for-line JavaScript port,
+data/<season>/games/; the entry page (/enter/) uses the same paths to point at
+boxes, and so will /record-game (planned). The entry page runs a line-for-line JavaScript port,
 assets/js/sheet-rules.js: change this file first, then that one, and keep the
-messages identical (tests/js runs it on the same fixtures). The format is described in data/CLAUDE.md ("Game file").
+messages identical (tests/js runs it on the same fixtures). The format is described in docs/game-file-format.md.
 
     check(sheet, ctx) -> (game, problems)
 
@@ -399,7 +399,8 @@ def build_sheet(game_id, home, away, quarters, players, rng, checked_by="Sam P."
     final:    {team: final score}; leave it out when Q4 is the final. A final
               above a tied Q4 is an overtime game.
     players:  {team: [{player, num, pts, ftm, fta, pf, tech, flagrant}]}, everyone ticked Here
-    Free throws are 1-point scores; the rest of each player's points are 2s and
+    Made free throws are written as 1-point scores here (a simplification for
+    made-up data: under league rules one can be worth 1, 2 or 3); the rest of each player's points are 2s and
     3s. The scores are shuffled into quarters so each quarter ends exactly on
     its total. rng: a random.Random, so the same inputs give the same sheet."""
     teams, running, lines, boxes, notes = {}, {}, {}, {}, []
