@@ -54,13 +54,13 @@ sheets. The Schedule page links only the PDFs that exist.
 Every structural number (rows, circles, foul boxes, score boxes, running-score
 pages) is in its `SPEC` dict; `scoresheet.py --spec scripts/scoresheet/spec.json`
 writes it out for `sheet_rules.py` (a test keeps the two in step).
-**Don't change the sheet's layout or `FORM` without updating `/record-game`,
-`sheet_rules.py` (and its JS port) and the game file format**, which read sheets by that exact
+**Don't change the sheet's layout or `FORM` without updating `sheet_rules.py`
+(and its JS port), the game file format and, once it exists, `/record-game`**, which read sheets by that exact
 layout. The entry page (`/enter/`) draws its sheet from the spec, so it follows on its own. Changes to how it reads the data (which games, which players) are fine.
 
 ## Layout
 ```
-data/<season>/          source of truth, edited by hand or by /record-game (see data/CLAUDE.md);
+data/<season>/          source of truth, edited on the entry page (/enter/) or by hand (see data/CLAUDE.md);
                         games/ = finished score sheets, drafts/ = not yet (never built)
                         data/2026-27/ is the real season; data/sample-2026-27/ is fake data
 _config.yml             `sample_data: true` makes every page read the sample season (+ banner);
@@ -80,11 +80,14 @@ scripts/build_preview.sh  after the main build: the sample-season copy into _sit
 scripts/check_links.sh  fails on broken links/images in _site/ (html-proofer; runs in CI)
 scripts/scoresheet/     the score sheet generator (README, fonts, badge, example data)
 scripts/make_score_sheets.sh  score-sheets/*.pdf (git-ignored) for the season shown; runs in CI
-scripts/screenshot_all.py  builds sample + real mode, screenshots every page (360/390/1440, light/dark),
+scripts/make_practice_games.py  practice sheets for /record-game into tests/fixtures/record-game/
+                        (answer key + filled + empty sheet; uses `scoresheet.py --fill`)
+scripts/screenshot_all.py  builds sample + real mode, screenshots the main pages (360/390/1440, light/dark),
                         checks sideways scroll, console errors and failed requests
 tests/                  pytest: build_stats, calendars, score sheets, sheet rules
 tests/js/               node --test: the JS sheet rules against the same fixtures (runs in CI)
-tests/fixtures/sheets/  test game files + expected results (shared with the entry page)
+tests/fixtures/sheets/  test game files + expected results (run by both the Python and the JS rules)
+tests/fixtures/record-game/  four practice games for the planned /record-game (see its README)
 _layouts/ _includes/    templates (_layouts/text.html: Markdown pages such as rules/index.md)
 rules/index.md          the League rules page (Markdown, [placeholder] sections; linked from the footer)
 assets/css/site.css     page styles, built on brand/css/brand.css variables

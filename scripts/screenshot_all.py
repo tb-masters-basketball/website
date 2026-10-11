@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Screenshot every page of the site, and check each one for problems.
+"""Screenshot the site's main pages, and check each one for problems.
 
 Builds the site the way the Actions workflow does (stats script, then a
 production Jekyll build with the site's baseurl), once with sample data on
 and once with it off, serves each build locally and captures:
 
   pages   Home, Stats (list and table view), Schedule, Teams, one team,
-          one player, one box score, Archive, the past sample season, 404
+          one player, one box score, Archive, the past sample season, the
+          entry page (/enter/, its start panel), 404. Not /rules/ or /preview/
   widths  360, 390 and 1440 px
   themes  light and dark (the system setting; nothing saved in localStorage)
 

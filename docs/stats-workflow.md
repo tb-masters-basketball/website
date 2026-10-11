@@ -4,37 +4,47 @@ A guide for whoever keeps the league's numbers up to date. You do not need to
 be a programmer. Everything below can be done in GitHub's web editor in a
 browser, and the site checks your work for you before anything goes live.
 
-**The short version:** after each game day, the paper score sheets are typed
-into one small text file per game. The site reads those files, double-checks
-them, works out every number (standings, points per game, free-throw %), and
-publishes the pages. If something doesn't add up, the check fails with a plain
-message and **nothing is published**, so a typo can't put wrong numbers on the
-site.
+**The short version:** after each game day, each paper score sheet is copied
+into one small text file per game, box for box. The easy way is the site's
+entry page (**mastersbasketball.ca/enter/**), which shows the sheet as boxes to
+fill in, puts the photo beside it, checks everything as you type and writes the
+file for you. The site reads those files, double-checks them, works out every
+number (standings, points per game, free-throw %), and publishes the pages. If
+something doesn't add up, the check fails with a plain message and **nothing
+is published**, so a typo can't put wrong numbers on the site.
 
 - [The path from score sheet to website](#the-path-from-score-sheet-to-website)
+- [The score sheet](#the-score-sheet), and [how stats come from it](#how-stats-come-from-a-sheet)
 - [The data folders](#the-data-folders)
 - [What a game file looks like](#what-a-game-file-looks-like)
 - [The checks, and what a failure looks like](#the-checks-and-what-a-failure-looks-like)
 - [How each number is calculated](#how-each-number-is-calculated)
-- [How to](#how-to) — add a game, fix a number, add a player or sub, change a ranking minimum, the preview copy
+- [How to](#how-to): add a game, enter or check a game on the entry page, fill in a playoff matchup,
+  cancel or move a game, team calendars, change a ranking minimum, edit the league rules, fix a wrong
+  number, add a player or sub, the preview copy, sample mode
 - [If something looks wrong](#if-something-looks-wrong)
 
 ## The path from score sheet to website
 
 ```mermaid
 flowchart TD
-    A["Paper score sheet"] --> B["Photo of the sheet"]
-    B --> C["Game file typed up<br/>data/SEASON/games/DATE-gN.yml"]
+    S["Score sheets printed from the Schedule page<br/>(game IDs and rosters filled in)"] --> A["Paper score sheet,<br/>filled in at the game"]
+    A --> B["Photo of the sheet"]
     B -. "kept for checking" .-> P["Photo saved in<br/>data/SEASON/sheets/"]
-    C --> D{"scripts/build_stats.py<br/>runs the checks"}
+    B --> C["Typed up on the entry page /enter/<br/>with the photo beside it.<br/>It checks every box as you type"]
+    B -. "planned: /record-game" .-> R["Draft read from the photo<br/>data/SEASON/drafts/,<br/>unclear boxes flagged for review"]
+    R --> K["Draft opened on /enter/:<br/>flagged boxes checked against<br/>the photo, then Mark as checked"]
+    K --> V
+    C --> V["Save as final, with your name in Checked by:<br/>GitHub opens the new file<br/>data/SEASON/games/DATE-gN.yml<br/>as a pull request"]
+    V --> D{"scripts/build_stats.py<br/>runs the checks"}
     D -- "a check fails" --> E["Clear error message.<br/>Nothing is published."]
-    E -- "fix the file and try again" --> C
+    E -- "fix it on /enter/ and save again" --> V
     D -- "all checks pass" --> F["Calculates standings points,<br/>points per game, free-throw %"]
     F --> G["_data/computed/*.json<br/>and one small stub page per game,<br/>player and team (never edited by hand)"]
     G --> H["Jekyll builds every page:<br/>Home, Stats, Schedule, box scores,<br/>player and team pages, Archive"]
     H --> L{"Link check:<br/>any broken link or image?"}
     L -- "yes" --> E2["Build fails.<br/>Nothing is published."]
-    L -- "no" --> I["GitHub Actions publishes<br/>to GitHub Pages"]
+    L -- "no" --> I["Merge the pull request:<br/>GitHub Actions publishes<br/>to GitHub Pages"]
     I --> J["The live website"]
 ```
 
@@ -42,17 +52,48 @@ What each step means in plain words:
 
 | Step | Who or what does it | Where it lives |
 |---|---|---|
-| Score sheet and photo | A person at the game | Paper, then a photo on someone's phone |
-| Game file | **You**, by typing the sheet's numbers | `data/<season>/games/<date>-g1.yml` |
-| Checks | `scripts/build_stats.py` (automatic) | Runs on every change; see [the checks](#the-checks-and-what-a-failure-looks-like) |
+| Score sheets | The site (automatic) | The Schedule page links each game day's sheets, with the game IDs and rosters printed ([the score sheet](#the-score-sheet)) |
+| Score sheet and photo | The scorekeeper at the game | Paper, then a photo on someone's phone: flat, all four corner squares in view |
+| Game file | **You**, on the [entry page](#enter-or-check-a-game-on-the-entry-page) (or by hand in GitHub) | `data/<season>/games/<date>-g1.yml`. Part-done work can wait as a draft in `data/<season>/drafts/` |
+| Draft from a photo | *Planned:* `/record-game`, a Claude Code command | Reads the photo into a draft with unclear boxes flagged; you check it on the entry page |
+| Checks | The entry page as you type, then `scripts/build_stats.py` on every change (automatic) | Same rules in both; see [the checks](#the-checks-and-what-a-failure-looks-like) |
 | Calculations | `scripts/build_stats.py` (automatic) | Writes `_data/computed/`. Never edit those files; they are rewritten every time |
 | Pages | Jekyll, the site builder (automatic) | Every page reads `_data/computed/`. The script also writes a tiny stub file for each game, player, team and archive season (folders `_games/`, `_players/`, `_teams/`, `_archive/`, rewritten every time), which is how each one gets its own page |
 | Link check | `scripts/check_links.sh` (automatic) | Stops the publish if any link, image or script in the built site is broken |
 | Publishing | GitHub Actions (automatic) | `.github/workflows/deploy.yml`. It only publishes when a change is **merged into `main`**, and again every night so the date-based parts stay current. Each publish also updates the [preview copy](#the-preview-copy-sample-data-at-preview) |
 
-You only ever touch the game file (and occasionally the player list). The rest
-happens by itself: add a game and its box score page, the players' pages and the
+Week to week you only touch game files, through the entry page. Now and then
+you'll also edit the player list (new players and subs), the schedule
+(playoff matchups, cancelled games) or the rules page. The rest happens by
+itself: add a game and its box score page, the players' pages and the
 standings all update on their own.
+
+### The workflow, step by step
+
+1. **Before the game day:** print that day's sheets from the Schedule page
+   (each game's ID, date, time and both rosters are printed on it). Print
+   double-sided: page 2 is only for games past 100 points or players past 10
+   free throws.
+2. **At the game:** the scorekeeper fills in the sheet as printed (how to mark
+   it is on page 2).
+3. **After the game:** photograph each sheet flat, all four corner squares in
+   view. Keep the photo: it's saved with the game for checking.
+4. **Type it up** on the entry page: pick the game from the schedule (an empty
+   sheet with both rosters filled in), open the photo beside it, and copy the
+   boxes. Fix anything it marks in red as you go. Not finished? Save it as a
+   draft and come back to it.
+5. **Check it against the paper.** Ideally someone else does this: open the
+   draft, look at every box flagged in blue against the photo, and press
+   **Mark as checked** on each.
+6. **Save as final** with your name in *Checked against the paper by*. GitHub
+   opens the new file, filled in: commit it as a pull request, wait for the
+   green tick, and merge. The game is live a few minutes later.
+7. **Save the photo** as `data/<season>/sheets/<game_id>.jpg` (optional, kept
+   for checking, never shown on the site).
+
+*Coming:* `/record-game` will do step 4 from the photo, writing a draft with
+every box it isn't sure of flagged for review, so steps 5 and 6 are all that's
+left (see the to-do list in the [README](../README.md#to-do)).
 
 ## The score sheet
 
@@ -69,7 +110,8 @@ Every time the site is published:
   an editable field, so last-minute changes can be typed in before printing.
 - **Blank sheets:** all four layouts are at the bottom of the Schedule page.
 
-Print double-sided. Page 2 has **How to mark** (the scorekeeper's
+The sheets on the Schedule page cover game days from today on (yesterday's
+drop off at the next nightly publish). Print double-sided. Page 2 has **How to mark** (the scorekeeper's
 instructions) and the overflow: the running score past 100 points and free
 throws past 10. Page 1 has a **Notes** box for flagrant fouls. Games are played
 in quarters: the scorekeeper writes each team's running total at the end of
@@ -104,7 +146,8 @@ data/
     teams.yml            the five teams
     players.yml          every player and sub
     schedule.csv         every game day: who plays whom, when
-    games/               one file per game that has been played
+    games/               one file per game that has been played (status: final)
+    drafts/              games still being typed up or checked (the site ignores these)
     sheets/              photos of the paper score sheets
   sample-2026-27/      FAKE sample season, standing in for the real one
   sample-2025-26/      FAKE past season, so the Archive has something to show
@@ -256,7 +299,7 @@ the sample season, line by line:
 
 | Stat | Rule | Dave M.'s number |
 |---|---|---|
-| **GP** (games played) | Games where the player is on the sheet | 7 games |
+| **GP** (games played) | Games where the player's row is ticked **Here** | 7 games |
 | **PTS** | Add up the points | 141 |
 | **PPG** (points per game) | PTS ÷ GP, one decimal | 141 ÷ 7 = 20.14… → **20.1** |
 | **FTM-FTA** | Add up made and attempted | 22-27 |
@@ -311,44 +354,6 @@ deploy* check then runs the checks on your change and shows a green tick or a
 red cross. **Merge the pull request** only when it is green. Merging publishes
 the site (it takes a minute or two).
 
-### Add a game
-
-1. **Check the game is on the schedule.** Open `data/2026-27/schedule.csv`. The
-   game needs a row, for example:
-   `2026-10-17-g1,2026-10-17,09:45,,bb,hu,regular,1,,`
-   The columns are `game_id, date, time, gym, home, away, type, week, status, round`. The
-   date is `YYYY-MM-DD`, the time is 24-hour (`09:45`), and the id is the date
-   plus `-g1`, `-g2` for that day's first and second game. Leave `gym` blank
-   to use the season's gym (St. Pat's, set in `data/seasons.yml`); fill it in
-   only for a game day played somewhere else. There is no court column. Leave
-   `status` blank (it is only for [cancelled games](#cancel-or-move-a-game)),
-   and `round` blank for a regular-season game.
-   (Or type the whole game on the [entry page](#enter-or-check-a-game-on-the-entry-page),
-   which checks it as you go and writes the file for you.)
-2. **Create the game file.** In `data/2026-27/games/`, choose **Add file →
-   Create new file** and name it exactly like the `game_id`, plus `.yml`:
-   `2026-12-03-g1.yml`. The easiest start is to copy the example
-   [above](#what-a-game-file-looks-like) and replace the boxes. (Part-done
-   work can wait in `data/2026-27/drafts/` with `status: draft`; the site
-   ignores drafts.)
-3. **Copy the sheet.** The roster rows (id, number, Here, circles, fouls), every
-   running-score box, the quarter lines, the score boxes and any flagrant fouls
-   from Notes. You never add anything up: the site does that, and checks the
-   Final box against the running score.
-4. **Sign it off.** Check the file against the paper once more, set
-   `status: final` and put your name in `checked_by`.
-5. **Optional: save the photo** of the sheet as
-   `data/2026-27/sheets/2026-12-03-g1.jpg` (same name as the game). It is kept
-   for checking. It is **not** shown on the site: the box score's "Score sheet
-   photo" link is switched off (`score_sheet_links: false` in `_config.yml`):
-   the league keeps the photos in the repo, not on the site. The repo is public,
-   so if a name was written out in full by hand, don't save the photo.
-6. **Commit as a pull request** and wait for the check. Fix anything it reports
-   (see [the checks](#the-checks-and-what-a-failure-looks-like)), then merge.
-   When it is published the game has its own box score page
-   (`/games/2026-12-03-g1/`), and the Schedule, standings, Stats and every
-   player's and team's page update with it.
-
 ### Enter or check a game on the entry page
 
 The site has an unlisted page for this: **mastersbasketball.ca/enter/** (not in
@@ -386,6 +391,48 @@ for you. It needs JavaScript and works best on a laptop.
 
 Your work is kept in the browser as you go: open the same game again on the
 same computer and the page offers to pick up where you left off.
+
+### Add a game by hand
+
+The entry page (above) is the easier way; this is how to do the same directly
+in GitHub, or to see what the page does for you.
+
+
+1. **Check the game is on the schedule.** Open `data/2026-27/schedule.csv`. The
+   game needs a row, for example:
+   `2026-10-17-g1,2026-10-17,09:45,,bb,hu,regular,1,,`
+   The columns are `game_id, date, time, gym, home, away, type, week, status, round`. The
+   date is `YYYY-MM-DD`, the time is 24-hour (`09:45`), and the id is the date
+   plus `-g1`, `-g2` for that day's first and second game. Leave `gym` blank
+   to use the season's gym (St. Pat's, set in `data/seasons.yml`); fill it in
+   only for a game day played somewhere else. There is no court column. Leave
+   `status` blank (it is only for [cancelled games](#cancel-or-move-a-game)),
+   and `round` blank for a regular-season game.
+   (Or type the whole game on the [entry page](#enter-or-check-a-game-on-the-entry-page),
+   which checks it as you go and writes the file for you.)
+2. **Create the game file.** In `data/2026-27/games/`, choose **Add file →
+   Create new file** and name it exactly like the `game_id`, plus `.yml`:
+   `2026-12-03-g1.yml`. The easiest start is to copy the example
+   [above](#what-a-game-file-looks-like) and replace the boxes. (Part-done
+   work can wait in `data/2026-27/drafts/` with `status: draft`; the site
+   ignores drafts.)
+3. **Copy the sheet.** The roster rows (id, number, Here, circles, fouls), every
+   running-score box, the quarter lines, the score boxes and any flagrant fouls
+   from Notes. You never add anything up: the site does that, and checks the
+   Final box against the running score.
+4. **Sign it off.** Check the file against the paper once more, set
+   `status: final` and put your name in `checked_by`.
+5. **Optional: save the photo** of the sheet as
+   `data/2026-27/sheets/2026-12-03-g1.jpg` (same name as the game). It is kept
+   for checking. It is **not** shown on the site: the box score's "Score sheet
+   photo" link is switched off (`score_sheet_links: false` in `_config.yml`):
+   the league keeps the photos in the repo, not on the site. The repo is public,
+   so if a name was written out in full by hand, don't save the photo.
+6. **Commit as a pull request** and wait for the check. Fix anything it reports
+   (see [the checks](#the-checks-and-what-a-failure-looks-like)), then merge.
+   When it is published the game has its own box score page
+   (`/games/2026-12-03-g1/`), and the Schedule, standings, Stats and every
+   player's and team's page update with it.
 
 ### Fill in a playoff matchup
 
@@ -525,7 +572,10 @@ later together with its entry in `data/seasons.yml`.
 ## If something looks wrong
 
 - **The check failed (red cross).** Read the message. It names the file and the
-  line. Fix it, commit again, and the check re-runs by itself.
+  box (for example `running.bb.14`; see [the checks](#the-checks-and-what-a-failure-looks-like)),
+  or the line for a file that isn't valid YAML. Fix it (reopening the game on
+  the entry page shows the same problem on its box), commit again, and the
+  check re-runs by itself.
 - **The site still shows an old number.** Changes only go live when the pull
   request is merged, and publishing takes a minute or two. Refresh the page.
 - **A player is missing from Stats.** Stats only lists players who have played
@@ -536,14 +586,16 @@ later together with its entry in `data/seasons.yml`.
 - **A team's points look wrong.** Points come from the quarter boxes (`boxes:` Q1 to Q4): 1
   for each quarter a team scored more in, and 3 for the win. Check the totals
   against the sheet's Q1 to Q4 boxes. A tied quarter gives no one a point.
-- **A sub tops the points-per-game list after one big game.** There is no
-  minimum number of games for that list unless `ppg_min_games` is set in
-  `data/seasons.yml` ([how](#change-a-ranking-minimum)).
+- **A sub tops the points-per-game list after one big game.** Early in the
+  season that can happen: the list needs `ppg_min_games` games (3), but never
+  more than the player's team has played. Once their team has played 3 games,
+  a player with one game drops off the list ([how to change it](#change-a-ranking-minimum)).
 - **A player is missing from the points-per-game list.** They have fewer games
   than `ppg_min_games` while their team has played that many. They are still
   in the Stats table and on their own page.
 - **You aren't sure what to do.** Don't merge. A pull request that isn't merged
   never changes the live site, so it is always safe to leave it open and ask.
 
-For the technical details (file formats, ids and the exact rules), see
-`data/CLAUDE.md`.
+For the technical details, see [`game-file-format.md`](game-file-format.md)
+(the game file, every check and the box paths) and `data/CLAUDE.md` (the other
+data files, ids and the exact stat rules).

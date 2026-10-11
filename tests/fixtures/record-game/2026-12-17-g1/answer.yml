@@ -1,0 +1,40 @@
+# Practice game from scripts/make_practice_games.py. Made up; the answer key for /record-game.
+game_id: "2026-12-17-g1"
+form: MBL-SS6
+status: final
+home: fw
+away: wf
+scorekeeper: Pat S.
+teams:
+  fw:
+    players:
+      - {player: tim-r, num: 3, here: true, ft: XX, fouls: 3}
+      - {player: nick-t, num: 6, here: true, fouls: 1}
+      - {player: ken-w, num: 17, here: true, ft: MMM, fouls: 1}
+      - {player: ray-d, num: 26, here: true, ft: MM, fouls: 2}
+      - {player: barry-s, num: 35, here: true, ft: XXM, fouls: 2}
+      - {player: glen-a, num: 46, here: true, ft: MM}
+      - {player: joe-p, num: 48, here: true, ft: MXM, fouls: 1}
+      - {player: bill-c, num: 52, here: true, ft: XX, fouls: 2}
+      - {player: paul-l, num: 54, here: false}
+  wf:
+    players:
+      - {player: derek-h, num: 0, here: true, ft: MMX, fouls: 2}
+      - {player: mark-d, num: 5, here: true, fouls: 1}
+      - {player: al-k, num: 16, here: true, ft: XX, fouls: 1}
+      - {player: steve-p, num: 19, here: true, ft: MM, fouls: 1}
+      - {player: rick-l, num: 24, here: true, ft: XM, fouls: 2}
+      - {player: shawn-t, num: 28, here: true, ft: XXX, fouls: 3}
+      - {player: trevor-m, num: 34, here: true, fouls: 3}
+      - {player: jamie-c, num: 44, here: true, fouls: 1}
+      - {player: jeff-s, num: 55, here: true, ft: X}
+running:
+  fw: {3: 48, 5: 35, 6: 35, 7: 17, 8: 46, 9: 46, 10: 48, 12: 26, 15: 3, 17: 26, 20: 52, 21: 17, 23: 35, 25: 52, 26: 17, 28: 46, 31: 26, 33: 46, 35: 48, 37: 52, 39: 48, 41: 52, 44: 26, 45: 48, 46: 26, 47: 26, 50: 3}
+  wf: {3: 19, 5: 16, 7: 19, 8: 24, 10: 55, 13: 24, 15: 5, 17: 34, 18: 19, 20: 34, 22: 24, 24: 44, 25: 19, 28: 5, 30: 0, 32: 34, 33: 0, 35: 24, 37: 19, 39: 28, 41: 24, 44: 28, 47: 34, 49: 19, 52: 19, 53: 0, 55: 44, 58: 34, 61: 44, 63: 0, 65: 16, 67: 16, 70: 28}
+lines:
+  fw: [9, 21, 33, 50]
+  wf: [17, 33, 53, 70]
+boxes:
+  fw: {q1: 9, q2: 21, q3: 33, q4: 50, ot: null, final: 50}
+  wf: {q1: 17, q2: 33, q3: 53, q4: 70, ot: null, final: 70}
+checked_by: Lee M.
