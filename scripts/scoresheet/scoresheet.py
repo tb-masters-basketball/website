@@ -78,7 +78,9 @@ SPEC = {
     "ft_circles_per_page": 10,         # free-throw circles per player row: 1-10 on page 1, 11-20 on page 2
     "personal_foul_boxes": 5,
     "technical_boxes": 2,
-    "timeouts": 3,                     # circles beside each team name
+    # Timeout circles beside each team name, in groups (league rule 9: two
+    # each half, one in each overtime period; unused ones don't carry over)
+    "timeouts": [{"label": "H1", "count": 2}, {"label": "H2", "count": 2}, {"label": "OT", "count": 1}],
     "quarters": ["Q1", "Q2", "Q3", "Q4"],
     "team_foul_boxes_per_quarter": 5,
     # The score boxes under each roster: the running total at the end of each
@@ -234,14 +236,27 @@ class ScoreSheet:
         self.text(x + 24, by + 6.5, side.upper(), "Cond", 11.5, white, anchor="c", tracking=1)
         self.box(x, by, w, bar, lw=1.2)
         self.label(x + 54, by + 7.4, "Team")
-        name_w = w - 80 if back else w - 80 - 76
+        # timeouts: "Timeouts  H1 oo  H2 oo  OT o", one circle per timeout taken
+        to_pitch, to_gap = 8.6, 6
+        to_w = self.lwidth("Timeouts") + sum(to_gap + self.lwidth(g["label"], 5.6) + 3 + g["count"] * to_pitch
+                                             for g in SPEC["timeouts"]) + 2
+        name_w = w - 80 if back else w - 80 - to_w - 6
         self.box(x + 76, by + 3, name_w, bar - 6, lw=0.6, fill=white)
-        self.field(f"{key}_team", x + 78, by + 4, name_w - 4, bar - 8, team.get("name", ""), size=9.5)
-        if not back:   # timeouts: one circle per timeout taken
+        # a long team name gets a smaller font, so it fits beside the timeouts
+        tname = team.get("name", "")
+        tsize = min(9.5, (name_w - 8) / max(1, pdfmetrics.stringWidth(tname, "Helvetica", 1))) if tname else 9.5
+        self.field(f"{key}_team", x + 78, by + 4, name_w - 4, bar - 8, tname, size=max(6.5, round(tsize, 1)))
+        if not back:
             tx = x + 76 + name_w + 6
             self.label(tx, by + 7.4, "Timeouts")
-            for i in range(SPEC["timeouts"]):
-                self.circle(tx + self.lwidth("Timeouts") + 8 + i * 9.5, by + bar / 2, 3.4, lw=0.7)
+            tx += self.lwidth("Timeouts")
+            for g in SPEC["timeouts"]:
+                tx += to_gap
+                self.label(tx, by + 7.6, g["label"], size=5.6, color=NAVY)
+                tx += self.lwidth(g["label"], 5.6) + 3
+                for _ in range(g["count"]):
+                    self.circle(tx + 3.4, by + bar / 2, 3.2, lw=0.7)
+                    tx += to_pitch
         # column header
         hh = 15
         hy = by - hh

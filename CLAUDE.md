@@ -28,7 +28,9 @@ and `CNAME`. (`site.webmanifest` uses relative paths, so it needs no change.)
   each player's points (running score), FTM/FTA (circles), GP (Here), fouls,
   techs and flagrants (Notes). Technical and flagrant fouls count the whole
   season, playoffs included; personal fouls aren't shown. Standings are by
-  points: 1 per quarter won (from the quarter boxes), 3 per win.
+  points: 1 per quarter won (from the quarter boxes), 3 per win; a regular-season
+  game tied after overtime is a tie (T column), and a forfeit file
+  (`forfeit: <team>`) counts as 1-0 in every quarter.
 - **Sample data switch:** pages never name a season. `build_stats.py` picks the
   active season (the sample stand-in while `sample_data: true` in `_config.yml`,
   else the `current` one) and writes `_data/computed/active.json`;
@@ -89,6 +91,7 @@ tests/js/               node --test: the JS sheet rules against the same fixture
 tests/fixtures/sheets/  test game files + expected results (run by both the Python and the JS rules)
 tests/fixtures/record-game/  four practice games for the planned /record-game (see its README)
 _layouts/ _includes/    templates (_layouts/text.html: Markdown pages such as rules/index.md)
+flagrant/index.html     flagrant fouls by player and each one with its note (unlinked; not on Stats)
 rules/index.md          the League rules page: playing rules + player code of conduct (Markdown, two # headings,
                         numbered ## rules, auto table of contents; linked from the footer)
 assets/css/site.css     page styles, built on brand/css/brand.css variables

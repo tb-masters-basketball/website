@@ -42,7 +42,8 @@ def run(case, season):
 
 
 def test_the_required_cases_are_all_there():
-    for case in ("clean", "bad-final", "ft-mismatch", "and-one", "unknown-jersey", "overtime", "page-two"):
+    for case in ("clean", "bad-final", "ft-mismatch", "and-one", "unknown-jersey", "overtime", "page-two",
+                 "tie", "tie-without-overtime", "forfeit"):
         assert case in CASES
 
 
@@ -54,8 +55,9 @@ def test_fixture(case, season):
         assert game is None
     else:
         assert game is not None
-        for key in ("final", "quarters", "ot", "lines"):
-            assert game[key] == expected["game"][key], key
+        for key in ("final", "quarters", "ot", "lines", "tie", "forfeit"):
+            if key in expected["game"]:
+                assert game[key] == expected["game"][key], key
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -160,3 +162,40 @@ def test_the_practice_answer_keys_pass(game):
     result, found = sheet_rules.check(sheet, {"stem": game, "folder": "games", "teams": teams,
                                               "players": players, "schedule": schedule})
     assert found == [] and result is not None
+
+
+def test_each_flagrant_keeps_its_quarter_and_note(season):
+    """The site lists every flagrant with the note from the sheet's Notes box."""
+    sheet, _, _ = run("clean", season)
+    sheet["notes"] = [{"team": "bb", "num": 5, "q": 3, "kind": "flagrant", "text": " elbow on a rebound "},
+                      {"team": "aa", "num": 4, "q": 1, "kind": "note", "text": "late start"}]
+    game, problems = sheet_rules.check(sheet, {**season, "stem": sheet["game_id"], "folder": "games"})
+    assert problems == []
+    assert game["flagrants"] == [{"team": "bb", "player": "bo-c", "num": "5", "q": 3, "text": "elbow on a rebound"}]
+    assert next(l for l in game["lines"] if l["player"] == "bo-c")["flagrant"] == 1
+
+
+def test_a_playoff_game_cannot_end_tied(season):
+    sheet, _, _ = run("tie", season)
+    playoff = {**season, "schedule": {gid: {**r, "type": "playoff"} for gid, r in season["schedule"].items()}}
+    game, problems = sheet_rules.check(sheet, {**playoff, "stem": sheet["game_id"], "folder": "games"})
+    assert game is None
+    assert problems == [{"level": "error", "at": "boxes.aa.final",
+                         "message": "the final score is tied 24-24; a playoff game goes on to more overtime until someone wins"}]
+
+
+def test_a_forfeit_names_a_team_in_the_game_and_has_no_boxes(season):
+    sheet, _, _ = run("forfeit", season)
+    sheet["forfeit"] = "cc"
+    sheet["running"] = {}
+    sheet["notes"] = [{"kind": "flagrant", "team": "aa", "num": 4, "q": 1}]
+    game, problems = sheet_rules.check(sheet, {**season, "stem": sheet["game_id"], "folder": "games"})
+    assert game is None
+    assert [p["at"] for p in problems] == ["forfeit", "running", "notes.0.kind"]
+
+
+def test_a_forfeit_survives_dump_and_reload(season):
+    sheet, expected, _ = run("forfeit", season)
+    again = yaml.safe_load(sheet_rules.dump(sheet))
+    game, problems = sheet_rules.check(again, {**season, "stem": again["game_id"], "folder": "games"})
+    assert problems == [] and game["forfeit"] == "bb" and game["final"] == {"aa": 4, "bb": 0}

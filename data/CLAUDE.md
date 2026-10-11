@@ -218,10 +218,19 @@ checked_by: Lee M.
 - **FT%:** FTM ÷ FTA, one decimal. FT% leaderboards need `ft_min_attempts` FTA
   (from `seasons.yml`, default 10).
 - **Standings points** (regular season): 1 for each quarter won and 3 for
-  winning the game, so 7 at most. A tied quarter gives neither team a point and
-  overtime isn't a quarter (both assumed, to be confirmed by the league).
+  winning the game, so 7 at most. A tied quarter gives neither team a point
+  (zero for now; still open for the league) and overtime isn't a quarter.
+- **Ties** (rule 4): a regular-season game still tied after overtime stands as
+  a tie: each team keeps its quarter points, nobody gets the 3. The standings
+  have a T column, a record reads "5-2-1", and PCT counts a tie as half a win
+  (head-to-head too). A playoff game can't end tied, nor can a game tied after
+  Q4 with no overtime (the check says so).
+- **Forfeits** (rule 24): a game file with `forfeit: <team>` (the team that
+  forfeited) and no rosters, running score, lines or boxes. It counts as 1-0
+  to the other team in every quarter (4-0, 7 standings points, a win), and no
+  player gets a game played or any stats. Format in `docs/game-file-format.md`.
   Constants `POINTS_PER_QUARTER` and `POINTS_PER_WIN` in `build_stats.py`.
-- **Standings:** sorted by points. Show PTS, W, L, QW (quarters won), PCT
+- **Standings:** sorted by points. Show PTS, W, L, T, QW (quarters won), PCT
   (`.857` style), PF, PA, DIFF. No games-behind column.
 - **Tiebreakers:** `[placeholder]`, not yet decided by the league. Until then
   teams level on points are ordered by head-to-head, then point differential,
@@ -236,9 +245,10 @@ checked_by: Lee M.
   alone: no standings points (its box score still shows the score by quarter).
 - **Flagrant fouls** count like technicals: the whole season, playoffs included
   (`flagrant`, `flagrant_playoff`, `flagrant_games` in `players.json`; the
-  `flagrants` list in `leaders.json`). They show on the player page (a line
-  under the tiles, a Flagrant badge in the game log) and in a list at the bottom
-  of the Stats page, under the technical fouls.
+  `flagrants` list in `leaders.json`, and `flagrant_log`: each one with its
+  game, quarter and the note written in Notes). They show only on their own
+  page, `/flagrant/`, which nothing links to: the league doesn't want them on
+  the Stats page or the player pages.
 - **Technical fouls** are the exception: a player's season total counts every
   game, playoffs included (`tech`, `tech_playoff`, `tech_games` in
   `players.json`; the list in `leaders.json` as `technicals`). They show on the

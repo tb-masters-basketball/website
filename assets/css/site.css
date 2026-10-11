@@ -3571,3 +3571,32 @@ html:not(.js) [data-enter-status] {
     height: 42vh;
   }
 }
+
+/* The unlisted flagrant fouls page: each one, with its game, player, quarter
+   and the note from the score sheet (which wraps, unlike other table cells) */
+.flagrant-log th,
+.flagrant-log td {
+  text-align: left;
+  vertical-align: top;
+}
+
+.flagrant-log__vs {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--mb-muted);
+}
+
+.table.flagrant-log .flagrant-log__note {
+  min-width: 14em;
+  white-space: normal;
+}
+
+/* Entry page: a forfeit replaces the rosters and running score */
+.sheet-forfeit__body {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--mb-line);
+  border-top: 0;
+}

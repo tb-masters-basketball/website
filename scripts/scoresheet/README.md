@@ -38,7 +38,9 @@ reads them the same way.
 | Flagrant fouls | **Notes** on page 1: team, player number and quarter for each one. A flagrant also counts as a personal foul, so it is in that player's foul boxes (and PF) too. |
 | Checks | Every jump is 1, 2 or 3. Every scorer's number is on that team's roster and ticked Here. The last running total equals the Final box. Each quarter box equals the running total at that quarter's line. (Player points always add up to the team score, since both come from the running score.) The full list is in [`docs/game-file-format.md`](../../docs/game-file-format.md#the-checks). |
 
-Team fouls and timeouts are for the game itself and aren't recorded on the website.
+Team fouls and timeouts are for the game itself and aren't recorded on the
+website. The timeout circles follow league rule 9: two for the first half
+(H1), two for the second (H2) and one for overtime (OT), in `SPEC["timeouts"]`.
 
 Form **MBL-SS6** (October 2026) replaced MBL-SS5, which had halves instead of
 quarters and the instructions on page 1.

@@ -54,7 +54,7 @@ Basketball League · Thunder Bay, Ontario".
 - **Next game panel:** `--mb-panel` background, date, gym, and one row per game
   with its time, plus a bye line.
 - **Standings table:** rank, team colour chip and name, then PTS (bold: what
-  the table is ranked by), W, L, QW, PCT, PF, PA, DIFF, all on every screen
+  the table is ranked by), W, L, T, QW, PCT, PF, PA, DIFF, all on every screen
   size, with a one-line note under it on how points work. On phones the table scrolls sideways
   inside its card and the team column stays fixed. There is no separate
   standings page: Home always shows the full table, with every team and no
@@ -276,9 +276,13 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
   `line-score.html`) between the result card and the box scores: team, Q1-Q4,
   OT when played, Final and PTS (regular season only). The higher score in
   each quarter is bold, with "won the quarter" for screen readers.
-- **Flagrant fouls:** a line under the player page tiles when a player has one,
-  a "Flagrant" badge on that game in the game log, and a "Flagrant fouls" list
-  under "Technical fouls" at the bottom of the Stats page.
+- **Flagrant fouls:** not on the Stats page or the player pages (the league's
+  decision, October 2026): they have their own page,
+  `/flagrant/` (`flagrant/index.html`), which nothing links to. It has a "By
+  player" ranked list (rank rows, as Technical fouls on Stats) and "Every
+  flagrant foul": a table of game (date, linking to the box score, and
+  opponent), player and team, quarter, and the note from the score sheet,
+  newest first.
 
 ## Score sheet entry page (`/enter/`)
 
@@ -318,3 +322,17 @@ laptop, usable on a phone.
   anything blocks it) and Save anyway as a draft (always). The save dialog has
   the file path, numbered steps, Save to GitHub / Download .yml / Copy, and the
   file itself behind "Show the file".
+
+## Ties and forfeits (league rules 4 and 24)
+
+- **Ties:** the standings have a **T** column after L, and the note under them
+  ends "Overtime and ties (T) give none." Records read "5-2-1" once a team has
+  a tie (team cards, the team page's Record tile, season cards). A tied game's
+  result card bolds neither team and shows a "Tie" badge before "Top:". A
+  player's game log shows "T 58–58".
+- **Forfeits:** the result card shows the 4-0 score, the winner in bold, and
+  "Forfeit by <team>" in place of the top scorer. The box score keeps the
+  score by quarter (1-0 each) and replaces the two player tables with one
+  line: who forfeited, how it's recorded, and that no player stats count. On
+  the entry page, a **Forfeit** button in the bar swaps the sheet for a
+  "team that forfeited" choice (and back).

@@ -16,8 +16,13 @@ layout: default
 
   {% include line-score.html game=game %}
 
+  {%- if game.forfeit %}
+  {%- if game.home_team.forfeited %}{% assign ff_team = game.home_team %}{% assign ff_other = game.away_team %}{% else %}{% assign ff_team = game.away_team %}{% assign ff_other = game.home_team %}{% endif %}
+  <p class="table-note">{{ ff_team.name }} forfeited. It's recorded as 1-0 to {{ ff_other.name }} in every quarter (league rule 24), and no player stats count.</p>
+  {%- else %}
   {% include box-score-table.html team=game.home_team game=game linked=is_active %}
   {% include box-score-table.html team=game.away_team game=game linked=is_active %}
+  {%- endif %}
 
   <p class="page-links">
     {%- if game.sheet %}<a class="link-more" href="{{ '/' | append: game.sheet | relative_url }}">Score sheet photo</a>{% endif %}

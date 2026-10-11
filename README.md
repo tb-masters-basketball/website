@@ -34,27 +34,19 @@ The full list, with answers so far, is in
 - [x] **League rules.** `rules/index.md` now holds the league's draft playing
       rules and the player code of conduct (from their two Word documents,
       October 2026). Put the date in `updated:` once the league approves them.
-- [ ] **Where the rules and the site disagree.** The rules need a decision
-      before the site can follow them:
-  - **Ties (rule 4):** a regular-season game still tied after one overtime
-    "may be recorded as a tie". The site rejects a tied final score, and the
-    standings have no ties column. Allow ties (and how many standings points
-    is a tie worth: the quarters won, plus nothing for the game?), or always
-    play on?
-  - **Forfeits (rule 24):** recorded as Q1 1-0, Q2 1-0, Q3 1-0, Q4 1-0. The
-    site has no way to record a forfeit: a game file is a score sheet. It
-    needs a `forfeit` marker on the schedule row (winner gets 7 points, 4-0
-    in quarters), or a short forfeit file.
-  - **Timeouts (rule 9):** two per half plus one per overtime period. The
-    score sheet prints three timeout circles per team; five are needed.
-  - **Technical fouls (code of conduct 4):** T1 sits the player for the rest
-    of the quarter, T2 in a game is an ejection, and 2 to 5 in a season bring
-    suspensions. The site counts technicals; it could also show "suspended
-    next game" on the player page if wanted.
-  - **Tied quarters:** rule 30 confirms 1 point per quarter won and 3 for a
-    win, but doesn't say what a tied quarter gives (the site assumes nothing).
-  - **Reseeding (rule 31):** after 6 games teams may be reseeded and play more
-    games against nearby seeds, so the schedule after week 6 may change.
+- [ ] **Where the rules and the site disagree.** Decided so far (October 2026):
+  - [x] **Ties (rule 4):** a regular-season game still tied after overtime is
+    a tie: quarters still give their points, overtime and the win none. The
+    standings have a T column; PCT counts a tie as half a win.
+  - [x] **Forfeits (rule 24):** a nearly blank game file, `forfeit: <team>`,
+    counted as 1-0 in each quarter (7 points to the winner, no player stats).
+    The entry page has a Forfeit button.
+  - [x] **Timeouts (rule 9):** the score sheet now prints two circles for each
+    half and one for overtime (H1, H2, OT).
+  - [x] **Technical fouls (code of conduct 4):** the site just counts them.
+  - **Tied quarters:** zero points for either team for now (what the site
+    does); still an open question for the league.
+  - **Reseeding (rule 31):** probably no longer done; to confirm.
 - [ ] **Standings tiebreakers**, including three-way ties, for teams level on
       points. Until then the site uses head-to-head, then point differential,
       and says so under the standings.
@@ -299,9 +291,9 @@ there are none:
 | File | Contents |
 |---|---|
 | `teams.json` | name, code, colour slot per team |
-| `standings.json` | PTS (standings points), W, L, QW (quarters won), PCT, PF, PA, DIFF, rank; tiebreak notes; "through week N" |
+| `standings.json` | PTS (standings points), W, L, T, record ("5-2-1"), QW (quarters won), PCT (a tie is half a win), PF, PA, DIFF, rank; tiebreak notes; "through week N" |
 | `players.json` | each player's totals: GP, PTS, PPG, FTM, FTA, FT%, season high; PF (kept, not shown); technical and flagrant fouls for the whole season, playoffs included |
-| `leaders.json` | PPG, points and FT% leaders (the minimums `ppg_min_games` and `ft_min_attempts` come from `seasons.yml`); everyone with a technical foul; everyone with a flagrant foul |
+| `leaders.json` | PPG, points and FT% leaders (the minimums `ppg_min_games` and `ft_min_attempts` come from `seasons.yml`); everyone with a technical foul; everyone with a flagrant foul, and `flagrant_log`: each flagrant with its game, quarter and note |
 | `rankings.json` | every player with their rank in each stat, for the Stats page |
 | `games.json` | every played game's box score, with the points in each quarter, quarters won and the standings points earned |
 | `game_logs.json` | each player's game-by-game lines |
@@ -349,7 +341,8 @@ Two small includes turn that into the variables every template uses:
 |---|---|---|
 | `/` | `index.html` | latest results, standings (by points), next game day, leaders |
 | `/schedule/` | `schedule/index.html` | upcoming game days (each with its score sheet PDF), then results; cancelled games; calendar links; blank score sheets |
-| `/stats/` | `stats/index.html` | ranked list (PPG / Points / FT %, by team); full table at `#stats-table`; technical and flagrant foul lists at the bottom |
+| `/stats/` | `stats/index.html` | ranked list (PPG / Points / FT %, by team); full table at `#stats-table`; technical fouls at the bottom |
+| `/flagrant/` | `flagrant/index.html` | flagrant fouls by player, and each one with its game, quarter and note (unlinked: kept off Stats at the league's request) |
 | `/teams/` | `teams/index.html` | a card per team |
 | `/archive/` | `archive/index.html` | a card per season |
 | `/rules/` | `rules/index.md` (layout `text`) | the league's playing rules and player code of conduct (two `#` headings, numbered rules as `##`, a table of contents made by kramdown's `{:toc}`); linked from the footer |
@@ -390,7 +383,7 @@ Every page uses `_layouts/default.html`:
 | `sample-banner.html` | "Preview with sample data" (sample mode and the `/preview/` copy, which also links to the live site) |
 | `player-name.html` | a player as "#23 Dave M." (number from `players.yml`, when known) |
 | `result-card.html` | a played game's score card |
-| `standings-table.html` / `standings-points-note.html` | the standings table, ranked by points: PTS, W, L, QW, PCT, PF, PA, DIFF (scrolls sideways on phones, team column pinned) / the one-line note on how points work |
+| `standings-table.html` / `standings-points-note.html` | the standings table, ranked by points: PTS, W, L, T, QW, PCT, PF, PA, DIFF (scrolls sideways on phones, team column pinned) / the one-line note on how points work |
 | `line-score.html` | a box score's "Score by quarter" table: Q1–Q4, OT, final, standings points |
 | `next-game.html` | the blue "Next game day" panel |
 | `leader-card.html` / `rank-row.html` | a leader's big number / a ranked player row |

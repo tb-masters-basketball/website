@@ -23,7 +23,8 @@
   const FT_RE = /^[MX]*$/;
   const JERSEY_RE = /^\d{1,2}$/;
   const FIELDS = ["game_id", "form", "status", "home", "away", "scorekeeper", "teams", "running", "lines",
-    "boxes", "notes", "review", "checked_by"];
+    "boxes", "notes", "review", "checked_by", "forfeit"];
+  const SHEET_PARTS = ["teams", "running", "lines", "boxes"];   // the boxes a forfeit file leaves out
   const ROW_FIELDS = ["player", "name", "num", "here", "ft", "fouls", "tech"];
 
   // ---- Python's view of values, so messages read exactly as sheet_rules.py writes them
@@ -83,6 +84,19 @@
       const err = (at, message) => out.push({ level: "error", at, message });
       const warn = (at, message) => out.push({ level: "warning", at, message });
       const done = (game) => ({ game, problems: out, tally });
+      let isFinal = false;
+      function signOff() {   // the review list (drafts only) and checked_by (final files)
+        const review = or(get(sheet, "review"), []);
+        if (truthy(review) && isFinal) {
+          err("review", "a final sheet can't have review notes left; settle them, then remove the list");
+        }
+        for (const item of Array.isArray(review) ? review : []) {
+          if (isDict(item)) warn(str(get(item, "at", "review")), `to review: ${str(get(item, "note", ""))}`);
+        }
+        if (isFinal && !truthy(get(sheet, "checked_by"))) {
+          err("checked_by", "a final sheet needs checked_by: who checked it against the paper (\"First L.\")");
+        }
+      }
 
       if (!isDict(sheet)) {
         err("", "the file should be a game sheet (game_id, status, home, away, teams, running, ...)");
@@ -102,7 +116,7 @@
       } else if (!finalFile && status !== "draft") {
         err("status", "a file in drafts/ must be status: draft (finished games go in games/)");
       }
-      const isFinal = status === "final";
+      isFinal = status === "final";
 
       if (get(sheet, "form") !== FORM) {
         err("form", `form ${repr(get(sheet, "form"))} isn't ${FORM}, the sheet this format describes`);
@@ -136,6 +150,42 @@
       }
       if (home === away || !has(ctx.teams, home) || !has(ctx.teams, away)) return done(null);
       const sides = [home, away];
+
+      // ---- a forfeit: no score sheet, only which team forfeited --------------------
+      if (Object.prototype.hasOwnProperty.call(sheet, "forfeit")) {
+        const loser = get(sheet, "forfeit");
+        if (!sides.includes(loser)) err("forfeit", `forfeit should be the team that forfeited, ${home} or ${away}, not ${repr(loser)}`);
+        for (const key of SHEET_PARTS) {
+          if (Object.prototype.hasOwnProperty.call(sheet, key)) {
+            err(key, `a forfeit has no score sheet, so no '${key}': leave out teams, running, lines and boxes`);
+          }
+        }
+        let fnotes = or(get(sheet, "notes"), []);
+        if (!Array.isArray(fnotes)) {
+          err("notes", "notes should be a list, e.g. - {kind: note, text: ...}");
+          fnotes = [];
+        }
+        fnotes.forEach((note, n) => {
+          if (isDict(note) && get(note, "kind", "note") === "flagrant") {
+            err(`notes.${n}.kind`, "a forfeit has no players, so no flagrant fouls; use kind: note");
+          }
+        });
+        signOff();
+        if (out.some((p) => p.level === "error")) return done(null);
+        const winner = loser === home ? away : home;
+        const n = QUARTER_BOXES.length;
+        const fq = {}, ff = {};
+        fq[winner] = Array.from({ length: n }, (_, k) => k + 1);
+        fq[loser] = Array.from({ length: n }, () => 0);
+        ff[winner] = n;
+        ff[loser] = 0;
+        return done({
+          game_id: gid, date: row ? row.date : null, type: row ? row.type : null,
+          home, away, final: ff, quarters: fq, ot: false, tie: false, forfeit: loser,
+          lines: [], flagrants: [],
+          scorekeeper: get(sheet, "scorekeeper", null), checked_by: get(sheet, "checked_by", null),
+        });
+      }
 
       // ---- rosters ------------------------------------------------------------
       const teams = get(sheet, "teams");
@@ -324,7 +374,9 @@
         q4[tid] = ends[tid].q[ends[tid].q.length - 1];
         final[tid] = ends[tid].final;
       }
-      const wentOt = sides.some((t) => q4[t] !== final[t]);
+      // Overtime: a final above a tied Q4, or (a scoreless overtime) both OT boxes filled in
+      const wentOt = sides.some((t) => q4[t] !== final[t]) ||
+        (q4[home] === q4[away] && sides.every((t) => ends[t].ot !== null));
       for (const tid of sides) {
         if (q4[tid] > final[tid]) err(`boxes.${tid}.q4`, `the Q4 box (${q4[tid]}) is more than the Final box (${final[tid]})`);
         const ot = ends[tid].ot;
@@ -338,11 +390,21 @@
         err(`boxes.${home}.q4`, `Q4 (${home} ${q4[home]}, ${away} ${q4[away]}) isn't tied, so there was no ` +
           "overtime: Q4 should equal the final score");
       }
-      if (final[home] === final[away]) err(`boxes.${home}.final`, `the final score is tied ${final[home]}-${final[away]}`);
+      // A tie stands only in the regular season, after overtime (league rule 4)
+      if (final[home] === final[away]) {
+        if (row !== null && row.type !== "regular") {
+          err(`boxes.${home}.final`, `the final score is tied ${final[home]}-${final[away]}; a playoff game ` +
+            "goes on to more overtime until someone wins");
+        } else if (!wentOt) {
+          err(`boxes.${home}.final`, `the final score is tied ${final[home]}-${final[away]} after Q4; a tied ` +
+            "game goes to overtime (fill in the OT boxes)");
+        }
+      }
 
       // ---- notes: flagrant fouls ------------------------------------------------
       const flagrants = {};
       for (const tid of sides) flagrants[tid] = {};
+      const flagrantNotes = [];   // each flagrant, as written in Notes, for the site's list
       let notes = or(get(sheet, "notes"), []);
       if (!Array.isArray(notes)) {
         err("notes", "notes should be a list, e.g. - {team: lh, num: 11, q: 3, kind: flagrant, text: ...}");
@@ -365,6 +427,8 @@
         } else {
           const i = byNum[tid][num];
           flagrants[tid][i] = (flagrants[tid][i] || 0) + 1;
+          const t = get(note, "text", "");
+          flagrantNotes.push({ team: tid, row: i, num, q: get(note, "q", null), text: t === null || t === undefined ? "" : String(t).trim() });
         }
         if (![1, 2, 3, 4, "OT"].includes(get(note, "q"))) {
           err(`${at}.q`, `q should be the quarter, 1 to 4 (or OT), not ${repr(get(note, "q"))}`);
@@ -382,16 +446,7 @@
       }
 
       // ---- review and sign-off --------------------------------------------------
-      const review = or(get(sheet, "review"), []);
-      if (truthy(review) && isFinal) {
-        err("review", "a final sheet can't have review notes left; settle them, then remove the list");
-      }
-      for (const item of Array.isArray(review) ? review : []) {
-        if (isDict(item)) warn(str(get(item, "at", "review")), `to review: ${str(get(item, "note", ""))}`);
-      }
-      if (isFinal && !truthy(get(sheet, "checked_by"))) {
-        err("checked_by", "a final sheet needs checked_by: who checked it against the paper (\"First L.\")");
-      }
+      signOff();
 
       if (out.some((p) => p.level === "error")) return done(null);
 
@@ -416,7 +471,13 @@
         type: row ? row.type : null,
         home, away, final, quarters,
         ot: wentOt,
+        tie: final[home] === final[away],
+        forfeit: null,
         lines: gameLines,
+        flagrants: flagrantNotes.map((f) => ({
+          team: f.team, player: get(rows[f.team].find(([j]) => j === f.row)[1], "player", null),
+          num: f.num, q: f.q, text: f.text,
+        })),
         scorekeeper: get(sheet, "scorekeeper", null),
         checked_by: get(sheet, "checked_by", null),
       });
@@ -443,13 +504,15 @@
 
   function dump(sheet) {
     const out = [];
-    for (const key of ["game_id", "form", "status", "home", "away", "scorekeeper"]) {
+    for (const key of ["game_id", "form", "status", "home", "away", "forfeit", "scorekeeper"]) {
       if (key in sheet) out.push(`${key}: ${scalar(sheet[key])}`);
     }
-    out.push("teams:");
-    for (const tid of Object.keys(sheet.teams)) {
-      out.push(`  ${tid}:`, "    players:");
-      for (const r of sheet.teams[tid].players) out.push(`      - ${flow(r)}`);
+    if ("teams" in sheet) {                // a forfeit has none
+      out.push("teams:");
+      for (const tid of Object.keys(sheet.teams)) {
+        out.push(`  ${tid}:`, "    players:");
+        for (const r of sheet.teams[tid].players) out.push(`      - ${flow(r)}`);
+      }
     }
     for (const key of ["running", "lines", "boxes"]) {
       if (!(key in sheet)) continue;

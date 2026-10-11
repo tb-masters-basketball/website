@@ -19,7 +19,7 @@ is published**, so a typo can't put wrong numbers on the site.
 - [What a game file looks like](#what-a-game-file-looks-like)
 - [The checks, and what a failure looks like](#the-checks-and-what-a-failure-looks-like)
 - [How each number is calculated](#how-each-number-is-calculated)
-- [How to](#how-to): add a game, enter or check a game on the entry page, fill in a playoff matchup,
+- [How to](#how-to): add a game, enter or check a game on the entry page, record a forfeit or a tie, fill in a playoff matchup,
   cancel or move a game, team calendars, change a ranking minimum, edit the league rules, fix a wrong
   number, add a player or sub, the preview copy, sample mode
 - [If something looks wrong](#if-something-looks-wrong)
@@ -223,7 +223,10 @@ How to copy each part of the sheet:
 - **`boxes`**: the Q1 to Q4, OT and Final boxes under each roster, as written
   (`ot: null` when there was no overtime).
 - **Flagrant fouls** from the Notes box go in a `notes:` list:
-  `- {team: bb, num: 5, q: 3, kind: flagrant, text: what happened}`.
+  `- {team: bb, num: 5, q: 3, kind: flagrant, text: what happened}`. The
+  `text` is shown, as written, on the flagrant fouls page (`/flagrant/`, not
+  linked from the site), so copy it as the scorekeeper wrote it, players as
+  "First L." only.
 - **A sub written in by hand** needs a `players.yml` line first (see
   [Add a new player, or a sub](#add-a-new-player-or-a-sub)); then their row
   uses that id. Until then a draft can say `name: Jim K.` instead of `player:`.
@@ -502,6 +505,21 @@ and `##` headings, so a new or renamed rule appears there on its own. When the
 league approves the rules, put the date in `updated:` near the top (for
 example `updated: "Oct 17, 2026"`); until then the page says it's a draft.
 Commit as a pull request and merge it.
+
+### Record a forfeit or a tie
+
+- **A forfeit** (league rule 24: a team can't field four players): open the
+  game on the entry page and press **Forfeit**, pick the team that forfeited,
+  and save as usual. There's no score sheet to copy. The site records it as
+  1-0 to the other team in every quarter, so 4-0 with 7 standings points and
+  a win; nobody gets a game played or any stats. Press **Forfeit** again to
+  go back to the score sheet.
+- **A tie** (league rule 4): a regular-season game still tied after one
+  overtime period stands as a tie. Copy the sheet as usual, OT boxes included
+  (if neither team scored in overtime, the OT boxes hold the same totals as
+  Q4). Each team keeps its quarter points; the standings show it in the **T**
+  column. A playoff game can't end tied, and a game tied after Q4 without
+  overtime is flagged.
 
 ### Fix a wrong number
 

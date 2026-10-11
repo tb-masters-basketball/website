@@ -1,0 +1,11 @@
+# bb couldn't field four players: a forfeit (league rule 24). No score sheet,
+# only who forfeited; it counts as 1-0 to aa in every quarter.
+game_id: 2026-10-17-g1
+form: MBL-SS6
+status: final
+home: aa
+away: bb
+forfeit: bb
+notes:
+  - {kind: note, text: bb had three players at 9:55}
+checked_by: Lee M.

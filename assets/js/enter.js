@@ -378,6 +378,24 @@
       pref("layout", S.layout);
       renderSheet();
     });
+    // A forfeit (league rule 24): the file is only who forfeited, no boxes.
+    // The score sheet is kept aside, so pressing Forfeit again brings it back.
+    $("[data-forfeit]").addEventListener("click", function () {
+      var sheet = S.sheet;
+      if ("forfeit" in sheet) {
+        var back = S.beforeForfeit && S.beforeForfeit.game_id === sheet.game_id ? S.beforeForfeit : emptySheet(sheet.game_id);
+        ["scorekeeper", "notes", "review", "checked_by"].forEach(function (k) { if (k in sheet) back[k] = sheet[k]; });
+        back.status = sheet.status;
+        S.sheet = back;
+      } else {
+        S.beforeForfeit = sheet;
+        var f = { game_id: sheet.game_id, form: sheet.form, status: sheet.status, home: sheet.home, away: sheet.away, forfeit: sheet.away };
+        ["scorekeeper", "review", "checked_by"].forEach(function (k) { if (k in sheet) f[k] = sheet[k]; });
+        S.sheet = f;
+      }
+      renderSheet();
+      changed();
+    });
     $("[data-page2]").addEventListener("click", function () {
       S.page2 = !S.page2;
       renderSheet();
@@ -448,12 +466,38 @@
     p2.setAttribute("aria-pressed", String(S.page2));
     p2.textContent = S.page2 ? "Page 2: shown" : "Page 2: hidden";
     root.classList.toggle("sheet--page2", S.page2);
+    var forfeit = "forfeit" in S.sheet;
+    var fb = $("[data-forfeit]");
+    fb.setAttribute("aria-pressed", String(forfeit));
+    fb.textContent = forfeit ? "Forfeit: on" : "Forfeit";
+    p2.hidden = forfeit;
     root.appendChild(renderHeader());
-    sides().forEach(function (tid, n) { root.appendChild(renderTeam(tid, n)); });
-    root.appendChild(renderNotes());
-    root.appendChild(renderRunning());
+    if (forfeit) {
+      root.appendChild(renderForfeit());
+      root.appendChild(renderNotes());
+    } else {
+      sides().forEach(function (tid, n) { root.appendChild(renderTeam(tid, n)); });
+      root.appendChild(renderNotes());
+      root.appendChild(renderRunning());
+    }
     changed(true);
     restoreFocus(focus);
+  }
+
+  // A forfeit: which team forfeited, and what that records
+  function renderForfeit() {
+    var sel = el("select", { class: "enter-select enter-select--small", id: "sheet-forfeit",
+      onchange: function (e) { S.sheet.forfeit = e.target.value; changed(); renderSheet(); } },
+      sides().map(function (tid) { return el("option", { value: tid, text: team(tid).name }); }));
+    sel.value = S.sheet.forfeit;
+    var loser = S.sheet.forfeit, winner = loser === S.sheet.home ? S.sheet.away : S.sheet.home;
+    return el("section", { class: "sheet-forfeit", "data-at": "forfeit", "aria-labelledby": "sheet-forfeit-title" },
+      el("div", { class: "sheet-section-bar" }, el("h3", { class: "sheet-section-bar__title", id: "sheet-forfeit-title", text: "Forfeit" })),
+      el("div", { class: "sheet-forfeit__body" },
+        el("label", { class: "enter-field", for: "sheet-forfeit" }, el("span", { text: "The team that forfeited" }), sel),
+        el("p", { class: "enter-hint", text: (team(winner).name + " wins 4-0: 1-0 in every quarter (league rule 24), so 7 standings points. " +
+          "No player stats count. Press Forfeit again to go back to the score sheet.") })),
+      el("ul", { class: "sheet-msgs", "data-msgs": "forfeit" }));
   }
 
   function renderHeader() {
@@ -776,7 +820,8 @@
       list,
       el("button", { class: "btn btn--quiet sheet-notes__add", type: "button", text: "Add a note", onclick: function () {
         if (!Array.isArray(S.sheet.notes)) S.sheet.notes = [];
-        S.sheet.notes.push({ team: S.sheet.home, num: null, q: 1, kind: "flagrant", text: "" });
+        S.sheet.notes.push("forfeit" in S.sheet ? { kind: "note", text: "" }
+          : { team: S.sheet.home, num: null, q: 1, kind: "flagrant", text: "" });
         renderSheet();
         var last = $all(".sheet-note");
         if (last.length) $("select", last[last.length - 1]).focus();
@@ -959,6 +1004,7 @@
     else if (p[0] === "boxes" || p[0] === "lines") key = "boxes." + S.sheet.home;
     else if (p[0] === "running") key = "running";
     else if (p[0] === "notes") key = "notes";
+    else if (p[0] === "forfeit") key = "forfeit";
     else if (p[0] === "review" || p[0] === "checked_by") key = "save";
     return key === "save" ? null : $('[data-msgs="' + key + '"]');
   }
@@ -978,7 +1024,7 @@
     if (p[0] === "boxes") return p[2] ? name(p[1]) + " " + (S.spec.score_boxes.filter(function (b) { return b.key === p[2]; })[0] || { label: p[2] }).label + " box" : "Score boxes";
     if (p[0] === "lines") return p[2] !== undefined ? name(p[1]) + " " + (S.spec.quarters[+p[2]] || "Q" + (+p[2] + 1)) + " line" : (p[1] ? name(p[1]) + " quarter lines" : "Quarter lines");
     if (p[0] === "notes") return p[1] !== undefined ? "Note " + (+p[1] + 1) : "Notes";
-    var fields = { game_id: "Game ID", form: "Form", status: "Status", home: "Home team", away: "Away team", review: "Review list", checked_by: "Checked by", "": "The file" };
+    var fields = { game_id: "Game ID", form: "Form", status: "Status", home: "Home team", away: "Away team", forfeit: "Forfeit", review: "Review list", checked_by: "Checked by", "": "The file" };
     return fields[at] || at;
   }
 
