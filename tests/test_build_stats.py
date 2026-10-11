@@ -994,3 +994,21 @@ class CheckTests(SeasonFixture):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TieAndForfeitTests(unittest.TestCase):
+    """League rules 4 and 24: a tie after overtime, and a forfeit."""
+
+    def test_a_tie_gives_quarter_points_but_no_win(self):
+        game = {"home": "aa", "away": "bb", "final": {"aa": 24, "bb": 24},
+                "quarters": {"aa": [5, 12, 17, 22], "bb": [5, 10, 16, 22]}}
+        self.assertIsNone(bs.game_winner(game))
+        self.assertEqual(bs.standings_points(game), {"aa": 1, "bb": 2})   # Q1 tied 5-5, Q2 to aa, Q3 and Q4 to bb
+        rec = bs.team_records(["aa", "bb"], [{**game, "type": "regular"}])
+        self.assertEqual((rec["aa"]["w"], rec["aa"]["l"], rec["aa"]["t"]), (0, 0, 1))
+        self.assertEqual(bs.fmt_pct3(5, 2, 1), ".688")                    # a tie is half a win: 5.5 / 8
+
+    def test_a_forfeit_is_seven_points_to_the_other_team(self):
+        game = {"home": "aa", "away": "bb", "final": {"aa": 4, "bb": 0},
+                "quarters": {"aa": [1, 2, 3, 4], "bb": [0, 0, 0, 0]}, "forfeit": "bb"}
+        self.assertEqual(bs.standings_points(game), {"aa": 7, "bb": 0})

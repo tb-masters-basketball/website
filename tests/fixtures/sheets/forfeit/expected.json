@@ -1,0 +1,27 @@
+{
+  "game": {
+    "final": {
+      "aa": 4,
+      "bb": 0
+    },
+    "quarters": {
+      "aa": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "bb": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "ot": false,
+    "tie": false,
+    "forfeit": "bb",
+    "lines": []
+  },
+  "problems": []
+}

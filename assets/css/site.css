@@ -3591,3 +3591,12 @@ html:not(.js) [data-enter-status] {
   min-width: 14em;
   white-space: normal;
 }
+
+/* Entry page: a forfeit replaces the rosters and running score */
+.sheet-forfeit__body {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--mb-line);
+  border-top: 0;
+}

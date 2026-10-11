@@ -127,12 +127,13 @@ def ft_pct(ftm, fta):
     return Fraction(100 * ftm, fta) if fta else None
 
 
-def fmt_pct3(wins, losses):
-    """Win percentage in '.857' style; '1.000' for unbeaten, '.000' with no games."""
-    games = wins + losses
+def fmt_pct3(wins, losses, ties=0):
+    """Win percentage in '.857' style; '1.000' for unbeaten, '.000' with no games.
+    A tie counts as half a win."""
+    games = wins + losses + ties
     if not games:
         return ".000"
-    text = f"{round_half_up(Fraction(wins, games), 3):.3f}"
+    text = f"{round_half_up(Fraction(2 * wins + ties, 2 * games), 3):.3f}"
     return text[1:] if text.startswith("0") else text
 
 
@@ -162,11 +163,20 @@ def quarters_won(game):
     return won
 
 
-def standings_points(game):
-    """{team: standings points} for one game: 1 per quarter won, 3 for the win."""
-    won = quarters_won(game)
+def game_winner(game):
+    """The winning team's id, or None for a tie."""
     home, away = game["home"], game["away"]
-    winner = home if game["final"][home] > game["final"][away] else away
+    if game["final"][home] == game["final"][away]:
+        return None
+    return home if game["final"][home] > game["final"][away] else away
+
+
+def standings_points(game):
+    """{team: standings points} for one game: 1 per quarter won, 3 for the win
+    (none for a tie, and none for overtime). A forfeit counts as 1-0 to the
+    other team in every quarter, so the winner gets them all."""
+    won = quarters_won(game)
+    winner = game_winner(game)
     return {tid: won[tid] * POINTS_PER_QUARTER + (POINTS_PER_WIN if tid == winner else 0) for tid in won}
 
 
@@ -496,7 +506,7 @@ def load_season(data_dir, season_id, gym=None, minimums=None):
 def team_records(team_ids, games):
     """W, L, PF, PA, quarters won and standings points per team, plus
     head-to-head wins, from finished games."""
-    rec = {t: {"w": 0, "l": 0, "pf": 0, "pa": 0, "qw": 0, "points": 0, "h2h": {}} for t in team_ids}
+    rec = {t: {"w": 0, "l": 0, "t": 0, "pf": 0, "pa": 0, "qw": 0, "points": 0, "h2h": {}} for t in team_ids}
     for game in games:
         home, away = game["home"], game["away"]
         hs, as_ = game["final"][home], game["final"][away]
@@ -508,15 +518,16 @@ def team_records(team_ids, games):
             r = rec[tid]
             r["pf"] += own
             r["pa"] += other
-            won = own > other
-            r["w" if won else "l"] += 1
-            h = r["h2h"].setdefault(opp, [0, 0])
-            h[0 if won else 1] += 1
+            result = 0 if own > other else 1 if own < other else 2      # win, loss, tie
+            r[("w", "l", "t")[result]] += 1
+            h = r["h2h"].setdefault(opp, [0, 0, 0])
+            h[result] += 1
     return rec
 
 
-def _win_frac(w, l):
-    return Fraction(w, w + l) if w + l else Fraction(0)
+def _win_frac(w, l, t=0):
+    """Wins as a fraction of games, a tie counting as half a win."""
+    return Fraction(2 * w + t, 2 * (w + l + t)) if w + l + t else Fraction(0)
 
 
 def sort_standings(rec, names):
@@ -535,9 +546,10 @@ def sort_standings(rec, names):
             continue
 
         def h2h(tid):
-            w = sum(rec[tid]["h2h"].get(o, [0, 0])[0] for o in tied if o != tid)
-            l = sum(rec[tid]["h2h"].get(o, [0, 0])[1] for o in tied if o != tid)
-            return _win_frac(w, l)
+            # [wins, losses, ties] against each tied team (ties may be left off)
+            w, l, t = (sum((list(rec[tid]["h2h"].get(o, [])) + [0, 0, 0])[k] for o in tied if o != tid)
+                       for k in range(3))
+            return _win_frac(w, l, t)
 
         def diff(tid):
             return rec[tid]["pf"] - rec[tid]["pa"]
@@ -573,13 +585,16 @@ def compute_standings(season, regular_games):
             "name": teams[tid]["name"],
             "short": teams[tid]["short"],
             "colour_slot": teams[tid]["colour_slot"],
-            "gp": r["w"] + r["l"],
+            "gp": r["w"] + r["l"] + r["t"],
             "points": r["points"],
             "w": r["w"],
             "l": r["l"],
+            "t": r["t"],
+            # "6-1", or "6-1-1" once a team has a tie
+            "record": f"{r['w']}-{r['l']}" + (f"-{r['t']}" if r["t"] else ""),
             "qw": r["qw"],
-            "pct": fmt_pct3(r["w"], r["l"]),
-            "pct_value": round_half_up(_win_frac(r["w"], r["l"]), 3),
+            "pct": fmt_pct3(r["w"], r["l"], r["t"]),
+            "pct_value": round_half_up(_win_frac(r["w"], r["l"], r["t"]), 3),
             "pf": r["pf"],
             "pa": r["pa"],
             "diff": diff,
@@ -796,6 +811,7 @@ def game_summary(game, sched_row, season):
             "colour_slot": teams[tid]["colour_slot"],
             "score": final[tid],
             "won": final[tid] > final[home if tid == away else away],
+            "forfeited": game.get("forfeit") == tid,
             "quarters": qp[tid]["quarters"],      # points scored in Q1-Q4
             "ot": qp[tid]["ot"] if game.get("ot") else None,
             "quarters_won": qwon[tid],
@@ -810,7 +826,7 @@ def game_summary(game, sched_row, season):
     all_lines = [
         {**l, "team": tid} for tid in (home, away) for l in by_team[tid]["lines"]
     ]
-    top_pts = max(l["pts"] for l in all_lines)
+    top_pts = max((l["pts"] for l in all_lines), default=None)     # none in a forfeit
     return {
         "game_id": game["game_id"],
         "type": game["type"],
@@ -822,7 +838,9 @@ def game_summary(game, sched_row, season):
         "gym": sched_row["gym"] or season.get("gym"),
         "home": home,
         "away": away,
-        "winner": home if final[home] > final[away] else away,
+        "winner": game_winner(game),        # None for a tie
+        "tie": game_winner(game) is None,
+        "forfeit": game.get("forfeit"),     # the team that forfeited, or None
         "ot": bool(game.get("ot")),
         "home_team": by_team[home],
         "away_team": by_team[away],
@@ -851,7 +869,7 @@ def compute_game_logs(season, summaries):
                     "opponent": theirs["team"],
                     "opponent_name": theirs["name"],
                     "home": side == "home_team",
-                    "result": "W" if mine["won"] else "L",
+                    "result": "W" if mine["won"] else ("T" if s["tie"] else "L"),
                     "score": f"{mine['score']}–{theirs['score']}",
                     "pts": line["pts"],
                     "ftm": line["ftm"],

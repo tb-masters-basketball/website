@@ -7,7 +7,7 @@
   <span class="season-card__title">{{ include.season.label }} season{% if include.current %} <span class="badge">Current</span>{% endif %}</span>
   <span class="season-card__meta">
     {%- if include.stats.standings.through_week -%}
-      {% if include.current %}Leading so far{% else %}Top of the standings{% endif %}: {{ sc_top.name }} ({{ sc_top.w }}-{{ sc_top.l }})
+      {% if include.current %}Leading so far{% else %}Top of the standings{% endif %}: {{ sc_top.name }} ({{ sc_top.record }})
     {%- else -%}
       No games played yet
     {%- endif -%}

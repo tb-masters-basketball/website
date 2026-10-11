@@ -56,7 +56,8 @@ NOTE_KINDS = ("flagrant", "note")
 FT_RE = re.compile(r"^[MX]*$")
 JERSEY_RE = re.compile(r"^\d{1,2}$")
 FIELDS = {"game_id", "form", "status", "home", "away", "scorekeeper", "teams", "running", "lines",
-          "boxes", "notes", "review", "checked_by"}
+          "boxes", "notes", "review", "checked_by", "forfeit"}
+SHEET_PARTS = ("teams", "running", "lines", "boxes")   # the boxes a forfeit file leaves out
 ROW_FIELDS = {"player", "name", "num", "here", "ft", "fouls", "tech"}
 
 
@@ -136,6 +137,10 @@ def check(sheet, ctx):
     if home == away or home not in ctx["teams"] or away not in ctx["teams"]:
         return None, out
     sides = (home, away)
+
+    # ---- a forfeit: no score sheet, only which team forfeited --------------------
+    if "forfeit" in sheet:
+        return _forfeit(sheet, sides, row, gid, is_final, out, err, warn)
 
     # ---- rosters ------------------------------------------------------------
     teams = sheet.get("teams")
@@ -299,7 +304,9 @@ def check(sheet, ctx):
         return None, out
     q4 = {tid: ends[tid]["q"][-1] for tid in sides}
     final = {tid: ends[tid]["final"] for tid in sides}
-    went_ot = any(q4[t] != final[t] for t in sides)
+    # Overtime: a final above a tied Q4, or (a scoreless overtime) both OT boxes filled in
+    went_ot = any(q4[t] != final[t] for t in sides) or (
+        q4[home] == q4[away] and all(ends[t]["ot"] is not None for t in sides))
     for tid in sides:
         if q4[tid] > final[tid]:
             err(f"boxes.{tid}.q4", f"the Q4 box ({q4[tid]}) is more than the Final box ({final[tid]})")
@@ -312,8 +319,15 @@ def check(sheet, ctx):
     if went_ot and q4[home] != q4[away]:
         err(f"boxes.{home}.q4", f"Q4 ({home} {q4[home]}, {away} {q4[away]}) isn't tied, so there was no "
                                 f"overtime: Q4 should equal the final score")
+    # A tie stands only in the regular season, after overtime (league rule 4)
     if final[home] == final[away]:
-        err(f"boxes.{home}.final", f"the final score is tied {final[home]}-{final[away]}")
+        playoff = row is not None and row["type"] != "regular"
+        if playoff:
+            err(f"boxes.{home}.final", f"the final score is tied {final[home]}-{final[away]}; a playoff game "
+                                       "goes on to more overtime until someone wins")
+        elif not went_ot:
+            err(f"boxes.{home}.final", f"the final score is tied {final[home]}-{final[away]} after Q4; a tied "
+                                       "game goes to overtime (fill in the OT boxes)")
 
     # ---- notes: flagrant fouls ------------------------------------------------
     flagrants = {tid: {} for tid in sides}
@@ -353,14 +367,7 @@ def check(sheet, ctx):
                     "is also a personal foul")
 
     # ---- review and sign-off --------------------------------------------------
-    review = sheet.get("review") or []
-    if review and is_final:
-        err("review", "a final sheet can't have review notes left; settle them, then remove the list")
-    for item in review if isinstance(review, list) else []:
-        if isinstance(item, dict):
-            warn(str(item.get("at", "review")), f"to review: {item.get('note', '')}")
-    if is_final and not sheet.get("checked_by"):
-        err("checked_by", "a final sheet needs checked_by: who checked it against the paper (\"First L.\")")
+    _sign_off(sheet, is_final, err, warn)
 
     if any(p["level"] == "error" for p in out):
         return None, out
@@ -385,10 +392,65 @@ def check(sheet, ctx):
         "final": final,
         "quarters": {tid: list(ends[tid]["q"]) for tid in sides},
         "ot": went_ot,
+        "tie": final[home] == final[away],
+        "forfeit": None,
         "lines": game_lines,
         # each flagrant foul in Notes: team, player id, jersey, quarter and the note
         "flagrants": [{"team": f["team"], "player": dict(rows[f["team"]])[f["row"]].get("player"),
                        "num": f["num"], "q": f["q"], "text": f["text"]} for f in flagrant_notes],
+        "scorekeeper": sheet.get("scorekeeper"),
+        "checked_by": sheet.get("checked_by"),
+    }
+    return game, out
+
+
+def _sign_off(sheet, is_final, err, warn):
+    """The review list (drafts only) and checked_by (final files)."""
+    review = sheet.get("review") or []
+    if review and is_final:
+        err("review", "a final sheet can't have review notes left; settle them, then remove the list")
+    for item in review if isinstance(review, list) else []:
+        if isinstance(item, dict):
+            warn(str(item.get("at", "review")), f"to review: {item.get('note', '')}")
+    if is_final and not sheet.get("checked_by"):
+        err("checked_by", "a final sheet needs checked_by: who checked it against the paper (\"First L.\")")
+
+
+def _forfeit(sheet, sides, row, gid, is_final, out, err, warn):
+    """A forfeit (league rule 24): `forfeit: <team id>`, the team that
+    forfeited, and none of the sheet's boxes. Recorded as 1-0 to the other
+    team in every quarter; no player gets a line (no GP, no stats)."""
+    home, away = sides
+    loser = sheet.get("forfeit")
+    if loser not in sides:
+        err("forfeit", f"forfeit should be the team that forfeited, {home} or {away}, not {loser!r}")
+    for key in SHEET_PARTS:
+        if key in sheet:
+            err(key, f"a forfeit has no score sheet, so no '{key}': leave out teams, running, lines and boxes")
+    notes = sheet.get("notes") or []
+    if not isinstance(notes, list):
+        err("notes", "notes should be a list, e.g. - {kind: note, text: ...}")
+        notes = []
+    for n, note in enumerate(notes):
+        if isinstance(note, dict) and note.get("kind", "note") == "flagrant":
+            err(f"notes.{n}.kind", "a forfeit has no players, so no flagrant fouls; use kind: note")
+    _sign_off(sheet, is_final, err, warn)
+    if any(p["level"] == "error" for p in out):
+        return None, out
+    winner = away if loser == home else home
+    n = len(QUARTER_BOXES)
+    game = {
+        "game_id": gid,
+        "date": row["date"] if row else None,
+        "type": row["type"] if row else None,
+        "home": home, "away": away,
+        "final": {winner: n, loser: 0},
+        "quarters": {winner: list(range(1, n + 1)), loser: [0] * n},
+        "ot": False,
+        "tie": False,
+        "forfeit": loser,
+        "lines": [],
+        "flagrants": [],
         "scorekeeper": sheet.get("scorekeeper"),
         "checked_by": sheet.get("checked_by"),
     }
@@ -493,14 +555,15 @@ def dump(sheet):
         return "{" + ", ".join(f"{k}: {scalar(v)}" for k, v in d.items()) + "}"
 
     out = []
-    for key in ("game_id", "form", "status", "home", "away", "scorekeeper"):
+    for key in ("game_id", "form", "status", "home", "away", "forfeit", "scorekeeper"):
         if key in sheet:
             out.append(f"{key}: {scalar(sheet[key])}")
-    out.append("teams:")
-    for tid, t in sheet["teams"].items():
-        out.append(f"  {tid}:")
-        out.append("    players:")
-        out += [f"      - {flow(r)}" for r in t["players"]]
+    if "teams" in sheet:                   # a forfeit has none
+        out.append("teams:")
+        for tid, t in sheet["teams"].items():
+            out.append(f"  {tid}:")
+            out.append("    players:")
+            out += [f"      - {flow(r)}" for r in t["players"]]
     for key in ("running", "lines", "boxes"):
         if key not in sheet:
             continue

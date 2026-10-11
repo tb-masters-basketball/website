@@ -43,7 +43,8 @@ function run(c) {
 }
 
 test("the required cases are all there", () => {
-  for (const c of ["clean", "bad-final", "ft-mismatch", "and-one", "unknown-jersey", "overtime", "page-two", "draft-with-sub"]) {
+  for (const c of ["clean", "bad-final", "ft-mismatch", "and-one", "unknown-jersey", "overtime", "page-two", "draft-with-sub",
+    "tie", "tie-without-overtime", "forfeit"]) {
     assert.ok(CASES.includes(c), c);
   }
 });
@@ -56,7 +57,9 @@ for (const c of CASES) {
       assert.equal(game, null);
     } else {
       assert.ok(game);
-      for (const key of ["final", "quarters", "ot", "lines"]) assert.deepEqual(game[key], expected.game[key], key);
+      for (const key of ["final", "quarters", "ot", "lines", "tie", "forfeit"]) {
+        if (key in expected.game) assert.deepEqual(game[key], expected.game[key], key);
+      }
     }
   });
 

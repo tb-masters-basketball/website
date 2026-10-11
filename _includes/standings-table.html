@@ -1,7 +1,8 @@
 {%- comment -%}
   Standings table inside a scrolling card. Lists every team and every column.
   Teams are ranked by standings points (PTS): 1 for each quarter won (QW) and
-  3 for each win. include standings-points-note.html explains it under the table.
+  3 for each win (a tie after overtime gets no win points; PCT counts it as
+  half a win). include standings-points-note.html explains it under the table.
   On narrow screens the card scrolls sideways and the team column stays put.
   link_teams=true makes each team name a link to its page (only the season the
   site is showing has team pages).
@@ -16,6 +17,7 @@
         <th scope="col"><abbr title="Standings points">PTS</abbr></th>
         <th scope="col"><abbr title="Wins">W</abbr></th>
         <th scope="col"><abbr title="Losses">L</abbr></th>
+        <th scope="col"><abbr title="Ties">T</abbr></th>
         <th scope="col"><abbr title="Quarters won">QW</abbr></th>
         <th scope="col"><abbr title="Win percentage">PCT</abbr></th>
         <th scope="col"><abbr title="Points for">PF</abbr></th>
@@ -30,6 +32,7 @@
         <td class="standings__pts">{{ t.points }}</td>
         <td>{{ t.w }}</td>
         <td>{{ t.l }}</td>
+        <td>{{ t.t }}</td>
         <td>{{ t.qw }}</td>
         <td>{{ t.pct }}</td>
         <td>{{ t.pf }}</td>

@@ -28,7 +28,9 @@ and `CNAME`. (`site.webmanifest` uses relative paths, so it needs no change.)
   each player's points (running score), FTM/FTA (circles), GP (Here), fouls,
   techs and flagrants (Notes). Technical and flagrant fouls count the whole
   season, playoffs included; personal fouls aren't shown. Standings are by
-  points: 1 per quarter won (from the quarter boxes), 3 per win.
+  points: 1 per quarter won (from the quarter boxes), 3 per win; a regular-season
+  game tied after overtime is a tie (T column), and a forfeit file
+  (`forfeit: <team>`) counts as 1-0 in every quarter.
 - **Sample data switch:** pages never name a season. `build_stats.py` picks the
   active season (the sample stand-in while `sample_data: true` in `_config.yml`,
   else the `current` one) and writes `_data/computed/active.json`;

@@ -77,6 +77,7 @@ neither, and a final file can't have `review`.)
 | `notes` | The Notes box: `{team, num, q, kind, text}`; `kind` is `flagrant` or `note`; `q` is 1-4 or `OT` |
 | `review` | Drafts only: `{at, note}` for each box still in doubt |
 | `checked_by` | Who checked the file against the paper; required when `final` |
+| `forfeit` | Only for a forfeit: the team that forfeited (see below). The file then has no `teams`, `running`, `lines` or `boxes` |
 
 **A roster row** is `{player, num, here, ft, fouls, tech}`:
 
@@ -129,12 +130,16 @@ the same path the entry page highlights:
 - quarters: a line under a total with no box, lines or boxes that go down, a
   Q box that disagrees with its line, the Final box not equal to the last
   running total, Q4 above the final, an OT box when there was no overtime (or
-  none when there was), overtime without a tied Q4, a tied final
+  none when there was), overtime without a tied Q4, a tied final with no
+  overtime, and any tied playoff game (a regular-season game still tied after
+  overtime is a tie: league rule 4)
 - notes: `kind` not `flagrant` or `note`, `q` not 1-4 or `OT`, a flagrant for a
   team not in the game or a number on no row; more flagrants than slashed foul
   boxes (a flagrant is also a personal foul)
 - a final file with no `lines` for a team
 - final files: `review` left in, no `checked_by`
+- forfeits: `forfeit` not one of the two teams; `teams`, `running`, `lines`
+  or `boxes` in the file; a flagrant in Notes
 
 **Warnings** (shown, never stop the build):
 - more free throws made (filled circles) than the player has scores in the
@@ -142,6 +147,32 @@ the same path the entry page highlights:
 - a row with no player id yet (drafts; an error in a final file)
 - no `lines` for a team (drafts; an error in a final file)
 - each `review` entry (drafts; a final file can't have any)
+
+## Ties and forfeits
+
+**A tie** (league rule 4): a regular-season game tied after Q4 goes to
+overtime; if it's still tied, it stands. Fill in the OT boxes as usual (with
+the same total as Q4 if neither team scored in overtime). Each team keeps its
+quarter points; overtime and the win give none.
+
+**A forfeit** (league rule 24) is a nearly blank file: who forfeited, and
+nothing from the sheet. It counts as 1-0 to the other team in every quarter
+(4-0: four quarters and the win, 7 standings points); no player gets a game
+played or any stats. A `note` (not a flagrant) may say what happened.
+
+```yaml
+game_id: 2026-10-17-g1
+form: MBL-SS6
+status: final
+home: aa
+away: bb
+forfeit: bb              # the team that forfeited
+notes:
+  - {kind: note, text: bb had three players at 9:55}
+checked_by: Lee M.
+```
+
+The entry page makes one with its **Forfeit** button.
 
 ## A sub written in by hand
 
@@ -157,7 +188,8 @@ played for, and the number from the sheet. Then the row gets `player: jim-k`.
 `tests/fixtures/sheets/` holds one folder per case (`sheet.yml` and an
 `expected.json` with the computed lines and every problem): a clean game, a
 bad final, a free-throw mismatch, an and-one, an unknown jersey number, an
-overtime game, a game that runs onto page 2, and a draft with a sub. The entry
+overtime game, a game that runs onto page 2, a draft with a sub, a tie after
+overtime, a tie with no overtime (an error) and a forfeit. The entry
 page's JavaScript rules must give exactly the same results. Run
 `python -m pytest` and `node --test "tests/js/*.test.mjs"` (both run in CI).
 
