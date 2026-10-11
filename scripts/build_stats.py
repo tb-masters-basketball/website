@@ -1179,7 +1179,7 @@ def write_entry_data(root, data_dir, season, loaded, config):
                 except (yaml.YAMLError, AttributeError):
                     review = []
                 bucket.append({"game_id": path.stem, "flags": len(review) if isinstance(review, list) else 0})
-    teams = {tid: {"id": tid, "name": t["name"], "short": t["short"]} for tid, t in loaded["teams"].items()}
+    teams = {tid: {"id": tid, "name": t["name"], "short": t["short"], "slot": t.get("colour_slot")} for tid, t in loaded["teams"].items()}
     players = {pid: {"id": pid, "display": p["display"], "team": p["team"], "sub": p["sub"],
                      "number": p.get("number")} for pid, p in loaded["players"].items()}
     schedule = {gid: {"game_id": gid, "date": r["date"].isoformat(), "date_display": fmt_date(r["date"]),
@@ -1192,7 +1192,8 @@ def write_entry_data(root, data_dir, season, loaded, config):
         "repo": config.get("github_repo"), "branch": config.get("github_branch", "main"),
         "teams": teams, "players": players, "schedule": schedule,
     })
-    _write_json(out / "index.json", {"season": sid, "games": games, "drafts": drafts})
+    built = dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")
+    _write_json(out / "index.json", {"season": sid, "built": built, "games": games, "drafts": drafts})
     return len(games), len(drafts)
 
 

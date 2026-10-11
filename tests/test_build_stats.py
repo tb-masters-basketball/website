@@ -1,5 +1,6 @@
 """Tests for scripts/build_stats.py. Run: python -m unittest discover -s tests"""
 
+import json
 import re
 import shutil
 import sys
@@ -732,6 +733,32 @@ class MultiSeasonTests(SeasonFixture):
             descriptions = [re.search(r'^description: (.*)$', p, re.M).group(1) for p in pages]
             self.assertEqual(len(set(titles)), len(pages), folder)
             self.assertEqual(len(set(descriptions)), len(pages), folder)
+
+    def test_entry_page_data_is_for_the_season_shown(self):
+        """enter/data/ (for /enter/): the active season's teams, players and
+        schedule, its game files, and its drafts with their review flag counts."""
+        drafts = self.data / "fake" / "drafts"
+        drafts.mkdir()
+        (drafts / "2026-10-22-g1.yml").write_text("game_id: 2026-10-22-g1\nstatus: draft\n"
+                                                    "review:\n  - {at: running.aa.4, note: \"4 or 9?\"}\n"
+                                                    "  - {at: boxes.aa.q1, note: smudged}\n")
+        self.build(sample_data=True, github_repo="org/site")
+        enter = self.site / "enter" / "data"
+        index = json.loads((enter / "index.json").read_text())
+        self.assertEqual(index["season"], "fake")
+        self.assertEqual(index["games"], ["2026-10-01-g1", "2026-10-08-g1", "2026-10-15-g1", "2027-04-01-g1"])
+        self.assertEqual(index["drafts"], [{"game_id": "2026-10-22-g1", "flags": 2}])
+        season = json.loads((enter / "season.json").read_text())
+        self.assertEqual((season["repo"], season["branch"]), ("org/site", "main"))
+        self.assertEqual(sorted(season["teams"]), ["aa", "bb", "cc"])
+        self.assertEqual(season["players"]["al-a"]["display"], "Al A.")
+        self.assertIn("2026-10-01-g1", season["schedule"])
+        self.assertTrue((enter / "fake" / "drafts" / "2026-10-22-g1.yml").exists())
+        self.assertTrue((enter / "fake" / "games" / "2026-10-01-g1.yml").exists())
+        # real mode: the real season, which has no files yet
+        self.build(sample_data=False)
+        self.assertEqual(json.loads((enter / "index.json").read_text())["games"], [])
+        self.assertFalse((enter / "fake").exists())
 
     def test_calendars_come_from_the_real_season_even_in_sample_mode(self):
         self.build(sample_data=True, url="https://example.ca")

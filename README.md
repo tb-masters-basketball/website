@@ -187,7 +187,7 @@ generated is committed: `_data/computed/`, the stub folders, `calendar/` and
 | `data/<season>/teams.yml` | Team id (2 letters), name, 2-letter code, colour slot (1–5) | hand, once a season |
 | `data/<season>/players.yml` | Player id (`mike-r`), display name ("Mike R."), team, `sub`, jersey `number` (the roster: the only place numbers live) | hand or `/record-game` |
 | `data/<season>/schedule.csv` | One row per game: id, date, time, gym, home, away, `regular`/`playoff`, week, optional `status` (`cancelled`) and `round` (playoff round name) | hand |
-| `data/<season>/games/<game_id>.yml` | One file per played game: a digital copy of the score sheet, box for box (roster rows with Here, free-throw circles and fouls; the running score; quarter lines and score boxes; Notes). Format: [`docs/game-file-format.md`](docs/game-file-format.md) | hand or `/record-game` |
+| `data/<season>/games/<game_id>.yml` | One file per played game: a digital copy of the score sheet, box for box (roster rows with Here, free-throw circles and fouls; the running score; quarter lines and score boxes; Notes). Format: [`docs/game-file-format.md`](docs/game-file-format.md) | hand, the entry page (`/enter/`) or `/record-game` |
 | `data/<season>/drafts/<game_id>.yml` | A game still being entered or checked (`status: draft`); never read by the build | the entry page or `/record-game` |
 | `data/<season>/sheets/<game_id>.jpg` | Photo of the paper sheet, kept for checking (not published) | hand or `/record-game` |
 | `_config.yml` | `sample_data` (show the fake season), `score_sheet_links` (publish photos), `preview_site` (the sample copy at `/preview/`), `contact_url`, `search_engines` (off: pages ask not to be listed by Google), the domain | hand, rarely |
@@ -334,8 +334,12 @@ Every page uses `_layouts/default.html`:
   paints.
 - **`assets/js/stats.js`** runs the Stats page: the PPG/Points/FT % switch,
   team filters, expanding rows and table sorting.
+- **`assets/js/enter.js`** runs the score sheet entry page (`/enter/`), with
+  `assets/js/sheet-rules.js` (the Python rules, ported) and js-yaml
+  (`assets/js/lib/`, MIT).
 - **No framework.** Every page works with JavaScript off: Stats then shows
-  plain lists and a readable table.
+  plain lists and a readable table. The one exception is the unlisted entry
+  page, a tool that needs it (and says so).
 - The approved design is [`docs/design-brief.md`](docs/design-brief.md) and
   [`docs/mockups/`](docs/mockups/). Pages are checked at 360, 390 and 1440 px
   in both themes.
@@ -348,21 +352,25 @@ night at about 4 AM Thunder Bay time (08:17 UTC):
 1. Install Python packages (`requirements.txt`: PyYAML, reportlab).
 2. Run every test with pytest (`tests/`, including the score sheet rules against
    the shared fixtures in `tests/fixtures/sheets/`).
-3. `python scripts/build_stats.py`: check the data and write the JSON, stubs
-   and calendars.
-4. `scripts/make_score_sheets.sh`: score sheet PDFs for the season the site
+3. Run the JavaScript tests with Node 22 (`node --test "tests/js/*.test.mjs"`):
+   the entry page's copy of the rules against the same fixtures.
+4. `python scripts/build_stats.py`: check the data and write the JSON, stubs,
+   calendars and the entry page's data (`enter/data/`).
+5. `scripts/make_score_sheets.sh`: score sheet PDFs for the season the site
    shows, into `score-sheets/`. That's every game day from today (Thunder Bay
    time) in all four layouts, plus blank sheets. The Schedule page links only
    the files that exist.
-5. `bundle exec jekyll build` (production).
-6. `scripts/build_preview.sh`: the hidden preview copy, the same site built
+6. `scoresheet.py --spec enter/sheet-spec.json`: the sheet's structure, which
+   the entry page draws its sheet from.
+7. `bundle exec jekyll build` (production).
+8. `scripts/build_preview.sh`: the hidden preview copy, the same site built
    from the sample season into `_site/preview/` (published at `/preview/`, with
    the sample banner). Off with `preview_site: false` in `_config.yml`.
-7. `scripts/check_links.sh`: html-proofer over `_site/` (both copies), including
+9. `scripts/check_links.sh`: html-proofer over `_site/` (both copies), including
    the PDF links.
-8. **On `main` only:** upload `_site/` and deploy it to GitHub Pages.
+10. **On `main` only:** upload `_site/` and deploy it to GitHub Pages.
 
-A pull request runs steps 1–7, so a red cross means "don't merge yet". The
+A pull request runs steps 1–9, so a red cross means "don't merge yet". The
 nightly run rebuilds `main` with nothing changed, so the parts that depend on
 today's date stay current: the score sheets (from today on), the "next game
 day" panel and the calendar files. GitHub pauses scheduled runs after 60 days
@@ -377,7 +385,9 @@ pip install -r requirements.txt        # Python 3.12, PyYAML, reportlab
 bundle install                         # Ruby and Jekyll 4.4
 
 python -m pytest                       # every test (unit tests + score sheet fixtures)
-python scripts/build_stats.py          # check data; write JSON, stubs, calendars
+node --test "tests/js/*.test.mjs"      # the entry page's rules on the same fixtures (Node 22)
+python scripts/build_stats.py          # check data; write JSON, stubs, calendars, enter/data/
+python scripts/scoresheet/scoresheet.py --spec enter/sheet-spec.json   # needed for /enter/
 scripts/make_score_sheets.sh           # score sheet PDFs (optional locally)
 bundle exec jekyll serve --livereload  # http://localhost:4000/
 bundle exec jekyll build && scripts/build_preview.sh && scripts/check_links.sh   # both copies
@@ -394,8 +404,9 @@ Run `build_stats.py` again after changing anything in `data/` or the
 
 | I want to… | Do this |
 |---|---|
-| Add a game result | add `data/2026-27/games/<game_id>.yml` ([guide](docs/stats-workflow.md#add-a-game)) |
-| Fix a number | edit the game file; everything is recalculated |
+| Add a game result | add `data/2026-27/games/<game_id>.yml` ([guide](docs/stats-workflow.md#add-a-game)), or type it up on `/enter/` ([guide](docs/stats-workflow.md#enter-or-check-a-game-on-the-entry-page)) |
+| Check a draft against the paper | open it on `/enter/`, with the photo beside it |
+| Fix a number | edit the game file (or reopen the game on `/enter/`); everything is recalculated |
 | Add a player or sub | one line in `data/2026-27/players.yml` |
 | Edit the league rules | `rules/index.md` ([guide](docs/stats-workflow.md#edit-the-league-rules)) |
 | Cancel, move or make up a game | edit its row in `schedule.csv` ([guide](docs/stats-workflow.md#cancel-or-move-a-game)) |
@@ -425,11 +436,13 @@ scripts/
   screenshot_all.py      screenshots + page checks for QA
 tests/                   unit tests (build_stats, calendars, score sheets) and the sheet rules tests
   fixtures/sheets/       test game files with their expected results (shared with the entry page)
+  js/                    the entry page's JavaScript rules on the same fixtures (node --test)
 _config.yml              site settings, switches, collections
 _layouts/  _includes/    templates and components
 index.html  schedule/  stats/  teams/  archive/  rules/  404.html   fixed pages
+enter/                   the score sheet entry page (unlisted); sheet-spec.json and data/ are written by the build
 assets/css/site.css      page styles
-assets/js/               theme button, Stats page
+assets/js/               theme button, Stats page, entry page (+ sheet rules, lib/js-yaml)
 brand/                   brand kit (don't edit)
 docs/
   stats-workflow.md      the volunteer's guide

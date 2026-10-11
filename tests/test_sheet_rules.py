@@ -3,8 +3,8 @@ tests/fixtures/sheets/. Each case is a folder with a sheet.yml (a game file, as
 the paper sheet was filled in) and an expected.json: the game it computes (or
 null when it has errors) and every problem, with the path of its box.
 
-The fixtures are shared on purpose: the entry page will be tested against the
-same files. Run: python -m pytest
+The fixtures are shared on purpose: the entry page's JavaScript rules are tested
+against the same files (tests/js/). Run: python -m pytest
 """
 import json
 import random

@@ -2252,3 +2252,1221 @@ a.team-card:hover {
     font-size: 56px;
   }
 }
+
+/* ------------------------------------------- score sheet entry (/enter/) */
+
+/* The working copy of the paper sheet. Navy headers and red T boxes as on
+   the printed form; everything sized from --box, which is 44 px wherever the
+   pointer is a finger and a compact 30 px with a mouse (the page is designed
+   for a laptop, usable on a phone). Problems are marked three ways, all
+   visible in both themes: errors (red, solid), boxes flagged for review
+   (accent blue, solid, tinted) and warnings (dashed). */
+.enter {
+  --sheet-head: var(--mb-night-navy);
+  --sheet-head-text: var(--mb-white);
+  --box: 30px;
+  --mark-error: var(--mb-hot);
+  --mark-flag: var(--mb-accent);
+  --mark-warning: var(--mb-text);
+  --tint-error: color-mix(in srgb, var(--mb-hot) 13%, var(--mb-surface));
+  --tint-flag: color-mix(in srgb, var(--mb-accent) 16%, var(--mb-surface));
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .enter {
+    --sheet-head: var(--mb-panel);
+  }
+}
+
+:root[data-theme="dark"] .enter {
+  --sheet-head: var(--mb-panel);
+}
+
+@media (pointer: coarse) {
+  .enter {
+    --box: 44px;
+  }
+}
+
+.wrap--tool {
+  max-width: calc(1400px + 2 * var(--gutter));
+}
+
+.enter-msg {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--mb-surface);
+  border: 1px solid var(--mb-line);
+  border-left: 4px solid var(--mb-accent);
+  border-radius: 10px;
+}
+
+.enter-msg--error {
+  border-left-color: var(--mb-hot);
+}
+
+/* without JavaScript only the <noscript> message shows, not "Loading…" */
+html:not(.js) [data-enter-status] {
+  display: none;
+}
+
+.enter-msg:empty {
+  display: none;
+}
+
+.enter-hint {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--mb-muted);
+}
+
+/* Buttons: the site's .btn, plus a quiet outlined one */
+.btn {
+  border: 0;
+  cursor: pointer;
+}
+
+.btn--quiet,
+.btn--quiet:hover {
+  background: transparent;
+  color: var(--mb-accent);
+  box-shadow: inset 0 0 0 1px var(--mb-accent);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  background: var(--mb-line);
+  color: var(--mb-muted);
+  opacity: 1;
+}
+
+.enter-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 1px solid var(--mb-line);
+  border-radius: 10px;
+  background: var(--mb-surface);
+  color: var(--mb-text);
+  font: 600 16px/1 var(--mb-font-body);
+  cursor: pointer;
+}
+
+.enter-icon-btn--small {
+  min-width: var(--box);
+  min-height: var(--box);
+  border-color: transparent;
+  color: var(--mb-muted);
+}
+
+.enter-select,
+.enter-input {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--mb-muted);
+  border-radius: 8px;
+  background: var(--mb-surface);
+  color: var(--mb-text);
+  font: 400 16px/normal var(--mb-font-body);
+}
+
+.enter-select {
+  width: 100%;
+  max-width: 100%;
+}
+
+.enter-select--small {
+  width: auto;
+  min-height: 40px;
+}
+
+.enter-field {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mb-muted);
+}
+
+.enter-field--inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---- opening a game */
+.enter-start {
+  margin-top: 18px;
+}
+
+.enter-start__grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.enter-card {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 8px;
+  padding: 16px;
+  background: var(--mb-surface);
+  border: 1px solid var(--mb-line);
+  border-radius: 12px;
+}
+
+.enter-card__title {
+  font: 700 18px/normal var(--mb-font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.enter-drop.is-over {
+  border: 2px dashed var(--mb-accent);
+  background: var(--tint-flag);
+}
+
+.enter-local {
+  margin-top: 12px;
+}
+
+.enter-list {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  list-style: none;
+}
+
+.enter-list__item {
+  display: grid;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--mb-line);
+  border-left: 4px solid var(--mb-accent);
+  border-radius: 10px;
+  background: var(--mb-surface);
+  color: var(--mb-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.enter-list__item:hover {
+  background: var(--mb-bg);
+}
+
+.enter-list__main {
+  font-weight: 600;
+}
+
+.enter-list__sub {
+  font-size: 13px;
+  color: var(--mb-muted);
+}
+
+.enter-local__row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ---- the work area */
+.enter-work {
+  margin-top: 18px;
+}
+
+.enter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.enter-bar__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.enter-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--tint-flag);
+  border: 1px solid var(--mb-accent);
+  border-radius: 10px;
+}
+
+.enter-banner p {
+  flex: 1 1 240px;
+}
+
+.enter-grid {
+  display: grid;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.enter-main {
+  min-width: 0;
+}
+
+.enter-side {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.enter-panel {
+  padding: 14px;
+  background: var(--mb-surface);
+  border: 1px solid var(--mb-line);
+  border-radius: 12px;
+}
+
+.enter-panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.enter-panel__title {
+  font: 700 20px/normal var(--mb-font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* ---- the sheet */
+.sheet {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  padding: 12px;
+  background: var(--mb-surface);
+  border: 1px solid var(--mb-line);
+  border-radius: 12px;
+}
+
+.sheet-label {
+  font: 700 11px/normal var(--mb-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mb-muted);
+}
+
+.sheet-head__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.sheet-head__item {
+  display: grid;
+  gap: 2px;
+  padding: 2px 4px;
+  border-radius: 6px;
+}
+
+.sheet-head__value {
+  font: 600 16px/normal var(--mb-font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet-head__item--wide .enter-input {
+  min-height: 36px;
+  width: 12em;
+}
+
+.sheet-team__bar,
+.sheet-section-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 6px 10px;
+  border-radius: 8px 8px 0 0;
+  background: var(--sheet-head);
+  color: var(--sheet-head-text);
+}
+
+.sheet-team__side {
+  font: 700 18px/normal var(--mb-font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sheet-team__name {
+  font: 600 18px/normal var(--mb-font-display);
+}
+
+.sheet-section-bar__title {
+  font: 700 15px/normal var(--mb-font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sheet-section-bar__hint {
+  font-size: 13px;
+  color: var(--sheet-head-text);
+}
+
+.sheet-scroll {
+  position: relative;          /* holds the visually hidden labels inside the scroll box */
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--mb-line);
+  border-top: 0;
+}
+
+/* roster */
+.roster {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.roster th,
+.roster td {
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--mb-line);
+  border-right: 1px solid var(--mb-line);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.roster thead th {
+  padding: 4px 6px;
+  background: var(--sheet-head);
+  color: var(--sheet-head-text);
+  font: 700 11px/normal var(--mb-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.roster .roster__num {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--mb-surface);
+  text-align: center;
+}
+
+.roster thead .roster__num {
+  z-index: 2;
+  background: var(--sheet-head);
+}
+
+.roster .roster__num.is-error,
+.roster .roster__num.is-flag {
+  background: var(--tint-error);
+}
+
+.roster .roster__num.is-flag {
+  background: var(--tint-flag);
+}
+
+.roster__numinput,
+.rs__input,
+.sheet-box__input {
+  width: calc(2ch + 14px);
+  height: var(--box);
+  padding: 0 4px;
+  border: 1px solid var(--mb-line);
+  border-radius: 4px;
+  background: var(--mb-surface);
+  color: var(--mb-text);
+  font: 600 16px/1 var(--mb-font-display);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.roster__numinput:focus,
+.rs__input:focus,
+.sheet-box__input:focus,
+.enter-input:focus,
+.enter-select:focus {
+  border-color: var(--mb-accent);
+}
+
+.roster__row.is-blank .roster__numinput,
+.roster__row.is-blank .roster__select {
+  border-style: dashed;
+}
+
+.roster__who {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.roster__select {
+  height: var(--box);
+  max-width: 11em;
+  padding: 0 4px;
+  border: 1px solid var(--mb-line);
+  border-radius: 4px;
+  background: var(--mb-surface);
+  color: var(--mb-text);
+  font: 500 15px/1 var(--mb-font-body);
+}
+
+.roster__name {
+  width: 7em;
+  min-height: var(--box);
+  height: var(--box);
+  font-size: 15px;
+}
+
+.roster__tools {
+  width: 1%;
+}
+
+.roster__msgrow td {
+  padding: 4px 8px 6px;
+  white-space: normal;
+}
+
+/* keep a row's messages in view while the roster scrolls sideways */
+.roster__msgrow .sheet-msgs {
+  position: sticky;
+  left: 8px;
+  max-width: min(720px, calc(100vw - 2 * var(--gutter) - 42px));
+}
+
+/* Here tick, foul and T boxes */
+.sheet-tick,
+.sheet-mark {
+  position: relative;
+  width: var(--box);
+  height: var(--box);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--mb-text);
+  cursor: pointer;
+}
+
+.sheet-tick::before,
+.sheet-mark::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--box) / 2 - 9px);
+  border: 2px solid var(--mb-muted);
+  border-radius: 3px;
+}
+
+.sheet-tick[aria-pressed="true"]::before {
+  border-color: var(--mb-text);
+}
+
+.sheet-tick[aria-pressed="true"]::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 700 17px/1 var(--mb-font-body);
+}
+
+.sheet-marks {
+  display: flex;
+  gap: 6px;
+}
+
+.sheet-marks__group {
+  display: flex;
+  border-radius: 4px;
+}
+
+.sheet-mark--t::before {
+  border-color: var(--mb-hot);
+}
+
+.sheet-mark--t::after {
+  content: "T";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 700 10px/1 var(--mb-font-body);
+  color: var(--mb-hot);
+}
+
+/* a slash through a used box, as drawn on paper */
+.sheet-mark[aria-pressed="true"]::before {
+  border-color: var(--mb-text);
+  background: linear-gradient(to top right, transparent calc(50% - 1.5px), var(--mb-text) calc(50% - 1.5px),
+    var(--mb-text) calc(50% + 1.5px), transparent calc(50% + 1.5px));
+}
+
+.sheet-mark--t[aria-pressed="true"]::before {
+  border-color: var(--mb-hot);
+  background: linear-gradient(to top right, transparent calc(50% - 1.5px), var(--mb-hot) calc(50% - 1.5px),
+    var(--mb-hot) calc(50% + 1.5px), transparent calc(50% + 1.5px));
+}
+
+.sheet-mark--t[aria-pressed="true"]::after {
+  content: none;
+}
+
+.sheet-t-label {
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--mb-maple-red);
+  color: var(--mb-white);
+}
+
+/* free-throw circles: empty, filled (made), slashed (missed) */
+.sheet-circles {
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.sheet-circles__gap {
+  width: 6px;
+}
+
+.sheet-circle {
+  position: relative;
+  width: var(--box);
+  height: var(--box);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.sheet-circle::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--box) / 2 - 9px);
+  border: 2px solid var(--mb-muted);
+  border-radius: 50%;
+}
+
+.sheet-circle[data-v="M"]::before {
+  border-color: var(--mb-text);
+  background: var(--mb-text);
+}
+
+.sheet-circle[data-v="X"]::before {
+  border-color: var(--mb-text);
+  background: linear-gradient(to top right, transparent calc(50% - 1.5px), var(--mb-text) calc(50% - 1.5px),
+    var(--mb-text) calc(50% + 1.5px), transparent calc(50% + 1.5px));
+}
+
+.sheet-circle:disabled {
+  cursor: default;
+}
+
+.sheet-circle:disabled::before {
+  border-color: var(--mb-line);
+}
+
+/* page 2's circles (11-20) sit after page 1's, a little apart */
+.sheet--page2 .sheet-circle[data-k="10"] {
+  margin-left: 10px;
+}
+
+/* score boxes and quarter lines under each roster */
+.sheet-boxes {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--mb-bg);
+}
+
+.sheet-boxes__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 6px 10px;
+  border-radius: 6px;
+}
+
+.sheet-boxes__label {
+  flex: 0 0 8.5em;
+  align-self: center;
+  font: 700 11px/1.2 var(--mb-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mb-muted);
+}
+
+.sheet-box {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 6px;
+}
+
+.sheet-box__input {
+  width: calc(var(--digits, 2) * 1ch + 22px);
+  height: max(36px, var(--box));
+  font-size: 18px;
+}
+
+.sheet-box--line .sheet-box__input {
+  border-style: dashed;
+}
+
+/* notes */
+.sheet-notes__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  border: 1px solid var(--mb-line);
+  border-top: 0;
+}
+
+.sheet-notes__list:empty {
+  display: none;
+}
+
+.sheet-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 6px 10px;
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.sheet-note__num {
+  width: 4em;
+}
+
+.sheet-note__text {
+  flex: 1 1 14em;
+}
+
+.sheet-notes__add {
+  margin-top: 8px;
+}
+
+/* running score: totals down the middle, home scorer left, away right */
+.sheet-running__pagename {
+  margin-top: 10px;
+  font: 700 14px/normal var(--mb-font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mb-muted);
+}
+
+.sheet-running__page {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(2 * (2ch + 22px) + 40px), 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+@media (min-width: 900px) {
+  .sheet-running__page {
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  }
+}
+
+.rs {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid var(--mb-line);
+}
+
+.rs__head {
+  padding: 3px 2px;
+  background: var(--sheet-head);
+  color: var(--sheet-head-text);
+  font: 700 11px/normal var(--mb-font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.rs__total {
+  width: 34%;
+  background: var(--mb-track);
+  font: 700 15px/1 var(--mb-font-display);
+  text-align: center;
+}
+
+.rs__cell {
+  position: relative;
+  padding: 1px 2px;
+  text-align: center;
+  border-bottom: 1px solid var(--mb-line);
+}
+
+.rs__input {
+  width: 100%;
+  max-width: 3.4em;
+  border-color: transparent;
+  background: transparent;
+}
+
+.rs__input:not(:placeholder-shown),
+.rs__input:focus {
+  border-color: var(--mb-line);
+}
+
+/* the line drawn under a team's total at the end of a quarter */
+.rs__cell.is-line {
+  border-bottom: 3px solid var(--mb-accent);
+}
+
+/* ---- problems, marked on their boxes */
+.enter [data-at].is-error {
+  background-color: var(--tint-error);
+  box-shadow: inset 0 0 0 3px var(--mark-error);
+}
+
+.enter [data-at].is-flag {
+  background-color: var(--tint-flag);
+  box-shadow: inset 0 0 0 3px var(--mark-flag);
+}
+
+.enter [data-at].is-warning {
+  outline: 2px dashed var(--mark-warning);
+  outline-offset: -2px;
+}
+
+.enter .is-error input,
+.enter .is-flag input,
+.enter .is-error select,
+.enter .is-flag select {
+  background: var(--mb-surface);
+}
+
+/* the box's message, beside it while you're on it */
+.rs__cell[data-tip]:focus-within::after,
+.rs__cell[data-tip]:hover::after,
+.sheet-box[data-tip]:focus-within::after {
+  content: attr(data-tip);
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 4px);
+  left: 0;
+  width: max-content;
+  max-width: 260px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--mb-text);
+  color: var(--mb-bg);
+  font: 500 14px/1.35 var(--mb-font-body);
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+}
+
+.sheet-box {
+  position: relative;
+}
+
+/* messages listed under the part of the sheet they're about */
+.sheet-msgs {
+  display: grid;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sheet-msgs:empty {
+  display: none;
+}
+
+.sheet-msg {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 6px 10px;
+  border-left: 4px solid var(--mark-warning);
+  border-radius: 4px;
+  background: var(--mb-bg);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.sheet-msg--error {
+  border-left-color: var(--mark-error);
+  background: var(--tint-error);
+}
+
+.sheet-msg--flag {
+  border-left-color: var(--mark-flag);
+  background: var(--tint-flag);
+}
+
+.sheet-msg__kind {
+  flex: none;
+  font: 700 11px/normal var(--mb-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sheet-msg--error .sheet-msg__kind {
+  color: var(--mb-hot);
+}
+
+.sheet-msg--flag .sheet-msg__kind {
+  color: var(--mb-accent);
+}
+
+/* ---- checks panel */
+.enter-checks__sum {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 14px;
+}
+
+.enter-count b {
+  font: 700 18px/1 var(--mb-font-display);
+}
+
+.enter-count--error b {
+  color: var(--mb-hot);
+}
+
+.enter-count--flag b {
+  color: var(--mb-accent);
+}
+
+.enter-count.is-zero b {
+  color: var(--mb-muted);
+}
+
+.enter-checks__title {
+  margin-top: 14px;
+  font: 700 14px/normal var(--mb-font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.enter-checks__title--error {
+  color: var(--mb-hot);
+}
+
+.enter-checks__title--flag {
+  color: var(--mb-accent);
+}
+
+.enter-issues {
+  display: grid;
+  gap: 6px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.enter-issues__item {
+  display: grid;
+  gap: 4px;
+}
+
+.enter-issue {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 0;
+  border-left: 4px solid var(--mark-warning);
+  border-radius: 6px;
+  background: var(--mb-bg);
+  color: var(--mb-text);
+  font: 400 14px/1.35 var(--mb-font-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.enter-issue--error {
+  border-left-color: var(--mark-error);
+  background: var(--tint-error);
+}
+
+.enter-issue--flag {
+  border-left-color: var(--mark-flag);
+  background: var(--tint-flag);
+}
+
+.enter-issue__at {
+  font-weight: 700;
+}
+
+.enter-issues__done {
+  justify-self: start;
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
+@media (pointer: coarse) {
+  .enter-issues__done {
+    min-height: 44px;
+  }
+}
+
+.enter-ok {
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+.enter-points > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.enter-points > summary::-webkit-details-marker {
+  display: none;
+}
+
+.enter-points > summary::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+
+.enter-points[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+.enter-points > summary .enter-checks__title {
+  margin-top: 0;
+}
+
+.enter-points__card {
+  margin-top: 8px;
+}
+
+.enter-points__table th,
+.enter-points__table td {
+  padding: 6px 8px;
+  font-size: 14px;
+}
+
+.enter-points__table tbody th,
+.enter-points__table tfoot th {
+  text-align: left;
+  font-weight: 500;
+}
+
+.enter-points__table tfoot > * {
+  border-top: 2px solid var(--mb-line);
+  border-bottom: 0;
+  font-weight: 700;
+}
+
+.enter-points__cap {
+  padding: 8px 8px 0;
+  font: 700 15px/normal var(--mb-font-display);
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.enter-points__note {
+  font-size: 13px;
+}
+
+/* ---- save */
+.enter-save {
+  display: grid;
+  gap: 10px;
+}
+
+.enter-save .enter-input {
+  width: 100%;
+}
+
+.enter-save__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.enter-save [data-at].is-error {
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.enter-dialog {
+  width: min(640px, calc(100vw - 2 * var(--gutter)));
+  max-height: calc(100vh - 32px);
+  margin: auto;
+  padding: 18px;
+  border: 1px solid var(--mb-line);
+  border-radius: 12px;
+  background: var(--mb-surface);
+  color: var(--mb-text);
+}
+
+.enter-dialog::backdrop {
+  background: color-mix(in srgb, var(--mb-midnight) 60%, transparent);
+}
+
+.enter-dialog__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.enter-dialog__path {
+  margin-top: 6px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.enter-steps {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+  padding-left: 22px;
+}
+
+.enter-dialog__file {
+  margin-top: 12px;
+}
+
+.enter-dialog__file summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--mb-link);
+  font-weight: 600;
+}
+
+.enter-dialog__file pre {
+  max-height: 40vh;
+  overflow: auto;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--mb-bg);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* ---- the photo */
+.enter-photo__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.enter-photo__view {
+  position: relative;
+  height: 52vh;
+  min-height: 260px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--mb-track);
+  cursor: grab;
+  touch-action: none;
+}
+
+.enter-photo__view:active {
+  cursor: grabbing;
+}
+
+.enter-photo__view img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: none;
+  transform-origin: 0 0;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+@media (min-width: 900px) {
+  /* a tool, not a column of text: the start panel and work area use the full width */
+  .enter > .enter-start,
+  .enter > .enter-work,
+  .enter > .enter-msg {
+    max-width: none;
+  }
+
+  .enter-start__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sheet {
+    padding: 16px;
+  }
+}
+
+/* Phone and tablet: photo and checks above the sheet, saving below it */
+@media (max-width: 1099px) {
+  .enter-side {
+    display: contents;
+  }
+
+  .enter-photo,
+  .enter-checks {
+    order: -1;
+  }
+
+  .enter-photo {
+    position: sticky;
+    top: 0;
+    z-index: 6;
+  }
+
+  .enter-photo .enter-photo__view {
+    height: 34vh;
+    min-height: 200px;
+  }
+}
+
+/* Laptop: the sheet on the left; photo, checks and save on the right, in view */
+@media (min-width: 1100px) {
+  .enter-grid {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    align-items: start;
+  }
+
+  .enter-side {
+    position: sticky;
+    top: 12px;
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .enter-has-photo .enter-photo__view {
+    height: 42vh;
+  }
+}

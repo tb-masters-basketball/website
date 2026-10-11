@@ -179,7 +179,11 @@ checked_by: Lee M.
   `scripts/scoresheet/spec.json`, from `scoresheet.py --spec`.
 - **A sub written in by hand** has `name: "Jim K."` and no `player` until they
   are in `players.yml` (`sub: true`, team, number). Allowed in drafts only.
-- **Fixtures:** `tests/fixtures/sheets/` (shared with the entry page).
+- **Fixtures:** `tests/fixtures/sheets/` (shared with the entry page's JS rules, `tests/js/`).
+- **The entry page** (`/enter/`, unlisted) opens drafts, published games or a
+  local file as a copy of the paper sheet, checks it live with the same rules,
+  and saves the file (download, copy, or GitHub's new-file page). See
+  `docs/game-file-format.md` ("The entry page").
 
 ## IDs
 - Team ids: two letters (`pa`, `cr`, `wf`, `lh`, `fw`). Player ids: first name
@@ -248,7 +252,8 @@ appear in the mockups (Port Arthur 6–1, Dave M. 20.1 PPG, and so on). Put it i
 
 `scripts/make_sample_season.py` writes it (5 teams, 9 players and a sub each,
 16 games over 8 weeks with quarter totals and a few flagrant fouls, an
-upcoming night, and enough free throws that 16 players clear the 10-FTA
+upcoming night with two drafts in `drafts/` for trying the entry page (one
+with two review flags and a sub written in by hand, one with errors), and enough free throws that 16 players clear the 10-FTA
 minimum and 34 don't). The quarter splits are tried until the standings by
 points keep the mockup order (Port Arthur, Current River, Westfort, Lakehead,
 Fort William), with a fixed seed so the files are

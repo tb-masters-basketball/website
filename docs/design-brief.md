@@ -274,3 +274,42 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
 - **Flagrant fouls:** a line under the player page tiles when a player has one,
   a "Flagrant" badge on that game in the game log, and a "Flagrant fouls" list
   under "Technical fouls" at the bottom of the Stats page.
+
+## Score sheet entry page (`/enter/`)
+
+A tool, not a reading page: unlisted (no nav entry; `noindex` like every page)
+and the one page that needs JavaScript (it says so without it). Designed for a
+laptop, usable on a phone.
+
+- **Width:** the wide tool wrapper (`.wrap--tool`, 1400 px), not the 760 px
+  text column. From 1100 px the sheet takes the left column and a 380 px side
+  column holds Photo, Checks and Save, sticky and scrolling on its own. Below
+  that, Photo (sticky at the top while open) and Checks come before the sheet,
+  and Save after it.
+- **The sheet echoes the printed form:** game details, then each team's
+  roster under a navy bar ("HOME · Westfort"): #, Here, player, the free-throw
+  circles in groups of five, five foul boxes and the two red T boxes; the
+  score boxes (from the spec's `score_boxes`) and the quarter lines under it;
+  Notes; then the running score in the paper's columns (scorer #, PTS, scorer
+  #), with the paper layout picked from the spec's layouts. Every count comes
+  from `sheet-spec.json`. The roster scrolls sideways in its own box on a
+  phone, with the # column fixed.
+- **Box size:** `--box` is 30 px with a mouse and 44 px for touch
+  (`pointer: coarse`), so the sheet stays compact on a laptop and meets the
+  44 px target on a phone.
+- **Marks:** filled circle = made, slashed circle = missed, slashed box = foul
+  or T, ✓ = Here, as on paper (all in `--mb-text`; T boxes in `--mb-hot`).
+- **Problems on their boxes,** in both themes: errors get a 3 px `--mb-hot`
+  ring and a red tint; boxes flagged for review a 3 px `--mb-accent` ring and a
+  blue tint; warnings a dashed `--mb-text` outline. Each message is listed
+  under its row or section (Error / Check / Warning label, the box's name in
+  bold), shows beside a running-score or score box while it's focused, and is
+  in the Checks panel, where tapping it jumps to the box.
+- **Checks panel:** counts (errors, flags to check, warnings), then Errors,
+  To check against the paper (each with Mark as checked), Warnings, and
+  "Points from the sheet": a table per team (player, PTS, FTM, FTA, team row)
+  with the running score's last total and the Final box under it.
+- **Save:** Checked by, then Save as final (disabled, with the reason, while
+  anything blocks it) and Save anyway as a draft (always). The save dialog has
+  the file path, numbered steps, Save to GitHub / Download .yml / Copy, and the
+  file itself behind "Show the file".

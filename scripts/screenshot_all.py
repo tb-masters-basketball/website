@@ -69,6 +69,7 @@ PAGES = [
     ("box-score", ("/schedule/", r"/games/[^/]+/$", "first")),
     ("archive", "/archive/"),
     ("past-season", ("/archive/", r"/archive/[^/]+/$", "last")),
+    ("enter", "/enter/"),
     ("404", "/404.html"),
 ]
 
@@ -86,6 +87,7 @@ def build_site(sample, dest):
     merged = dict(config, sample_data=sample)
     override.write_text(yaml.safe_dump(merged), encoding="utf-8")
     run([sys.executable, "scripts/build_stats.py", "--config", override])
+    run([sys.executable, "scripts/scoresheet/scoresheet.py", "--spec", "enter/sheet-spec.json"])
     site = dest / baseurl if baseurl else dest
     env = dict(os.environ, JEKYLL_ENV="production")
     run(["bundle", "exec", "jekyll", "build", "--quiet", "--config", f"_config.yml,{override}", "-d", site], env=env)

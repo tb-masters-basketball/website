@@ -2,8 +2,8 @@
 
 Every game is one YAML file that mirrors the paper score sheet (form
 **MBL-SS6**) box for box. Whoever types it up copies what's on the paper; the
-site works out every number from it. The same file is what the score-sheet
-entry page (coming) will read and write, so it is kept small enough to fit in
+site works out every number from it. The same file is what the score sheet
+entry page (`/enter/`) reads and writes, so it is kept small enough to fit in
 a link: under 3 KB for a typical game, and under 6 KB even for 100 points a side.
 
 - **Finished games:** `data/<season>/games/<game_id>.yml`, `status: final`.
@@ -13,7 +13,8 @@ a link: under 3 KB for a typical game, and under 6 KB even for 100 points a side
 - **Photos:** `data/<season>/sheets/<game_id>.jpg`, kept in the repo, never on
   the site.
 
-The rules live in one place, `scripts/sheet_rules.py`; the sheet's structure
+The rules live in one place, `scripts/sheet_rules.py` (ported line for line to
+`assets/js/sheet-rules.js` for the entry page; change the Python first); the sheet's structure
 (rows, circles, boxes, running-score pages) in `scripts/scoresheet/spec.json`,
 written by `scoresheet.py --spec`.
 
@@ -103,7 +104,7 @@ neither, and a final file can't have `review`.)
 
 `scripts/sheet_rules.check(sheet, ctx)` returns `(game, problems)`. Each
 problem is `{level, at, message}`; `at` is a dotted path to exactly one box,
-the same path the entry page will highlight:
+the same path the entry page highlights:
 
 | Path | The box |
 |---|---|
@@ -152,4 +153,24 @@ played for, and the number from the sheet. Then the row gets `player: jim-k`.
 `expected.json` with the computed lines and every problem): a clean game, a
 bad final, a free-throw mismatch, an and-one, an unknown jersey number, an
 overtime game, a game that runs onto page 2, and a draft with a sub. The entry
-page should pass the same fixtures. Run `python -m pytest`.
+page's JavaScript rules must give exactly the same results. Run
+`python -m pytest` and `node --test "tests/js/*.test.mjs"` (both run in CI).
+
+## The entry page
+
+`/enter/` is an unlisted page (not in the nav, `noindex`) with a working copy of
+the sheet. It draws everything from `enter/sheet-spec.json` (the deploy writes
+it with `scoresheet.py --spec`) and the season from `enter/data/` (written by
+`build_stats.py`: teams, players, schedule, and copies of the game files and
+drafts). It lists drafts and published games from GitHub's API, or from those
+copies when GitHub doesn't answer. Checks run as you type; every problem is
+marked on its box and listed beside it. Saving as final sets `status: final`,
+removes `review` and asks for `checked_by`; it's blocked while there are errors
+or unchecked review flags, but a draft can always be saved. The file is
+downloaded, copied, or opened in GitHub's new-file page with the contents filled
+in (the link for a 100-point game is about 6,300 characters; past 8,000 the page
+copies the file and opens an empty new file instead). Correcting a file that's
+already on GitHub can't be prefilled, so the page lists the steps: copy, open
+the editor, paste, commit. Work in progress stays in the browser
+(`localStorage`, `mb-enter:<game_id>`); a photo opened beside the sheet is never
+uploaded.

@@ -98,8 +98,12 @@ python scripts/scoresheet/scoresheet.py --spec scripts/scoresheet/spec.json
 writes it as JSON, with each layout's running-score ranges added (page 1:
 1-100; page 2: 101-180 portrait Letter, 101-175 the others).
 `scripts/sheet_rules.py` reads `spec.json`, and a test fails if it's out of
-date. Change the printed sheet in `SPEC`, bump `form`, regenerate `spec.json`,
-and update the game file format (`docs/game-file-format.md`).
+date. The deploy also writes it to `enter/sheet-spec.json`, which the score
+sheet entry page (`/enter/`) draws its whole sheet from, so the page follows a
+change here with no edits. Change the printed sheet in `SPEC`, bump `form`,
+regenerate `spec.json`, and update the game file format
+(`docs/game-file-format.md`) and the rules (`sheet_rules.py`, then its JS port
+`assets/js/sheet-rules.js`) if what they check changed.
 
 ## Files
 ```
