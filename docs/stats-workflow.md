@@ -77,23 +77,23 @@ each quarter in the Q1 to Q4 boxes.
 
 ### How stats come from a sheet
 
+The game file is a copy of the sheet, box for box (see
+[What a game file looks like](#what-a-game-file-looks-like)). The site works
+out every number from it:
+
 | Stat | Source |
 |---|---|
-| Player points | Running score. The jump from the team's previous total to the next one is that basket's value: 1, 2 or 3. |
-| FTM | Filled circles in the player's row. The running score's 1-point jumps must agree. |
+| Player points | Running score. The jump from the team's previous total to the next one (1, 2 or 3) goes to the jersey number written in that box. |
+| FTM | Filled circles in the player's row. Never the running score: under league rules a free throw can be worth 1, 2 or 3 points, so any jump might be one. |
 | FTA | Filled circles plus slashed circles. |
 | GP | **Here** ticks. |
 | PF (personal fouls) | Slashed foul boxes in the player's row (0 to 5). Kept, but not shown on the site. |
 | Techs (technical fouls) | Slashed red **T** boxes in the player's row (0 to 2). |
 | Quarter scores | The **Q1 to Q4** boxes (and **OT**): each team's running total at the end of each quarter. |
-| Flagrant fouls | **Notes** on page 1: team, player number and quarter. A flagrant also counts as a personal foul, so it is in the player's foul boxes (and `pf`) too. |
-| Checks | The last running total equals the Final box. Each quarter box equals the running total at that quarter's line. Player points add up to the team score. |
+| Flagrant fouls | **Notes** on page 1: team, player number and quarter. A flagrant also counts as a personal foul, so it is in the player's foul boxes too. |
+| Checks | The last running total equals the Final box. Each quarter box equals the running total at that quarter's line. Every scorer's number is on that team's roster and ticked Here. |
 
-Those numbers are what goes into the game file: `pts`, `ftm` and `fta` for every
-player ticked **Here** (plus `pf` and `tech` when they're not 0), and each team's
-final score. The sheet's team fouls and timeouts aren't on the site. Quarter
-scores and flagrant fouls are on the sheet now; the game files and standings
-start using them in the next change (standings by points).
+The sheet's team fouls and timeouts aren't on the site.
 
 ## The data folders
 
@@ -127,90 +127,114 @@ data/
 
 ## What a game file looks like
 
-This is a real file from the sample season, `data/sample-2026-27/games/2026-12-03-g1.yml`
-(shortened):
+A game file is a **digital copy of the paper score sheet**: you copy the boxes
+as they are, and the site does the adding up. This one is the test game in
+`tests/fixtures/sheets/clean/sheet.yml`; the full description of every field
+is in [`docs/game-file-format.md`](game-file-format.md).
 
 ```yaml
-game_id: 2026-12-03-g1      # must match the file name and a row in schedule.csv
-date: 2026-12-03
-home: pa                    # team ids, two letters (see teams.yml)
-away: lh
-type: regular               # regular, or playoff
-final: {pa: 71, lh: 64}     # the final score from the sheet
-quarters: {pa: [19, 36, 53, 71], lh: [15, 31, 49, 64]}   # the sheet's Q1-Q4 boxes
-lines:                      # one line per player listed on the sheet
-  - {player: dave-m, team: pa, pts: 24, ftm: 6, fta: 7, pf: 3}
-  - {player: greg-t, team: pa, pts: 12, ftm: 2, fta: 2, pf: 2, tech: 1, flagrant: 1}
-  - {player: mike-r, team: lh, pts: 16, ftm: 1, fta: 2}
-  # ...and so on for everyone on the sheet
+game_id: 2026-10-17-g1   # must match the file name and a row in schedule.csv
+form: MBL-SS6            # the sheet's form number (top left)
+status: final            # final when it's checked; draft while it isn't
+home: aa                 # team ids, two letters (see teams.yml)
+away: bb
+scorekeeper: Pat S.      # the Scorekeeper box
+teams:
+  aa:
+    players:             # the roster rows, top to bottom
+      - {player: al-a, num: 4, here: true, ft: MXM, fouls: 2}
+      - {player: amy-b, num: 10, here: true, ft: X}
+      - {player: ann-c, num: 22, here: true, ft: M, fouls: 1}
+      - {player: ari-d, num: 7, here: false}
+  bb:
+    players:
+      - {player: bo-c, num: 5, here: true, ft: M, fouls: 3, tech: 1}
+      - {player: bev-d, num: 11, here: true, ft: XM}
+      - {player: bud-e, num: 30, here: true, ft: MX}
+running:                 # every filled box of the running score: total: number
+  aa: {2: 4, 4: 10, 5: 4, 7: 22, 10: 4, 12: 10, 13: 22, 15: 4, 17: 22, 19: 10, 20: 4, 22: 22}
+  bb: {3: 5, 5: 11, 6: 30, 8: 5, 10: 11, 11: 5, 14: 30, 16: 11, 17: 11, 19: 5}
+lines:                   # the total each end-of-quarter line is under: Q1, Q2, Q3, Q4
+  aa: [5, 12, 17, 22]
+  bb: [5, 10, 16, 19]
+boxes:                   # the score boxes under each roster
+  aa: {q1: 5, q2: 12, q3: 17, q4: 22, ot: null, final: 22}
+  bb: {q1: 5, q2: 10, q3: 16, q4: 19, ot: null, final: 19}
+checked_by: Lee M.       # who checked this file against the paper
 ```
 
-**`quarters`** is copied from the sheet's **Q1 to Q4** boxes under each
-roster: each team's running total at the end of each quarter, in order. The
-last one is the final score, unless the game went to overtime (then Q4 is tied
-and the final is higher). The site works out the points scored in each quarter
-from these, and from those who won each quarter.
+How to copy each part of the sheet:
 
-For each player: **`pts`** = total points, **`ftm`** = free throws made,
-**`fta`** = free throws attempted. Two more are optional and can be left out
-when they're 0: **`pf`** = personal fouls (0 to 5; kept, not shown on the site)
-**`tech`** = technical fouls (0 to 2; shown on the player page and the
-Stats page, counting the whole season, playoffs included) and **`flagrant`** =
-flagrant fouls (from the sheet's Notes; counted like technicals). A flagrant
-is also a personal foul, so count it in `pf` too. A player who was on the sheet but didn't
-score still gets a line with zeros, because being on the sheet counts as
-playing in the game.
-
-Two things must always be true, and the checks look for both: each team's
-player points add up to that team's final score, and `ftm` is never more than
-`fta`.
+- **Roster rows**, in the order they're written: the player's id (from
+  `players.yml`), the number in the **#** box, **`here: true`** if Here is
+  ticked (`false` if not), and only if they're not empty: `ft`, `fouls`, `tech`.
+- **`ft`** is the free-throw circles, left to right: **`M`** for a filled
+  circle (made), **`X`** for a slashed one (missed). `MXM` = made, missed,
+  made. If a player has more than 10, carry on with page 2's circles.
+- **`fouls`** is how many foul boxes are slashed, **`tech`** how many red T
+  boxes.
+- **`running`** is every running-score box that has a number in it: the total,
+  a colon, the number written beside it. `7: 22` means #22 scored to make it 7.
+  Page 2 carries on: `101: 4`, `103: 22`...
+- **`lines`**: the total each end-of-quarter line was drawn under.
+- **`boxes`**: the Q1 to Q4, OT and Final boxes under each roster, as written
+  (`ot: null` when there was no overtime).
+- **Flagrant fouls** from the Notes box go in a `notes:` list:
+  `- {team: bb, num: 5, q: 3, kind: flagrant, text: what happened}`.
+- **A sub written in by hand** needs a `players.yml` line first (see
+  [Add a new player, or a sub](#add-a-new-player-or-a-sub)); then their row
+  uses that id. Until then a draft can say `name: Jim K.` instead of `player:`.
 
 ## The checks, and what a failure looks like
 
-Every time the numbers are built, the script runs these checks. If **any**
-fail, it lists **all** the problems (with the file and the line) and stops.
-Nothing is published until they are fixed.
+Every time the numbers are built, the checks run on every game file. If **any**
+fail, the script lists **all** the problems and stops. Nothing is published
+until they are fixed.
 
-The real message starts with the full path (for example
-`data/2026-27/games/2026-12-03-g1.yml`); it is shortened here to fit.
+Each message names the file, then **the box** it's about, then the problem.
+`running.bb.14` is bb's running-score box at 14; `teams.aa.players.0` is aa's
+first roster row (`.ft`, `.fouls` for its parts); `boxes.bb.final` is bb's
+Final box. The real message starts with the full path (for example
+`data/2026-27/games/2026-10-17-g1.yml`); it is shortened here.
 
 | What it catches | Example message |
 |---|---|
-| A team's player points don't add up to the final score | `games/2026-12-03-g1.yml: pa player points add up to 71, but the final score is 73` |
-| Free throws made is more than attempted | `games/2026-12-03-g1.yml: line 1 (dave-m): ftm 8 is more than fta 7` |
-| A number is negative or isn't a whole number | `games/2026-12-03-g1.yml: line 2 (greg-t): fta should be whole numbers, 0 or more` |
-| A player id isn't in `players.yml` (often a typo) | `games/2026-12-03-g1.yml: line 1 (dave-x): player 'dave-x' is not in players.yml` |
-| A team id isn't in `teams.yml` | `games/2026-12-03-g1.yml: line 10 (mike-r): team 'zz' is not in teams.yml` |
-| The `game_id` doesn't match the file name | `games/2026-12-03-g1.yml: game_id '2026-12-03-g9' doesn't match the file name '2026-12-03-g1'` |
-| The game isn't in `schedule.csv` | `games/2026-12-11-g1.yml: game_id '2026-12-11-g1' has no row in schedule.csv` |
-| The date, teams or type disagree with `schedule.csv` | `games/2026-12-03-g1.yml: date 2026-12-04 doesn't match schedule.csv (2026-12-03)` |
-| A game file exists for a game marked `cancelled` | `games/2026-11-14-g1.yml: game '2026-11-14-g1' is marked cancelled in schedule.csv. Delete this file, or clear the status if the game was played` |
-| Too many fouls for the sheet (`pf` above 5, `tech` above 2) | `games/2026-12-03-g1.yml: line 1 (dave-m): tech 3 should be a whole number from 0 to 2` |
-| The final score is a tie | `games/2026-12-03-g1.yml: final score is tied 64-64` |
-| A player is listed twice in one game | `games/2026-12-03-g1.yml: line 3 (greg-t): player is listed twice in this game` |
+| The Final box doesn't match the running score | `games/2026-10-17-g1.yml: boxes.bb.final: the Final box says 21, but the running score ends at 19` |
+| A number in the running score is on no row of that team | `games/2026-10-17-g1.yml: running.bb.14: #77 scored for bb, but no bb row has #77` |
+| A jump in the running score isn't 1, 2 or 3 | `games/2026-10-17-g1.yml: running.aa.22: aa goes from 17 to 22, a jump of 5; a score is 1, 2 or 3` |
+| Someone scored who isn't ticked Here | `games/2026-10-17-g1.yml: running.aa.2: #7 scored, but row 4 (ari-d) isn't ticked Here` |
+| A quarter box disagrees with its line | `games/2026-10-17-g1.yml: boxes.aa.q2: the Q2 box says 13, but the Q2 line is under 12` |
+| An OT box without overtime, or overtime without a tie | `games/2026-10-17-g1.yml: boxes.aa.ot: the OT box is filled in, but Q4 already equals the final score` |
+| A free-throw string isn't `M`s and `X`s | `games/2026-10-17-g1.yml: teams.aa.players.0.ft: ft 'MMQ' should be the circles in order: M for made (filled), X for missed (slashed), e.g. MMXM` |
+| Too many fouls for the sheet (`fouls` above 5, `tech` above 2) | `games/2026-10-17-g1.yml: teams.aa.players.0.tech: tech 3 should be a whole number from 0 to 2` |
+| A flagrant in Notes without a slashed foul box | `games/2026-10-17-g1.yml: teams.aa.players.0.fouls: 1 flagrant foul in Notes, but only 0 foul boxes slashed; a flagrant is also a personal foul` |
+| Two rows on a team have the same number | `games/2026-10-17-g1.yml: teams.aa.players.3.num: #4 is on two aa rows (rows 1 and 4); the running score can't tell them apart` |
+| A player id isn't in `players.yml` (often a typo) | `games/2026-10-17-g1.yml: teams.aa.players.1.player: player 'amy-z' is not in players.yml` |
+| A row has no player id yet (a sub not in `players.yml`) | `games/2026-10-17-g1.yml: teams.bb.players.3.player: Jim K. isn't matched to a player id yet...` |
+| The `game_id` doesn't match the file name, or isn't on the schedule | `games/2026-10-24-g1.yml: game_id: game_id '2026-10-24-g1' has no row in schedule.csv` |
+| The teams disagree with `schedule.csv` | `games/2026-10-17-g1.yml: home: home/away bb/aa doesn't match schedule.csv (aa/bb)` |
+| A game file exists for a game marked `cancelled` | `games/2026-11-14-g1.yml: game_id: game '2026-11-14-g1' is marked cancelled in schedule.csv...` |
+| A file in `games/` that isn't finished | `games/2026-10-17-g1.yml: status: a file in games/ must be status: final (drafts go in drafts/)`; also `checked_by` missing, or `review` notes left in |
 | A player name isn't written "First L." | `players.yml: player #1 (dave-m): display 'Dave Mitchell' should be 'First L.' (never a full name)` |
 | Two players on one team share a "First L." and one has no number | ``players.yml: mike-r, mike-r2 on team dn are all "Mike R."; give each a jersey `number` ...`` |
-| The quarter totals are missing | ``games/2026-12-03-g1.yml: quarters is missing. Add each team's running total at the end of each quarter, from the sheet's Q1-Q4 boxes, e.g. quarters: {...}`` |
-| The Q4 totals don't match the final score | `games/2026-12-03-g1.yml: the Q4 totals (pa 70, lh 64) don't match the final score (71-64). They only differ after overtime, which needs the score tied at the end of Q4` |
-| A quarter total goes down | `games/2026-12-03-g1.yml: quarters for lh [15, 31, 29, 64] go down; each is the running total at the end of that quarter, so it can only stay level or climb` |
-| More flagrant fouls than personal fouls | `games/2026-12-03-g1.yml: line 2 (greg-t): flagrant 1 is more than pf 0 (a flagrant foul is also a personal foul, so count it in pf too)` |
-| The file isn't valid (a missing bracket, wrong indent) | `games/2026-12-03-g1.yml: not valid YAML (...)` followed by the line and column |
+| The file isn't valid (a missing bracket, wrong indent) | `games/2026-10-17-g1.yml: not valid YAML (...)` followed by the line and column |
+
+**Warnings** don't stop anything; they're listed under the season in the
+check's output. One you may see: *3 free throws made, but the running score
+has 2 scores for #30*. It is possible (a free throw can be worth up to 3),
+but usually means a circle or a number was copied wrong.
 
 It also catches: the same `game_id` used in two seasons that are shown on the
-site (each game gets a page at `/games/<game_id>/`, so ids must be unique), a
-`stands_in_for` that names a season that doesn't exist, two players or teams
-sharing an id, a made free throw worth
-more than the points scored, a player with exactly 1 point more than their free
-throws (a field goal can't be worth 1), a team playing twice on the same day,
-and a `seasons.yml` that doesn't have exactly one current season.
+site, a `stands_in_for` that names a season that doesn't exist, two players or
+teams sharing an id, a team playing twice on the same day, and a
+`seasons.yml` that doesn't have exactly one current season.
 
 **Where you see the message:** on the GitHub pull request, the *Build and
 deploy* check turns into a red cross. Click **Details**, then open the step
 called **Check data and compute stats**. The messages above are what you will
 read there. A failed check never changes the live site.
 
-Often one mistake shows up as two messages. A wrong final score, for example,
-also makes the points not add up. Fix the first one and look again.
+Often one mistake shows up as two messages. Fix the first one and look again.
 
 ## How each number is calculated
 
@@ -261,7 +285,7 @@ truly equal.
 **Standings** are by **points**: in each regular-season game a team gets
 **1 point for each quarter it wins** and **3 points for winning the game**, so
 7 at most. A quarter's winner is the team that scored more in it (from the
-`quarters` totals). Two things are assumed until the league confirms them: a
+quarter boxes). Two things are assumed until the league confirms them: a
 **tied quarter** gives neither team a point, and **overtime** isn't a quarter
 (it only decides who wins the game). Port Arthur in the sample season:
 
@@ -302,18 +326,22 @@ the site (it takes a minute or two).
 2. **Create the game file.** In `data/2026-27/games/`, choose **Add file →
    Create new file** and name it exactly like the `game_id`, plus `.yml`:
    `2026-12-03-g1.yml`. The easiest start is to copy the example
-   [above](#what-a-game-file-looks-like) and replace the numbers.
-3. **Type in the sheet.** The `final:` score, the `quarters:` totals from the
-   Q1 to Q4 boxes, and one `lines:` entry for every player on the sheet, with
-   their `pts`, `ftm` and `fta` (and `pf`, `tech`, `flagrant` when not 0). The
-   `final:` score must equal each team's points added up.
-4. **Optional: save the photo** of the sheet as
+   [above](#what-a-game-file-looks-like) and replace the boxes. (Part-done
+   work can wait in `data/2026-27/drafts/` with `status: draft`; the site
+   ignores drafts.)
+3. **Copy the sheet.** The roster rows (id, number, Here, circles, fouls), every
+   running-score box, the quarter lines, the score boxes and any flagrant fouls
+   from Notes. You never add anything up: the site does that, and checks the
+   Final box against the running score.
+4. **Sign it off.** Check the file against the paper once more, set
+   `status: final` and put your name in `checked_by`.
+5. **Optional: save the photo** of the sheet as
    `data/2026-27/sheets/2026-12-03-g1.jpg` (same name as the game). It is kept
    for checking. It is **not** shown on the site: the box score's "Score sheet
    photo" link is switched off (`score_sheet_links: false` in `_config.yml`):
    the league keeps the photos in the repo, not on the site. The repo is public,
    so if a name was written out in full by hand, don't save the photo.
-5. **Commit as a pull request** and wait for the check. Fix anything it reports
+6. **Commit as a pull request** and wait for the check. Fix anything it reports
    (see [the checks](#the-checks-and-what-a-failure-looks-like)), then merge.
    When it is published the game has its own box score page
    (`/games/2026-12-03-g1/`), and the Schedule, standings, Stats and every
@@ -386,12 +414,12 @@ then the page says it's a draft. Commit as a pull request and merge it.
 
 ### Fix a wrong number
 
-Open the game file, correct the number, and commit it as a pull request. The
-checks run again and every stat that depends on it is recalculated from
-scratch, so there is nothing else to update. If you are changing a player's
-points, change the team's `final:` score too if it is now off, or the check
-will tell you. A wrong quarter total is fixed the same way, in `quarters:`;
-the standings points follow by themselves.
+Open the game file, correct the box that was copied wrong, and commit it as a
+pull request. The checks run again and every stat that depends on it is
+recalculated from scratch, so there is nothing else to update. A player's
+points are fixed in the running score (the number beside the total), free
+throws in their `ft` circles, quarter scores in `lines` and `boxes`; the
+standings points follow by themselves.
 
 ### Add a new player, or a sub
 
@@ -406,8 +434,10 @@ the standings points follow by themselves.
    `number`: the site shows "#23 Mike R." and "#7 Mike R.", and the build
    stops until they have one.
 3. The **display** name is always written **First L.**, never a full name.
-4. For a **sub**, add them the first time they play and set `sub: true`. Then
-   use their id in that day's game file like any other player. A sub's page
+4. For a **sub**, add them the first time they play and set `sub: true`, with
+   the team they played for and the number from the sheet. Then use their id
+   in that day's game file like any other player. (A sub written in by hand
+   on the sheet can sit in a draft as `name: Jim K.` until this is done.) A sub's page
    and box score lines are marked **Sub**.
 5. Once they are in `players.yml` they get a player page (`/players/mike-r/`)
    and appear on their team's roster, even before their first game.
@@ -459,11 +489,11 @@ later together with its entry in `data/seasons.yml`.
 - **The site still shows an old number.** Changes only go live when the pull
   request is merged, and publishing takes a minute or two. Refresh the page.
 - **A player is missing from Stats.** Stats only lists players who have played
-  at least one game, so check they have a `lines:` entry in a game file.
+  at least one game, so check their row in the game file has `here: true`.
 - **A player is missing from the free-throw leaders.** They have fewer than 10
   attempts so far (`ft_min_attempts` in `data/seasons.yml`). That is the rule,
   not a mistake.
-- **A team's points look wrong.** Points come from the `quarters:` totals: 1
+- **A team's points look wrong.** Points come from the quarter boxes (`boxes:` Q1 to Q4): 1
   for each quarter a team scored more in, and 3 for the win. Check the totals
   against the sheet's Q1 to Q4 boxes. A tied quarter gives no one a point.
 - **A sub tops the points-per-game list after one big game.** There is no

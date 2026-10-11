@@ -1,0 +1,29 @@
+# aa passes 100 points (the running score carries on to page 2, from 101) and Al A. (#4)
+# takes 13 free throws (circles 11-13 are on page 2). aa wins 104-98.
+game_id: "2026-10-17-g1"
+form: MBL-SS6
+status: final
+home: aa
+away: bb
+scorekeeper: Pat S.
+teams:
+  aa:
+    players:
+      - {player: al-a, num: 4, here: true, ft: MXMMXMMMMXMXM, fouls: 3}
+      - {player: amy-b, num: 10, here: true, ft: MMXMXM}
+      - {player: ann-c, num: 22, here: true, ft: MM, fouls: 1}
+  bb:
+    players:
+      - {player: bo-c, num: 5, here: true, ft: MXMMMMX, fouls: 4}
+      - {player: bev-d, num: 11, here: true, ft: MMMX}
+      - {player: bud-e, num: 30, here: true, fouls: 2}
+running:
+  aa: {2: 22, 3: 10, 6: 4, 7: 4, 8: 4, 9: 4, 11: 22, 14: 10, 15: 4, 17: 10, 19: 22, 21: 4, 23: 10, 26: 22, 27: 4, 30: 10, 32: 4, 34: 10, 36: 10, 39: 10, 41: 4, 44: 4, 46: 4, 48: 22, 50: 4, 52: 22, 54: 4, 55: 4, 57: 10, 60: 10, 62: 22, 63: 10, 64: 22, 66: 22, 69: 22, 71: 4, 72: 10, 75: 22, 78: 4, 81: 22, 84: 10, 86: 10, 88: 22, 91: 10, 94: 4, 95: 10, 97: 4, 98: 22, 101: 4, 102: 4, 103: 4, 104: 4}
+  bb: {2: 5, 4: 30, 6: 11, 8: 11, 11: 11, 12: 5, 15: 11, 16: 5, 19: 5, 21: 30, 23: 30, 24: 11, 27: 30, 29: 5, 31: 5, 33: 30, 35: 5, 36: 5, 38: 5, 40: 30, 42: 30, 44: 5, 46: 11, 48: 30, 49: 11, 51: 30, 53: 11, 56: 11, 59: 5, 62: 30, 64: 30, 66: 30, 67: 5, 69: 11, 71: 5, 73: 11, 75: 5, 77: 11, 78: 5, 81: 5, 84: 11, 86: 5, 88: 11, 91: 11, 93: 5, 95: 5, 97: 5, 98: 11}
+lines:
+  aa: [26, 52, 78, 104]
+  bb: [24, 49, 73, 98]
+boxes:
+  aa: {q1: 26, q2: 52, q3: 78, q4: 104, ot: null, final: 104}
+  bb: {q1: 24, q2: 49, q3: 73, q4: 98, ot: null, final: 98}
+checked_by: Lee M.

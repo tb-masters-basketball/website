@@ -1,25 +1,39 @@
 # Sample data from scripts/make_sample_season.py. Not real.
-game_id: 2025-10-16-g2
-date: 2025-10-16
+game_id: "2025-10-16-g2"
+form: MBL-SS6
+status: final
 home: pa
 away: fw
-type: regular
-final: {pa: 69, fw: 61}
-quarters: {pa: [21, 38, 55, 69], fw: [15, 34, 46, 61]}
+teams:
+  pa:
+    players:
+      - {player: dave-m, num: 54, here: true, fouls: 1}
+      - {player: greg-t, num: 22, here: true, ft: MMM, fouls: 1}
+      - {player: kevin-h, num: 17, here: true, fouls: 3}
+      - {player: doug-w, num: 3, here: true, ft: XM, fouls: 2}
+      - {player: terry-n, num: 38, here: true, ft: MXX, tech: 1}
+      - {player: marc-l, num: 48, here: true, ft: M, fouls: 5}
+      - {player: brian-o, num: 53, here: true, ft: MXX, fouls: 5}
+      - {player: gord-f, num: 19, here: true, ft: XX, fouls: 1}
+  fw:
+    players:
+      - {player: tim-r, num: 3, here: true, ft: MM, fouls: 4}
+      - {player: ray-d, num: 26, here: true, ft: X, fouls: 2}
+      - {player: joe-p, num: 48, here: true}
+      - {player: paul-l, num: 54, here: true, ft: MMMX, fouls: 3}
+      - {player: glen-a, num: 46, here: true, ft: MX, fouls: 3}
+      - {player: bill-c, num: 52, here: true, ft: XX, fouls: 4}
+      - {player: carl-m, num: 6, here: true, ft: MMXX, fouls: 2}
+      - {player: ken-w, num: 17, here: true, ft: MM, fouls: 1}
+running:
+  pa: {2: 17, 4: 48, 6: 54, 9: 48, 11: 3, 13: 54, 15: 54, 18: 22, 20: 19, 21: 22, 23: 22, 25: 54, 28: 3, 29: 48, 32: 17, 34: 22, 37: 38, 38: 22, 41: 3, 43: 22, 45: 38, 47: 54, 49: 17, 51: 54, 52: 22, 54: 54, 55: 38, 58: 17, 59: 3, 62: 38, 65: 53, 68: 54, 69: 53}
+  fw: {2: 54, 4: 48, 5: 17, 6: 46, 7: 6, 9: 46, 11: 3, 12: 6, 14: 3, 15: 54, 17: 54, 18: 54, 20: 26, 22: 26, 24: 48, 26: 26, 28: 52, 31: 3, 32: 17, 33: 54, 34: 3, 37: 3, 39: 46, 41: 3, 43: 26, 45: 26, 46: 3, 48: 3, 51: 26, 53: 48, 55: 48, 58: 54, 61: 48}
 lines:
-  - {player: dave-m, team: pa, pts: 17, ftm: 0, fta: 0, pf: 1}
-  - {player: greg-t, team: pa, pts: 12, ftm: 3, fta: 3, pf: 1, flagrant: 1}
-  - {player: kevin-h, team: pa, pts: 10, ftm: 0, fta: 0, pf: 3}
-  - {player: doug-w, team: pa, pts: 9, ftm: 1, fta: 2, pf: 2}
-  - {player: terry-n, team: pa, pts: 9, ftm: 1, fta: 3, pf: 0, tech: 1}
-  - {player: marc-l, team: pa, pts: 6, ftm: 1, fta: 1, pf: 5}
-  - {player: brian-o, team: pa, pts: 4, ftm: 1, fta: 3, pf: 5}
-  - {player: gord-f, team: pa, pts: 2, ftm: 0, fta: 2, pf: 1}
-  - {player: tim-r, team: fw, pts: 16, ftm: 2, fta: 2, pf: 4}
-  - {player: ray-d, team: fw, pts: 13, ftm: 0, fta: 1, pf: 2}
-  - {player: joe-p, team: fw, pts: 11, ftm: 0, fta: 0, pf: 0}
-  - {player: paul-l, team: fw, pts: 10, ftm: 3, fta: 4, pf: 3}
-  - {player: glen-a, team: fw, pts: 5, ftm: 1, fta: 2, pf: 3}
-  - {player: bill-c, team: fw, pts: 2, ftm: 0, fta: 2, pf: 4}
-  - {player: carl-m, team: fw, pts: 2, ftm: 2, fta: 4, pf: 2}
-  - {player: ken-w, team: fw, pts: 2, ftm: 2, fta: 2, pf: 1}
+  pa: [21, 38, 55, 69]
+  fw: [15, 34, 46, 61]
+boxes:
+  pa: {q1: 21, q2: 38, q3: 55, q4: 69, ot: null, final: 69}
+  fw: {q1: 15, q2: 34, q3: 46, q4: 61, ot: null, final: 61}
+notes:
+  - {team: pa, num: 22, q: 2, kind: flagrant, text: flagrant foul}
+checked_by: Sam P.

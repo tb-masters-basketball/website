@@ -1,0 +1,92 @@
+{
+  "game": {
+    "final": {
+      "aa": 104,
+      "bb": 98
+    },
+    "quarters": {
+      "aa": [
+        26,
+        52,
+        78,
+        104
+      ],
+      "bb": [
+        24,
+        49,
+        73,
+        98
+      ]
+    },
+    "ot": false,
+    "lines": [
+      {
+        "player": "al-a",
+        "team": "aa",
+        "num": "4",
+        "pts": 40,
+        "ftm": 9,
+        "fta": 13,
+        "pf": 3,
+        "tech": 0,
+        "flagrant": 0
+      },
+      {
+        "player": "amy-b",
+        "team": "aa",
+        "num": "10",
+        "pts": 34,
+        "ftm": 4,
+        "fta": 6,
+        "pf": 0,
+        "tech": 0,
+        "flagrant": 0
+      },
+      {
+        "player": "ann-c",
+        "team": "aa",
+        "num": "22",
+        "pts": 30,
+        "ftm": 2,
+        "fta": 2,
+        "pf": 1,
+        "tech": 0,
+        "flagrant": 0
+      },
+      {
+        "player": "bo-c",
+        "team": "bb",
+        "num": "5",
+        "pts": 38,
+        "ftm": 5,
+        "fta": 7,
+        "pf": 4,
+        "tech": 0,
+        "flagrant": 0
+      },
+      {
+        "player": "bev-d",
+        "team": "bb",
+        "num": "11",
+        "pts": 34,
+        "ftm": 3,
+        "fta": 4,
+        "pf": 0,
+        "tech": 0,
+        "flagrant": 0
+      },
+      {
+        "player": "bud-e",
+        "team": "bb",
+        "num": "30",
+        "pts": 26,
+        "ftm": 0,
+        "fta": 0,
+        "pf": 2,
+        "tech": 0,
+        "flagrant": 0
+      }
+    ]
+  },
+  "problems": []
+}

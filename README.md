@@ -69,7 +69,8 @@ sheet into that file and a pull request:
    - **Notes** on page 1 give flagrant fouls (team, player number, quarter).
      A flagrant is also a personal foul, so it's in the foul boxes (`pf`) too
    - check: last running total = Final box; each quarter box = the running
-     total at that quarter's line; player points add up to the final
+     total at that quarter's line; every scorer's number is on that team's
+     roster and ticked Here
 3. **Match names to player ids** in `players.yml`:
    - Player ids are matched by **team, then first name and last initial**
      ("Dave M." on Hustle is `dave-m`). Jersey numbers are kept only in
@@ -80,9 +81,13 @@ sheet into that file and a pull request:
    - Ask about anyone it can't match, and add new players or subs (`sub: true`).
    - Never write a full name; players are always "First L.".
 4. **Write the files:**
-   - `data/2026-27/games/<game_id>.yml`, with the id taken from `schedule.csv`
-     by date and teams, including `quarters` (the Q1 to Q4 boxes) and any
-     `flagrant` fouls from Notes
+   - the sheet, box for box, in the game file format
+     ([`docs/game-file-format.md`](docs/game-file-format.md)): first as
+     `data/2026-27/drafts/<game_id>.yml` with `review` notes on any box it
+     can't read, then, once confirmed, as `data/2026-27/games/<game_id>.yml`
+     (`status: final`, `checked_by`). The id comes from `schedule.csv` by date
+     and teams. `scripts/sheet_rules.py` gives every problem with the box it's
+     about, and `tests/fixtures/sheets/` has test sheets to try it on
    - the photo as `data/2026-27/sheets/<game_id>.jpg`
 5. **Run the checks** (`python scripts/build_stats.py --check`) and fix
    anything they report, such as points that don't add up to the final.
@@ -182,7 +187,8 @@ generated is committed: `_data/computed/`, the stub folders, `calendar/` and
 | `data/<season>/teams.yml` | Team id (2 letters), name, 2-letter code, colour slot (1–5) | hand, once a season |
 | `data/<season>/players.yml` | Player id (`mike-r`), display name ("Mike R."), team, `sub`, jersey `number` (the roster: the only place numbers live) | hand or `/record-game` |
 | `data/<season>/schedule.csv` | One row per game: id, date, time, gym, home, away, `regular`/`playoff`, week, optional `status` (`cancelled`) and `round` (playoff round name) | hand |
-| `data/<season>/games/<game_id>.yml` | One file per played game: final score, `quarters` (each team's running total at the end of Q1–Q4) and a line per player (points, FTM, FTA, and fouls: `pf`, `tech`, `flagrant`) | hand or `/record-game` |
+| `data/<season>/games/<game_id>.yml` | One file per played game: a digital copy of the score sheet, box for box (roster rows with Here, free-throw circles and fouls; the running score; quarter lines and score boxes; Notes). Format: [`docs/game-file-format.md`](docs/game-file-format.md) | hand or `/record-game` |
+| `data/<season>/drafts/<game_id>.yml` | A game still being entered or checked (`status: draft`); never read by the build | the entry page or `/record-game` |
 | `data/<season>/sheets/<game_id>.jpg` | Photo of the paper sheet, kept for checking (not published) | hand or `/record-game` |
 | `_config.yml` | `sample_data` (show the fake season), `score_sheet_links` (publish photos), `preview_site` (the sample copy at `/preview/`), `contact_url`, `search_engines` (off: pages ask not to be listed by Google), the domain | hand, rarely |
 
@@ -196,14 +202,15 @@ rounding, tiebreakers) are in [`data/CLAUDE.md`](data/CLAUDE.md). The seasons ar
 
 **Checks.** Every problem is reported at once, and nothing is written until
 there are none:
-- Each team's player points add up to its final score, and there are no ties.
-- `quarters` has 4 running totals per team that never go down, and Q4 equals
-  the final score (or is tied, when the game went to overtime).
-- `ftm ≤ fta`, `ftm ≤ pts`, and no field goals worth 1 point.
-- Fouls fit the sheet (`pf` 0–5, `tech` 0–2), and `flagrant ≤ pf` (a flagrant
-  is also a personal foul).
+- Every game file (a copy of the score sheet) passes the sheet rules in
+  `scripts/sheet_rules.py` ([all of them](docs/game-file-format.md#the-checks)):
+  running-score jumps of 1, 2 or 3 by numbers on that team's roster and ticked
+  Here; the Final box equals the last running total; quarter boxes match their
+  lines; overtime only after a tied Q4; fouls 0–5, techs 0–2, and no more
+  flagrants than foul boxes; the game is on the schedule with the same teams.
+  Each problem names the box (`running.bb.14`, `boxes.aa.final`); warnings are
+  listed but don't stop the build. Drafts (`drafts/`) are never read.
 - Every player, team and game id exists and is unique.
-- A game file matches its `schedule.csv` row (date, teams, type).
 - No game file for a cancelled game, or for a playoff game whose teams are
   still `TBD`/`2nd`/`Winner G41`.
 - Names are "First L.", times are 24-hour, dates are real, and a team doesn't
@@ -339,7 +346,8 @@ Every page uses `_layouts/default.html`:
 night at about 4 AM Thunder Bay time (08:17 UTC):
 
 1. Install Python packages (`requirements.txt`: PyYAML, reportlab).
-2. Run the unit tests (`tests/`).
+2. Run every test with pytest (`tests/`, including the score sheet rules against
+   the shared fixtures in `tests/fixtures/sheets/`).
 3. `python scripts/build_stats.py`: check the data and write the JSON, stubs
    and calendars.
 4. `scripts/make_score_sheets.sh`: score sheet PDFs for the season the site
@@ -368,7 +376,7 @@ domain is set in the repo's Settings → Pages and in `_config.yml` (`url`) and
 pip install -r requirements.txt        # Python 3.12, PyYAML, reportlab
 bundle install                         # Ruby and Jekyll 4.4
 
-python -m unittest discover -s tests   # unit tests
+python -m pytest                       # every test (unit tests + score sheet fixtures)
 python scripts/build_stats.py          # check data; write JSON, stubs, calendars
 scripts/make_score_sheets.sh           # score sheet PDFs (optional locally)
 bundle exec jekyll serve --livereload  # http://localhost:4000/
@@ -407,6 +415,7 @@ data/                    league data: the only thing edited week to week
   sample-2025-26/
 scripts/
   build_stats.py         checks the data; writes JSON, stub pages, calendars
+  sheet_rules.py         the score sheet rules: checks a game file, works out each player's numbers
   calendars.py           the .ics files
   scoresheet/            the score sheet generator (form MBL-SS6): README, fonts, example data
   make_score_sheets.sh   score sheet PDFs for the season shown (CI)
@@ -414,7 +423,8 @@ scripts/
   build_preview.sh       the sample-season copy at /preview/ (CI)
   check_links.sh         link check (CI)
   screenshot_all.py      screenshots + page checks for QA
-tests/                   unit tests for build_stats.py, calendars.py and score sheet data loading
+tests/                   unit tests (build_stats, calendars, score sheets) and the sheet rules tests
+  fixtures/sheets/       test game files with their expected results (shared with the entry page)
 _config.yml              site settings, switches, collections
 _layouts/  _includes/    templates and components
 index.html  schedule/  stats/  teams/  archive/  rules/  404.html   fixed pages
@@ -423,6 +433,7 @@ assets/js/               theme button, Stats page
 brand/                   brand kit (don't edit)
 docs/
   stats-workflow.md      the volunteer's guide
+  game-file-format.md    the game file: a digital copy of the score sheet
   open-questions.md      league decisions still needed
   design-brief.md        the design spec and decisions
   mockups/               approved mockups

@@ -28,7 +28,7 @@ The scorekeeper can pick whichever they like. All four have the same parts, so
 | Stat | Source |
 |---|---|
 | Player points | Running score. The jump from the team's previous total to the next one is that basket's value: 1, 2 or 3. |
-| FTM | Filled circles in the player's row. The running score's 1-point jumps must agree. |
+| FTM | Filled circles in the player's row. Never the running score: a free throw can be worth 1, 2 or 3 points under league rules. More made free throws than the player's scores is flagged as a warning. |
 | FTA | Filled circles plus slashed circles. |
 | GP | **Here** ticks. |
 | PF | Slashed foul boxes in the player's row (0 to 5). The website keeps them but doesn't show them. |
@@ -84,9 +84,27 @@ It reads `teams.yml`, `players.yml` and `schedule.csv` from the season folder.
 - **Editing:** every name, number and detail stays an editable PDF field, so
   last-minute changes can be typed in before printing.
 
+## The spec
+Every structural number on the sheet lives in the `SPEC` dict at the top of
+`scoresheet.py`, and the drawing code reads only that: the form id, roster
+rows, free-throw circles per page, personal-foul and technical boxes,
+timeouts, quarters and team-foul boxes, the score boxes (Q1-Q4, OT, Final),
+points per page, running-score columns per layout and the page 2
+continuation.
+
+```
+python scripts/scoresheet/scoresheet.py --spec scripts/scoresheet/spec.json
+```
+writes it as JSON, with each layout's running-score ranges added (page 1:
+1-100; page 2: 101-180 portrait Letter, 101-175 the others).
+`scripts/sheet_rules.py` reads `spec.json`, and a test fails if it's out of
+date. Change the printed sheet in `SPEC`, bump `form`, regenerate `spec.json`,
+and update the game file format (`docs/game-file-format.md`).
+
 ## Files
 ```
 scoresheet.py           the generator
+spec.json               SPEC as JSON (from --spec), read by scripts/sheet_rules.py
 assets/fonts/*.ttf      Barlow and Barlow Condensed (SIL Open Font License 1.1)
 assets/fonts/OFL.txt    the licence text, which must stay with the fonts
 assets/masters-badge.png

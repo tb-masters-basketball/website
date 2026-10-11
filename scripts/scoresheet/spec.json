@@ -1,0 +1,114 @@
+{
+  "form": "MBL-SS6",
+  "roster_rows": 12,
+  "ft_circles_per_page": 10,
+  "personal_foul_boxes": 5,
+  "technical_boxes": 2,
+  "timeouts": 3,
+  "quarters": [
+    "Q1",
+    "Q2",
+    "Q3",
+    "Q4"
+  ],
+  "team_foul_boxes_per_quarter": 5,
+  "score_boxes": [
+    {
+      "key": "q1",
+      "label": "Q1",
+      "digits": 2
+    },
+    {
+      "key": "q2",
+      "label": "Q2",
+      "digits": 2
+    },
+    {
+      "key": "q3",
+      "label": "Q3",
+      "digits": 2
+    },
+    {
+      "key": "q4",
+      "label": "Q4",
+      "digits": 3
+    },
+    {
+      "key": "ot",
+      "label": "OT",
+      "digits": 3
+    },
+    {
+      "key": "final",
+      "label": "Final",
+      "digits": 3
+    }
+  ],
+  "points_per_page": 100,
+  "running_columns": {
+    "portrait-letter": 5,
+    "default": 4
+  },
+  "page2_columns_fewer": 1,
+  "notes_box": true,
+  "layouts": {
+    "portrait-letter": {
+      "page1": {
+        "first": 1,
+        "last": 100,
+        "columns": 5,
+        "per_column": 20
+      },
+      "page2": {
+        "first": 101,
+        "last": 180,
+        "columns": 4,
+        "per_column": 20
+      }
+    },
+    "portrait-legal": {
+      "page1": {
+        "first": 1,
+        "last": 100,
+        "columns": 4,
+        "per_column": 25
+      },
+      "page2": {
+        "first": 101,
+        "last": 175,
+        "columns": 3,
+        "per_column": 25
+      }
+    },
+    "landscape-letter": {
+      "page1": {
+        "first": 1,
+        "last": 100,
+        "columns": 4,
+        "per_column": 25
+      },
+      "page2": {
+        "first": 101,
+        "last": 175,
+        "columns": 3,
+        "per_column": 25
+      }
+    },
+    "landscape-legal": {
+      "page1": {
+        "first": 1,
+        "last": 100,
+        "columns": 4,
+        "per_column": 25
+      },
+      "page2": {
+        "first": 101,
+        "last": 175,
+        "columns": 3,
+        "per_column": 25
+      }
+    }
+  },
+  "max_running_total": 175,
+  "ft_circles": 20
+}

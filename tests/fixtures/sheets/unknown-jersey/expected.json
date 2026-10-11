@@ -1,0 +1,10 @@
+{
+  "game": null,
+  "problems": [
+    {
+      "level": "error",
+      "at": "running.bb.14",
+      "message": "#77 scored for bb, but no bb row has #77"
+    }
+  ]
+}
