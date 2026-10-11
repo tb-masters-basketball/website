@@ -22,10 +22,13 @@ and `CNAME`. (`site.webmanifest` uses relative paths, so it needs no change.)
 - **`scripts/build_stats.py`** (Python 3, standard library plus PyYAML) reads
   every season in `data/seasons.yml` and writes `_data/computed/<season>/*.json`:
   standings, player totals, leaders, per-player rankings and per-game logs.
-  Game lines may carry `pf`, `tech` and `flagrant` (see data/CLAUDE.md):
-  technical and flagrant fouls count the whole season, playoffs included, and
-  personal fouls aren't shown. Every game file has `quarters` (running totals
-  at the end of Q1-Q4); standings are by points: 1 per quarter won, 3 per win.
+  Game files are digital copies of the score sheet (docs/game-file-format.md);
+  `scripts/sheet_rules.py` is the one place the sheet rules live: it checks a
+  file, returns problems as {level, at: path to one box, message}, and works out
+  each player's points (running score), FTM/FTA (circles), GP (Here), fouls,
+  techs and flagrants (Notes). Technical and flagrant fouls count the whole
+  season, playoffs included; personal fouls aren't shown. Standings are by
+  points: 1 per quarter won (from the quarter boxes), 3 per win.
 - **Sample data switch:** pages never name a season. `build_stats.py` picks the
   active season (the sample stand-in while `sample_data: true` in `_config.yml`,
   else the `current` one) and writes `_data/computed/active.json`;
@@ -47,18 +50,23 @@ The printable score sheet (form MBL-SS6) comes from
 and before Jekyll, for the season the site shows. It writes `score-sheets/`
 (git-ignored): each game day from today on in all four layouts, plus the blank
 sheets. The Schedule page links only the PDFs that exist.
-**Don't change the sheet's layout or `FORM` without updating `/record-game`**,
-which reads sheets by that exact layout. Changes to how it reads the data
-(which games, which players) are fine.
+Every structural number (rows, circles, foul boxes, score boxes, running-score
+pages) is in its `SPEC` dict; `scoresheet.py --spec scripts/scoresheet/spec.json`
+writes it out for `sheet_rules.py` (a test keeps the two in step).
+**Don't change the sheet's layout or `FORM` without updating `/record-game`,
+`sheet_rules.py` and the game file format**, which read sheets by that exact
+layout. Changes to how it reads the data (which games, which players) are fine.
 
 ## Layout
 ```
-data/<season>/          source of truth, edited by hand or by /record-game (see data/CLAUDE.md)
+data/<season>/          source of truth, edited by hand or by /record-game (see data/CLAUDE.md);
+                        games/ = finished score sheets, drafts/ = not yet (never built)
                         data/2026-27/ is the real season; data/sample-2026-27/ is fake data
 _config.yml             `sample_data: true` makes every page read the sample season (+ banner);
                         `preview_site: true` also builds a sample copy at /preview/ on every deploy;
                         `score_sheet_links` (off) publishes score sheet photos; collections for the stubs
 scripts/build_stats.py  computes _data/computed/ (git-ignored) — never edit those files by hand
+scripts/sheet_rules.py  the score sheet rules: game file checks (with box paths) and per-player lines
 scripts/calendars.py    writes calendar/<team>.ics and league.ics (git-ignored) from the real season;
                         called by build_stats.py, linked from Schedule and team pages
 scripts/make_sample_season.py  regenerates data/sample-2026-27/ and sample-2025-26/ (fake data)
@@ -68,13 +76,15 @@ scripts/scoresheet/     the score sheet generator (README, fonts, badge, example
 scripts/make_score_sheets.sh  score-sheets/*.pdf (git-ignored) for the season shown; runs in CI
 scripts/screenshot_all.py  builds sample + real mode, screenshots every page (360/390/1440, light/dark),
                         checks sideways scroll, console errors and failed requests
-tests/                  unit tests for build_stats.py, calendars.py and the score sheet data loading
+tests/                  pytest: build_stats, calendars, score sheets, sheet rules
+tests/fixtures/sheets/  test game files + expected results (shared with the entry page)
 _layouts/ _includes/    templates (_layouts/text.html: Markdown pages such as rules/index.md)
 rules/index.md          the League rules page (Markdown, [placeholder] sections; linked from the footer)
 assets/css/site.css     page styles, built on brand/css/brand.css variables
 brand/                  logos, icons, colours, scenes (from the brand kit; don't edit)
 docs/design-brief.md    the design spec: read this before touching any page
 docs/stats-workflow.md  how score sheets become site numbers, for the volunteer (keep it true)
+docs/game-file-format.md  the game file format, its checks and problem paths
 docs/mockups/           approved mockups (open in a browser) and screenshots
 docs/qa/report.md       the full-site QA report (screenshots: run screenshot_all.py)
 .github/workflows/      build stats → build Jekyll → deploy to Pages
@@ -82,7 +92,7 @@ docs/qa/report.md       the full-site QA report (screenshots: run screenshot_all
 
 ## Commands
 ```
-python -m unittest discover -s tests     # unit tests
+python -m pytest                         # every test (runs in CI before the build)
 python scripts/build_stats.py            # check data, recompute stats, write the stub pages
 scripts/make_score_sheets.sh             # score sheet PDFs into score-sheets/ (needs reportlab)
 bundle exec jekyll serve --livereload    # preview at http://localhost:4000/

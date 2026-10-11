@@ -12,7 +12,8 @@ data/2026-27/
   schedule.csv                game_id,date,time,gym,home,away,type,week,status,round (gym blank: the
                               season's gym; no courts; status blank or `cancelled`; round names a
                               playoff round; status and round may be left out from the end)
-  games/2026-12-03-g1.yml     one file per played game (format below)
+  games/2026-12-03-g1.yml     one file per played game: the score sheet, box for box (format below)
+  drafts/2026-12-03-g1.yml    a game still being entered or checked (status: draft; not read by the build)
   sheets/2026-12-03-g1.jpg    photo of the paper score sheet, kept for checking
 ```
 
@@ -138,40 +139,47 @@ and `colour_dark` are kept as a record of the hex values and should match
 `brand.css`.
 
 ### Game file
-```yaml
-game_id: 2026-12-03-g1
-date: 2026-12-03
-home: pa            # team ids
-away: lh
-type: regular       # regular | playoff
-final: {pa: 71, lh: 64}
-quarters: {pa: [19, 36, 53, 71], lh: [15, 31, 49, 64]}   # running total at the end of Q1-Q4
-lines:              # one per player listed on the sheet
-  - {player: dave-m, team: pa, pts: 24, ftm: 6, fta: 7, pf: 3, tech: 1}
-  - {player: greg-t, team: pa, pts: 12, ftm: 2, fta: 2, pf: 2, flagrant: 1}
-```
-`quarters` (required) is each team's running total at the end of each quarter,
-as written in the sheet's Q1 to Q4 boxes. The build works out the points in
-each quarter (19, 17, 17, 18 for `pa` above). Q4 equals the final score, unless
-the game went to overtime: then Q4 is tied and the final is higher (the OT
-points are the difference).
-`flagrant` (optional, from the sheet's Notes) counts flagrant fouls. A flagrant
-is also a personal foul, so it can't be more than `pf`.
-`pf` (personal fouls, 0 to 5, flagrant fouls included: a flagrant is also a personal foul) and `tech` (technical fouls, 0 to 2) are
-optional and default to 0: the sheet has 5 foul boxes and 2 T boxes per player.
-Checks the build script must enforce (and fail loudly on):
-- each team's player points add up to its final score
-- `ftm <= fta`, and all numbers are 0 or more
-- every player and team id exists
-- `game_id` matches the file name and a row in `schedule.csv`
+A game file is a digital copy of the paper score sheet (form MBL-SS6), box for
+box. **The full format, every check and the problem paths are in
+[`docs/game-file-format.md`](../docs/game-file-format.md).** In short:
 
-It also checks: the date, home, away and type match `schedule.csv`; the final
-score isn't tied; `quarters` has 4 running totals per team that never go down,
-and Q4 equals the final score (or is tied, for overtime); `flagrant` isn't more
-than `pf`; no player is listed twice in a game; `ftm` isn't more than
-`pts` and `pts - ftm` isn't 1 (field goals can't add up to 1 point); display
-names are "First L."; ids are unique. It reports every problem at once and
-writes nothing until all of them are fixed.
+```yaml
+game_id: 2026-10-17-g1
+form: MBL-SS6
+status: final            # final in games/, draft in drafts/
+home: aa
+away: bb
+teams:
+  aa:
+    players:             # roster rows in order: id, jersey, Here tick, circles, fouls
+      - {player: al-a, num: 4, here: true, ft: MXM, fouls: 2}
+running:                 # running score: total -> scorer's jersey number
+  aa: {2: 4, 4: 10, 5: 4}
+lines:                   # the end-of-quarter lines: running total at Q1-Q4
+  aa: [5, 12, 17, 22]
+boxes:                   # the score boxes as written
+  aa: {q1: 5, q2: 12, q3: 17, q4: 22, ot: null, final: 22}
+notes:                   # flagrant fouls (and other notes) from the Notes box
+  - {team: aa, num: 4, q: 3, kind: flagrant, text: ...}
+checked_by: Lee M.
+```
+
+- **Where:** finished games in `data/<season>/games/<game_id>.yml`
+  (`status: final`); drafts in `data/<season>/drafts/` (never read by the
+  build); photos in `data/<season>/sheets/<game_id>.jpg`.
+- **Rules:** `scripts/sheet_rules.py`, the one place they live. Points come
+  from running-score jumps; FTM/FTA from the circles (`M` made, `X` missed),
+  never from the running score, because a free throw can be worth 1, 2 or 3;
+  GP from `here`; fouls from `fouls`/`tech`; flagrants from `notes`; quarters
+  from `boxes`.
+- **Problems** are `{level, at, message}`. `at` is a path to one box
+  (`running.bb.14`, `teams.aa.players.0.ft.2`, `boxes.bb.final`). The build
+  fails on any error in a `games/` file and lists warnings.
+- **The sheet's structure** (rows, circles, boxes, running-score pages) is
+  `scripts/scoresheet/spec.json`, from `scoresheet.py --spec`.
+- **A sub written in by hand** has `name: "Jim K."` and no `player` until they
+  are in `players.yml` (`sub: true`, team, number). Allowed in drafts only.
+- **Fixtures:** `tests/fixtures/sheets/` (shared with the entry page).
 
 ## IDs
 - Team ids: two letters (`pa`, `cr`, `wf`, `lh`, `fw`). Player ids: first name
