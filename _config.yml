@@ -30,7 +30,7 @@ score_sheet_links: false
 
 # Where the footer's "Contact the league" link goes (a mailto: link or a form).
 # Leave it blank and the footer shows no contact link.
-contact_url: ""
+contact_url: "mastersbasketballthunderbay@gmail.com"
 
 # Where the league's files live on GitHub. The score-sheet entry page (/enter/)
 # lists and loads drafts and games from here, and its "Save to GitHub" button
