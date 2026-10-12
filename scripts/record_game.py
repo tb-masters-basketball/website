@@ -68,7 +68,7 @@ WRITTEN = (0.008, 0.018)        # digit box, number or name box: below empty, ab
 RUN_WRITTEN = (0.014, 0.03)     # running score box, faint ink counted
 CORRECTION = (0.04, 0.08)       # pen in the number or name box of a printed row (a blurred photo leaves some)
 SOFT_DPI = 150                  # a photo with fewer pixels per inch of paper than this is soft
-LINE = (0.2, 0.6)               # the end-of-quarter line under a running box
+LINE = (0.45, 0.65)             # the end-of-quarter line under a running box
 
 
 # ---------------------------------------------------------------- the sheet
@@ -177,9 +177,11 @@ def find_corners(photo):
     f = min(1.0, 1000 / max(gray.size))
     small = gray.resize((round(gray.width * f), round(gray.height * f)), Image.Resampling.BOX) if f < 1 else gray
     flat, _ = flatten(small)
-    d = 1 - flat
+    big = max(flat.shape)
+    # a square right at the photo's edge: count what's past the edge as white paper
+    E = int(big * 0.05)
+    d = np.pad(1 - flat, E)
     ii = np.pad(d.cumsum(0).cumsum(1), ((1, 0), (1, 0)))
-    big = max(d.shape)
     found = []
     for s in range(max(5, int(big * 0.006)), int(big * 0.05) + 1):
         m = max(2, round(s * 0.5))
@@ -195,7 +197,7 @@ def find_corners(photo):
             v = score[y, x]
             if v < 0.45:
                 break
-            found.append((float(v), x + m + s / 2, y + m + s / 2, s))
+            found.append((float(v), x + m + s / 2 - E, y + m + s / 2 - E, s))
             r = int(1.5 * s)
             score[max(0, y - r):y + r + 1, max(0, x - r):x + r + 1] = -1
     found.sort(reverse=True)
@@ -213,7 +215,9 @@ def find_corners(photo):
         pts = order([(q[1], q[2]) for q in quad])
         if not page_shaped(pts):
             continue
-        val = polygon_area(pts) * min(q[0] for q in quad)
+        # the four squares are printed the same size: a quad of matched sizes
+        # beats a slightly bigger one that takes in a dark patch of the table
+        val = polygon_area(pts) * min(q[0] for q in quad) * (min(sizes) / max(sizes)) ** 2
         if best is None or val > best[0]:
             best = (val, quad)
     if best is None:
@@ -411,14 +415,16 @@ class Page:
         out.append(("header", [16, 16, self.flat.shape[1] / PX - 32, 70]))
         for side in ("home", "away"):
             x, y, w, h = g[side]["block"]
-            n = 3 if h > 200 else 2
+            n = max(2, round(h / 50))       # bands of about three rows, left and right halves
             for k in range(n):
-                out.append((f"{side}-{k}", [x, y + k * h / n, w, h / n]))
+                for j in range(2):
+                    out.append((f"{side}-{k}{'lr'[j]}", [x + j * w / 2, y + k * h / n, w / 2, h / n]))
         if "notes" in g:
             out.append(("notes", g["notes"]))
         for i, (x, y, w, h) in enumerate(g["running_columns"]):
-            for k in range(3):
-                out.append((f"run{i}-{k}", [x, y + k * h / 3, w, h / 3]))
+            n = max(3, round(h / 70))
+            for k in range(n):
+                out.append((f"run{i}-{k}", [x, y + k * h / n, w, h / n]))
         shifts = []
         for name, rect in out:
             shifts.append((name, rect, self.align(rect)))
@@ -454,10 +460,34 @@ class Page:
         x1, y1 = int(round((x + w) * PX)), int(round((y + h) * PX))
         return (slice(y0 + dy, y1 + dy), slice(x0 + dx, x1 + dx)), (slice(y0, y1), slice(x0, x1))
 
-    def ink_in(self, box, grow=0.0, disk=False, faint=False):
-        """The share of a box covered by pen (printed marks don't count)."""
+    def _extra(self, box, grow=0.0, faint=False, reach=None):
+        """Pen in a box: ink in the photo that isn't printed on the sheet. A
+        printed sheet sits a few pixels off the template here and there (paper
+        feed, dot gain, a curl), so the box is tried a few pixels each way and
+        the least ink kept: printed lines then line up and drop out, while pen
+        stays pen wherever the box is put."""
+        reach = 3 if reach is None else reach
         p, t = self._cut(box, grow)
-        extra = (self.faint if faint else self.ink)[p] & ~self.printed[t]
+        ink = self.faint if faint else self.ink
+        printed = self.printed[t]
+        best = None
+        H, W = ink.shape
+        for dy in range(-reach, reach + 1):
+            for dx in range(-reach, reach + 1):
+                ys, xs = slice(p[0].start + dy, p[0].stop + dy), slice(p[1].start + dx, p[1].stop + dx)
+                if ys.start < 0 or xs.start < 0 or ys.stop > H or xs.stop > W:
+                    continue
+                e = ink[ys, xs] & ~printed
+                if e.shape != printed.shape:
+                    continue
+                n = int(e.sum())
+                if best is None or n < best[0]:
+                    best = (n, e)
+        return best[1] if best else np.zeros((0, 0), bool)
+
+    def ink_in(self, box, grow=0.0, disk=False, faint=False, reach=None):
+        """The share of a box covered by pen (printed marks don't count)."""
+        extra = self._extra(box, grow, faint, reach)
         if extra.size == 0:
             return 0.0
         if disk:
@@ -467,12 +497,11 @@ class Page:
             return round(float(extra[mask].mean()), 3)
         return round(float(extra.mean()), 3)
 
-    def circle(self, box):
+    def circle(self, box, reach=None):
         """A free-throw circle: [ink, centre, long] = the share of the circle
         with pen, the share of its middle with pen, and how long and thin
         the pen mark is (about 1 for a filled circle, 2 or more for a slash)."""
-        p, t = self._cut(box, 0.2)
-        extra = self.ink[p] & ~self.printed[t]
+        extra = self._extra(box, 0.2, reach=reach)
         if extra.size == 0:
             return [0.0, 0.0, 0.0]
         h, w = extra.shape
@@ -512,9 +541,30 @@ def level(v, lo_hi):
     return "yes" if v >= hi else ("no" if v < lo else "unsure")
 
 
+def both(pg, box, levels, grow=0.0, faint=False):
+    """A box measured as placed and with a few pixels' give (see Page._extra).
+    The two agree almost always; when they don't (a faint mark, or printing a
+    little off), the reading is put in the unsure band, to be looked at."""
+    tight = pg.ink_in(box, grow, faint=faint, reach=0)
+    loose = pg.ink_in(box, grow, faint=faint)
+    if level(tight, levels) == level(loose, levels):
+        return loose
+    return round((levels[0] + levels[1]) / 2, 3)
+
+
+def both_circle(pg, box):
+    """A circle measured both ways; a fourth value 1 when they disagree."""
+    loose = pg.circle(box)
+    tight = pg.circle(box, reach=0)
+    return loose if circle_mark(loose) == circle_mark(tight) else loose + [1]
+
+
 def circle_mark(v):
-    """'.' empty, 'M' filled, 'X' slashed, '?' can't tell, from [ink, centre, long]."""
-    ink, mid, long = v
+    """'.' empty, 'M' filled, 'X' slashed, '?' can't tell, from [ink, centre, long]
+    (and a fourth value 1: the two ways of measuring disagree)."""
+    if len(v) > 3 and v[3]:
+        return "?"
+    ink, mid, long = v[:3]
     if ink < CIRCLE_MARK[0] and mid < 0.15:
         return "."
     if ink < CIRCLE_MARK[1] and mid < 0.3:
@@ -533,14 +583,26 @@ def measure(pg):
         rows = []
         for r in g[side]["rows"]:
             m = {"num": pg.ink_in(r["num"], -1.5), "name": pg.ink_in(r["name"], -1.5),
-                 "ft": [pg.circle(c) for c in r["ft"]]}
+                 "ft": [both_circle(pg, c) for c in r["ft"]]}
             if "here" in r:
                 hx, hy, hw, hh = r["here"]
-                m["here"] = pg.ink_in([hx - 3, r["row"][1] + 1, hw + 6, r["row"][3] - 2])
-                m["fouls"] = [pg.ink_in(b, -0.6, faint=True) for b in r["fouls"]]
-                m["tech"] = [pg.ink_in(b, -0.6) for b in r["tech"]]
+                m["here"] = both(pg, [hx - 3, r["row"][1] + 1, hw + 6, r["row"][3] - 2], HERE_TICK)
+                m["fouls"] = [both(pg, b, FOUL, -0.6, faint=True) for b in r["fouls"]]
+                m["tech"] = [both(pg, b, SLASH, -0.6) for b in r["tech"]]
             rows.append(m)
         out["rows"][side] = rows
+    # Most foul and T boxes on a sheet are empty, so the middle reading of each
+    # kind is this print's own background (a dark grey or black print of the
+    # outlines and the T leaves some); take it off every box of that kind.
+    for kind in ("fouls", "tech"):
+        vals = [v for side in ("home", "away") for r in out["rows"][side] for v in r.get(kind, [])]
+        if vals:
+            base = float(np.median(vals))
+            out.setdefault("background", {})[kind] = round(base, 3)
+            for side in ("home", "away"):
+                for r in out["rows"][side]:
+                    if kind in r:
+                        r[kind] = [round(max(0.0, v - base), 3) for v in r[kind]]
         if "score" in g[side]:
             out["boxes"][side] = {k: [pg.ink_in([x + i * 10.4, y, 9.2, h], -1.0) for i in range(round((w + 1.2) / 10.4))]
                                   for k, (x, y, w, h) in g[side]["score"].items()}
