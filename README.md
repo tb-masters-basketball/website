@@ -45,90 +45,26 @@ The full list, with answers so far, is in
 - [ ] **Playoff matchups.** The play-in (G41, Wed Apr 21) is "TBD vs TBD" in
       `schedule.csv`. Fill in each playoff row as the standings decide it.
 
-### 2. Record a game from a photo of the score sheet (`/record-game`)
+### 2. Test `/record-game` on real photos
 
-Today a game is typed up on the entry page (`/enter/`), box by box, with the
-photo beside it ([how](docs/stats-workflow.md#enter-or-check-a-game-on-the-entry-page)).
-The goal is a Claude Code command, `/record-game`, that reads the photo and
-does the typing: it writes a **draft** with every box it isn't sure of flagged,
-and a person checks the draft on the entry page and saves it as final. The
-command never publishes a game by itself.
+`/record-game <photo> [game_id]` (`.claude/skills/record-game/SKILL.md`) reads a
+photo of a score sheet into a draft with every doubtful box flagged, saves the
+draft and the photo, and pushes them to `main`; a person checks the draft on the
+entry page and saves it as final ([how](docs/stats-workflow.md#read-a-photo-into-a-draft-record-game)).
+[`docs/record-game-prompt.md`](docs/record-game-prompt.md) is the same job as a
+prompt for the free claude.ai. How it works and how well it reads:
+[`docs/record-game.md`](docs/record-game.md). So far it's tested only on made-up
+photos (the practice games drawn with a font, then blurred, turned and shadowed).
 
-**Already in place** (what the command builds on):
-- **The sheet:** form MBL-SS6 from `scripts/scoresheet/scoresheet.py`
-  ([README](scripts/scoresheet/README.md)), with corner squares for
-  straightening a photo. Game ID, date, time and the regular players (in
-  jersey order) are printed on it, so most of the header and the rosters are
-  known before the photo is read. Its structure (rows, circles, boxes,
-  running-score pages per layout) is in `scripts/scoresheet/spec.json`.
-- **The file it writes:** the game file, box for box
-  ([`docs/game-file-format.md`](docs/game-file-format.md)), as a draft:
-  `status: draft` in `data/<season>/drafts/<game_id>.yml`, with a `review`
-  entry (`{at: running.lh.27, note: "23 or 28?"}`) for every doubtful box.
-- **The checks:** `scripts/sheet_rules.py` gives every problem with the path of
-  its box. The entry page runs the same rules (ported to JavaScript), lists
-  drafts with their flag count, shows the photo beside the sheet, and has
-  **Mark as checked** and **Save as final**.
-- **Test material:** `tests/fixtures/sheets/` (eight small cases with expected
-  results) and `tests/fixtures/record-game/`: four practice games, each with
-  an answer key (`answer.yml`), a sheet filled in from it and an empty sheet
-  ([README](tests/fixtures/record-game/README.md)).
-
-**Still needed before building it:**
-- [ ] **Photos to test on.** Print the four practice games' filled and empty
+- [ ] **Real handwriting.** Print the four practice games' filled and empty
       sheets, have people copy each filled sheet onto its empty one by hand,
-      and photograph the copies (flat, all four corner squares in view). Save
-      them as `tests/fixtures/record-game/<game_id>/photo.jpg`. A photo of a
-      real game's sheet will help too.
-- [ ] **A way to check one file from the command line.** `build_stats.py
-      --check` never reads drafts. Add `scripts/check_game.py <file>`: runs
-      `sheet_rules.check` on one game file (draft or final) against its
-      season and prints each problem with its box path. The command uses it,
-      and so can anyone editing a file by hand.
-- [ ] **A way to score a transcription.** `scripts/compare_game.py <draft>
-      <answer.yml>`: lists every box that differs, and whether each was
-      flagged for review. The goal: no wrong box that isn't flagged.
-
-**What `/record-game` does:**
-1. **Takes the photo(s)** of page 1 (and page 2 if the game used it) and
-   finds the game: the printed Game ID, checked against `schedule.csv` (date
-   and teams). It asks if they disagree.
-2. **Reads every box** into the game file (field names as in the format doc):
-   - each roster row: `num`, the **Here** tick (`here`), the circles in order
-     (`ft`: `M` filled, `X` slashed), slashed foul boxes (`fouls`) and red T
-     boxes (`tech`)
-   - the running score: every filled box as `total: jersey number`, for both
-     teams (page 2 carries on from 101)
-   - `lines`: the running total each end-of-quarter line is drawn under, Q1 to
-     Q4 (needed for a final file)
-   - `boxes`: what's written in Q1 to Q4, OT and Final
-   - `notes`: each Notes entry (team, number, quarter, `kind: flagrant` or
-     `note`, the text), and the scorekeeper
-3. **Matches rows to players** in `players.yml`. A printed row is a regular
-   player (team, number and "First L." all on the sheet). A row written in by
-   hand is a sub: match by team, "First L." and number; if there's no match,
-   keep `name: "Jim K."` without a `player` id (a draft may) and say so. Never
-   write a full name.
-4. **Flags rather than guesses.** Every box it can't read with confidence gets
-   a `review` entry with a short note. It doesn't change what's written to make
-   the checks pass: a Final box that disagrees with the running score is
-   copied as written, and the check says so.
-5. **Runs the checks** (`scripts/check_game.py`) and reports them with the
-   flags.
-6. **Writes** the draft and the photo (`data/<season>/sheets/<game_id>.jpg`)
-   and opens a pull request with both. Merging it publishes nothing: drafts
-   are never built.
-7. **A person finishes it on the entry page:** opens the draft (it's listed
-   with its flag count), checks each flagged box against the photo, presses
-   **Mark as checked**, fixes any errors, and saves it as final. That's a
-   second pull request, the one that publishes the game. Then they delete the
-   draft (the save dialog links to it).
-
-It would live in `.claude/skills/record-game/SKILL.md` (or
-`.claude/commands/record-game.md`). Test it on the practice photos with
-`compare_game.py` before using it on real games. `docs/stats-workflow.md`
-then gains a "Record a game from a photo" section, and its workflow diagram
-loses the word "planned".
+      photograph the copies, save them as
+      `tests/fixtures/record-game/<game_id>/photo.jpg`, run `/record-game` on
+      each (with `--season sample-2026-27`; don't push those drafts) and score
+      them with `python scripts/record_game_eval.py score <draft> <answer.yml>`.
+      Then a real game's sheet. Retune the ink levels at the top of
+      `scripts/record_game.py` if real pens read differently.
+- [ ] **The free prompt on a real photo**, at claude.ai, the same way.
 
 ### 3. Build `players.yml` from the team rosters (`/build-roster`)
 
@@ -169,10 +105,10 @@ id assignment so the command only reads the rosters and confirms.
 
 ### 4. Smaller follow-ups
 
-- [ ] **Saving the photo is a separate step.** The entry page never uploads
-      the photo, so it goes into `data/<season>/sheets/<game_id>.jpg` by hand
-      (GitHub: *Add file → Upload files*). `/record-game` will add it with the
-      draft.
+- [ ] **Saving the photo is a separate step** when a game is typed up on the
+      entry page: it never uploads the photo, so it goes into
+      `data/<season>/sheets/<game_id>.jpg` by hand (GitHub: *Add file → Upload
+      files*). `/record-game` saves it with the draft.
 
 ---
 
@@ -229,11 +165,11 @@ git-ignored.
 |---|---|---|
 | `data/seasons.yml` | Every season, newest first. Marks which is `current`, which are sample (fake) data, the gym and its address, and the ranking minimums (`ppg_min_games`, `ft_min_attempts`) | hand, once a season |
 | `data/<season>/teams.yml` | Team id (2 letters), name, 2-letter code, colour slot (1–5) | hand, once a season |
-| `data/<season>/players.yml` | Player id (`mike-r`), display name ("Mike R."), team, `sub`, jersey `number` (the roster: the only place numbers live) | hand (later `/build-roster` and `/record-game`, both planned) |
+| `data/<season>/players.yml` | Player id (`mike-r`), display name ("Mike R."), team, `sub`, jersey `number` (the roster: the only place numbers live) | hand (later `/build-roster`, planned) |
 | `data/<season>/schedule.csv` | One row per game: id, date, time, gym, home, away, `regular`/`playoff`, week, optional `status` (`cancelled`) and `round` (playoff round name) | hand |
 | `data/<season>/games/<game_id>.yml` | One file per played game: a digital copy of the score sheet, box for box (roster rows with Here, free-throw circles and fouls; the running score; quarter lines and score boxes; Notes). Format: [`docs/game-file-format.md`](docs/game-file-format.md) | the entry page (`/enter/`) or hand (later `/record-game`, planned) |
 | `data/<season>/drafts/<game_id>.yml` | A game still being entered or checked (`status: draft`, with `review` flags on boxes still in doubt); never read by the build, not even `--check`; checked on the entry page | the entry page (later `/record-game`, planned) |
-| `data/<season>/sheets/<game_id>.jpg` | Photo of the paper sheet, kept for checking (not published) | hand (later `/record-game`, planned) |
+| `data/<season>/sheets/<game_id>.jpg` | Photo of the paper sheet, kept for checking (not published) | `/record-game`, or by hand |
 | `_config.yml` | `sample_data` (show the fake season), `score_sheet_links` (publish photos), `preview_site` (the sample copy at `/preview/`), `contact_url`, `search_engines` (off: pages ask not to be listed by Google), the domain | hand, rarely |
 
 The file formats, id rules and stat rules (GP, PPG, FT%, standings points,
@@ -396,7 +332,8 @@ Every page uses `_layouts/default.html`:
 `.github/workflows/deploy.yml` runs on every push and pull request, and every
 night at about 4 AM Thunder Bay time (08:17 UTC):
 
-1. Install Python packages (`requirements.txt`: PyYAML, reportlab, pytest).
+1. Install Python packages (`requirements.txt`: PyYAML, reportlab, pytest, and
+   numpy, Pillow and pypdfium2 for `/record-game`'s photo helper).
 2. Run every test with pytest (`tests/`, including the score sheet rules against
    the shared fixtures in `tests/fixtures/sheets/`).
 3. Run the JavaScript tests with Node 22 (`node --test "tests/js/*.test.mjs"`):
@@ -428,12 +365,13 @@ domain is set in the repo's Settings → Pages and in `_config.yml` (`url`) and
 ### Running it on your computer
 
 ```sh
-pip install -r requirements.txt        # Python 3.12, PyYAML, reportlab, pytest
+pip install -r requirements.txt        # Python 3.12, PyYAML, reportlab, pytest, numpy, Pillow, pypdfium2
 bundle install                         # Ruby and Jekyll 4.4
 
 python -m pytest                       # every test (unit tests + score sheet fixtures)
 node --test "tests/js/*.test.mjs"      # the entry page's rules on the same fixtures (Node 22)
 python scripts/build_stats.py          # check data; write JSON, stubs, calendars, enter/data/
+python scripts/record_game.py check data/2026-27/drafts/<game_id>.yml   # the rules on one game file
 python scripts/scoresheet/scoresheet.py --spec enter/sheet-spec.json   # needed for /enter/
 scripts/make_score_sheets.sh           # score sheet PDFs (optional locally)
 bundle exec jekyll serve --livereload  # http://localhost:4000/
@@ -452,7 +390,8 @@ Run `build_stats.py` again after changing anything in `data/` or the
 | I want to… | Do this |
 |---|---|
 | Add a game result | type it up on `/enter/` ([guide](docs/stats-workflow.md#enter-or-check-a-game-on-the-entry-page)), or add `data/2026-27/games/<game_id>.yml` by hand ([guide](docs/stats-workflow.md#add-a-game-by-hand)) |
-| Check a draft against the paper | open it on `/enter/`, with the photo beside it |
+| Read a score sheet photo into a draft | `/record-game <photo>` in Claude Code ([guide](docs/stats-workflow.md#read-a-photo-into-a-draft-record-game)), or [the free prompt](docs/record-game-prompt.md) at claude.ai |
+| Check a draft against the paper | open it on `/enter/` (or `enter/?game=<game_id>`), with the photo beside it |
 | Fix a number | edit the game file (or reopen the game on `/enter/`); everything is recalculated |
 | Add a player or sub | one line in `data/2026-27/players.yml` |
 | Edit the league rules | `rules/index.md` ([guide](docs/stats-workflow.md#edit-the-league-rules)) |
@@ -478,13 +417,17 @@ scripts/
   scoresheet/            the score sheet generator (form MBL-SS6): README, fonts, example data
   make_score_sheets.sh   score sheet PDFs for the season shown (CI)
   make_sample_season.py  regenerates the sample seasons (and their two drafts)
+  record_game.py         /record-game's helper: straightens a photo, crops it, measures the ink in
+                         every box; also check (the rules on one file), zoom, compare, save
+  record_game_eval.py    made-up test photos of the practice games, and scoring a draft against its answer
   make_practice_games.py the practice sheets for /record-game (tests/fixtures/record-game/)
   build_preview.sh       the sample-season copy at /preview/ (CI)
   check_links.sh         link check (CI)
   screenshot_all.py      screenshots + page checks for QA
-tests/                   unit tests (build_stats, calendars, score sheets) and the sheet rules tests
+tests/                   unit tests (build_stats, calendars, score sheets, record_game) and the sheet rules tests
   fixtures/sheets/       test game files with their expected results (Python and JS rules both run them)
-  fixtures/record-game/  four practice games: answer key, filled sheet, empty sheet (see its README)
+  fixtures/record-game/  four practice games: answer key, filled sheet, empty sheet (see its README);
+                         synthetic*/ (git-ignored): the made-up photos record_game_eval.py makes
   js/                    the entry page's JavaScript rules on the same fixtures (node --test)
 _config.yml              site settings, switches, collections
 _layouts/  _includes/    templates and components
@@ -496,6 +439,8 @@ brand/                   brand kit (don't edit)
 docs/
   stats-workflow.md      the volunteer's guide
   game-file-format.md    the game file: a digital copy of the score sheet
+  record-game.md         /record-game: how it reads a photo, and how well (test results)
+  record-game-prompt.md  the free version: a prompt for claude.ai (or any assistant) and a photo
   open-questions.md      league decisions still needed
   design-brief.md        the design spec and decisions
   mockups/               approved mockups
@@ -503,10 +448,12 @@ docs/
   qa/                    full-site QA report (screenshots: run screenshot_all.py)
   screenshots/           screenshots from the build steps
 .github/workflows/deploy.yml   build, check and publish
+.claude/skills/record-game/    the /record-game command (Claude Code)
 CNAME                    the domain, for GitHub Pages
 ```
 
 Generated on every build and never committed: `_data/computed/`, `_games/`,
 `_players/`, `_teams/`, `_archive/`, `calendar/`, `score-sheets/`,
 `enter/data/`, `enter/sheet-spec.json`, `sheets/` (only when photos are
-published) and `_site/`.
+published) and `_site/`. Also git-ignored: `.record-game/` (`/record-game`'s
+working folders) and `tests/fixtures/record-game/synthetic*/` (made-up test photos).

@@ -197,7 +197,20 @@
       S.files = files;
       renderDrafts();
       renderGamePick();
+      openFromLink();
     });
+  }
+
+  // enter/?game=<game_id> (the link /record-game gives): open that game's
+  // draft, or its published file, or pick it in the schedule list.
+  function openFromLink() {
+    var gid = new URLSearchParams(window.location.search).get("game");
+    if (!gid || S.linkDone) return;
+    S.linkDone = true;
+    if (S.files.drafts[gid] && !S.files.games[gid]) loadFile("drafts", gid);
+    else if (S.files.games[gid]) loadFile("games", gid);
+    else if (S.season.schedule[gid]) { $("[data-game-pick]").value = gid; updateGamePick(); }
+    else status("There's no game " + gid + " in this season's schedule.", true);
   }
 
   function loadFile(kind, gid) {
@@ -243,6 +256,47 @@
     return sheet;
   }
 
+  // A file typed up without the site's ids (the free /record-game prompt):
+  // teams written as "home" and "away", or by name ("Lakehead"), become team
+  // ids, from the schedule's row for the game id or from teams.yml.
+  function normalizeTeams(sheet) {
+    if (!isDict(sheet)) return;
+    var ids = S.season.teams;
+    function norm(v) { return String(v === undefined || v === null ? "" : v).toLowerCase().replace(/[^a-z0-9]/g, ""); }
+    function byName(v) {
+      if (typeof v === "string" && ids[v]) return v;
+      var n = norm(v);
+      return n ? Object.keys(ids).filter(function (id) {
+        return norm(ids[id].name) === n || norm(ids[id].short) === n || norm(id) === n;
+      })[0] : undefined;
+    }
+    var row = S.season.schedule[sheet.game_id];
+    var home = byName(sheet.home) || (row && row.home);
+    var away = byName(sheet.away) || (row && row.away);
+    if (!home || !away) return;
+    function key(k) {
+      if (ids[k]) return k;
+      if (norm(k) === "home") return home;
+      if (norm(k) === "away") return away;
+      return byName(k) || k;
+    }
+    sheet.home = home;
+    sheet.away = away;
+    ["teams", "running", "lines", "boxes"].forEach(function (part) {
+      if (!isDict(sheet[part])) return;
+      var out = {};
+      Object.keys(sheet[part]).forEach(function (k) { out[key(k)] = sheet[part][k]; });
+      sheet[part] = out;
+    });
+    (Array.isArray(sheet.notes) ? sheet.notes : []).forEach(function (n) { if (isDict(n) && n.team !== undefined) n.team = key(n.team); });
+    (Array.isArray(sheet.review) ? sheet.review : []).forEach(function (r) {
+      if (!isDict(r) || typeof r.at !== "string") return;
+      var parts = r.at.split(".");
+      if (["teams", "running", "lines", "boxes"].indexOf(parts[0]) >= 0 && parts.length > 1) parts[1] = key(parts[1]);
+      r.at = parts.join(".");
+    });
+  }
+
   function readLocalFile(file) {
     if (!file) return;
     file.text().then(function (text) {
@@ -251,6 +305,7 @@
         status("That file isn't valid YAML: " + e.message, true);
         return;
       }
+      normalizeTeams(sheet);
       if (!isDict(sheet) || !S.season.teams[sheet.home] || !S.season.teams[sheet.away] || sheet.home === sheet.away) {
         status("That doesn't look like a game file for this season's teams (it needs home and away from teams.yml).", true);
         return;
@@ -419,7 +474,50 @@
   }
 
   // Show a sheet. resumed: it came from this device's unsaved work.
+  // Rows with a name (as written) but no player id, such as a draft typed up
+  // from a photo without the site's player list: give each the id of the one
+  // player that name and number fit, best match first (same team and number,
+  // same team, then any team for a sub). Returns how many rows it matched.
+  function matchNames(sheet) {
+    if (!isDict(sheet.teams)) return 0;
+    var all = Object.keys(S.season.players).map(function (k) { return S.season.players[k]; });
+    function norm(s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]/g, ""); }
+    var matched = 0;
+    Object.keys(sheet.teams).forEach(function (tid) {
+      var rows = isDict(sheet.teams[tid]) && Array.isArray(sheet.teams[tid].players) ? sheet.teams[tid].players : [];
+      var taken = {};
+      rows.forEach(function (r) { if (isDict(r) && r.player) taken[r.player] = true; });
+      rows.forEach(function (r) {
+        if (!isDict(r) || r.player || (!r.name && (r.num === undefined || r.num === null))) return;
+        var name = norm(r.name), num = r.num === undefined || r.num === null ? null : String(r.num);
+        var free = all.filter(function (p) { return !taken[p.id]; });
+        function same(p) { return name && norm(p.display) === name; }
+        function sameNum(p) { return num !== null && p.number !== null && p.number !== undefined && String(p.number) === num; }
+        var tiers = [
+          free.filter(function (p) { return p.team === tid && same(p) && sameNum(p); }),
+          free.filter(function (p) { return p.team === tid && same(p) && (num === null || p.number === null || p.number === undefined); }),
+          name ? [] : free.filter(function (p) { return p.team === tid && !p.sub && sameNum(p); }),
+          free.filter(function (p) { return p.team !== tid && same(p) && sameNum(p); }),
+          free.filter(function (p) { return p.team !== tid && same(p) && p.sub; }),
+        ];
+        for (var i = 0; i < tiers.length; i++) {
+          if (tiers[i].length > 1) return;          // two players fit: leave it for a person
+          if (tiers[i].length === 1) {
+            r.player = tiers[i][0].id;
+            delete r.name;
+            taken[r.player] = true;
+            matched += 1;
+            return;
+          }
+        }
+      });
+    });
+    return matched;
+  }
+
   function open(sheet, origin, fileName, resumed) {
+    var matched = origin === "published" ? 0 : matchNames(sheet);
+    status(matched ? "Matched " + matched + " row" + (matched === 1 ? "" : "s") + " to players.yml by name and number: check them." : "");
     S.sheet = sheet;
     S.origin = origin;
     S.fileName = fileName || null;

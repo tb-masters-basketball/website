@@ -126,6 +126,7 @@ class ScoreSheet:
         self.c = canvas.Canvas(path, pagesize=(w, h))
         self.c.setTitle("Masters Basketball League score sheet")
         self.c.setAuthor("Masters Basketball League")
+        self.page_maps = []
         self.form = self.c.acroForm
         self.x0, self.cw = PAD, w - 2 * PAD
         self.pages = 0
@@ -189,6 +190,17 @@ class ScoreSheet:
         for x in (FID_IN, self.W - FID_IN - FID):
             for y in (FID_IN, self.H - FID_IN - FID):
                 self.c.rect(x, y, FID, FID, stroke=0, fill=1)
+                self._mark("corners", None, [x, y, FID, FID], append=True)
+
+    # ---- the map of every box (for reading photos: --geometry) -----------------
+    def _mark(self, part, key, box, append=False):
+        """Note where a box is on the current page: [x, y, w, h] in points,
+        origin bottom-left (as drawn). page_map() flips it for export."""
+        m = self._map.setdefault(part, [] if key is None else {})
+        if append:
+            m.append(box)
+        else:
+            m[key] = box
 
     def header(self, top, g, subtitle="SCORE SHEET  ·  THUNDER BAY"):
         c, x0, cw = self.c, self.x0, self.cw
@@ -209,6 +221,7 @@ class ScoreSheet:
             x = right - (sum(w for *_, w in row) + 6 * (len(row) - 1))
             for lab, key, w in row:
                 self.header_boxes[key] = (x, y, w)
+                self._mark("header", key, [x, y, w, 15])
                 self.label(x, y + 17, lab)
                 self.box(x, y, w, 15, lw=0.8, fill=white)
                 self.field(key, x + 2, y + 1, w - 4, 13, g.get(key, ""), size=8.5)
@@ -268,21 +281,31 @@ class ScoreSheet:
         r_ft = min(3.8, rh / 2 - 2.6)
         bs = min(9, rh - 5)
         rows = []
+        rmap = {"bar": [x, by, w, bar], "rows": []}
+        self._map[key] = rmap
         y = hy
         for r in range(ROSTER_ROWS):
             y -= rh
             self.box(x, y, w, rh, stroke=RULE, lw=0.5, fill=white)
+            mrow = {"row": [x, y, w, rh], "num": [xs[0], y, xs[1] - xs[0], rh]}
+            rmap["rows"].append(mrow)
             pl = players[r] if r < len(players) else {}
             fs = 9 if rh >= 16 else 8.5
             self.field(f"{key}_p{r+1:02d}_num", xs[0] + 2, y + 1.5, 16, rh - 3, pl.get("num", ""), size=fs, maxlen=3)
             if back:
                 self.field(f"{key}_p{r+1:02d}_name", xs[1] + 3, y + 1.5, cols[1][1] - 6, rh - 3, pl.get("name", ""), size=fs)
                 ft0 = xs[2] + 10
+                mrow["name"] = [xs[1], y, xs[2] - xs[1], rh]
+                mrow["ft"] = []
                 for i in range(FT_CIRCLES):
                     self.circle(ft0 + r_ft + i * ft_pitch + (4 if i >= 5 else 0), y + rh / 2, r_ft)
+                    cx = ft0 + r_ft + i * ft_pitch + (4 if i >= 5 else 0)
+                    mrow["ft"].append([cx - r_ft, y + rh / 2 - r_ft, 2 * r_ft, 2 * r_ft])
                 continue
             self.field(f"{key}_p{r+1:02d}_name", xs[2] + 3, y + 1.5, cols[2][1] - 6, rh - 3, pl.get("name", ""), size=fs)
             self.box(xs[1] + (18 - bs) / 2, y + (rh - bs) / 2, bs, bs, lw=0.8, fill=white)
+            mrow["name"] = [xs[2], y, xs[3] - xs[2], rh]
+            mrow["here"] = [xs[1] + (18 - bs) / 2, y + (rh - bs) / 2, bs, bs]
             # free throws
             ft0 = xs[3] + 6
             centers = []
@@ -305,10 +328,14 @@ class ScoreSheet:
                 self.text(tx + 4.5, y + (rh - bs) / 2 + 2.2, "T", "CondSemi", 5.2, RED, anchor="c")
                 techs.append(tx)
             rows.append(dict(y=y, xs=xs, ft=centers, r=r_ft, fouls=fboxes, tech=techs, bs=bs))
+            mrow["ft"] = [[cx - r_ft, y + rh / 2 - r_ft, 2 * r_ft, 2 * r_ft] for cx in centers]
+            mrow["fouls"] = [[bx, y + (rh - bs) / 2, 8, bs] for bx in fboxes]
+            mrow["tech"] = [[tx, y + (rh - bs) / 2, 9, bs] for tx in techs]
         # dividers
         c.setStrokeColor(RULE); c.setLineWidth(0.5)
         for cx in xs[1:-1]:
             c.line(cx, y, cx, hy + hh)
+        rmap["block"] = [x, y, w, top - y]
         if back:
             self.box(x, y, w, top - y, lw=1.2)
             return y, None
@@ -343,8 +370,12 @@ class ScoreSheet:
             self.label(sx + cwid / 2, sy + 18.5, lab, anchor="c", color=NAVY if lab != "Final" else BLUE)
             self.digits(sx, sy + 3.5, n, w=dw_, h=13, gap=dgap, lw=1.4 if lab == "Final" else 0.9)
             score_boxes.append((sx, sy + 3.5, n, lab))
+            skey = next(b["key"] for b in SPEC["score_boxes"] if b["label"] == lab)
+            rmap.setdefault("score", {})[skey] = [sx, sy + 3.5, n * dw_ + (n - 1) * dgap, 13]
             sx += cwid + gap
         self.box(x, sy, w, top - sy, lw=1.2)
+        rmap["block"] = [x, sy, w, top - sy]
+        rmap["score_strip"] = [x, sy, w, sh]
         return sy, dict(rows=rows, score=score_boxes, team_fouls=team_fouls, team_fouls_y=ty + 4)
 
     # How to mark: on page 2, in the space of its last running-score column.
@@ -392,6 +423,7 @@ class ScoreSheet:
     def notes(self, x, top, w, h):
         """Page 1 notes box, for flagrant fouls (and anything else worth knowing)."""
         self.box(x, top - h, w, h, lw=0.9, fill=white)
+        self._map["notes"] = [x, top - h, w, h]
         self.label(x + 8, top - 10, self.NOTES_LABEL, size=6.6)
         self.text(x + w - 8, top - 10, "How to mark: page 2", "Body", 6.4, RULE, anchor="r")
         self.c.setStrokeColor(RULE); self.c.setLineWidth(0.5)
@@ -426,6 +458,9 @@ class ScoreSheet:
                          fill=TINT if (n - 1) // 10 % 2 == 0 else SHADE)
                 self.text(sx + bw + num_w / 2, y + rh / 2 - fs * 0.35, str(n), "Cond", fs, NAVY, anchor="c")
                 cells[n] = dict(home=(sx, y, bw, rh), away=(sx + bw + num_w, y, bw, rh))
+                self._map.setdefault("running", {})[n] = {"home": [sx, y, bw, rh], "total": [sx + bw, y, num_w, rh],
+                                                          "away": [sx + bw + num_w, y, bw, rh]}
+            self._map.setdefault("running_columns", []).append([sx, top - hh - per * rh, sw, per * rh + hh])
             self.box(sx, top - hh - per * rh, sw, per * rh + hh, lw=1.1)
             c.setStrokeColor(NAVY); c.setLineWidth(1.0)
             for lx in (sx + bw, sx + bw + num_w):
@@ -479,6 +514,8 @@ class ScoreSheet:
             self.c.showPage()
 
     def _page(self, g, back):
+        self._map = {"page": 2 if back else 1}
+        self.page_maps.append(self._map)
         self.fiducials()
         sub = "SCORE SHEET  ·  PAGE 2  ·  CONTINUED" if back else "SCORE SHEET  ·  THUNDER BAY"
         top = self.header(self.H - PAD + 4, g, sub)
@@ -614,13 +651,41 @@ class ScoreSheet:
         rnd = random.Random(str(sheet.get("game_id")))
         sides = {"home": sheet["home"], "away": sheet["away"]}
 
+        messy = getattr(self, "messy", False)
+        ink = PEN
+        if messy:   # a harder test: another pen, untidy letters, half-filled circles
+            ink = HexColor(rnd.choice(["#1F3FB8", "#20243A", "#555A66", "#2B4C9A"]))
+        fonts = ["CondSemi", "Helvetica", "Helvetica-Oblique", "Times-Italic", "Courier-Bold", "Body"]
+
         def pen(x, y, s, size, anchor="c"):
-            # a little wobble, so it reads as handwriting
-            self.text(x + rnd.uniform(-0.6, 0.6), y + rnd.uniform(-0.5, 0.5), str(s), "CondSemi",
-                      size * rnd.uniform(0.94, 1.06), PEN, anchor=anchor)
+            s = str(s)
+            if not messy:
+                # a little wobble, so it reads as handwriting
+                self.text(x + rnd.uniform(-0.6, 0.6), y + rnd.uniform(-0.5, 0.5), s, "CondSemi",
+                          size * rnd.uniform(0.94, 1.06), PEN, anchor=anchor)
+                return
+            font = rnd.choice(fonts)
+            size *= rnd.uniform(0.85, 1.2)
+            w = sum(pdfmetrics.stringWidth(ch, font, size) for ch in s) * 1.08
+            x = x - w / 2 if anchor == "c" else x
+            x += rnd.uniform(-1.2, 1.2)
+            y += rnd.uniform(-1.0, 1.0)
+            for ch in s:
+                c.saveState()
+                c.translate(x, y + rnd.uniform(-0.6, 0.6))
+                c.rotate(rnd.uniform(-12, 12))
+                c.setFillColor(ink)
+                c.setFont(font, size * rnd.uniform(0.92, 1.08))
+                c.drawString(0, 0, ch)
+                c.restoreState()
+                x += pdfmetrics.stringWidth(ch, font, size) * rnd.uniform(1.0, 1.16)
 
         def slash(x1, y1, x2, y2, lw=1.1):
-            c.setStrokeColor(PEN); c.setLineWidth(lw); c.line(x1, y1, x2, y2)
+            if messy:
+                j = min(1.0, 0.18 * max(abs(x2 - x1), abs(y2 - y1)))
+                x1, y1, x2, y2 = (v + rnd.uniform(-j, j) for v in (x1, y1, x2, y2))
+                lw *= rnd.uniform(0.7, 1.3)
+            c.setStrokeColor(ink); c.setLineWidth(lw); c.line(x1, y1, x2, y2)
 
         if sheet.get("scorekeeper") and "scorekeeper" in self.header_boxes:
             x, y, w = self.header_boxes["scorekeeper"]
@@ -641,8 +706,8 @@ class ScoreSheet:
                     name = pl.get("name") or (self.player_names or {}).get(pl.get("player"), "")
                     pen(xs[2] + 4, cy - 3.4, name, 9.5, anchor="l")
                 if pl.get("here"):
-                    tx = xs[1] + 9
-                    c.setStrokeColor(PEN); c.setLineWidth(1.3)
+                    tx = xs[1] + 9 + (rnd.uniform(-1.5, 1.5) if messy else 0)
+                    c.setStrokeColor(ink); c.setLineWidth(1.3 * (rnd.uniform(0.7, 1.2) if messy else 1))
                     p = c.beginPath(); p.moveTo(tx - 3.2, cy); p.lineTo(tx - 0.8, cy - 3); p.lineTo(tx + 4, cy + 4)
                     c.drawPath(p, stroke=1, fill=0)
                 ft = pl.get("ft", "") or ""
@@ -651,7 +716,8 @@ class ScoreSheet:
                 for i, mark in enumerate(ft):
                     fx, rr = row["ft"][i], row["r"]
                     if mark == "M":
-                        c.setFillColor(PEN); c.circle(fx, cy, rr - 0.7, stroke=0, fill=1)
+                        k = rnd.uniform(0.55, 1.0) if messy else 1
+                        c.setFillColor(ink); c.circle(fx, cy, (rr - 0.7) * k, stroke=0, fill=1)
                     else:
                         slash(fx - rr, cy - rr, fx + rr, cy + rr, 1.3)
                 for i in range(pl.get("fouls", 0) or 0):
@@ -750,6 +816,35 @@ def spec_json():
     return out
 
 
+def _flip(obj, H):
+    """A recorded map with every [x, y, w, h] box turned to top-left origin."""
+    if isinstance(obj, list) and len(obj) == 4 and all(isinstance(v, (int, float)) for v in obj):
+        x, y, w, h = obj
+        return [round(x, 2), round(H - y - h, 2), round(w, 2), round(h, 2)]
+    if isinstance(obj, list):
+        return [_flip(v, H) for v in obj]
+    if isinstance(obj, dict):
+        return {str(k): _flip(v, H) for k, v in obj.items()}
+    return obj
+
+
+def geometry_json():
+    """Where every box is, for each layout and page: what /record-game reads a
+    photo by. Boxes are [x, y, width, height] in points from the page's top-left
+    corner; the map is the same for every game (only the printed text differs)."""
+    import io
+    out = {"form": FORM, "units": "points; [x, y, width, height] from the top-left corner of the page",
+           "layouts": {}}
+    for orient, size in LAYOUTS:
+        s = ScoreSheet(io.BytesIO(), size, orient)
+        s.add_page({}, back=True)
+        out["layouts"][f"{orient}-{size}"] = {
+            "page_size": [round(s.W, 2), round(s.H, 2)],
+            "pages": [_flip(m, s.H) for m in s.page_maps],
+        }
+    return out
+
+
 # --------------------------------------------------------------------------
 # Data loading
 def load_yaml(path):
@@ -817,8 +912,9 @@ def load_games(data_dir, include_subs=False):
 
 
 # --------------------------------------------------------------------------
-def build(path, games, size, orient, example=False, back=True, fill=None, names=None):
+def build(path, games, size, orient, example=False, back=True, fill=None, names=None, messy=False):
     s = ScoreSheet(path, size, orient)
+    s.messy = messy             # --fill only: untidier handwriting, for harder /record-game tests
     s._multi = len(games) > 1
     s.player_names = names
     for g in games:
@@ -847,7 +943,15 @@ def main():
                     help="no matching games is fine (e.g. --from-today after the last game day): make nothing, exit 0")
     ap.add_argument("--out", help="output folder")
     ap.add_argument("--spec", metavar="OUT.json", help="write the sheet spec as JSON and stop")
+    ap.add_argument("--geometry", metavar="OUT.json",
+                    help="write where every box is on each layout's pages (for reading photos) and stop")
     a = ap.parse_args()
+    if a.geometry:
+        with open(a.geometry, "w") as f:
+            json.dump(geometry_json(), f, separators=(",", ":"))
+            f.write("\n")
+        print(a.geometry)
+        return
     if a.spec:
         with open(a.spec, "w") as f:
             json.dump(spec_json(), f, indent=2)
@@ -855,7 +959,7 @@ def main():
         print(a.spec)
         return
     if not a.out:
-        ap.error("give --out (or --spec)")
+        ap.error("give --out (or --spec or --geometry)")
 
     layouts = ([(o, s) for o in ("portrait", "landscape") for s in ("letter", "legal")]
                if a.all_layouts else [(a.orient, a.size)])

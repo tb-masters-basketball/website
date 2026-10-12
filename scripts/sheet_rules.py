@@ -3,7 +3,7 @@ form MBL-SS6), check it, and work out each player's numbers.
 
 This is the one place the rules live. build_stats.py uses it for every file in
 data/<season>/games/; the entry page (/enter/) uses the same paths to point at
-boxes, and so will /record-game (planned). The entry page runs a line-for-line JavaScript port,
+boxes, and so does /record-game (scripts/record_game.py). The entry page runs a line-for-line JavaScript port,
 assets/js/sheet-rules.js: change this file first, then that one, and keep the
 messages identical (tests/js runs it on the same fixtures). The format is described in docs/game-file-format.md.
 

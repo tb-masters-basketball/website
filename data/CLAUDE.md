@@ -186,7 +186,12 @@ checked_by: Lee M.
 - **The entry page** (`/enter/`, unlisted) opens drafts, published games or a
   local file as a copy of the paper sheet, checks it live with the same rules,
   and saves the file (download, copy, or GitHub's new-file page). See
-  `docs/game-file-format.md` ("The entry page").
+  `docs/game-file-format.md` ("The entry page"). `enter/?game=<game_id>` opens
+  that game's draft. A local file may name teams (`home`/`away` or team names)
+  and players (`name` + `num`) instead of ids: the page turns them into ids.
+- **`/record-game`** (`.claude/skills/record-game/SKILL.md`) writes a draft
+  and its photo from a photo of the sheet and pushes both to main;
+  `python scripts/record_game.py check <file>` runs the rules on one file.
 
 ## IDs
 - Team ids: two letters (`pa`, `cr`, `wf`, `lh`, `fw`). Player ids: first name
