@@ -8,7 +8,10 @@ browser, and the site checks your work for you before anything goes live.
 into one small text file per game, box for box. The easy way is the site's
 entry page (**mastersbasketball.ca/enter/**), which shows the sheet as boxes to
 fill in, puts the photo beside it, checks everything as you type and writes the
-file for you. The site reads those files, double-checks them, works out every
+file for you. Or let Claude read the photo first: [`/record-game`](#read-a-photo-into-a-draft-record-game)
+in Claude Code (or [the free prompt](#without-claude-code-the-free-prompt) at
+claude.ai) writes a draft with every doubtful box flagged, and you only check
+it. The site reads those files, double-checks them, works out every
 number (standings, points per game, free-throw %), and publishes the pages. If
 something doesn't add up, the check fails with a plain message and **nothing
 is published**, so a typo can't put wrong numbers on the site.
@@ -19,7 +22,8 @@ is published**, so a typo can't put wrong numbers on the site.
 - [What a game file looks like](#what-a-game-file-looks-like)
 - [The checks, and what a failure looks like](#the-checks-and-what-a-failure-looks-like)
 - [How each number is calculated](#how-each-number-is-calculated)
-- [How to](#how-to): add a game, enter or check a game on the entry page, record a forfeit or a tie, fill in a playoff matchup,
+- [How to](#how-to): read a photo into a draft (`/record-game`, or the free prompt), enter or check a game on the entry page,
+  add a game by hand, record a forfeit or a tie, fill in a playoff matchup,
   cancel or move a game, team calendars, change a ranking minimum, edit the league rules, fix a wrong
   number, add a player or sub, the preview copy, sample mode
 - [If something looks wrong](#if-something-looks-wrong)
@@ -32,7 +36,7 @@ flowchart TD
     A --> B["Photo of the sheet"]
     B -. "kept for checking" .-> P["Photo saved in<br/>data/SEASON/sheets/"]
     B --> C["Typed up on the entry page /enter/<br/>with the photo beside it.<br/>It checks every box as you type"]
-    B -. "planned: /record-game" .-> R["Draft read from the photo<br/>data/SEASON/drafts/,<br/>unclear boxes flagged for review"]
+    B --> R["/record-game in Claude Code<br/>(or the free prompt at claude.ai):<br/>a draft read from the photo,<br/>unclear boxes flagged for review"]
     R --> K["Draft opened on /enter/:<br/>flagged boxes checked against<br/>the photo, then Mark as checked"]
     K --> V
     C --> V["Save as final, with your name in Checked by:<br/>GitHub opens the new file<br/>data/SEASON/games/DATE-gN.yml<br/>as a pull request"]
@@ -55,7 +59,7 @@ What each step means in plain words:
 | Score sheets | The site (automatic) | The Schedule page links each game day's sheets, with the game IDs and rosters printed ([the score sheet](#the-score-sheet)) |
 | Score sheet and photo | The scorekeeper at the game | Paper, then a photo on someone's phone: flat, all four corner squares in view |
 | Game file | **You**, on the [entry page](#enter-or-check-a-game-on-the-entry-page) (or by hand in GitHub) | `data/<season>/games/<date>-g1.yml`. Part-done work can wait as a draft in `data/<season>/drafts/` |
-| Draft from a photo | *Planned:* `/record-game`, a Claude Code command | Reads the photo into a draft with unclear boxes flagged; you check it on the entry page |
+| Draft from a photo | `/record-game` in Claude Code, or [the free prompt](#without-claude-code-the-free-prompt) | Reads the photo into a draft with unclear boxes flagged (`data/<season>/drafts/`, photo in `sheets/`); you check it on the entry page |
 | Checks | The entry page as you type, then `scripts/build_stats.py` on every change (automatic) | Same rules in both; see [the checks](#the-checks-and-what-a-failure-looks-like) |
 | Calculations | `scripts/build_stats.py` (automatic) | Writes `_data/computed/`. Never edit those files; they are rewritten every time |
 | Pages | Jekyll, the site builder (automatic) | Every page reads `_data/computed/`. The script also writes a tiny stub file for each game, player, team and archive season (folders `_games/`, `_players/`, `_teams/`, `_archive/`, rewritten every time), which is how each one gets its own page |
@@ -78,10 +82,17 @@ standings all update on their own.
    it is on page 2).
 3. **After the game:** photograph each sheet flat, all four corner squares in
    view. Keep the photo: it's saved with the game for checking.
-4. **Type it up** on the entry page: pick the game from the schedule (an empty
-   sheet with both rosters filled in), open the photo beside it, and copy the
-   boxes. Fix anything it marks in red as you go. Not finished? Save it as a
-   draft and come back to it.
+4. **Get it into a draft**, one of three ways:
+   - **`/record-game`** in Claude Code: give it the photo; it reads the sheet,
+     flags every box it isn't sure of, and pushes the draft and the photo
+     ([how](#read-a-photo-into-a-draft-record-game)).
+   - **The free prompt** at claude.ai (or another assistant): paste it with the
+     photo, save the answer as a file, open it on the entry page
+     ([how](#without-claude-code-the-free-prompt)).
+   - **Type it up** on the entry page: pick the game from the schedule (an
+     empty sheet with both rosters filled in), open the photo beside it, and
+     copy the boxes. Fix anything it marks in red as you go. Not finished? Save
+     it as a draft and come back to it.
 5. **Check it against the paper.** Ideally someone else does this: open the
    draft, look at every box flagged in blue against the photo, and press
    **Mark as checked** on each.
@@ -89,11 +100,11 @@ standings all update on their own.
    opens the new file, filled in: commit it as a pull request, wait for the
    green tick, and merge. The game is live a few minutes later.
 7. **Save the photo** as `data/<season>/sheets/<game_id>.jpg` (optional, kept
-   for checking, never shown on the site).
+   for checking, never shown on the site). `/record-game` does this for you.
 
-*Coming:* `/record-game` will do step 4 from the photo, writing a draft with
-every box it isn't sure of flagged for review, so steps 5 and 6 are all that's
-left (see the to-do list in the [README](../README.md#to-do)).
+However the draft was made, steps 5 and 6 are the same: a person compares it
+with the paper on the entry page. A draft from a photo is a first copy, not a
+checked one.
 
 ## The score sheet
 
@@ -357,6 +368,53 @@ deploy* check then runs the checks on your change and shows a green tick or a
 red cross. **Merge the pull request** only when it is green. Merging publishes
 the site (it takes a minute or two).
 
+### Read a photo into a draft (`/record-game`)
+
+`/record-game` is a Claude Code command (`.claude/skills/record-game/SKILL.md`).
+It needs Claude Code with this repository and push access to it.
+
+1. **Photograph the sheet** flat, the whole page in the frame and all four
+   black corner squares in view, no shadow across it, close enough to fill the
+   frame. A second photo for page 2 only if it was used.
+2. **Run it:** `/record-game <photo> [game id]` (attach the photo in the chat,
+   or give its path). The game id is optional: it's printed on the sheet.
+3. **What it does:**
+   - `scripts/record_game.py prepare` finds the four corner squares,
+     straightens the page, works out the paper, the page and the game, and
+     measures the pen in every box against that game's pre-printed sheet: the
+     Here ticks, free-throw circles, foul and T boxes and the quarter lines come
+     from that, and the running-score boxes with writing are found.
+   - Claude reads the handwriting section by section: the scorer numbers, the
+     score boxes, the scorekeeper, Notes, any player written in by hand.
+     Another Claude (a subagent) reads the running score separately, and every
+     box where the two disagree is looked at again.
+   - It runs the rules (`record_game.py check`) and flags the box behind every
+     error. Anything it isn't sure of gets a review item with a note such as
+     "46 or 48?".
+   - It saves the draft to `data/<season>/drafts/<game_id>.yml` and the photo
+     to `data/<season>/sheets/<game_id>.jpg` (shrunk, with the phone's location
+     data removed), commits both to `main` and pushes. (If `main` refuses the
+     push, it opens a pull request instead.)
+4. **It ends with** the score, each team's top scorers, the number of flagged
+   boxes and a link, `mastersbasketball.ca/enter/?game=<game_id>`, that opens
+   the draft. Check it against the paper ([below](#enter-or-check-a-game-on-the-entry-page)),
+   paying attention to the flagged boxes, and save it as final.
+
+The draft never reaches the site by itself: the build ignores `drafts/`.
+How well it reads, and how it was tested, is in
+[record-game.md](record-game.md).
+
+### Without Claude Code: the free prompt
+
+[record-game-prompt.md](record-game-prompt.md) is a prompt anyone can paste into
+the free claude.ai (or another assistant that reads images) with a photo of
+the sheet. It answers with the game file, written with team names and player
+names instead of the site's ids; save it as `<game_id>.yml` and drop it on the
+entry page's "A file on this computer". The entry page turns the names into ids
+(team names from the schedule, players by name and number, a sub from any
+team) and says how many rows it matched. Then check it as usual. Expect more
+flagged boxes than `/record-game`: nothing measures the ink first.
+
 ### Enter or check a game on the entry page
 
 The site has an unlisted page for this: **mastersbasketball.ca/enter/** (not in
@@ -367,7 +425,8 @@ for you. It needs JavaScript and works best on a laptop.
 1. **Open the game.** Pick a draft waiting to be checked ("Westfort vs Port
    Arthur · 2 flags"), a game from the schedule (an empty sheet with both
    rosters filled in), a `.yml` file from your computer (drop it on the page),
-   or a published game to correct it.
+   or a published game to correct it. A link `enter/?game=<game_id>` (the one
+   `/record-game` gives) opens that game's draft straight away.
 2. **Open the photo** of the sheet (*Open photo*) to see it beside the boxes.
    Zoom with the buttons, the scroll wheel or a pinch; drag to move it. The
    photo stays on your computer: it's never uploaded or saved.

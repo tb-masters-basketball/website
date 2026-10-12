@@ -26,3 +26,9 @@ __pycache__/
 *.pyc
 
 .DS_Store
+
+# Made-up score sheet photos for testing /record-game (scripts/record_game_eval.py photos)
+/tests/fixtures/record-game/synthetic*/
+
+# /record-game working folders (crops of score sheet photos)
+/.record-game/

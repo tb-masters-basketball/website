@@ -10,7 +10,8 @@ a link: under 3 KB for a typical game, and under 6 KB even for 100 points a side
   The build reads these, and any error stops it.
 - **Drafts:** `data/<season>/drafts/<game_id>.yml`, `status: draft`. The build
   never reads them (`build_stats.py --check` doesn't either); the entry page
-  (`/enter/`) checks them, and so will `/record-game` when it's built.
+  (`/enter/`) checks them, and so does `/record-game` (`python scripts/record_game.py check <file>`
+  runs the rules on any one file).
 - **Photos:** `data/<season>/sheets/<game_id>.jpg`, kept in the repo, never on
   the site.
 
@@ -195,7 +196,9 @@ page's JavaScript rules must give exactly the same results. Run
 
 `tests/fixtures/record-game/` holds four practice games for `/record-game`
 (an answer key, a filled sheet and an empty sheet each; see its README), made
-by `scripts/make_practice_games.py`. A test checks every answer key passes.
+by `scripts/make_practice_games.py`. A test checks every answer key passes;
+`tests/test_record_game.py` makes a photo of one and checks `/record-game`'s
+helper finds the page, the game and the pen in every box.
 
 ## The entry page
 

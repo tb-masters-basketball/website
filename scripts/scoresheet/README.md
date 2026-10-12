@@ -3,7 +3,7 @@
 `scoresheet.py` makes the printable league score sheet (form MBL-SS6) as a
 fillable PDF. It comes in four layouts: portrait or landscape, Letter or Legal.
 The scorekeeper can pick whichever they like. All four have the same parts, so
-a game file (and the entry page, `/enter/`, and the planned `/record-game`)
+a game file (and the entry page, `/enter/`, and `/record-game`)
 reads them the same way.
 
 ## What's on the sheet
@@ -80,6 +80,11 @@ Other options:
 - `--prefill GAME.json`: one game's header and rosters from a JSON file instead
   of `--data`.
 - `--spec OUT.json`: writes the spec (below) and stops.
+- `--geometry OUT.json`: writes where every box is on each layout's two pages
+  (points from the page's top-left corner: corner squares, header boxes, each
+  roster row's number, Here, name, circles, foul and T boxes, the score boxes,
+  Notes, every running-score box) and stops. `/record-game`'s helper
+  (`scripts/record_game.py`) reads photos by it; it doesn't change the PDFs.
 
 ## Data it needs
 It reads `teams.yml`, `players.yml` and `schedule.csv` from the season folder.

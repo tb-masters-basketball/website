@@ -17,8 +17,22 @@ To make test photos: print the filled sheet and the empty one, have someone
 copy the filled sheet onto the empty one by hand (real handwriting, real
 pens), then photograph the copy flat with all four corner squares in view. Save it
 in the game's folder as `photo.jpg` (`photo-2.jpg` for page 2, if used).
-Once `/record-game` exists, run it on the photo and compare its draft with
-`answer.yml` (the planned `scripts/compare_game.py`; see the README's to-do list).
+Then run `/record-game` on the photo. These games are in the sample season,
+so it stops before saving anything (no draft, no push) and scores its draft
+against `answer.yml`:
+
+    python scripts/record_game_eval.py score .record-game/<work>/draft.yml tests/fixtures/record-game/<game_id>/answer.yml
+
+Every box comes out **right**, **flagged** (wrong or unsure, with a review
+item pointing at it: fine, a person looks) or **wrong** (wrong and not
+flagged: the failure that matters).
+
+Made-up photos, without printing anything: `python scripts/record_game_eval.py
+photos` draws each game on all four layouts and "photographs" it (turned, seen
+at an angle, shadowed, blurred) into `synthetic/`; `--hard` makes a tougher set
+in `synthetic-hard/` (untidy writing in several pens, half-filled circles,
+smaller and blurrier photos). Both are git-ignored and the same every run.
+[docs/record-game.md](../../../docs/record-game.md) has the results.
 
 | Game | Layout | Teams (home first) | Final | What it tests |
 |---|---|---|---|---|

@@ -57,8 +57,9 @@ Every structural number (rows, circles, foul boxes, score boxes, running-score
 pages) is in its `SPEC` dict; `scoresheet.py --spec scripts/scoresheet/spec.json`
 writes it out for `sheet_rules.py` (a test keeps the two in step).
 **Don't change the sheet's layout or `FORM` without updating `sheet_rules.py`
-(and its JS port), the game file format and, once it exists, `/record-game`**, which read sheets by that exact
-layout. The entry page (`/enter/`) draws its sheet from the spec, so it follows on its own. Changes to how it reads the data (which games, which players) are fine.
+(and its JS port), the game file format and `/record-game`**, which read sheets by that exact
+layout (`/record-game` takes every box's position from `scoresheet.py --geometry`, so it follows a layout change, but
+its ink levels were tuned on this layout: rerun `scripts/record_game_eval.py` after one). The entry page (`/enter/`) draws its sheet from the spec, so it follows on its own. Changes to how it reads the data (which games, which players) are fine.
 
 ## Layout
 ```
@@ -82,14 +83,20 @@ scripts/build_preview.sh  after the main build: the sample-season copy into _sit
 scripts/check_links.sh  fails on broken links/images in _site/ (html-proofer; runs in CI)
 scripts/scoresheet/     the score sheet generator (README, fonts, badge, example data)
 scripts/make_score_sheets.sh  score-sheets/*.pdf (git-ignored) for the season shown; runs in CI
+scripts/record_game.py  /record-game's helper: prepare (straighten a photo with the corner squares, crop each section,
+                        measure the ink in every box, start a draft), zoom, compare, check (the rules on one file), save
+.claude/skills/record-game/SKILL.md  the /record-game command: photo -> draft in data/<season>/drafts/ + photo in sheets/,
+                        pushed to main; docs/record-game.md says how well it reads, docs/record-game-prompt.md is the
+                        free version (a prompt; the entry page matches its names to players.yml)
+scripts/record_game_eval.py  made-up photos of the practice games (--hard for a tougher set) and scoring a draft
 scripts/make_practice_games.py  practice sheets for /record-game into tests/fixtures/record-game/
                         (answer key + filled + empty sheet; uses `scoresheet.py --fill`)
 scripts/screenshot_all.py  builds sample + real mode, screenshots the main pages (360/390/1440, light/dark),
                         checks sideways scroll, console errors and failed requests
-tests/                  pytest: build_stats, calendars, score sheets, sheet rules
+tests/                  pytest: build_stats, calendars, score sheets, sheet rules, record_game
 tests/js/               node --test: the JS sheet rules against the same fixtures (runs in CI)
 tests/fixtures/sheets/  test game files + expected results (run by both the Python and the JS rules)
-tests/fixtures/record-game/  four practice games for the planned /record-game (see its README)
+tests/fixtures/record-game/  four practice games for /record-game (see its README); synthetic*/ photos are git-ignored
 _layouts/ _includes/    templates (_layouts/text.html: Markdown pages such as rules/index.md)
 flagrant/index.html     flagrant fouls by player and each one with its note (unlinked; not on Stats)
 rules/index.md          the League rules page: playing rules + player code of conduct (Markdown, two # headings,
@@ -110,6 +117,8 @@ python -m pytest                         # every test (runs in CI before the bui
 node --test "tests/js/*.test.mjs"        # the JS sheet rules against the same fixtures (Node 22)
 python scripts/scoresheet/scoresheet.py --spec enter/sheet-spec.json   # the sheet layout /enter/ reads
 python scripts/build_stats.py            # check data, recompute stats, write the stub pages
+python scripts/record_game.py check <game file>   # the rules on one game file (draft or final)
+/record-game <photo> [game_id]           # (Claude Code) a score sheet photo into a draft, pushed to main
 scripts/make_score_sheets.sh             # score sheet PDFs into score-sheets/ (needs reportlab)
 bundle exec jekyll serve --livereload    # preview at http://localhost:4000/
 bundle exec jekyll build && scripts/build_preview.sh && scripts/check_links.sh   # build both copies, check links
