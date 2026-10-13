@@ -12,6 +12,7 @@ light team teams/pa/
 light player players/rob-k/
 light box-score games/2026-12-10-g1/
 light past-season archive/sample-2025-26/
+flags 2
 link team teams/pa/
 link player players/rob-k/
 link box-score games/2026-12-10-g1/
@@ -25,3 +26,4 @@ dark team teams/pa/
 dark player players/rob-k/
 dark box-score games/2026-12-10-g1/
 dark past-season archive/sample-2025-26/
+flags 2
