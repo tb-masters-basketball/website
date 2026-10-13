@@ -3,15 +3,21 @@
 The league's website: standings, schedule, team pages, player stats and past
 seasons. Live at **https://mastersbasketball.ca/**.
 
-It is a static site. Volunteers copy each paper score sheet into a small text
-file in `data/`, box for box, usually on the site's entry page (`/enter/`),
-which checks it as they type. A Python script checks the files again and works
-out every number. Jekyll turns
-the numbers into pages, and GitHub Actions publishes them to GitHub Pages
-whenever `main` changes.
+It is a static site. Each paper score sheet becomes a small text file in
+`data/`, a box-for-box copy of the sheet. Volunteers type it up on the site's
+entry page (`/enter/`), which checks it as they type, or start from a photo of
+the sheet that an AI reads into a draft (below). A Python script checks the
+files again and works out every number, Jekyll turns the numbers into pages,
+and GitHub Actions publishes them to GitHub Pages whenever `main` changes.
 
 - **Keeping the stats up to date** (for volunteers, no coding needed):
   [`docs/stats-workflow.md`](docs/stats-workflow.md)
+- **Reading a score sheet photo into a draft:** `/record-game <photo>` in
+  Claude Code, or the free prompt for ChatGPT or claude.ai (the entry page's
+  **Copy the prompt** button). Either way a person checks the draft against the
+  paper on the entry page before it counts. How it works and how well it reads:
+  [`docs/record-game.md`](docs/record-game.md); the prompt:
+  [`docs/record-game-prompt.md`](docs/record-game-prompt.md).
 - **Rules for anyone changing the code**, including Claude Code: [`CLAUDE.md`](CLAUDE.md)
 
 ---
@@ -40,33 +46,14 @@ The full list, with answers so far, is in
       and says so under the standings.
 - [ ] **Tied quarters.** The site gives neither team a point for a tied
       quarter (zero for now); the league still has to confirm.
+- [ ] **Overtime and standings points.** The site assumes overtime is not a
+      quarter for standings points: it only decides who wins. To confirm.
 - [ ] **Reseeding after 6 games (rule 31).** Probably no longer done; to
       confirm.
 - [ ] **Playoff matchups.** The play-in (G41, Wed Apr 21) is "TBD vs TBD" in
       `schedule.csv`. Fill in each playoff row as the standings decide it.
 
-### 2. Test `/record-game` on real photos
-
-`/record-game <photo> [game_id]` (`.claude/skills/record-game/SKILL.md`) reads a
-photo of a score sheet into a draft with every doubtful box flagged, saves the
-draft and the photo, and pushes them to `main`; a person checks the draft on the
-entry page and saves it as final ([how](docs/stats-workflow.md#read-a-photo-into-a-draft-record-game)).
-[`docs/record-game-prompt.md`](docs/record-game-prompt.md) is the same job as a
-prompt for ChatGPT or the free claude.ai (the entry page has a Copy the prompt button). How it works and how well it reads:
-[`docs/record-game.md`](docs/record-game.md). So far it's tested only on made-up
-photos (the practice games drawn with a font, then blurred, turned and shadowed).
-
-- [ ] **Real handwriting.** Print the four practice games' filled and empty
-      sheets, have people copy each filled sheet onto its empty one by hand,
-      photograph the copies, save them as
-      `tests/fixtures/record-game/<game_id>/photo.jpg`, run `/record-game` on
-      each (with `--season sample-2026-27`; don't push those drafts) and score
-      them with `python scripts/record_game_eval.py score <draft> <answer.yml>`.
-      Then a real game's sheet. Retune the ink levels at the top of
-      `scripts/record_game.py` if real pens read differently.
-- [ ] **The free prompt on a real photo**, at claude.ai, the same way.
-
-### 3. Build `players.yml` from the team rosters (`/build-roster`)
+### 2. Build `players.yml` from the team rosters (`/build-roster`)
 
 Rosters will arrive one team at a time, probably as a spreadsheet or CSV per
 team, maybe as a photo or PDF. The goal is a Claude Code command,
@@ -103,7 +90,7 @@ small helper (`scripts/build_roster.py`, with tests) can do the matching and
 id assignment so the command only reads the rosters and confirms.
 `docs/stats-workflow.md` would gain an "Add the rosters" section.
 
-### 4. Smaller follow-ups
+### 3. Smaller follow-ups
 
 - [ ] **Saving the photo is a separate step** when a game is typed up on the
       entry page: it never uploads the photo, so it goes into
@@ -167,8 +154,8 @@ git-ignored.
 | `data/<season>/teams.yml` | Team id (2 letters), name, 2-letter code, colour slot (1–5) | hand, once a season |
 | `data/<season>/players.yml` | Player id (`mike-r`), display name ("Mike R."), team, `sub`, jersey `number` (the roster: the only place numbers live) | hand (later `/build-roster`, planned) |
 | `data/<season>/schedule.csv` | One row per game: id, date, time, gym, home, away, `regular`/`playoff`, week, optional `status` (`cancelled`) and `round` (playoff round name) | hand |
-| `data/<season>/games/<game_id>.yml` | One file per played game: a digital copy of the score sheet, box for box (roster rows with Here, free-throw circles and fouls; the running score; quarter lines and score boxes; Notes). Format: [`docs/game-file-format.md`](docs/game-file-format.md) | the entry page (`/enter/`) or hand (later `/record-game`, planned) |
-| `data/<season>/drafts/<game_id>.yml` | A game still being entered or checked (`status: draft`, with `review` flags on boxes still in doubt); never read by the build, not even `--check`; checked on the entry page | the entry page (later `/record-game`, planned) |
+| `data/<season>/games/<game_id>.yml` | One file per played game: a digital copy of the score sheet, box for box (roster rows with Here, free-throw circles and fouls; the running score; quarter lines and score boxes; Notes). Format: [`docs/game-file-format.md`](docs/game-file-format.md) | the entry page (`/enter/`), when a game is saved as final, or hand |
+| `data/<season>/drafts/<game_id>.yml` | A game still being entered or checked (`status: draft`, with `review` flags on boxes still in doubt); never read by the build, not even `--check`; checked on the entry page | the entry page, or `/record-game` from a photo |
 | `data/<season>/sheets/<game_id>.jpg` | Photo of the paper sheet, kept for checking (not published) | `/record-game`, or by hand |
 | `_config.yml` | `sample_data` (show the fake season), `score_sheet_links` (publish photos), `preview_site` (the sample copy at `/preview/`), `contact_url`, `search_engines` (off: pages ask not to be listed by Google), the domain | hand, rarely |
 
@@ -257,7 +244,7 @@ Two small includes turn that into the variables every template uses:
 | `/teams/` | `teams/index.html` | a card per team |
 | `/archive/` | `archive/index.html` | a card per season |
 | `/rules/` | `rules/index.md` (layout `text`) | the league's playing rules and player code of conduct (two `#` headings, numbered rules as `##`, a table of contents made by kramdown's `{:toc}`); linked from the footer |
-| `/enter/` | `enter/index.html` | the score sheet entry page (unlisted, needs JavaScript): type up or check a game against the photo, then save the file to GitHub. Reads `enter/sheet-spec.json` and `enter/data/`; script `assets/js/enter.js` |
+| `/enter/` | `enter/index.html` | the score sheet entry page (unlisted, needs JavaScript): type up or check a game against the photo, then save the file to GitHub; also the **Copy the prompt** button for the free photo-reading prompt. Reads `enter/sheet-spec.json` and `enter/data/`; script `assets/js/enter.js` |
 | `/404.html` | `404.html` | page not found |
 
 **Generated pages:** a stub plus a layout. `_config.yml` declares four
@@ -339,7 +326,8 @@ night at about 4 AM Thunder Bay time (08:17 UTC):
 3. Run the JavaScript tests with Node 22 (`node --test "tests/js/*.test.mjs"`):
    the entry page's copy of the rules against the same fixtures.
 4. `python scripts/build_stats.py`: check the data and write the JSON, stubs,
-   calendars and the entry page's data (`enter/data/`).
+   calendars and the entry page's data (`enter/data/`, including the free
+   prompt copied from `docs/record-game-prompt.md`).
 5. `scripts/make_score_sheets.sh`: score sheet PDFs for the season the site
    shows, into `score-sheets/`. That's every game day from today (Thunder Bay
    time) in all four layouts, plus blank sheets. The Schedule page links only
@@ -390,7 +378,8 @@ Run `build_stats.py` again after changing anything in `data/` or the
 | I want to… | Do this |
 |---|---|
 | Add a game result | type it up on `/enter/` ([guide](docs/stats-workflow.md#enter-or-check-a-game-on-the-entry-page)), or add `data/2026-27/games/<game_id>.yml` by hand ([guide](docs/stats-workflow.md#add-a-game-by-hand)) |
-| Read a score sheet photo into a draft | `/record-game <photo>` in Claude Code ([guide](docs/stats-workflow.md#read-a-photo-into-a-draft-record-game)), or [the free prompt](docs/record-game-prompt.md) in ChatGPT or claude.ai (Copy button on /enter/) |
+| Read a score sheet photo into a draft | `/record-game <photo>` in Claude Code ([guide](docs/stats-workflow.md#read-a-photo-into-a-draft-record-game)), or [the free prompt](docs/record-game-prompt.md) in ChatGPT or claude.ai (Copy button on `/enter/`; Gemini doesn't read the sheet well) |
+| Change the free prompt | edit the text between the two `---` lines in `docs/record-game-prompt.md`; the Copy button picks it up on the next deploy |
 | Check a draft against the paper | open it on `/enter/` (or `enter/?game=<game_id>`), with the photo beside it |
 | Fix a number | edit the game file (or reopen the game on `/enter/`); everything is recalculated |
 | Add a player or sub | one line in `data/2026-27/players.yml` |
@@ -411,7 +400,7 @@ data/                    league data: the only thing edited week to week
   sample-2026-27/        made-up data (sample mode only)
   sample-2025-26/
 scripts/
-  build_stats.py         checks the data; writes JSON, stub pages, calendars
+  build_stats.py         checks the data; writes JSON, stub pages, calendars, the entry page's data
   sheet_rules.py         the score sheet rules: checks a game file, works out each player's numbers
   calendars.py           the .ics files
   scoresheet/            the score sheet generator (form MBL-SS6): README, fonts, example data
@@ -440,7 +429,7 @@ docs/
   stats-workflow.md      the volunteer's guide
   game-file-format.md    the game file: a digital copy of the score sheet
   record-game.md         /record-game: how it reads a photo, and how well (test results)
-  record-game-prompt.md  the free version: a prompt for ChatGPT or claude.ai and a photo
+  record-game-prompt.md  the free version: a prompt for ChatGPT or claude.ai and a photo (copied to /enter/)
   open-questions.md      league decisions still needed
   design-brief.md        the design spec and decisions
   mockups/               approved mockups

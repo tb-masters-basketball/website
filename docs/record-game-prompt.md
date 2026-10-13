@@ -40,11 +40,12 @@ far, doesn't read the sheet well.
    round every box it isn't sure of. A green box on the away roster, or a column
    left out, means the reading is wrong from the start. Tell it what it got
    wrong ("the green box is on the away roster") and ask it to start again.
-5. **Save the file.** The answer ends with a game file in a code block. Copy
-   it into a plain-text file named after the game, such as `2026-12-03-g1.yml`
-   (in Notepad or TextEdit, save as plain text).
-6. **Open it on the entry page.** Go to `https://mastersbasketball.ca/enter/`
-   and drop the file on "A file on this computer". The page turns team names
+5. **Copy the file.** The answer ends with a game file in a code block. Copy
+   the code block (or the whole answer: the page finds the block).
+6. **Open it on the entry page.** Go to `https://mastersbasketball.ca/enter/`,
+   paste it into the box on "Load a score sheet YML" and press **Open the
+   pasted file**. (Or save it as a plain-text file named after the game, such
+   as `2026-12-03-g1.yml`, and drop it on the same card.) The page turns team names
    into the site's team ids and matches each player's name and number to the
    player list (`players.yml`); check the matches it reports. Go through every
    flagged box with the paper (the red boxes on the check picture are the same

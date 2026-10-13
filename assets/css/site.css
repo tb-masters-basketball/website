@@ -2478,6 +2478,13 @@ html:not(.js) [data-enter-status] {
   max-width: 100%;
 }
 
+.enter-paste {
+  width: 100%;
+  padding: 8px 10px;
+  font: 400 14px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  resize: vertical;
+}
+
 .enter-select--small {
   width: auto;
   min-height: 40px;
