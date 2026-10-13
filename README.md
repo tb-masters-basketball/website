@@ -52,7 +52,7 @@ photo of a score sheet into a draft with every doubtful box flagged, saves the
 draft and the photo, and pushes them to `main`; a person checks the draft on the
 entry page and saves it as final ([how](docs/stats-workflow.md#read-a-photo-into-a-draft-record-game)).
 [`docs/record-game-prompt.md`](docs/record-game-prompt.md) is the same job as a
-prompt for the free claude.ai. How it works and how well it reads:
+prompt for ChatGPT or the free claude.ai (the entry page has a Copy the prompt button). How it works and how well it reads:
 [`docs/record-game.md`](docs/record-game.md). So far it's tested only on made-up
 photos (the practice games drawn with a font, then blurred, turned and shadowed).
 
@@ -390,7 +390,7 @@ Run `build_stats.py` again after changing anything in `data/` or the
 | I want to… | Do this |
 |---|---|
 | Add a game result | type it up on `/enter/` ([guide](docs/stats-workflow.md#enter-or-check-a-game-on-the-entry-page)), or add `data/2026-27/games/<game_id>.yml` by hand ([guide](docs/stats-workflow.md#add-a-game-by-hand)) |
-| Read a score sheet photo into a draft | `/record-game <photo>` in Claude Code ([guide](docs/stats-workflow.md#read-a-photo-into-a-draft-record-game)), or [the free prompt](docs/record-game-prompt.md) at claude.ai |
+| Read a score sheet photo into a draft | `/record-game <photo>` in Claude Code ([guide](docs/stats-workflow.md#read-a-photo-into-a-draft-record-game)), or [the free prompt](docs/record-game-prompt.md) in ChatGPT or claude.ai (Copy button on /enter/) |
 | Check a draft against the paper | open it on `/enter/` (or `enter/?game=<game_id>`), with the photo beside it |
 | Fix a number | edit the game file (or reopen the game on `/enter/`); everything is recalculated |
 | Add a player or sub | one line in `data/2026-27/players.yml` |
@@ -440,7 +440,7 @@ docs/
   stats-workflow.md      the volunteer's guide
   game-file-format.md    the game file: a digital copy of the score sheet
   record-game.md         /record-game: how it reads a photo, and how well (test results)
-  record-game-prompt.md  the free version: a prompt for claude.ai (or any assistant) and a photo
+  record-game-prompt.md  the free version: a prompt for ChatGPT or claude.ai and a photo
   open-questions.md      league decisions still needed
   design-brief.md        the design spec and decisions
   mockups/               approved mockups

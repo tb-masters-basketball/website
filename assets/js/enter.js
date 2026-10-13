@@ -70,6 +70,18 @@
       return r.text();
     });
   }
+  function copyText(text) {
+    return (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text) : Promise.reject())
+      .catch(function () {
+        var ta = el("textarea", { class: "visually-hidden" });
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = document.execCommand && document.execCommand("copy");
+        ta.remove();
+        if (!ok) throw new Error("copy");
+      });
+  }
   var store = {
     key: function (gid) { return "mb-enter:" + gid; },
     get: function (gid) {
@@ -347,8 +359,27 @@
       e.preventDefault();
       readLocalFile(e.dataTransfer.files[0]);
     });
+    setUpPrompt();
     renderGamePick();
     renderLocal();
+  }
+
+  // the free /record-game prompt (docs/record-game-prompt.md; build_stats.py
+  // copies it here). Fetched up front: Safari only lets a click copy right away.
+  function setUpPrompt() {
+    var btn = $("[data-prompt-copy]");
+    var note = $("[data-prompt-note]");
+    var link = note.innerHTML;
+    var prompt = null;
+    getText(BASE + "data/record-game-prompt.txt").then(function (t) { prompt = t; }, function () {});
+    btn.addEventListener("click", function () {
+      if (!prompt) { note.innerHTML = "Couldn't load the prompt. " + link; return; }
+      copyText(prompt).then(function () {
+        note.textContent = "Copied. Paste it into a new chat with the photo.";
+      }, function () {
+        note.innerHTML = "Couldn't copy here. " + link + ", select all and copy it.";
+      });
+    });
   }
 
   function renderDrafts() {
@@ -1330,16 +1361,7 @@
 
     function note(t) { $("[data-dialog-note]").textContent = t; }
     function copy() {
-      return (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text) : Promise.reject())
-        .catch(function () {
-          var ta = el("textarea", { class: "visually-hidden" });
-          ta.value = text;
-          document.body.appendChild(ta);
-          ta.select();
-          var ok = document.execCommand && document.execCommand("copy");
-          ta.remove();
-          if (!ok) throw new Error("copy");
-        }).then(function () { note("Copied the file (" + text.length + " characters)."); }, function () { note("Couldn't copy: use Download, or Show the file below."); });
+      return copyText(text).then(function () { note("Copied the file (" + text.length + " characters)."); }, function () { note("Couldn't copy: use Download, or Show the file below."); });
     }
     function download() {
       var a = el("a", { href: URL.createObjectURL(new Blob([text], { type: "text/yaml" })), download: gid + ".yml" });

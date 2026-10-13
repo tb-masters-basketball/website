@@ -1236,7 +1236,21 @@ def write_entry_data(root, data_dir, season, loaded, config):
     })
     built = dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")
     _write_json(out / "index.json", {"season": sid, "built": built, "games": games, "drafts": drafts})
+    (out / "record-game-prompt.txt").write_text(prompt_text(PROMPT_DOC.read_text(encoding="utf-8")), encoding="utf-8")
     return len(games), len(drafts)
+
+
+PROMPT_DOC = ROOT / "docs" / "record-game-prompt.md"
+
+
+def prompt_text(md):
+    """The free /record-game prompt, for the entry page's Copy button: what sits
+    between the two `---` lines under "## The prompt" in docs/record-game-prompt.md."""
+    after = md.split("\n## The prompt\n", 1)
+    parts = re.split(r"^---[ \t]*$", after[1], flags=re.M) if len(after) == 2 else []
+    if len(parts) < 3 or not parts[1].strip():
+        raise DataError(f"{PROMPT_DOC.name}: no prompt between two '---' lines under '## The prompt'")
+    return parts[1].strip() + "\n"
 
 
 def _write_json(path, data):
