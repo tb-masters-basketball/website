@@ -413,7 +413,11 @@ names instead of the site's ids; save it as `<game_id>.yml` and drop it on the
 entry page's "A file on this computer". The entry page turns the names into ids
 (team names from the schedule, players by name and number, a sub from any
 team) and says how many rows it matched. Then check it as usual. Expect more
-flagged boxes than `/record-game`: nothing measures the ink first.
+flagged boxes than `/record-game`: nothing measures the ink first. The prompt
+makes the assistant read one section at a time and show a check picture
+(home boxed in green, away in orange, every box it isn't sure of in red):
+look at that first, since a roster boxed in the wrong colour means the whole
+reading is off.
 
 ### Enter or check a game on the entry page
 
