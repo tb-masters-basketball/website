@@ -67,12 +67,15 @@ def main():
             def extras():
                 # Stats with the first player row opened
                 page.goto(BASE + "stats/", wait_until="load")
-                btn = page.query_selector("[aria-expanded='false']")
-                if btn:
-                    btn.click(); page.wait_for_timeout(400)
+                page.wait_for_timeout(1000)
+                btn = page.locator("main [aria-expanded='false']:visible").first
+                try:
+                    btn.click(timeout=5000); page.wait_for_timeout(500)
                     btn.scroll_into_view_if_needed()
                     page.evaluate("window.scrollBy(0, -120)")
                     page.screenshot(path=str(OUT / f"stats-open-{theme}-screen.png"))
+                except Exception:
+                    log("FAILED stats-open"); log(traceback.format_exc())
                 # Entry page: start panel, then the sample draft loaded from a file
                 page.goto(BASE + "enter/", wait_until="load")
                 page.wait_for_timeout(1500)
