@@ -311,20 +311,33 @@
 
   function readLocalFile(file) {
     if (!file) return;
-    file.text().then(function (text) {
-      var sheet;
-      try { sheet = yaml.load(text); } catch (e) {
-        status("That file isn't valid YAML: " + e.message, true);
-        return;
-      }
-      normalizeTeams(sheet);
-      if (!isDict(sheet) || !S.season.teams[sheet.home] || !S.season.teams[sheet.away] || sheet.home === sheet.away) {
-        status("That doesn't look like a game file for this season's teams (it needs home and away from teams.yml).", true);
-        return;
-      }
-      status("");
-      open(sheet, "file", file.name);
-    });
+    file.text().then(function (text) { openText(text, file.name); });
+  }
+  // A pasted answer from a chat: the YAML may sit in a ``` code block among
+  // other text. Use the block with a game_id in it (else the first block, else
+  // all of it). Returns true when it opened.
+  function openPasted(text) {
+    var blocks = [], re = /```[^\n]*\n([\s\S]*?)```/g, m;
+    while ((m = re.exec(text))) blocks.push(m[1]);
+    var pick = blocks.filter(function (b) { return /^game_id:/m.test(b); })[0] || blocks[0] || text;
+    return openText(pick, null, "pasted text");
+  }
+  function openText(text, fileName, what) {
+    what = what || "That file";
+    var sheet;
+    try { sheet = yaml.load(text); } catch (e) {
+      status(what.charAt(0).toUpperCase() + what.slice(1) + " isn't valid YAML: " + e.message, true);
+      return false;
+    }
+    normalizeTeams(sheet);
+    if (!isDict(sheet) || !S.season.teams[sheet.home] || !S.season.teams[sheet.away] || sheet.home === sheet.away) {
+      status((what === "That file" ? "That doesn't" : "The " + what + " doesn't") +
+        " look like a game file for this season's teams (it needs home and away from teams.yml).", true);
+      return false;
+    }
+    status("");
+    open(sheet, "file", fileName || "pasted text");
+    return true;
   }
 
   // ------------------------------------------------------------ start panel
@@ -339,6 +352,11 @@
       else open(emptySheet(gid), "new");
     });
     $("[data-file]").addEventListener("change", function (e) { readLocalFile(e.target.files[0]); e.target.value = ""; });
+    $("[data-paste-open]").addEventListener("click", function () {
+      var box = $("[data-paste]");
+      if (!box.value.trim()) { status("Paste the game file into the box first.", true); box.focus(); return; }
+      if (openPasted(box.value)) box.value = "";
+    });
     var drop = $("[data-drop]");
     ["dragenter", "dragover"].forEach(function (t) {
       document.addEventListener(t, function (e) {

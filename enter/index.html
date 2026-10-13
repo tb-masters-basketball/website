@@ -42,14 +42,17 @@ scripts:
         <button class="btn" type="button" data-game-open>Start an empty sheet</button>
       </div>
       <div class="enter-card enter-drop" data-drop>
-        <h3 class="enter-card__title">A file on this computer</h3>
+        <h3 class="enter-card__title">Load a score sheet YML</h3>
         <p class="enter-hint">Drop a game file (.yml) here, or choose one.</p>
         <input class="visually-hidden" type="file" id="enter-file" accept=".yml,.yaml" data-file>
         <label class="btn btn--quiet" for="enter-file">Choose a file</label>
+        <label class="enter-hint" for="enter-paste">Or paste it, straight from a chat (the code block, or the whole answer):</label>
+        <textarea class="enter-input enter-paste" id="enter-paste" rows="4" spellcheck="false" autocomplete="off" placeholder="game_id: 2026-12-03-g1&#10;form: MBL-SS6&#10;…" data-paste></textarea>
+        <button class="btn btn--quiet" type="button" data-paste-open>Open the pasted file</button>
       </div>
       <div class="enter-card">
         <h3 class="enter-card__title">Read a photo with an AI chat</h3>
-        <p class="enter-hint">Copy the prompt and paste it into ChatGPT or Claude (claude.ai) with a photo of the sheet. It writes a game file: save it as a .yml file and open it here. Gemini doesn't read the sheet well.</p>
+        <p class="enter-hint">Copy the prompt and paste it into ChatGPT or Claude (claude.ai) with a photo of the sheet. It writes a game file: paste it into "Load a score sheet YML". Gemini doesn't read the sheet well.</p>
         <button class="btn btn--quiet" type="button" data-prompt-copy>Copy the prompt</button>
         <p class="enter-hint" data-prompt-note role="status"><a href="{{ '/enter/data/record-game-prompt.txt' | relative_url }}">See the prompt as text</a></p>
       </div>

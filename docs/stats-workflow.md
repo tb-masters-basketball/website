@@ -409,8 +409,10 @@ How well it reads, and how it was tested, is in
 [record-game-prompt.md](record-game-prompt.md) is a prompt anyone can paste into
 ChatGPT or the free claude.ai with a photo of the sheet (Gemini doesn't read it
 well); the entry page's **Copy the prompt** button copies it. It answers with the game file, written with team names and player
-names instead of the site's ids; save it as `<game_id>.yml` and drop it on the
-entry page's "A file on this computer". The entry page turns the names into ids
+names instead of the site's ids: paste it into the box on the entry page's
+"Load a score sheet YML" card (the code block, or the whole answer) and press
+**Open the pasted file**, or save it as `<game_id>.yml` and drop it on the same
+card. The entry page turns the names into ids
 (team names from the schedule, players by name and number, a sub from any
 team) and says how many rows it matched. Then check it as usual. Expect more
 flagged boxes than `/record-game`: nothing measures the ink first. The prompt
@@ -428,8 +430,8 @@ for you. It needs JavaScript and works best on a laptop.
 
 1. **Open the game.** Pick a draft waiting to be checked ("Westfort vs Port
    Arthur · 2 flags"), a game from the schedule (an empty sheet with both
-   rosters filled in), a `.yml` file from your computer (drop it on the page),
-   or a published game to correct it. A link `enter/?game=<game_id>` (the one
+   rosters filled in), a `.yml` file (drop it on the page, or paste it into the
+   box on "Load a score sheet YML", straight from a chat), or a published game to correct it. A link `enter/?game=<game_id>` (the one
    `/record-game` gives) opens that game's draft straight away.
 2. **Open the photo** of the sheet (*Open photo*) to see it beside the boxes.
    Zoom with the buttons, the scroll wheel or a pinch; drag to move it. The
