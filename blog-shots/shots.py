@@ -90,6 +90,15 @@ def main():
                     page.evaluate("window.scrollBy(0, -260)")
                     page.wait_for_timeout(300)
                     page.screenshot(path=str(OUT / f"enter-flag-{theme}-screen.png"))
+                flags = page.query_selector_all(".is-flag")
+                log("flags", len(flags))
+                for i, f in enumerate(flags[:6]):
+                    try:
+                        f.scroll_into_view_if_needed(); page.evaluate("window.scrollBy(0, -300)")
+                        page.wait_for_timeout(300)
+                        page.screenshot(path=str(OUT / f"enter-flag{i}-{theme}-screen.png"))
+                    except Exception:
+                        log("FAILED flag", i)
                 for sel, name in (("#enter-checks-title", "enter-checks"), ("#enter-save-title", "enter-save")):
                     el = page.query_selector(sel)
                     if el:
