@@ -151,9 +151,10 @@ mistakes on ticks, circles, fouls and T boxes.
 with fonts: messy, but not a tired scorekeeper's 4 that looks like a 9,
 crossed-out numbers, arrows, or a box written between two rows. The ink
 levels were tuned on these photos and may need retuning for real pens
-(the levels are at the top of `scripts/record_game.py`). Next step: the
-practice sheets copied by hand and photographed, then real games (see the
-[README's to-do list](../README.md#to-do)).
+(the levels are at the top of `scripts/record_game.py`). The practice
+sheets copied by hand and photographed have since been tested (October
+2026), with the fixes above. Next come real games' sheets: retune the ink
+levels if real pens read differently.
 
 ## Testing it again
 
