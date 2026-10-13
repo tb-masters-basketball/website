@@ -1,0 +1,44 @@
+name: Blog screenshots (temporary)
+
+# Throwaway workflow on the tmp/blog-screenshots branch only: builds the site
+# and the /preview/ copy like the deploy does, takes phone screenshots and
+# commits them to this branch. Never deploys. Delete the branch afterwards.
+
+on:
+  push:
+    branches: [tmp/blog-screenshots]
+    paths: [.github/workflows/blog-shots.yml, blog-shots/shots.py]
+
+permissions:
+  contents: write
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt playwright
+      - run: python -m playwright install --with-deps chromium
+      - run: python scripts/build_stats.py
+      - run: scripts/make_score_sheets.sh
+      - run: python scripts/scoresheet/scoresheet.py --spec enter/sheet-spec.json
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+      - run: scripts/build_preview.sh
+        env:
+          JEKYLL_ENV: production
+      - run: python blog-shots/shots.py
+      - name: Commit screenshots to this branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898+github-actions[bot]@users.noreply.github.com"
+          git add -f blog-shots/out
+          git commit -m "Blog screenshots" || echo "nothing new"
+          git push
