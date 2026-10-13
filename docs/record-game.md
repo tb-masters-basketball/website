@@ -132,7 +132,22 @@ the checker's job shrinks from copying 190 boxes to looking at a handful.
 Sonnet is the most accurate reader and the cheapest, so the second reading
 uses it; the main reading uses whatever model the session runs.
 
-**What it hasn't seen yet**: real handwriting. The test writing is drawn
+**The first real photo** (the practice game `2026-12-17-g2`, copied by hand
+onto a grayscale print and photographed on a table with a phone) needed four
+fixes to the measuring step: a corner square right at the photo's edge, a
+dark table edge mistaken for a corner, a grayscale print that sits a few
+pixels off the template (each small box is now measured as placed and with a
+few pixels' give, and flagged when the two disagree), and handwriting
+crossing cell borders read as quarter lines (stricter line level). After
+those, on that sheet: every tick, free throw, foul and T box right or
+flagged; the running score 65 of 66 boxes right and the 66th flagged with
+the right answer suggested; the second reading agreed box for box. The rest
+of what differed from the answer key was the copy itself (no quarter lines
+drawn, an OT box of 83, an empty Final, a foul short), each copied as
+written and flagged. The made-up sets still come out with no silent
+mistakes on ticks, circles, fouls and T boxes.
+
+**What it hasn't seen yet**: more real handwriting. The test writing is drawn
 with fonts: messy, but not a tired scorekeeper's 4 that looks like a 9,
 crossed-out numbers, arrows, or a box written between two rows. The ink
 levels were tuned on these photos and may need retuning for real pens
