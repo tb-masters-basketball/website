@@ -35,7 +35,9 @@ jobs:
         env:
           JEKYLL_ENV: production
       - run: python blog-shots/shots.py
+        continue-on-error: true
       - name: Commit screenshots to this branch
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898+github-actions[bot]@users.noreply.github.com"
