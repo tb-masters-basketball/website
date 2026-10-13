@@ -74,7 +74,8 @@ scripts/sheet_rules.py  the score sheet rules: game file checks (with box paths)
 assets/js/sheet-rules.js  the same rules ported to JS for /enter/ (change the Python first, then this;
                         tests/js keeps them in step)
 enter/index.html        the score sheet entry page (unlisted, noindex): built from enter/sheet-spec.json
-                        (the deploy writes it with `scoresheet.py --spec`) and enter/data/ (build_stats.py);
+                        (the deploy writes it with `scoresheet.py --spec`) and enter/data/ (build_stats.py,
+                        including the free prompt from docs/record-game-prompt.md for its Copy button);
                         UI in assets/js/enter.js, js-yaml vendored in assets/js/lib/
 scripts/calendars.py    writes calendar/<team>.ics and league.ics (git-ignored) from the real season;
                         called by build_stats.py, linked from Schedule and team pages

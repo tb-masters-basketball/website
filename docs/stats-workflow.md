@@ -407,8 +407,8 @@ How well it reads, and how it was tested, is in
 ### Without Claude Code: the free prompt
 
 [record-game-prompt.md](record-game-prompt.md) is a prompt anyone can paste into
-the free claude.ai (or another assistant that reads images) with a photo of
-the sheet. It answers with the game file, written with team names and player
+ChatGPT or the free claude.ai with a photo of the sheet (Gemini doesn't read it
+well); the entry page's **Copy the prompt** button copies it. It answers with the game file, written with team names and player
 names instead of the site's ids; save it as `<game_id>.yml` and drop it on the
 entry page's "A file on this computer". The entry page turns the names into ids
 (team names from the schedule, players by name and number, a sub from any

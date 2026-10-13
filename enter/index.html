@@ -47,6 +47,12 @@ scripts:
         <input class="visually-hidden" type="file" id="enter-file" accept=".yml,.yaml" data-file>
         <label class="btn btn--quiet" for="enter-file">Choose a file</label>
       </div>
+      <div class="enter-card">
+        <h3 class="enter-card__title">Read a photo with an AI chat</h3>
+        <p class="enter-hint">Copy the prompt and paste it into ChatGPT or Claude (claude.ai) with a photo of the sheet. It writes a game file: save it as a .yml file and open it here. Gemini doesn't read the sheet well.</p>
+        <button class="btn btn--quiet" type="button" data-prompt-copy>Copy the prompt</button>
+        <p class="enter-hint" data-prompt-note role="status"><a href="{{ '/enter/data/record-game-prompt.txt' | relative_url }}">See the prompt as text</a></p>
+      </div>
     </div>
     <div class="enter-card enter-local" data-local hidden>
       <h3 class="enter-card__title">Unsaved work on this device</h3>

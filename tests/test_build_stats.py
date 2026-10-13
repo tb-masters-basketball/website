@@ -755,10 +755,22 @@ class MultiSeasonTests(SeasonFixture):
         self.assertIn("2026-10-01-g1", season["schedule"])
         self.assertTrue((enter / "fake" / "drafts" / "2026-10-22-g1.yml").exists())
         self.assertTrue((enter / "fake" / "games" / "2026-10-01-g1.yml").exists())
+        # the free /record-game prompt, for the Copy button: just the prompt, from the doc
+        prompt = (enter / "record-game-prompt.txt").read_text()
+        self.assertTrue(prompt.startswith("You are typing up a basketball score sheet"))
+        self.assertIn("```yaml\ngame_id:", prompt)
+        self.assertNotIn("## Why it's built this way", prompt)
+        self.assertNotIn("## How to use it", prompt)
         # real mode: the real season, which has no files yet
         self.build(sample_data=False)
         self.assertEqual(json.loads((enter / "index.json").read_text())["games"], [])
         self.assertFalse((enter / "fake").exists())
+
+    def test_prompt_text_needs_the_prompt_between_two_rules(self):
+        self.assertEqual(bs.prompt_text("# T\n\n## The prompt\n\nCopy it.\n\n---\n\nRead it.\n\n---\n\n## After\n"),
+                         "Read it.\n")
+        with self.assertRaises(bs.DataError):
+            bs.prompt_text("# T\n\n## The prompt\n\nNo rules here.\n")
 
     def test_calendars_come_from_the_real_season_even_in_sample_mode(self):
         self.build(sample_data=True, url="https://example.ca")

@@ -14,6 +14,14 @@ page's checks catch most mistakes, and the paper catches the rest.
 
 ## How to use it
 
+The entry page (`/enter/`) has a **Copy the prompt** button ("Read a photo
+with an AI chat"), so you don't need this page to get it. The deploy copies
+the prompt from this page into `enter/data/record-game-prompt.txt`
+(`build_stats.py`), so editing it here is enough.
+
+It works best with **ChatGPT** and **Claude** (claude.ai). Gemini, tried so
+far, doesn't read the sheet well.
+
 1. **Photograph the sheet.** Lay it flat and take the whole page, with all four
    black corner squares in view and no shadow across it. Then take close-ups of
    the two rosters and the running score (the numbered columns). A close-up
@@ -25,8 +33,8 @@ page's checks catch most mistakes, and the paper catches the rest.
    it, and draws the check picture (step 3 of the prompt). Without code it
    still works, but it reads from the raw photo and describes where it found
    each section in words.
-3. **Send it.** Open a new chat, attach the photos, paste the prompt below and
-   send it.
+3. **Send it.** Open a new chat, attach the photos, paste the prompt (the
+   button on the entry page, or copy it from below) and send it.
 4. **Look at the check picture first.** It shows a green box round everything
    it read as HOME, orange round AWAY, blue round the header and Notes, and red
    round every box it isn't sure of. A green box on the away roster, or a column
@@ -407,6 +415,8 @@ under, Q1 to Q4 (fewer if lines are missing; flag it). Leave out `notes` or
 - **The same checks.** Once it's open on the entry page, the file gets exactly
   the checks a typed-up or `/record-game` draft gets
   ([game-file-format.md](game-file-format.md)).
+- **Copied from this page.** The Copy button reads exactly what is between
+  the two `---` lines under "The prompt"; the build fails if they go missing.
 - **If the layout changes** (`SPEC` in `scripts/scoresheet/scoresheet.py`),
   redo the table in step 2 from `scoresheet.py --geometry` and the
   description of each section.
