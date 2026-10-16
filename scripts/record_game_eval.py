@@ -6,7 +6,7 @@
     python scripts/record_game_eval.py summary RESULTS_DIR
 
 photos: draws each practice game (tests/fixtures/record-game/<game_id>/answer.yml)
-onto each of the four layouts with `scoresheet.py --fill`, renders page 1, and
+onto each of the five layouts with `scoresheet.py --fill`, renders page 1, and
 "photographs" it: turned a few degrees, seen at an angle, on a table, with a
 shadow, a little blur and noise, saved as a JPEG. 16 photos, the same every run
 for a given --seed. They go in tests/fixtures/record-game/synthetic/ (not

@@ -72,7 +72,7 @@ neither, and a final file can't have `review`.)
 | `home`, `away` | Team ids, matching the schedule row |
 | `scorekeeper` | Optional, as written |
 | `teams.<team>.players` | The roster rows, in order (up to 12). See below |
-| `running.<team>` | Every filled running-score box: `total: jersey number`. Page 2 just continues the totals (101 and up) |
+| `running.<team>` | Every filled running-score box: `total: jersey number`. Page 2 just continues the totals (101 and up; 151 and up on a Tabloid sheet) |
 | `lines.<team>` | The running total each end-of-quarter line was drawn under, Q1 to Q4 (0 if a team hadn't scored) |
 | `boxes.<team>` | The score boxes: `q1`-`q4` (running totals at the end of each quarter), `ot` (the total after overtime, or `null`), `final` |
 | `notes` | The Notes box: `{team, num, q, kind, text}`; `kind` is `flagrant` or `note`; `q` is 1-4 or `OT` |

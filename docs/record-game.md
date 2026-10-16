@@ -24,7 +24,8 @@ work is done by a script, and Claude only reads handwriting.
 1. **Measure** (`scripts/record_game.py prepare`, no AI). It finds the four
    corner squares (in a photo taken at any angle, sideways or upside down;
    with one square hidden it works out the fourth), straightens the page,
-   and works out the paper (portrait or landscape, Letter or Legal) and the
+   and works out the paper (portrait or landscape, Letter or Legal, or landscape
+   Tabloid) and the
    page by matching each blank layout. It finds the game by matching every
    scheduled game's pre-printed sheet. Then it subtracts that pre-printed
    sheet from the photo, so only pen is left, and measures the pen in every

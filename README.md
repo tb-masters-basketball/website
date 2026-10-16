@@ -330,7 +330,8 @@ night at about 4 AM Thunder Bay time (08:17 UTC):
    prompt copied from `docs/record-game-prompt.md`).
 5. `scripts/make_score_sheets.sh`: score sheet PDFs for the season the site
    shows, into `score-sheets/`. That's every game day from today (Thunder Bay
-   time) in all four layouts, plus blank sheets. The Schedule page links only
+   time) in all five layouts (portrait or landscape Letter and Legal, and landscape
+   Tabloid), plus blank sheets. The Schedule page links only
    the files that exist.
 6. `scoresheet.py --spec enter/sheet-spec.json`: the sheet's structure, which
    the entry page draws its sheet from.

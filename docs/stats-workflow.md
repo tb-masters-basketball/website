@@ -113,13 +113,14 @@ The league's score sheet is form **MBL-SS6**, made by
 Every time the site is published:
 
 - **Upcoming game days:** each one on the Schedule gets a **Score sheet (PDF)**
-  link (landscape Legal) and **Other layouts** (landscape Letter, portrait
-  Letter and Legal). The sheet has both games, two pages each, with the date,
+  link (landscape Legal) and **Other layouts** (landscape Letter, landscape
+  Tabloid, portrait Letter and Legal). Tabloid (11 x 17) needs a printer that
+  takes it; its page 1 runs to 150 points, with How to mark under the rosters. The sheet has both games, two pages each, with the date,
   start time, game ID and team names filled in. Each roster lists the team's
   regular players (not subs) in jersey-number order. Until the rosters are in
   `players.yml`, the 12 rows print blank. Every printed name and number is still
   an editable field, so last-minute changes can be typed in before printing.
-- **Blank sheets:** all four layouts are at the bottom of the Schedule page.
+- **Blank sheets:** all five layouts are at the bottom of the Schedule page.
 
 The sheets on the Schedule page cover game days from today on (yesterday's
 drop off at the next nightly publish). Print double-sided. Page 2 has **How to mark** (the scorekeeper's
@@ -229,7 +230,7 @@ How to copy each part of the sheet:
   boxes.
 - **`running`** is every running-score box that has a number in it: the total,
   a colon, the number written beside it. `7: 22` means #22 scored to make it 7.
-  Page 2 carries on: `101: 4`, `103: 22`...
+  Page 2 carries on: `101: 4`, `103: 22`... (on a Tabloid sheet page 1 runs to 150, so page 2 starts at 151)
 - **`lines`**: the total each end-of-quarter line was drawn under.
 - **`boxes`**: the Q1 to Q4, OT and Final boxes under each roster, as written
   (`ot: null` when there was no overtime).

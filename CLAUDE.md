@@ -51,7 +51,7 @@ The printable score sheet (form MBL-SS6) comes from
 `scripts/scoresheet/scoresheet.py`; read `scripts/scoresheet/README.md` first.
 `scripts/make_score_sheets.sh` runs it on every deploy, after `build_stats.py`
 and before Jekyll, for the season the site shows. It writes `score-sheets/`
-(git-ignored): each game day from today on in all four layouts, plus the blank
+(git-ignored): each game day from today on in all five layouts (Letter and Legal both ways, landscape Tabloid), plus the blank
 sheets. The Schedule page links only the PDFs that exist.
 Every structural number (rows, circles, foul boxes, score boxes, running-score
 pages) is in its `SPEC` dict; `scoresheet.py --spec scripts/scoresheet/spec.json`

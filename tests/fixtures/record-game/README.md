@@ -28,7 +28,7 @@ item pointing at it: fine, a person looks) or **wrong** (wrong and not
 flagged: the failure that matters).
 
 Made-up photos, without printing anything: `python scripts/record_game_eval.py
-photos` draws each game on all four layouts and "photographs" it (turned, seen
+photos` draws each game on all five layouts and "photographs" it (turned, seen
 at an angle, shadowed, blurred) into `synthetic/`; `--hard` makes a tougher set
 in `synthetic-hard/` (untidy writing in several pens, half-filled circles,
 smaller and blurrier photos). Both are git-ignored and the same every run.

@@ -3,8 +3,8 @@
 # sample_data is on), into score-sheets/ so Jekyll publishes them at
 # /score-sheets/. Run after scripts/build_stats.py and before `jekyll build`;
 # the Schedule page only links a sheet that exists.
-#   score-sheets-<date>-<orient>-<size>.pdf   every game day from today on, all four layouts
-#   score-sheet-blank-<orient>-<size>.pdf     blank sheets, all four layouts
+#   score-sheets-<date>-<orient>-<size>.pdf   every game day from today on, all five layouts
+#   score-sheet-blank-<orient>-<size>.pdf     blank sheets, all five layouts
 # "Today" is Thunder Bay's date. See scripts/scoresheet/README.md.
 set -euo pipefail
 cd "$(dirname "$0")/.."
