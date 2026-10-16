@@ -426,30 +426,35 @@ class ScoreSheet:
 
     def how_to(self, x, top, w, bottom, page1=False):
         """The marking instructions, in the biggest type that fits the box. On
-        page 1 (landscape Tabloid, under the rosters) the short version."""
+        page 1 (landscape Tabloid, under the rosters) the short version, in two
+        columns."""
         h = top - bottom
         self.box(x, bottom, w, h, stroke=RULE, lw=0.6, fill=SHADE)
         if not page1:
             self._map["how_to"] = [x, bottom, w, h]
-        inner = w - 16
+        ncols, gap = (2, 12) if page1 else (1, 0)
+        inner = (w - 16 - gap * (ncols - 1)) / ncols
         items = [(head, body.format(last=self.points, next=self.points + 1))
                  for head, body in (self.HOW_TO_SHORT if page1 else self.HOW_TO)]
+        per_col = -(-len(items) // ncols)           # paragraphs per column, in order
         for size in (10.4, 10.0, 9.6, 9.2, 8.8, 8.4, 8.0, 7.6, 7.2, 6.8, 6.4):
             lead = size * 1.24
             head_size = max(6.4, size * 0.8)
             paras = [(head, self.wrap(body, inner, size=size)) for head, body in items]
-            need = 22 + sum(lead * len(lines) + head_size + 5 + 6 for _, lines in paras)
+            cols = [paras[i:i + per_col] for i in range(0, len(paras), per_col)]
+            need = 22 + max(sum(lead * len(lines) + head_size + 5 + 6 for _, lines in col) for col in cols)
             if need <= h:
                 break
         self.label(x + 8, top - 13, "How to mark", size=7.6)
-        y = top - 28
-        for head, lines in paras:
-            self.label(x + 8, y, head, size=head_size, color=NAVY)
-            y -= head_size + 5
-            for line in lines:
-                self.text(x + 8, y, line, "Body", size, NAVY)
-                y -= lead
-            y -= 6
+        for ci, col in enumerate(cols):
+            cx, y = x + 8 + ci * (inner + gap), top - 28
+            for head, lines in col:
+                self.label(cx, y, head, size=head_size, color=NAVY)
+                y -= head_size + 5
+                for line in lines:
+                    self.text(cx, y, line, "Body", size, NAVY)
+                    y -= lead
+                y -= 6
 
     def notes(self, x, top, w, h):
         """Page 1 notes box, for flagrant fouls (and anything else worth knowing)."""
