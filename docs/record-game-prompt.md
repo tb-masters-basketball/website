@@ -127,12 +127,12 @@ reading. If you can't, skip to step 3 and read from the photo.
 | Section (page 1) | Portrait Letter | Portrait Legal | Landscape Letter | Landscape Legal | Landscape Tabloid |
 |---|---|---|---|---|---|
 | Header (Date ... Scorekeeper) | 57-97 across, 1-9 down | 57-97, 1-7 | 67-98, 2-11 | 74-98, 2-11 | 79-99, 1-9 |
-| HOME roster | 3-49, 9-47 | 3-49, 7-43 | 2-40, 12-54 | 2-33, 12-54 | 1-27, 9-42 |
-| HOME score boxes | 3-49, 43-47 | 3-49, 39-43 | 2-40, 49-54 | 2-33, 49-54 | 1-27, 37-42 |
-| AWAY roster | 51-97, 9-47 | 51-97, 7-43 | 2-40, 55-97 | 2-33, 55-97 | 1-27, 42-74 |
-| AWAY score boxes | 51-97, 43-47 | 51-97, 39-43 | 2-40, 92-97 | 2-33, 92-97 | 1-27, 70-74 |
-| Notes | 3-97, 47-55 | 3-97, 43-49 | 41-98, 88-97 | 34-98, 88-97 | 28-99, 91-98 |
-| Running score (all columns) | 3-97, 55-98 | 3-97, 49-99 | 41-98, 12-88 | 34-98, 12-88 | 28-99, 9-91 |
+| HOME roster | 3-49, 9-49 | 3-49, 7-45 | 2-40, 12-54 | 2-33, 12-54 | 1-27, 9-42 |
+| HOME score boxes | 3-49, 45-49 | 3-49, 42-45 | 2-40, 49-54 | 2-33, 49-54 | 1-27, 37-42 |
+| AWAY roster | 51-97, 9-49 | 51-97, 7-45 | 2-40, 55-97 | 2-33, 55-97 | 1-27, 42-74 |
+| AWAY score boxes | 51-97, 45-49 | 51-97, 42-45 | 2-40, 92-97 | 2-33, 92-97 | 1-27, 70-74 |
+| Notes | 3-97, 50-57 | 3-97, 45-51 | 41-98, 88-97 | 34-98, 88-97 | 28-99, 91-98 |
+| Running score (all columns) | 3-97, 57-98 | 3-97, 51-99 | 41-98, 12-88 | 34-98, 12-88 | 28-99, 9-91 |
 | Running score columns, across | 3-21, 22-40, 41-59, 60-78, 79-97 | 3-26, 27-50, 50-73, 74-97 | 41-55, 55-70, 70-84, 84-98 | 34-50, 50-66, 66-82, 82-98 | 28-40, 39-52, 51-63, 63-75, 75-87, 87-99 |
 
 (Each roster's score boxes are its bottom strip. In portrait the two rosters
@@ -187,7 +187,7 @@ Ignore the TIMEOUTS circles in the bar.
 |---|---|---|---|---|
 | jersey number | a small square tick box | "First L." | 10 small circles, in two groups of 5 | 5 small boxes with tiny faint printed digits 1-5, then 2 **red** boxes marked T |
 
-Up to 12 rows. Below them are a **TEAM FOULS** row (ignore it) and the score
+Up to 13 rows. Below them are a **TEAM FOULS** row (ignore it) and the score
 boxes (step 7).
 
 **Read one row at a time, top to bottom.** Finish a row (all its columns)

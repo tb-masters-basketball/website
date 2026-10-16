@@ -160,6 +160,12 @@ wrong each. A whole 11 x 17 sheet in one phone photo gets fewer pixels per
 box than a Letter sheet, so for Tabloid a closer photo matters more; the
 report's sharpness check flags anything under 150 dpi.
 
+**13 roster rows** (October 2026, for a 13-player roster): the measuring step
+again on 40 made-up photos (4 games x 5 layouts, normal and hard). Normal:
+1,890 boxes, all right. Hard: 1,890 boxes, 143 flagged, 12 wrong without a
+flag (0-2 per layout, 7 on Tabloid, mostly its blurriest photo): about the
+same as with 12 rows.
+
 **What it hasn't seen yet**: more real handwriting. The test writing is drawn
 with fonts: messy, but not a tired scorekeeper's 4 that looks like a 9,
 crossed-out numbers, arrows, or a box written between two rows. The ink

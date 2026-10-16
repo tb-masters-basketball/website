@@ -76,7 +76,7 @@ PEN = HexColor("#1F3FB8")      # example handwriting only
 # once it exists, /record-game).
 SPEC = {
     "form": "MBL-SS6",                 # SS6: quarters (was halves), Notes on page 1, how-to on page 2
-    "roster_rows": 12,                 # player rows per team (same rows on both pages)
+    "roster_rows": 13,                 # player rows per team (same rows on both pages); 13 since 2026-27 (a 13-player roster)
     "ft_circles_per_page": 10,         # free-throw circles per player row: 1-10 on page 1, 11-20 on page 2
     "personal_foul_boxes": 5,
     "technical_boxes": 2,

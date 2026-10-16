@@ -118,7 +118,7 @@ Every time the site is published:
   takes it; its page 1 runs to 150 points, with How to mark under the rosters. The sheet has both games, two pages each, with the date,
   start time, game ID and team names filled in. Each roster lists the team's
   regular players (not subs) in jersey-number order. Until the rosters are in
-  `players.yml`, the 12 rows print blank. Every printed name and number is still
+  `players.yml`, the 13 rows print blank. Every printed name and number is still
   an editable field, so last-minute changes can be typed in before printing.
 - **Blank sheets:** all five layouts are at the bottom of the Schedule page.
 

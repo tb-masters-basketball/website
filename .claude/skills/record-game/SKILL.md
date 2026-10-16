@@ -123,7 +123,7 @@ can't start a subagent, skip it; step 5 says what to do instead.
 
 `start.yml` already has each printed row's player id and number, and Here,
 `ft`, `fouls` and `tech` from the ink. Check every row against the crop; the
-full roster crop is usually enough (the `rows-01-06` and `rows-07-12` crops
+full roster crop is usually enough (the `rows-01-06` and `rows-07-13` crops
 are the same rows split in two).
 
 - **Here**: a tick (or any mark) in the box.
