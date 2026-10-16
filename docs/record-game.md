@@ -148,6 +148,16 @@ drawn, an OT box of 83, an empty Final, a foul short), each copied as
 written and flagged. The made-up sets still come out with no silent
 mistakes on ticks, circles, fouls and T boxes.
 
+**Landscape Tabloid** (October 2026), the measuring step only, on the four
+practice games drawn on Tabloid and "photographed" like the others: it found
+the layout, the page and the game on all eight photos. Normal set: every
+tick, circle, foul, T box and quarter line right. Hard set: 378 boxes, 31
+flagged, 6 wrong without a flag, all on one photo at 105 dpi of paper (the
+blurriest of the set). The other layouts on the same hard photos: 0 to 2
+wrong each. A whole 11 x 17 sheet in one phone photo gets fewer pixels per
+box than a Letter sheet, so for Tabloid a closer photo matters more; the
+report's sharpness check flags anything under 150 dpi.
+
 **What it hasn't seen yet**: more real handwriting. The test writing is drawn
 with fonts: messy, but not a tired scorekeeper's 4 that looks like a 9,
 crossed-out numbers, arrows, or a box written between two rows. The ink
