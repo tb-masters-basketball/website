@@ -1,11 +1,71 @@
-# The real 2026-27 season's players. Empty until the rosters are in: team
-# pages say "No players listed yet" and nobody has a player page.
-#
-# Add one line per player, written "First L." (never a full name), with an id
-# of first name plus last initial (add a number if two clash), the team's id,
-# and sub: true for a sub. See data/CLAUDE.md and docs/stats-workflow.md.
-#   - {id: mike-r, display: Mike R., team: dn, sub: false}
+# The real 2026-27 season's players, from the league's team list (October 2026).
+# One line per player, written "First L." (never a full name), with an id of
+# first name plus last initial (a number added where two clash), the team's id,
+# sub: true for a sub, and the jersey number where known (blank ones to come).
+# See data/CLAUDE.md and docs/stats-workflow.md.
 #
 # Team ids: bb Bay City Bears, dn Dam Nation, fg Floor Generals, hu Hustle,
 # nw Nor'Westers.
-[]
+
+- {id: clayton-e, display: Clayton E., team: dn, sub: false}
+- {id: john-c, display: John C., team: dn, sub: false}
+- {id: paul-n, display: Paul N., team: dn, sub: false}
+- {id: joe-d, display: Joe D., team: dn, sub: false}
+- {id: dave-v, display: Dave V., team: dn, sub: false}
+- {id: rod-m, display: Rod M., team: dn, sub: false}
+- {id: joe-c, display: Joe C., team: dn, sub: false}
+- {id: ibrahim-d, display: Ibrahim D., team: dn, sub: false}
+- {id: doug-f, display: Doug F., team: dn, sub: false}
+- {id: derek-l, display: Derek L., team: dn, sub: false}
+- {id: keith-h, display: Keith H., team: dn, sub: false}
+- {id: greg-c, display: Greg C., team: dn, sub: false}
+
+- {id: sam-e, display: Sam E., team: nw, sub: false, number: 1}
+- {id: herbie-b, display: Herbie B., team: nw, sub: false, number: 2}
+- {id: mike-c, display: Mike C., team: nw, sub: false, number: 3}
+- {id: ryan-s, display: Ryan S., team: nw, sub: false, number: 4}
+- {id: franco-v, display: Franco V., team: nw, sub: false, number: 7}
+- {id: darren-t, display: Darren T., team: nw, sub: false, number: 8}
+- {id: steve-s, display: Steve S., team: nw, sub: false, number: 11}
+- {id: bernie-c, display: Bernie C., team: nw, sub: false, number: 13}
+- {id: lauren-m, display: Lauren M., team: nw, sub: false, number: 14}
+- {id: aaron-g, display: Aaron G., team: nw, sub: false, number: 21}
+- {id: fil-l, display: Fil L., team: nw, sub: false, number: 22}
+- {id: andrew-h, display: Andrew H., team: nw, sub: false, number: 24}
+- {id: rob-m, display: Rob M., team: nw, sub: false, number: 47}
+
+- {id: tom-m, display: Tom M., team: bb, sub: false}
+- {id: chris-u, display: Chris U., team: bb, sub: false}
+- {id: kris-l, display: Kris L., team: bb, sub: false}
+- {id: mike-z, display: Mike Z., team: bb, sub: false}
+- {id: matt-p, display: Matt P., team: bb, sub: false}
+- {id: colin-o, display: Colin O., team: bb, sub: false}
+- {id: derek-o, display: Derek O., team: bb, sub: false}
+- {id: mike-f, display: Mike F., team: bb, sub: false}
+- {id: mike-n, display: Mike N., team: bb, sub: false}
+- {id: dino-b, display: Dino B., team: bb, sub: false}
+- {id: darryl-f, display: Darryl F., team: bb, sub: false}
+- {id: jason-w, display: Jason W., team: bb, sub: false}
+
+- {id: adam-a, display: Adam A., team: fg, sub: false, number: "00"}
+- {id: dan-k, display: Dan K., team: fg, sub: false, number: 7}
+- {id: esa-k, display: Esa K., team: fg, sub: false, number: 11}
+- {id: jesse-l, display: Jesse L., team: fg, sub: false, number: 17}
+- {id: albert-t, display: Albert T., team: fg, sub: false, number: 18}
+- {id: john-s, display: John S., team: fg, sub: false, number: 21}
+- {id: steve-r, display: Steve R., team: fg, sub: false, number: 22}
+- {id: ben-c, display: Ben C., team: fg, sub: false, number: 33}
+- {id: jeff-l, display: Jeff L., team: fg, sub: false, number: 43}
+- {id: mike-n2, display: Mike N., team: fg, sub: false, number: 91}
+
+- {id: kevin-a, display: Kevin A., team: hu, sub: false, number: 0}
+- {id: kevin-r, display: Kevin R., team: hu, sub: false, number: 1}
+- {id: ed-k, display: Ed K., team: hu, sub: false, number: 5}
+- {id: hao-l, display: Hao L., team: hu, sub: false, number: 7}
+- {id: martin-k, display: Martin K., team: hu, sub: false, number: 8}
+- {id: matthew-h, display: Matthew H., team: hu, sub: false, number: 15}
+- {id: andrew-c, display: Andrew C., team: hu, sub: false, number: 16}
+- {id: kyle-m, display: Kyle M., team: hu, sub: false, number: 17}
+- {id: jedd-w, display: Jedd W., team: hu, sub: false, number: 22}
+- {id: corey-b, display: Corey B., team: hu, sub: false, number: 23}
+- {id: rene-c, display: Rene C., team: hu, sub: false, number: 39}

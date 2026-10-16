@@ -30,10 +30,8 @@ The full list, with answers so far, is in
 [`docs/open-questions.md`](docs/open-questions.md). Still open:
 
 **League decisions:**
-- [ ] **Rosters for 2026-27.** Every player as "First L.", their team, and who
-      is a sub. `data/2026-27/players.yml` is empty until then, so team pages
-      say "No players listed yet".
-- [ ] **Jersey numbers for 2026-27.** They go in `players.yml` as `number:`,
+- [ ] **Jersey numbers for Dam Nation and Bay City Bears.** The rosters are
+      in `data/2026-27/players.yml`; these two teams have no numbers yet. They go in `players.yml` as `number:`,
       show as "#23 Dave M." wherever a player is named, and print in the score
       sheets' # box (blank until then). Two players on one team with the same
       "First L." must both have one, or the build stops.
