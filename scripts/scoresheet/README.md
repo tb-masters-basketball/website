@@ -10,7 +10,7 @@ reads them the same way.
 
 ## What's on the sheet
 - **Game details:** date, start time, court, game ID, scorekeeper.
-- **Two team rosters** with 12 rows each. Each row has:
+- **Two team rosters** with 13 rows each. Each row has:
   - jersey number
   - a **Here** tick, which gives games played
   - name ("First L.")
@@ -97,7 +97,7 @@ It reads `teams.yml`, `players.yml` and `schedule.csv` from the season folder.
 - **Schedule rows** without two real teams, such as byes or TBD playoff slots,
   are skipped, and so are rows whose `status` is `cancelled`.
 - **No roster yet:** with an empty `players.yml`, the team names are still
-  filled in and all 12 rows stay blank and fillable.
+  filled in and all 13 rows stay blank and fillable.
 - **Court:** filled from a `court` column if the schedule has one. The league
   schedule has none (one gym, no courts), so the box prints empty.
 - **Editing:** every name, number and detail stays an editable PDF field, so
