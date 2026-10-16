@@ -127,10 +127,10 @@ league's updated printed schedule (`Masters_Basketball_Schedule_2026-27_UPDATED.
 - **Gym address:** `gym_address` in `seasons.yml` (621 Selkirk St S, Thunder
   Bay, ON P7E 1T9) goes into the calendar events' location.
 
-Still to come: the rosters. `players.yml` is an empty list (`[]`), so team
-pages say "No players listed yet" and there are no player pages. (A `display`
-of exactly `[placeholder]` still passes the "First L." check, if a placeholder
-row is ever useful.) `games/`, `drafts/` and `sheets/` are empty.
+The rosters are in `players.yml` (58 players, from the league's team list,
+October 2026). Jersey numbers are still missing for Dam Nation and Bay City
+Bears. (A `display` of exactly `[placeholder]` still passes the "First L."
+check, if a placeholder row is ever useful.)
 
 ### Team colours
 `colour_slot` (1-5) picks `--mb-team-N` in `brand/css/brand.css`, which holds
