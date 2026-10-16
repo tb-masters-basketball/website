@@ -3,7 +3,8 @@
 `scoresheet.py` makes the printable league score sheet (form MBL-SS6) as a
 fillable PDF. It comes in five layouts: portrait or landscape, Letter or Legal,
 and landscape Tabloid (11 x 17).
-The scorekeeper can pick whichever they like. All four have the same parts, so
+The scorekeeper can pick whichever they like. All five have the same parts (Tabloid
+adds a short How to mark under the rosters), so
 a game file (and the entry page, `/enter/`, and `/record-game`)
 reads them the same way.
 
@@ -75,7 +76,7 @@ Other options:
 - `--fill GAME.yml` (with `--data`): writes a game file onto its sheet as
   handwriting: Here ticks, circles, foul and T boxes, the running score, the
   quarter lines, the score boxes, Notes, and any sub written in on a blank
-  row. Page 1 only (up to 100 points and 10 free throws a player). It makes
+  row. Page 1 only (up to 100 points, 150 on Tabloid, and 10 free throws a player). It makes
   the practice sheets for `/record-game` (`scripts/make_practice_games.py`,
   into `tests/fixtures/record-game/`).
 - `--prefill GAME.json`: one game's header and rosters from a JSON file instead

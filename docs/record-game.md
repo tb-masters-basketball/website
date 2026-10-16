@@ -62,12 +62,14 @@ work is done by a script, and Claude only reads handwriting.
 
 ## How well it works
 
-So far it has been tested on made-up photos only: the four practice games
-(`tests/fixtures/record-game/`) drawn onto all four layouts with
+It was first tested on made-up photos only: the four practice games
+(`tests/fixtures/record-game/`) drawn onto the four layouts there were then
+(Tabloid came later; see below) with
 `scoresheet.py --fill`, then "photographed" by
 `scripts/record_game_eval.py photos`: turned up to 7°, seen at an angle, on
 a table, under a shadow, blurred, grainy, saved as JPEG, some sideways or
-upside down. Two sets of 16:
+upside down. Two sets of 16 (the eval now makes 20, with Tabloid, so the same
+`--seed` gives different photos from these):
 
 - **Normal**: 145-245 dpi of paper, the handwriting drawn in a font with a
   little wobble.

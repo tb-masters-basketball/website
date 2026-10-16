@@ -76,8 +76,8 @@ standings all update on their own.
 
 1. **Before the game day:** print that day's sheets from the Schedule page
    (each game's ID, date, time and both rosters are printed on it). Print
-   double-sided: page 2 is only for games past 100 points or players past 10
-   free throws.
+   double-sided: page 2 is only for games past 100 points (150 on Tabloid) or
+   players past 10 free throws.
 2. **At the game:** the scorekeeper fills in the sheet as printed (how to mark
    it is on page 2).
 3. **After the game:** photograph each sheet flat, all four corner squares in
@@ -124,8 +124,8 @@ Every time the site is published:
 
 The sheets on the Schedule page cover game days from today on (yesterday's
 drop off at the next nightly publish). Print double-sided. Page 2 has **How to mark** (the scorekeeper's
-instructions) and the overflow: the running score past 100 points and free
-throws past 10. Page 1 has a **Notes** box for flagrant fouls. Games are played
+instructions) and the overflow: the running score past 100 points (150 on
+Tabloid, which also has a short How to mark on page 1) and free throws past 10. Page 1 has a **Notes** box for flagrant fouls. Games are played
 in quarters: the scorekeeper writes each team's running total at the end of
 each quarter in the Q1 to Q4 boxes.
 

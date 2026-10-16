@@ -437,9 +437,11 @@ class ScoreSheet:
         items = [(head, body.format(last=self.points, next=self.points + 1))
                  for head, body in (self.HOW_TO_SHORT if page1 else self.HOW_TO)]
         per_col = -(-len(items) // ncols)           # paragraphs per column, in order
-        for size in (10.4, 10.0, 9.6, 9.2, 8.8, 8.4, 8.0, 7.6, 7.2, 6.8, 6.4):
+        # (Tabloid page 1 may go a little smaller than page 2 ever needs.)
+        sizes = (10.4, 10.0, 9.6, 9.2, 8.8, 8.4, 8.0, 7.6, 7.2, 6.8) + ((6.4,) if page1 else ())
+        for size in sizes:
             lead = size * 1.24
-            head_size = max(6.4, size * 0.8)
+            head_size = max(6.4 if page1 else 6.8, size * 0.8)
             paras = [(head, self.wrap(body, inner, size=size)) for head, body in items]
             cols = [paras[i:i + per_col] for i in range(0, len(paras), per_col)]
             need = 22 + max(sum(lead * len(lines) + head_size + 5 + 6 for _, lines in col) for col in cols)
@@ -690,7 +692,7 @@ class ScoreSheet:
         written in, Here ticks, circles, foul and T boxes, every running-score
         box, the end-of-quarter lines, the score boxes and Notes. Team fouls are
         made up (the file doesn't record them). Page 1 only: the file must stay
-        within 100 points and 10 free throws a player."""
+        within page 1 (100 points, 150 on Tabloid) and 10 free throws a player."""
         c = self.c
         rnd = random.Random(str(sheet.get("game_id")))
         sides = {"home": sheet["home"], "away": sheet["away"]}
@@ -850,8 +852,9 @@ def spec_json():
             "page2": {"first": pts + 1, "last": pts + back_cols * per, "columns": back_cols, "per_column": per},
         }
     out["layouts"] = layouts
-    # Totals any layout can hold; the game file checks use this as the limit.
-    out["max_running_total"] = min(l["page2"]["last"] for l in layouts.values())
+    # The most any layout's sheet prints (landscape Tabloid's page 2 runs to 275);
+    # the game file checks use this as the limit, so no printed box is refused.
+    out["max_running_total"] = max(l["page2"]["last"] for l in layouts.values())
     out["ft_circles"] = SPEC["ft_circles_per_page"] * 2
     return out
 

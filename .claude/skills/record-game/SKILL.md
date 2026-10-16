@@ -25,7 +25,7 @@ sheet but not in the file: ignore them.
 ## 0. What you're given
 
 `$ARGUMENTS`: the photo, an optional second photo (page 2, only used when a
-team passes 100 points or a player takes more than 10 free throws) and an
+team passes 100 points, 150 on Tabloid, or a player takes more than 10 free throws) and an
 optional game id like `2026-12-03-g1`. A photo attached in the chat is a file
 on disk (for example under `~/.claude/uploads/`): use that path. No photo:
 ask for one.

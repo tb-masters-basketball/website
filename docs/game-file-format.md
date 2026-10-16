@@ -126,7 +126,7 @@ the same path the entry page highlights:
 - rows: a jersey number on two rows, an unknown or repeated player id, no
   player id in a final file, `here` not true/false, `ft` not `M`/`X` or more
   than 20 circles, `fouls` over 5, `tech` over 2, nobody ticked Here
-- running score: a jump that isn't 1, 2 or 3, a total off the sheet (1-175),
+- running score: a jump that isn't 1, 2 or 3, a total off the sheet (1-275, the most any layout prints),
   a number that's on no row of that team, a scorer not ticked Here
 - quarters: a line under a total with no box, lines or boxes that go down, a
   Q box that disagrees with its line, the Final box not equal to the last
