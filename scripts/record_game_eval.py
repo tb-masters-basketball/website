@@ -6,9 +6,9 @@
     python scripts/record_game_eval.py summary RESULTS_DIR
 
 photos: draws each practice game (tests/fixtures/record-game/<game_id>/answer.yml)
-onto each of the four layouts with `scoresheet.py --fill`, renders page 1, and
+onto each of the five layouts with `scoresheet.py --fill`, renders page 1, and
 "photographs" it: turned a few degrees, seen at an angle, on a table, with a
-shadow, a little blur and noise, saved as a JPEG. 16 photos, the same every run
+shadow, a little blur and noise, saved as a JPEG. 20 photos (4 games x 5 layouts), the same every run
 for a given --seed. They go in tests/fixtures/record-game/synthetic/ (not
 committed) with photos.json listing each photo's game, layout and answer key.
 --hard makes a tougher set in synthetic-hard/: untidy handwriting in several

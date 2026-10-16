@@ -1,8 +1,10 @@
 # Score sheets
 
 `scoresheet.py` makes the printable league score sheet (form MBL-SS6) as a
-fillable PDF. It comes in four layouts: portrait or landscape, Letter or Legal.
-The scorekeeper can pick whichever they like. All four have the same parts, so
+fillable PDF. It comes in five layouts: portrait or landscape, Letter or Legal,
+and landscape Tabloid (11 x 17).
+The scorekeeper can pick whichever they like. All five have the same parts (Tabloid
+adds a short How to mark under the rosters), so
 a game file (and the entry page, `/enter/`, and `/record-game`)
 reads them the same way.
 
@@ -17,10 +19,10 @@ reads them the same way.
 - **Beside each team name:** 3 timeout circles.
 - **Under each roster:** team fouls for each quarter (Q1 to Q4, 5 boxes each), then the score at the end of each quarter (the running total at that point), after overtime (OT), and the final score.
 - **Notes** (page 1): for flagrant fouls (team, player number, quarter, what happened) and anything else worth knowing.
-- **Running score from 1 to 100:** the totals run down the middle, with the home scorer's number on the left and the away scorer's on the right. A line under each team's last number marks the end of each quarter.
+- **Running score from 1 to 100** (1 to 150 on Tabloid)**:** the totals run down the middle, with the home scorer's number on the left and the away scorer's on the right. A line under each team's last number marks the end of each quarter.
 - **Page 2, for printing on the back:**
   - **How to mark**, the scorekeeper's instructions, in large type.
-  - The running score carries on from 101 with one column fewer than page 1: to 180 on portrait Letter, to 175 on the other layouts.
+  - The running score carries on with one column fewer than page 1: 101-180 on portrait Letter, 151-275 on Tabloid, 101-175 on the others.
   - Free throws 11 to 20 for each player.
   - Leave the page out with `--front-only`.
 - **Corner squares** so a photo can be straightened.
@@ -56,7 +58,7 @@ python scripts/scoresheet/scoresheet.py --data data/2026-27 --out dist/score-she
 python scripts/scoresheet/scoresheet.py --data data/2026-27 --date 2026-12-03 --out dist/score-sheets
 python scripts/scoresheet/scoresheet.py --data data/2026-27 --game 2026-12-03-g1 --out dist/score-sheets
 
-# layout (default portrait letter), or all four at once
+# layout (default portrait letter; tabloid is landscape only: --orient landscape --size tabloid), or all five at once
 python scripts/scoresheet/scoresheet.py --data data/2026-27 --orient landscape --size legal --out ...
 python scripts/scoresheet/scoresheet.py --data data/2026-27 --all-layouts --out ...
 
@@ -74,7 +76,7 @@ Other options:
 - `--fill GAME.yml` (with `--data`): writes a game file onto its sheet as
   handwriting: Here ticks, circles, foul and T boxes, the running score, the
   quarter lines, the score boxes, Notes, and any sub written in on a blank
-  row. Page 1 only (up to 100 points and 10 free throws a player). It makes
+  row. Page 1 only (up to 100 points, 150 on Tabloid, and 10 free throws a player). It makes
   the practice sheets for `/record-game` (`scripts/make_practice_games.py`,
   into `tests/fixtures/record-game/`).
 - `--prefill GAME.json`: one game's header and rosters from a JSON file instead
@@ -113,7 +115,7 @@ continuation.
 python scripts/scoresheet/scoresheet.py --spec scripts/scoresheet/spec.json
 ```
 writes it as JSON, with each layout's running-score ranges added (page 1:
-1-100; page 2: 101-180 portrait Letter, 101-175 the others).
+1-100, or 1-150 on Tabloid; page 2: 101-180 portrait Letter, 151-275 Tabloid, 101-175 the others).
 `scripts/sheet_rules.py` reads `spec.json`, and a test fails if it's out of
 date. The deploy also writes it to `enter/sheet-spec.json`, which the score
 sheet entry page (`/enter/`) draws its whole sheet from, so the page follows a

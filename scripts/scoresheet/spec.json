@@ -57,9 +57,13 @@
       "digits": 3
     }
   ],
-  "points_per_page": 100,
+  "points_per_page": {
+    "landscape-tabloid": 150,
+    "default": 100
+  },
   "running_columns": {
     "portrait-letter": 5,
+    "landscape-tabloid": 6,
     "default": 4
   },
   "page2_columns_fewer": 1,
@@ -120,8 +124,22 @@
         "columns": 3,
         "per_column": 25
       }
+    },
+    "landscape-tabloid": {
+      "page1": {
+        "first": 1,
+        "last": 150,
+        "columns": 6,
+        "per_column": 25
+      },
+      "page2": {
+        "first": 151,
+        "last": 275,
+        "columns": 5,
+        "per_column": 25
+      }
     }
   },
-  "max_running_total": 175,
+  "max_running_total": 275,
   "ft_circles": 20
 }

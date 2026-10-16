@@ -72,7 +72,7 @@ neither, and a final file can't have `review`.)
 | `home`, `away` | Team ids, matching the schedule row |
 | `scorekeeper` | Optional, as written |
 | `teams.<team>.players` | The roster rows, in order (up to 12). See below |
-| `running.<team>` | Every filled running-score box: `total: jersey number`. Page 2 just continues the totals (101 and up) |
+| `running.<team>` | Every filled running-score box: `total: jersey number`. Page 2 just continues the totals (101 and up; 151 and up on a Tabloid sheet) |
 | `lines.<team>` | The running total each end-of-quarter line was drawn under, Q1 to Q4 (0 if a team hadn't scored) |
 | `boxes.<team>` | The score boxes: `q1`-`q4` (running totals at the end of each quarter), `ot` (the total after overtime, or `null`), `final` |
 | `notes` | The Notes box: `{team, num, q, kind, text}`; `kind` is `flagrant` or `note`; `q` is 1-4 or `OT` |
@@ -126,7 +126,7 @@ the same path the entry page highlights:
 - rows: a jersey number on two rows, an unknown or repeated player id, no
   player id in a final file, `here` not true/false, `ft` not `M`/`X` or more
   than 20 circles, `fouls` over 5, `tech` over 2, nobody ticked Here
-- running score: a jump that isn't 1, 2 or 3, a total off the sheet (1-175),
+- running score: a jump that isn't 1, 2 or 3, a total off the sheet (1-275, the most any layout prints),
   a number that's on no row of that team, a scorer not ticked Here
 - quarters: a line under a total with no box, lines or boxes that go down, a
   Q box that disagrees with its line, the Final box not equal to the last

@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """Masters Basketball League score sheets (form MBL-SS6).
 
-Makes printable, fillable PDF score sheets in four layouts:
-portrait or landscape, Letter or Legal.
+Makes printable, fillable PDF score sheets in five layouts:
+portrait or landscape, Letter or Legal, and landscape Tabloid (11 x 17).
 
 Page 1: two rosters (jersey #, here tick, name, 10 free-throw circles,
 5 personal fouls + 2 technicals), timeouts, team fouls per quarter, the score
 at the end of each quarter (Q1-Q4, OT) and the final, a Notes box for flagrant
-fouls, and a running score from 1 to 100: totals in the middle, home scorer's
-number on the left, away scorer's on the right.
+fouls, and a running score from 1 to 100 (1 to 150 on Tabloid, which also has
+How to mark under the rosters): totals in the middle, home scorer's number on
+the left, away scorer's on the right.
 Page 2, printed on the back: How to mark (the instructions), the running score
-from 101 with one column fewer (to 180 or 175), and free throws 11-20.
+carrying on with one column fewer (101-180, 101-175, or 151-275 on Tabloid),
+and free throws 11-20.
 
 Usage
 -----
@@ -21,7 +23,7 @@ Only one day, or one game:
   python scoresheet.py --data data/2026-27 --date 2026-12-03 --out dist/score-sheets
   python scoresheet.py --data data/2026-27 --game 2026-12-03-g1 --out dist/score-sheets
 
-Pick a layout (default portrait letter), or make all four:
+Pick a layout (default portrait letter), or make all five:
   python scoresheet.py --data data/2026-27 --orient landscape --size legal --out ...
   python scoresheet.py --data data/2026-27 --all-layouts --out ...
 
@@ -46,7 +48,7 @@ The sheet's structure as JSON (for the game file checks and the entry page):
 Needs: reportlab, PyYAML.
 """
 import argparse, csv, datetime as dt, json, os, random, sys
-from reportlab.lib.pagesizes import letter, legal
+from reportlab.lib.pagesizes import letter, legal, TABLOID
 from reportlab.lib.colors import HexColor, white, black
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
@@ -93,25 +95,35 @@ SPEC = {
         {"key": "ot", "label": "OT", "digits": 3},
         {"key": "final", "label": "Final", "digits": 3},
     ],
-    "points_per_page": 100,            # page 1's running score: 1-100
+    # Page 1's running score, by layout: 1-100, or 1-150 on landscape Tabloid
+    # (11x17), which has room for more.
+    "points_per_page": {"landscape-tabloid": 150, "default": 100},
     # Running-score columns on page 1, by layout; each column holds
-    # points_per_page / columns totals. Page 2 continues from 101 with
-    # page2_columns_fewer columns fewer, the same totals per column.
-    "running_columns": {"portrait-letter": 5, "default": 4},
+    # points_per_page / columns totals. Page 2 carries on from the next total
+    # with page2_columns_fewer columns fewer, the same totals per column.
+    "running_columns": {"portrait-letter": 5, "landscape-tabloid": 6, "default": 4},
     "page2_columns_fewer": 1,
     "notes_box": True,                 # page 1: flagrant fouls and anything else
 }
 FORM = SPEC["form"]
 ROSTER_ROWS = SPEC["roster_rows"]
 FT_CIRCLES = SPEC["ft_circles_per_page"]
-MAX_POINTS = SPEC["points_per_page"]
 QUARTERS = tuple(SPEC["quarters"])
 TEAM_FOUL_BOXES = SPEC["team_foul_boxes_per_quarter"]
 PF_BOXES = SPEC["personal_foul_boxes"]
 T_BOXES = SPEC["technical_boxes"]
 PAD = 36
 FID, FID_IN = 14, 16
-SIZES = {"letter": letter, "legal": legal}
+SIZES = {"letter": letter, "legal": legal, "tabloid": TABLOID}
+# Every layout (orientation, paper). Tabloid is landscape only: 17 x 11 in.
+LAYOUTS = [("portrait", "letter"), ("portrait", "legal"), ("landscape", "letter"), ("landscape", "legal"),
+           ("landscape", "tabloid")]
+
+
+def by_layout(key, orient, size):
+    """A SPEC value that differs by layout ({"portrait-letter": 5, "default": 4})."""
+    v = SPEC[key]
+    return v.get(f"{orient}-{size}", v["default"])
 
 
 # --------------------------------------------------------------------------
@@ -123,6 +135,9 @@ class ScoreSheet:
         if orient == "landscape":
             w, h = h, w
         self.W, self.H, self.size, self.orient = w, h, size, orient
+        if (orient, size) not in LAYOUTS:
+            raise ValueError(f"no {orient} {size} layout (tabloid is landscape only)")
+        self.points = by_layout("points_per_page", orient, size)   # page 1's last total
         self.c = canvas.Canvas(path, pagesize=(w, h))
         self.c.setTitle("Masters Basketball League score sheet")
         self.c.setAuthor("Masters Basketball League")
@@ -391,41 +406,65 @@ class ScoreSheet:
         ("Team fouls", "Slash one box in that quarter's row for each team foul."),
         ("Flagrant fouls", "A flagrant foul is also a personal foul: slash a foul box for it as usual. "
          "Then write it in Notes on page 1: the team, the player's number, the quarter and what happened."),
-        ("This page", "Use it only if a team passes 100 points or a player takes more than 10 free "
-         "throws. Keep marking exactly as on page 1: the running score carries on from 101. Write the "
+        ("This page", "Use it only if a team passes {last} points or a player takes more than 10 free "
+         "throws. Keep marking exactly as on page 1: the running score carries on from {next}. Write the "
          "final score on page 1."),
+    ]
+    # The short version, on page 1 of landscape Tabloid under the rosters.
+    HOW_TO_SHORT = [
+        ("Running score", "Write the scorer's number in that team's box beside its new total. Leave "
+         "skipped totals empty. And-one: the basket, then the free throw."),
+        ("End of each quarter", "Draw a line under each team's last number, and write the totals in the "
+         "Q1-Q4 boxes (after overtime in OT, then Final)."),
+        ("Players", "Tick Here for everyone who plays. Fill a circle for a made free throw, slash one for a "
+         "miss. Slash a foul box for each foul and a T box for each technical."),
+        ("Team fouls and flagrants", "Slash a team foul box in that quarter's row. A flagrant is a foul "
+         "box too, and goes in Notes. More: page 2."),
     ]
     NOTES_LABEL = "Notes  ·  flagrant fouls: team, player #, quarter, what happened"
     NOTES_H = 50
 
-    def how_to(self, x, top, w, bottom):
-        """The marking instructions, in the biggest type that fits the box."""
+    def how_to(self, x, top, w, bottom, page1=False):
+        """The marking instructions, in the biggest type that fits the box. On
+        page 1 (landscape Tabloid, under the rosters) the short version, in two
+        columns."""
         h = top - bottom
         self.box(x, bottom, w, h, stroke=RULE, lw=0.6, fill=SHADE)
-        inner = w - 16
-        for size in (10.4, 10.0, 9.6, 9.2, 8.8, 8.4, 8.0, 7.6, 7.2, 6.8):
+        if not page1:
+            self._map["how_to"] = [x, bottom, w, h]
+        ncols, gap = (2, 12) if page1 else (1, 0)
+        inner = (w - 16 - gap * (ncols - 1)) / ncols
+        items = [(head, body.format(last=self.points, next=self.points + 1))
+                 for head, body in (self.HOW_TO_SHORT if page1 else self.HOW_TO)]
+        per_col = -(-len(items) // ncols)           # paragraphs per column, in order
+        # (Tabloid page 1 may go a little smaller than page 2 ever needs.)
+        sizes = (10.4, 10.0, 9.6, 9.2, 8.8, 8.4, 8.0, 7.6, 7.2, 6.8) + ((6.4,) if page1 else ())
+        for size in sizes:
             lead = size * 1.24
-            head_size = max(6.8, size * 0.8)
-            paras = [(head, self.wrap(body, inner, size=size)) for head, body in self.HOW_TO]
-            need = 22 + sum(lead * len(lines) + head_size + 5 + 6 for _, lines in paras)
+            head_size = max(6.4 if page1 else 6.8, size * 0.8)
+            paras = [(head, self.wrap(body, inner, size=size)) for head, body in items]
+            cols = [paras[i:i + per_col] for i in range(0, len(paras), per_col)]
+            need = 22 + max(sum(lead * len(lines) + head_size + 5 + 6 for _, lines in col) for col in cols)
             if need <= h:
                 break
         self.label(x + 8, top - 13, "How to mark", size=7.6)
-        y = top - 28
-        for head, lines in paras:
-            self.label(x + 8, y, head, size=head_size, color=NAVY)
-            y -= head_size + 5
-            for line in lines:
-                self.text(x + 8, y, line, "Body", size, NAVY)
-                y -= lead
-            y -= 6
+        for ci, col in enumerate(cols):
+            cx, y = x + 8 + ci * (inner + gap), top - 28
+            for head, lines in col:
+                self.label(cx, y, head, size=head_size, color=NAVY)
+                y -= head_size + 5
+                for line in lines:
+                    self.text(cx, y, line, "Body", size, NAVY)
+                    y -= lead
+                y -= 6
 
     def notes(self, x, top, w, h):
         """Page 1 notes box, for flagrant fouls (and anything else worth knowing)."""
         self.box(x, top - h, w, h, lw=0.9, fill=white)
         self._map["notes"] = [x, top - h, w, h]
         self.label(x + 8, top - 10, self.NOTES_LABEL, size=6.6)
-        self.text(x + w - 8, top - 10, "How to mark: page 2", "Body", 6.4, RULE, anchor="r")
+        if self.size != "tabloid":      # Tabloid has How to mark on page 1, under the rosters
+            self.text(x + w - 8, top - 10, "How to mark: page 2", "Body", 6.4, RULE, anchor="r")
         self.c.setStrokeColor(RULE); self.c.setLineWidth(0.5)
         for ly in range(int(top - 26), int(top - h + 4), -13):
             self.c.line(x + 8, ly, x + w - 8, ly)
@@ -435,7 +474,7 @@ class ScoreSheet:
         """Running score: `sets` columns of `per` totals from `start`, each `col_w`
         wide (default: the full width shared out). Returns the cells by total."""
         c = self.c
-        per = per or MAX_POINTS // sets
+        per = per or self.points // sets
         gap = 8
         sw = col_w or (w - gap * (sets - 1)) / sets
         num_w = min(30, sw * 0.26)
@@ -468,17 +507,18 @@ class ScoreSheet:
         return cells
 
     def back_running(self, x, top, w, bottom, sets):
-        """Page 2: the running score carries on from 101 with one column fewer than
-        page 1 (same totals per column), and How to mark fills the space left."""
+        """Page 2: the running score carries on from page 1's last total + 1 with one
+        column fewer than page 1 (same totals per column), and How to mark fills the
+        space left."""
         gap = 8
-        per = MAX_POINTS // sets
+        per = self.points // sets
         front_w = (w - gap * (sets - 1)) / sets
         col_w = front_w * 0.85
         cols = sets - SPEC["page2_columns_fewer"]
         used = cols * col_w + (cols - 1) * gap
-        self.running(x, top, used, bottom, cols, MAX_POINTS + 1, per, col_w)
+        self.running(x, top, used, bottom, cols, self.points + 1, per, col_w)
         self.how_to(x + used + 10, top, w - used - 10, bottom)
-        self.back_last = MAX_POINTS + cols * per   # the last total on page 2
+        self.back_last = self.points + cols * per   # the last total on page 2
         return self.back_last
 
     def footer(self, page_label=""):
@@ -490,7 +530,8 @@ class ScoreSheet:
 
     # ---- pages ------------------------------------------------------------------
     def score_sets(self):
-        # portrait letter is the narrowest grid: 5 columns of 20; the rest 4 of 25
+        # portrait letter is the narrowest grid: 5 columns of 20; landscape Tabloid
+        # 6 of 25; the rest 4 of 25
         return running_columns(self.orient, self.size)
 
     def add_page(self, game=None, example=False, back=True, fill=None):
@@ -539,14 +580,19 @@ class ScoreSheet:
                 y = self.notes(self.x0, y - 8, self.cw, self.NOTES_H)
                 cells = self.running(self.x0, y - 6, self.cw, bottom, sets, 1)
         else:
-            lw = 300 if self.size == "legal" else 284
+            lw = 284 if self.size == "letter" else 300
             gap_v = 8
-            avail = (top - 6) - bottom
+            # Tabloid is 2.5 in taller than Legal: the rosters keep Legal's size and
+            # How to mark goes in the space under them.
+            extra = self.H - legal[0] if self.size == "tabloid" else 0
+            avail = (top - 6) - bottom - extra
             rh = (avail - gap_v - 2 * fixed) / (2 * ROSTER_ROWS)
             if back:
                 rh = min(rh, 16)
             y, geo["home"] = self.roster(self.x0, top - 6, lw, rh, "Home", "home", home, back)
-            _, geo["away"] = self.roster(self.x0, y - gap_v, lw, rh, "Away", "away", away, back)
+            y, geo["away"] = self.roster(self.x0, y - gap_v, lw, rh, "Away", "away", away, back)
+            if self.size == "tabloid" and not back:
+                self.how_to(self.x0, y - 10, lw, bottom, page1=True)
             rx = self.x0 + lw + 14
             rw = self.cw - lw - 14
             if back:
@@ -646,7 +692,7 @@ class ScoreSheet:
         written in, Here ticks, circles, foul and T boxes, every running-score
         box, the end-of-quarter lines, the score boxes and Notes. Team fouls are
         made up (the file doesn't record them). Page 1 only: the file must stay
-        within 100 points and 10 free throws a player."""
+        within page 1 (100 points, 150 on Tabloid) and 10 free throws a player."""
         c = self.c
         rnd = random.Random(str(sheet.get("game_id")))
         sides = {"home": sheet["home"], "away": sheet["away"]}
@@ -788,12 +834,8 @@ def game_from_file(data_dir, sheet):
 
 # --------------------------------------------------------------------------
 # The spec as data
-LAYOUTS = [(o, s) for o in ("portrait", "landscape") for s in ("letter", "legal")]
-
-
 def running_columns(orient, size):
-    cols = SPEC["running_columns"]
-    return cols.get(f"{orient}-{size}", cols["default"])
+    return by_layout("running_columns", orient, size)
 
 
 def spec_json():
@@ -802,16 +844,17 @@ def spec_json():
     layouts = {}
     for orient, size in LAYOUTS:
         cols = running_columns(orient, size)
-        per = SPEC["points_per_page"] // cols
+        pts = by_layout("points_per_page", orient, size)
+        per = pts // cols
         back_cols = cols - SPEC["page2_columns_fewer"]
         layouts[f"{orient}-{size}"] = {
-            "page1": {"first": 1, "last": SPEC["points_per_page"], "columns": cols, "per_column": per},
-            "page2": {"first": SPEC["points_per_page"] + 1, "last": SPEC["points_per_page"] + back_cols * per,
-                      "columns": back_cols, "per_column": per},
+            "page1": {"first": 1, "last": pts, "columns": cols, "per_column": per},
+            "page2": {"first": pts + 1, "last": pts + back_cols * per, "columns": back_cols, "per_column": per},
         }
     out["layouts"] = layouts
-    # Totals any layout can hold; the game file checks use this as the limit.
-    out["max_running_total"] = min(l["page2"]["last"] for l in layouts.values())
+    # The most any layout's sheet prints (landscape Tabloid's page 2 runs to 275);
+    # the game file checks use this as the limit, so no printed box is refused.
+    out["max_running_total"] = max(l["page2"]["last"] for l in layouts.values())
     out["ft_circles"] = SPEC["ft_circles_per_page"] * 2
     return out
 
@@ -932,7 +975,7 @@ def main():
     ap.add_argument("--blank", action="store_true", help="blank fillable sheet")
     ap.add_argument("--size", choices=SIZES, default="letter")
     ap.add_argument("--orient", choices=["portrait", "landscape"], default="portrait")
-    ap.add_argument("--all-layouts", action="store_true", help="make all four layouts")
+    ap.add_argument("--all-layouts", action="store_true", help="make all five layouts")
     ap.add_argument("--per-game", action="store_true", help="one PDF per game instead of per night")
     ap.add_argument("--include-subs", action="store_true", help="also pre-print subs")
     ap.add_argument("--example", action="store_true", help="add sample handwriting (previews only)")
@@ -961,8 +1004,9 @@ def main():
     if not a.out:
         ap.error("give --out (or --spec or --geometry)")
 
-    layouts = ([(o, s) for o in ("portrait", "landscape") for s in ("letter", "legal")]
-               if a.all_layouts else [(a.orient, a.size)])
+    if not a.all_layouts and (a.orient, a.size) not in LAYOUTS:
+        ap.error("tabloid is landscape only: use --orient landscape --size tabloid")
+    layouts = LAYOUTS if a.all_layouts else [(a.orient, a.size)]
     os.makedirs(a.out, exist_ok=True)
     made = []
 

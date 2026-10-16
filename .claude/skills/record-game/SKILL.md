@@ -25,7 +25,7 @@ sheet but not in the file: ignore them.
 ## 0. What you're given
 
 `$ARGUMENTS`: the photo, an optional second photo (page 2, only used when a
-team passes 100 points or a player takes more than 10 free throws) and an
+team passes 100 points, 150 on Tabloid, or a player takes more than 10 free throws) and an
 optional game id like `2026-12-03-g1`. A photo attached in the chat is a file
 on disk (for example under `~/.claude/uploads/`): use that path. No photo:
 ask for one.
@@ -46,7 +46,7 @@ python scripts/record_game.py prepare PHOTO [PHOTO2] --out .record-game/WORK [--
 
 WORK is the game id if you have it, else the date and time. The helper finds
 the four black corner squares, straightens the page, works out the paper
-(portrait or landscape, Letter or Legal), the page, and the game (from the
+(portrait or landscape, Letter or Legal, or landscape Tabloid), the page, and the game (from the
 printed game id, teams and rosters), then measures the pen ink in every box
 against that game's pre-printed sheet. It writes into `.record-game/WORK/`
 (git-ignored):
@@ -145,7 +145,7 @@ are the same rows split in two).
   correction (a number crossed out and another written beside it). Use what
   is written now and keep the flag; if there's no correction, drop the item.
 
-### 3c. Running score: `crops/p1-running-*.png` (and `p2-running-*` for 101 up)
+### 3c. Running score: `crops/p1-running-*.png` (and `p2-running-*` for page 2: 101 up, or 151 up on Tabloid)
 
 Each row is one total: the home scorer's number on the left of the printed
 total, the away scorer's on the right. Each team's column is its own

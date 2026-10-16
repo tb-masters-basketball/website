@@ -220,7 +220,8 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
 - Score sheets on the Schedule page (reusable include `score-sheet-links.html`):
   - Each game day still to play gets **Score sheet (PDF)** (landscape Legal)
     and a muted **Other layouts** disclosure (a `<details>`, so it works
-    without JavaScript) with landscape Letter and portrait Letter and Legal.
+    without JavaScript) with landscape Letter and Tabloid and portrait Letter
+    and Legal.
     Both are `link-more` text links with 44 px tap areas. A link is only drawn
     when its PDF was generated, so past days and TBD playoff games get none.
   - A **Score sheets** section at the bottom lists the four blank layouts,

@@ -92,11 +92,13 @@ LEAGUE" with the round logo is at the **top left**, reading normally.
 Then say which layout it is (it's printed under the title, such as "Form
 MBL-SS6 · Portrait Letter"):
 - **Portrait** (taller than wide) or **Landscape** (wider than tall).
-- **Letter** or **Legal** (Legal is longer).
+- **Letter**, **Legal** (longer) or **Tabloid** (11 x 17, landscape only, the
+  biggest: its running score on page 1 goes to 150, and it has a short "How to
+  mark" box under the rosters).
 - **Page 1** has the rosters. **Page 2** (the back, "How to mark" in large
-  type) has the running score from 101 and free-throw circles 11 to 20. Page 2
-  matters only in a game where a team scored over 100 or a player took more than
-  10 free throws.
+  type) has the running score from 101 (from 151 on Tabloid) and free-throw
+  circles 11 to 20. Page 2 matters only in a game where a team scored over 100
+  (150 on Tabloid) or a player took more than 10 free throws.
 
 If a corner square is out of the photo, or the paper is folded or curled,
 say so: positions below may be off.
@@ -109,7 +111,7 @@ reading. If you can't, skip to step 3 and read from the photo.
 1. **Straighten.** Find the four black corner squares and warp the page so the
    outer corners of the squares become the corners of a flat rectangle, with
    this width-to-height ratio: Portrait Letter 0.763, Portrait Legal 0.594,
-   Landscape Letter 1.310, Landscape Legal 1.683.
+   Landscape Letter 1.310, Landscape Legal 1.683, Landscape Tabloid 1.568.
 2. **Crop each section** from the straightened page using the positions in the
    table below (percent of the rectangle's width across, and of its height
    down). Add a margin of 1-2% all round.
@@ -122,20 +124,21 @@ reading. If you can't, skip to step 3 and read from the photo.
    see your own output, read from the photo and use the crops only for the
    check picture.
 
-| Section (page 1) | Portrait Letter | Portrait Legal | Landscape Letter | Landscape Legal |
-|---|---|---|---|---|
-| Header (Date ... Scorekeeper) | 57-97 across, 1-9 down | 57-97, 1-7 | 67-98, 2-11 | 74-98, 2-11 |
-| HOME roster | 3-49, 9-47 | 3-49, 7-43 | 2-40, 12-54 | 2-33, 12-54 |
-| HOME score boxes | 3-49, 43-47 | 3-49, 39-43 | 2-40, 49-54 | 2-33, 49-54 |
-| AWAY roster | 51-97, 9-47 | 51-97, 7-43 | 2-40, 55-97 | 2-33, 55-97 |
-| AWAY score boxes | 51-97, 43-47 | 51-97, 39-43 | 2-40, 92-97 | 2-33, 92-97 |
-| Notes | 3-97, 47-55 | 3-97, 43-49 | 41-98, 88-97 | 34-98, 88-97 |
-| Running score (all columns) | 3-97, 55-98 | 3-97, 49-99 | 41-98, 12-88 | 34-98, 12-88 |
-| Running score columns, across | 3-21, 22-40, 41-59, 60-78, 79-97 | 3-26, 27-50, 50-73, 74-97 | 41-55, 55-70, 70-84, 84-98 | 34-50, 50-66, 66-82, 82-98 |
+| Section (page 1) | Portrait Letter | Portrait Legal | Landscape Letter | Landscape Legal | Landscape Tabloid |
+|---|---|---|---|---|---|
+| Header (Date ... Scorekeeper) | 57-97 across, 1-9 down | 57-97, 1-7 | 67-98, 2-11 | 74-98, 2-11 | 79-99, 1-9 |
+| HOME roster | 3-49, 9-47 | 3-49, 7-43 | 2-40, 12-54 | 2-33, 12-54 | 1-27, 9-42 |
+| HOME score boxes | 3-49, 43-47 | 3-49, 39-43 | 2-40, 49-54 | 2-33, 49-54 | 1-27, 37-42 |
+| AWAY roster | 51-97, 9-47 | 51-97, 7-43 | 2-40, 55-97 | 2-33, 55-97 | 1-27, 42-74 |
+| AWAY score boxes | 51-97, 43-47 | 51-97, 39-43 | 2-40, 92-97 | 2-33, 92-97 | 1-27, 70-74 |
+| Notes | 3-97, 47-55 | 3-97, 43-49 | 41-98, 88-97 | 34-98, 88-97 | 28-99, 91-98 |
+| Running score (all columns) | 3-97, 55-98 | 3-97, 49-99 | 41-98, 12-88 | 34-98, 12-88 | 28-99, 9-91 |
+| Running score columns, across | 3-21, 22-40, 41-59, 60-78, 79-97 | 3-26, 27-50, 50-73, 74-97 | 41-55, 55-70, 70-84, 84-98 | 34-50, 50-66, 66-82, 82-98 | 28-40, 39-52, 51-63, 63-75, 75-87, 87-99 |
 
 (Each roster's score boxes are its bottom strip. In portrait the two rosters
 sit side by side; in landscape HOME is above AWAY, both on the left, with the
-running score on the right.)
+running score on the right. On Tabloid the box under the two rosters is "How
+to mark": instructions, not part of the game.)
 
 ### Step 3. Map the sections and draw the check picture
 
@@ -251,7 +254,8 @@ new total and writes the **scorer's jersey number** next to it, on that team's
 side. It is the only record of who scored, so every box matters.
 
 **How it looks.** Several tall columns side by side (5 columns of 20 rows on
-Portrait Letter; 4 columns of 25 rows on the other layouts). Each column has a
+Portrait Letter; 6 columns of 25 rows on Landscape Tabloid; 4 columns of 25
+rows on the other layouts). Each column has a
 dark bar on top reading **HOME # | PTS | AWAY #** and is three strips wide:
 
 ```
@@ -265,7 +269,8 @@ dark bar on top reading **HOME # | PTS | AWAY #** and is three strips wide:
    23   |   6   |   12     <- home to 6 (#23, 2 points); away to 6 (#12, 3 points)
 ```
 
-- **PTS** (middle, shaded): **printed** numbers, 1, 2, 3 ... 100, going down
+- **PTS** (middle, shaded): **printed** numbers, 1, 2, 3 ... 100 (150 on
+  Tabloid), going down
   the first column, then on down the second, and so on. They are not
   handwriting and not jersey numbers; they are the totals.
 - **HOME #** (left strip): the home scorer's number, beside the home team's
@@ -310,7 +315,7 @@ reads it against the paper.
 
 ### Step 11. Page 2 (only if attached)
 
-The running score carries on from 101 (read it the same way, home pass then
+The running score carries on from 101, or 151 on Tabloid (read it the same way, home pass then
 away pass). Circles 11 to 20 for each player continue that player's `ft`
 string (circle 11 follows circle 10).
 

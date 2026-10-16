@@ -12,7 +12,7 @@ or a person) only has to read the handwriting, and knows where it is.
 
 prepare, for each photo (page 1, and page 2 if there is one):
   1. finds the four black corner squares and straightens the page with them;
-     works out the layout (portrait/landscape, Letter/Legal) and the page by
+     works out the layout (portrait/landscape, Letter/Legal, landscape Tabloid) and the page by
      matching the straightened photo against each blank sheet
   2. finds the game: --game, else the scheduled game whose pre-printed sheet
      (game id, team names, rosters) matches the photo best

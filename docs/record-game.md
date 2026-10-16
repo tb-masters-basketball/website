@@ -24,7 +24,8 @@ work is done by a script, and Claude only reads handwriting.
 1. **Measure** (`scripts/record_game.py prepare`, no AI). It finds the four
    corner squares (in a photo taken at any angle, sideways or upside down;
    with one square hidden it works out the fourth), straightens the page,
-   and works out the paper (portrait or landscape, Letter or Legal) and the
+   and works out the paper (portrait or landscape, Letter or Legal, or landscape
+   Tabloid) and the
    page by matching each blank layout. It finds the game by matching every
    scheduled game's pre-printed sheet. Then it subtracts that pre-printed
    sheet from the photo, so only pen is left, and measures the pen in every
@@ -61,12 +62,14 @@ work is done by a script, and Claude only reads handwriting.
 
 ## How well it works
 
-So far it has been tested on made-up photos only: the four practice games
-(`tests/fixtures/record-game/`) drawn onto all four layouts with
+It was first tested on made-up photos only: the four practice games
+(`tests/fixtures/record-game/`) drawn onto the four layouts there were then
+(Tabloid came later; see below) with
 `scoresheet.py --fill`, then "photographed" by
 `scripts/record_game_eval.py photos`: turned up to 7°, seen at an angle, on
 a table, under a shadow, blurred, grainy, saved as JPEG, some sideways or
-upside down. Two sets of 16:
+upside down. Two sets of 16 (the eval now makes 20, with Tabloid, so the same
+`--seed` gives different photos from these):
 
 - **Normal**: 145-245 dpi of paper, the handwriting drawn in a font with a
   little wobble.
@@ -146,6 +149,16 @@ of what differed from the answer key was the copy itself (no quarter lines
 drawn, an OT box of 83, an empty Final, a foul short), each copied as
 written and flagged. The made-up sets still come out with no silent
 mistakes on ticks, circles, fouls and T boxes.
+
+**Landscape Tabloid** (October 2026), the measuring step only, on the four
+practice games drawn on Tabloid and "photographed" like the others: it found
+the layout, the page and the game on all eight photos. Normal set: every
+tick, circle, foul, T box and quarter line right. Hard set: 378 boxes, 31
+flagged, 6 wrong without a flag, all on one photo at 105 dpi of paper (the
+blurriest of the set). The other layouts on the same hard photos: 0 to 2
+wrong each. A whole 11 x 17 sheet in one phone photo gets fewer pixels per
+box than a Letter sheet, so for Tabloid a closer photo matters more; the
+report's sharpness check flags anything under 150 dpi.
 
 **What it hasn't seen yet**: more real handwriting. The test writing is drawn
 with fonts: messy, but not a tired scorekeeper's 4 that looks like a 9,

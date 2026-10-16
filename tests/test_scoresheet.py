@@ -78,19 +78,26 @@ class LoadGamesTests(unittest.TestCase):
 
 @unittest.skipIf(scoresheet is None, "reportlab isn't installed")
 class LayoutTests(unittest.TestCase):
-    """Form MBL-SS6: page 1 runs 1-100; page 2 carries on with one column fewer."""
+    """Form MBL-SS6: page 1 runs 1-100 (1-150 on landscape Tabloid); page 2 carries
+    on with one column fewer."""
 
     def test_form_and_page_two_totals(self):
         tmp = Path(tempfile.mkdtemp())
         try:
             expected = {("portrait", "letter"): 180, ("portrait", "legal"): 175,
-                        ("landscape", "letter"): 175, ("landscape", "legal"): 175}
+                        ("landscape", "letter"): 175, ("landscape", "legal"): 175,
+                        ("landscape", "tabloid"): 275}
             for (orient, size), last in expected.items():
                 sheet = scoresheet.ScoreSheet(str(tmp / f"{orient}-{size}.pdf"), size, orient)
                 sheet.add_page({})
                 sheet.save()
                 self.assertEqual(sheet.back_last, last, (orient, size))
                 self.assertEqual(sheet.pages, 1)
+            self.assertEqual(sorted(expected), sorted(scoresheet.LAYOUTS))
+            with self.assertRaises(ValueError):          # tabloid is landscape only
+                scoresheet.ScoreSheet(str(tmp / "x.pdf"), "tabloid", "portrait")
+            self.assertEqual(scoresheet.spec_json()["layouts"]["landscape-tabloid"]["page1"],
+                             {"first": 1, "last": 150, "columns": 6, "per_column": 25})
             self.assertEqual(scoresheet.FORM, "MBL-SS6")
             self.assertEqual(scoresheet.QUARTERS, ("Q1", "Q2", "Q3", "Q4"))
         finally:

@@ -1,11 +1,12 @@
 {%- comment -%}
   Score sheet PDF links: the landscape Legal sheet (the league's default),
   and an "Other layouts" disclosure (works without JavaScript) with
-  landscape Letter and portrait Letter and Legal. The PDFs come from scripts/make_score_sheets.sh; a link is
+  landscape Letter and Tabloid (11 x 17, page 1 runs to 150) and portrait
+  Letter and Legal. The PDFs come from scripts/make_score_sheets.sh; a link is
   only drawn when its file was generated (e.g. not for a game day before today,
   or a playoff game whose teams aren't known yet).
     date=YYYY-MM-DD   one game day's sheets (score-sheets-<date>-...pdf)
-    blank=true        the blank sheets (score-sheet-blank-...pdf), all four listed
+    blank=true        the blank sheets (score-sheet-blank-...pdf), all five listed
     label="..."       what the links are for, for screen readers ("Sat Oct 17")
   Usage: include score-sheet-links.html date=g.date label=week.date_display
          include score-sheet-links.html blank=true label="blank"
@@ -16,7 +17,7 @@
 {%- assign ssl_stem = "/score-sheets/score-sheets-" | append: include.date | append: "-" -%}
 {%- endif -%}
 {%- comment %} The first layout is the default link; the rest go under "Other layouts". {% endcomment -%}
-{%- assign ssl_layouts = "landscape-legal|Landscape, Legal;landscape-letter|Landscape, Letter;portrait-letter|Portrait, Letter;portrait-legal|Portrait, Legal" | split: ";" -%}
+{%- assign ssl_layouts = "landscape-legal|Landscape, Legal;landscape-letter|Landscape, Letter;landscape-tabloid|Landscape, Tabloid (11 × 17);portrait-letter|Portrait, Letter;portrait-legal|Portrait, Legal" | split: ";" -%}
 {%- assign ssl_main_layout = ssl_layouts | first | split: "|" | first -%}
 {%- assign ssl_main_path = ssl_stem | append: ssl_main_layout | append: ".pdf" -%}
 {%- assign ssl_main = site.static_files | where: "path", ssl_main_path | first -%}
