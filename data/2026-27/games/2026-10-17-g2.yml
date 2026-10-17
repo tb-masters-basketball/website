@@ -1,0 +1,44 @@
+game_id: "2026-10-17-g2"
+form: MBL-SS6
+status: final
+home: fg
+away: nw
+scorekeeper: Dennis P.
+teams:
+  fg:
+    players:
+      - {player: adam-a, num: "00", here: true, ft: MX, fouls: 1}
+      - {player: albert-t, num: 18, here: true, fouls: 1}
+      - {player: dan-k, num: 7, here: false}
+      - {player: esa-k, num: 11, here: true, ft: MMMMX, fouls: 2}
+      - {player: jesse-l, num: 17, here: true, ft: X, fouls: 2}
+      - {player: john-s, num: 21, here: true, fouls: 1}
+      - {player: steve-r, num: 32, here: false}
+      - {player: ben-c, num: 33, here: false}
+      - {player: jeff-l, num: 43, here: true, ft: MM, fouls: 2}
+      - {player: mike-n2, num: 91, here: false}
+      - {player: ryan-t, num: 20, here: true}
+  nw:
+    players:
+      - {player: sam-e, num: 1, here: false}
+      - {player: herbie-b, num: 2, here: false}
+      - {player: mike-c, num: 3, here: false}
+      - {player: ryan-s, num: 4, here: true, ft: M, fouls: 2}
+      - {player: darren-t, num: 8, here: true, ft: MXMMXX, fouls: 2}
+      - {player: steve-s, num: 11, here: true, fouls: 1}
+      - {player: bernie-c, num: 13, here: true}
+      - {player: lauren-m, num: 14, here: false}
+      - {player: aaron-g, num: 21, here: true, fouls: 2}
+      - {player: fil-l, num: 22, here: false}
+      - {player: andrew-h, num: 24, here: true, ft: M, fouls: 3}
+      - {player: mike-n3, num: 33, here: true, fouls: 2}
+running:
+  fg: {2: "00", 5: 11, 7: 11, 10: 17, 12: 17, 15: 43, 18: 43, 20: 18, 22: 18, 24: 17, 26: 43, 29: 20, 32: "00", 34: 11, 36: 11, 38: 11, 41: 11, 43: 21, 45: 11, 47: 11, 49: 11, 51: 21, 53: 43, 54: 43, 56: 43, 58: 43, 60: 43, 63: 20, 66: 20}
+  nw: {2: 4, 4: 8, 6: 8, 9: 11, 11: 11, 13: 21, 16: 21, 18: 33, 20: 4, 22: 4, 24: 8, 26: 8, 28: 8, 31: 33, 33: 8, 36: 11, 38: 21, 40: 24, 42: 4, 44: 8, 46: 8, 48: 11, 51: 24, 53: 24}
+lines:
+  fg: [18, 29, 43, 66]
+  nw: [18, 31, 40, 53]
+boxes:
+  fg: {q1: 18, q2: 29, q3: 43, q4: 66, ot: null, final: 66}
+  nw: {q1: 18, q2: 31, q3: 40, q4: 53, ot: null, final: 53}
+checked_by: Kyle M.
