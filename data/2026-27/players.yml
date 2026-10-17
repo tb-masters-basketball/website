@@ -56,7 +56,7 @@
 - {id: jesse-l, display: Jesse L., team: fg, sub: false, number: 17}
 - {id: albert-t, display: Albert T., team: fg, sub: false, number: 18}
 - {id: john-s, display: John S., team: fg, sub: false, number: 21}
-- {id: steve-r, display: Steve R., team: fg, sub: false, number: 22}
+- {id: steve-r, display: Steve R., team: fg, sub: false, number: 32}
 - {id: ben-c, display: Ben C., team: fg, sub: false, number: 33}
 - {id: jeff-l, display: Jeff L., team: fg, sub: false, number: 43}
 - {id: mike-n2, display: Mike N., team: fg, sub: false, number: 91}

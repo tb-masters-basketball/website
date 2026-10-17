@@ -47,7 +47,6 @@ review:
   - {at: home, note: The sheet has Nor'Westers as the home team and Floor Generals as visitors; kept as the schedule has them (fg first)}
   - {at: teams.fg.players.10.here, note: 'Ryan T. (#20, written in, not on the roster) scored 9 but isn''t ticked Here: tick him if he played. Added to players.yml as a Floor Generals regular; make him a sub if he is one'}
   - {at: teams.fg.players.8.ft, note: 'Jeff L., Q4 written 2 1 2 2 (dot): read the 1 as a made 1-point free throw after a basket (circled 9)'}
-  - {at: teams.fg.players.6.num, note: 'Steve R. is #32 on the sheet but #22 in players.yml: which is right?'}
   - {at: teams.fg.players.0.ft, note: 'Adam A., Q4: a lone 0 (missed free throw), no points circled'}
   - {at: teams.nw.players.11.player, note: 'Mike N. (#33, Nor''Westers) isn''t on the roster: added to players.yml as mike-n3; make him a sub if he is one'}
   - {at: scorekeeper, note: Scorer written as "Dennis Parsons"}
