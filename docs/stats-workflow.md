@@ -427,8 +427,10 @@ reading is off.
 Some games are kept on the older league sheet ("Feuille de pointage"), which
 has no running score. `/record-game` can't read it: send Claude Code the prompt
 in [old-sheet-prompt.md](old-sheet-prompt.md) with the photo. It shows you each
-team's points, free throws and fouls first; check them against the paper (each
-player's marks on their own row) before it writes the draft.
+team's points, free throws and fouls in a table first and waits: check them
+against the paper (each player's marks on their own row), reply with any fixes
+("move Ed K. to Corey B. down one row"), and say when they're right. Only then
+does it write the draft and push it.
 
 ### Enter or check a game on the entry page
 
