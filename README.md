@@ -17,7 +17,9 @@ and GitHub Actions publishes them to GitHub Pages whenever `main` changes.
   **Copy the prompt** button). Either way a person checks the draft against the
   paper on the entry page before it counts. How it works and how well it reads:
   [`docs/record-game.md`](docs/record-game.md); the prompt:
-  [`docs/record-game-prompt.md`](docs/record-game-prompt.md).
+  [`docs/record-game-prompt.md`](docs/record-game-prompt.md). Games kept on the
+  older league sheet: [`docs/old-sheet-prompt.md`](docs/old-sheet-prompt.md)
+  (send it to Claude Code with the photo).
 - **Rules for anyone changing the code**, including Claude Code: [`CLAUDE.md`](CLAUDE.md)
 
 ---
@@ -429,6 +431,7 @@ docs/
   game-file-format.md    the game file: a digital copy of the score sheet
   record-game.md         /record-game: how it reads a photo, and how well (test results)
   record-game-prompt.md  the free version: a prompt for ChatGPT or claude.ai and a photo (copied to /enter/)
+  old-sheet-prompt.md    a prompt for Claude Code: the older league sheet (Feuille de pointage) into a draft
   open-questions.md      league decisions still needed
   design-brief.md        the design spec and decisions
   mockups/               approved mockups
