@@ -9,12 +9,12 @@ teams:
   bb:
     players:
       - {player: mike-z, num: 1, here: true, ft: X, fouls: 1}
-      - {player: tom-m, num: 5, here: false, ft: X}
-      - {player: colin-o, num: 8, here: true, ft: MX}
-      - {player: derek-o, num: 9, here: true, ft: M, fouls: 1}
-      - {player: kris-l, num: 13, here: true, fouls: 1}
-      - {player: mike-n, num: 15, here: true, ft: MXXM}
-      - {player: matt-p, num: 17, here: true, fouls: 3}
+      - {player: tom-m, num: 5, here: false}
+      - {player: colin-o, num: 8, here: true, ft: X}
+      - {player: derek-o, num: 9, here: true, ft: MX, fouls: 1}
+      - {player: kris-l, num: 13, here: true, ft: M, fouls: 1}
+      - {player: mike-n, num: 15, here: true}
+      - {player: matt-p, num: 17, here: true, ft: MXXM, fouls: 3}
       - {player: chris-u, num: 19, here: true}
       - {player: mike-f, num: 22, here: false}
       - {player: darryl-f, num: 23, here: false}
@@ -35,7 +35,7 @@ teams:
       - {player: rene-c, num: 39, here: false}
       - {player: martin-k, num: 8, here: true, fouls: 2}
 running:
-  bb: {2: 1, 4: 5, 6: 8, 8: 8, 10: 15, 12: 5, 14: 5, 16: 13, 18: 15, 21: 30, 23: 9, 25: 9, 28: 9, 30: 13, 32: 13, 34: 5, 36: 5, 38: 5, 40: 15, 42: 15}
+  bb: {2: 1, 4: 8, 6: 9, 8: 9, 10: 17, 12: 8, 14: 8, 16: 15, 18: 17, 21: 30, 23: 13, 25: 13, 28: 13, 30: 15, 32: 15, 34: 8, 36: 8, 38: 8, 40: 17, 42: 17}
   hu: {2: 0, 4: 7, 7: 22, 9: 0, 11: 17, 13: 16, 16: 1, 18: 7, 20: 7, 22: 17, 24: 17, 26: 15, 28: 16, 30: 17, 32: 15, 34: 16, 36: 23, 38: 23}
 lines:
   bb: [10, 21, 32, 42]
@@ -45,7 +45,6 @@ boxes:
   hu: {q1: 7, q2: 13, q3: 28, q4: 38, ot: null, final: 38}
 review:
   - {at: running.bb.2, note: 'Typed from the older league sheet (per-player points by quarter, no scorer order). Each quarter''s running score is rebuilt in roster order, so who scored at which total is not real; every player''s points per quarter, the quarter boxes and the finals are from the paper.'}
-  - {at: teams.bb.players.1.here, note: 'Tom M. (#5) scored 12 but isn''t ticked Here on the paper: tick him if he played'}
   - {at: teams.bb.players.5.fouls, note: 'Mike N.: no foul circled, but a circle from Matt P.''s row above touches his 3: check the paper'}
   - {at: teams.bb.players.10.num, note: 'Dino B.''s number is written over: read as 30'}
   - {at: teams.hu.players.0.ft, note: 'Kevin A., Q1: a filled dot (made free throw, 2 pts) and a dash; read the dash as nothing (his Q1 is circled 2)'}
