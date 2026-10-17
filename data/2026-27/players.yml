@@ -1,7 +1,8 @@
 # The real 2026-27 season's players, from the league's team list (October 2026).
 # One line per player, written "First L." (never a full name), with an id of
 # first name plus last initial (a number added where two clash), the team's id,
-# sub: true for a sub, and the jersey number where known (blank ones to come).
+# sub: true for a sub, and the jersey number where known. Bay City Bears'
+# numbers (and Matt S.) are from their first game's score sheet (Oct 17).
 # See data/CLAUDE.md and docs/stats-workflow.md.
 #
 # Team ids: bb Bay City Bears, dn Dam Nation, fg Floor Generals, hu Hustle,
@@ -34,18 +35,19 @@
 - {id: andrew-h, display: Andrew H., team: nw, sub: false, number: 24}
 - {id: rob-m, display: Rob M., team: nw, sub: false, number: 47}
 
-- {id: tom-m, display: Tom M., team: bb, sub: false}
-- {id: chris-u, display: Chris U., team: bb, sub: false}
-- {id: kris-l, display: Kris L., team: bb, sub: false}
-- {id: mike-z, display: Mike Z., team: bb, sub: false}
-- {id: matt-p, display: Matt P., team: bb, sub: false}
-- {id: colin-o, display: Colin O., team: bb, sub: false}
-- {id: derek-o, display: Derek O., team: bb, sub: false}
-- {id: mike-f, display: Mike F., team: bb, sub: false}
-- {id: mike-n, display: Mike N., team: bb, sub: false}
-- {id: dino-b, display: Dino B., team: bb, sub: false}
-- {id: darryl-f, display: Darryl F., team: bb, sub: false}
-- {id: jason-w, display: Jason W., team: bb, sub: false}
+- {id: tom-m, display: Tom M., team: bb, sub: false, number: 5}
+- {id: chris-u, display: Chris U., team: bb, sub: false, number: 19}
+- {id: kris-l, display: Kris L., team: bb, sub: false, number: 13}
+- {id: mike-z, display: Mike Z., team: bb, sub: false, number: 1}
+- {id: matt-p, display: Matt P., team: bb, sub: false, number: 17}
+- {id: colin-o, display: Colin O., team: bb, sub: false, number: 8}
+- {id: derek-o, display: Derek O., team: bb, sub: false, number: 9}
+- {id: mike-f, display: Mike F., team: bb, sub: false, number: 22}
+- {id: mike-n, display: Mike N., team: bb, sub: false, number: 15}
+- {id: dino-b, display: Dino B., team: bb, sub: false, number: 30}
+- {id: darryl-f, display: Darryl F., team: bb, sub: false, number: 23}
+- {id: matt-s, display: Matt S., team: bb, sub: false, number: 45}
+- {id: jason-w, display: Jason W., team: bb, sub: false, number: 55}
 
 - {id: adam-a, display: Adam A., team: fg, sub: false, number: "00"}
 - {id: dan-k, display: Dan K., team: fg, sub: false, number: 7}
