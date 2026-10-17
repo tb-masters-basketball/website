@@ -25,18 +25,18 @@ teams:
     players:
       - {player: kevin-a, num: 0, here: true, ft: M}
       - {player: kevin-r, num: 1, here: true}
-      - {player: ed-k, num: 5, here: true, ft: X, fouls: 3}
+      - {player: ed-k, num: 5, here: true, fouls: 3}
       - {player: hao-l, num: 7, here: true, ft: X, fouls: 2}
       - {player: kyle-m, num: 17, here: true, ft: X, fouls: 3}
-      - {player: matthew-h, num: 15, here: true, fouls: 1}
-      - {player: andrew-c, num: 16, here: true, ft: X}
-      - {player: corey-b, num: 23, here: true, fouls: 1}
+      - {player: matthew-h, num: 15, here: true, ft: X, fouls: 1}
+      - {player: andrew-c, num: 16, here: true}
+      - {player: corey-b, num: 23, here: true, ft: X, fouls: 1}
       - {player: jedd-w, num: 22, here: true}
       - {player: rene-c, num: 39, here: false}
       - {player: martin-k, num: 8, here: true, fouls: 2}
 running:
   bb: {2: 1, 4: 5, 6: 8, 8: 8, 10: 15, 12: 5, 14: 5, 16: 13, 18: 15, 21: 30, 23: 9, 25: 9, 28: 9, 30: 13, 32: 13, 34: 5, 36: 5, 38: 5, 40: 15, 42: 15}
-  hu: {2: 0, 4: 5, 7: 23, 9: 0, 11: 7, 13: 15, 16: 1, 18: 5, 20: 5, 22: 7, 24: 7, 26: 17, 28: 15, 30: 7, 32: 17, 34: 15, 36: 16, 38: 16}
+  hu: {2: 0, 4: 7, 7: 22, 9: 0, 11: 17, 13: 16, 16: 1, 18: 7, 20: 7, 22: 17, 24: 17, 26: 15, 28: 16, 30: 17, 32: 15, 34: 16, 36: 23, 38: 23}
 lines:
   bb: [10, 21, 32, 42]
   hu: [7, 13, 28, 38]
