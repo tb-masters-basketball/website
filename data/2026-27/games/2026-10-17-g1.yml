@@ -13,7 +13,7 @@ teams:
       - {player: derek-o, num: 9, here: true, ft: MX, fouls: 1}
       - {player: kris-l, num: 13, here: true, ft: M, fouls: 1}
       - {player: mike-n, num: 15, here: true}
-      - {player: matt-p, num: 17, here: true, ft: MXXM, fouls: 3}
+      - {player: matt-p, num: 17, here: true, ft: MXM, fouls: 3}
       - {player: chris-u, num: 19, here: true}
       - {player: mike-f, num: 22, here: false}
       - {player: darryl-f, num: 23, here: false}
