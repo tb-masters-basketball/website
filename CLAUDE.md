@@ -160,7 +160,9 @@ Always run the stats script before previewing data changes (and after changing
 
 ## Don't
 - Don't edit `_data/computed/` or anything in `brand/` by hand (except the
-  domain and path fixes in `head-snippet.html` and `site.webmanifest`).
+  domain and path fixes in `head-snippet.html` and `site.webmanifest`, and the
+  manifest's `background_color`: brand blue, the league's choice, because on
+  Android 15+ it colours an installed app's bottom navigation bar in both themes).
 - Don't add analytics, ads, trackers or cookie banners.
 - Don't add a sitemap or anything that invites search engines: the league
   doesn't want the site on Google (`search_engines: false` puts a `noindex`
