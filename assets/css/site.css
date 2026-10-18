@@ -157,7 +157,8 @@ main {
   width: 100%;
   max-width: calc(var(--content-max) + 2 * var(--gutter));
   margin: 0 auto;
-  padding-inline: var(--gutter);
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
 }
 
 /* ------------------------------------------------------- scene (Giant) */
@@ -224,7 +225,7 @@ main {
     "nav nav";
   align-items: center;
   column-gap: 12px;
-  padding: 12px 12px 0 var(--gutter);
+  padding: 12px max(12px, env(safe-area-inset-right, 0px)) 0 max(var(--gutter), env(safe-area-inset-left, 0px));
 }
 
 .brand {
@@ -968,8 +969,10 @@ a.leader-card--hot:hover {
   margin-top: 28px;
 }
 
+/* The page runs under the phone's bottom bar (viewport-fit=cover in the head),
+   so the bar takes the page's colour; the padding keeps the links above it. */
 .site-footer__band {
-  padding: 10px 0 28px;
+  padding: 10px 0 calc(28px + env(safe-area-inset-bottom, 0px));
   background: var(--mb-footer);
   color: var(--mb-footer-text);
   font-size: 14px;
