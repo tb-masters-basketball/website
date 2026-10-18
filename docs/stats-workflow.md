@@ -422,6 +422,16 @@ makes the assistant read one section at a time and show a check picture
 look at that first, since a roster boxed in the wrong colour means the whole
 reading is off.
 
+### The older league sheet
+
+Some games are kept on the older league sheet ("Feuille de pointage"), which
+has no running score. `/record-game` can't read it: send Claude Code the prompt
+in [old-sheet-prompt.md](old-sheet-prompt.md) with the photo. It shows you each
+team's points, free throws and fouls in a table first and waits: check them
+against the paper (each player's marks on their own row), reply with any fixes
+("move Ed K. to Corey B. down one row"), and say when they're right. Only then
+does it write the draft and push it.
+
 ### Enter or check a game on the entry page
 
 The site has an unlisted page for this: **mastersbasketball.ca/enter/** (not in

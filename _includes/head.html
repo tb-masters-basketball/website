@@ -4,7 +4,7 @@
   still work under a baseurl.
 {%- endcomment -%}
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 {%- assign head_title = site.title %}{% if page.title %}{% assign head_title = page.title | append: " · " | append: site.title %}{% endif %}
 {%- assign head_description = page.description | default: site.description %}
 <title>{{ head_title }}</title>

@@ -17,7 +17,9 @@ and GitHub Actions publishes them to GitHub Pages whenever `main` changes.
   **Copy the prompt** button). Either way a person checks the draft against the
   paper on the entry page before it counts. How it works and how well it reads:
   [`docs/record-game.md`](docs/record-game.md); the prompt:
-  [`docs/record-game-prompt.md`](docs/record-game-prompt.md).
+  [`docs/record-game-prompt.md`](docs/record-game-prompt.md). Games kept on the
+  older league sheet: [`docs/old-sheet-prompt.md`](docs/old-sheet-prompt.md)
+  (send it to Claude Code with the photo).
 - **Rules for anyone changing the code**, including Claude Code: [`CLAUDE.md`](CLAUDE.md)
 
 ---
@@ -94,6 +96,21 @@ id assignment so the command only reads the rosters and confirms.
       entry page: it never uploads the photo, so it goes into
       `data/<season>/sheets/<game_id>.jpg` by hand (GitHub: *Add file → Upload
       files*). `/record-game` saves it with the draft.
+- [ ] **Work offline (a service worker)?** To decide. The site can already be
+      added to a phone's home screen (`brand/site.webmanifest`), but with no
+      signal it won't open. A small service worker (`sw.js`) could keep the
+      pages someone has visited and show the last saved copy when the network
+      fails, always trying the network first so new scores appear.
+      Before deciding, look at the security side:
+      - It runs for every page on the domain and stays installed on phones
+        until it's replaced, so a bad version keeps running until a fixed
+        one ships. Plan a "turn it off" version before turning it on.
+      - Cache only same-site pages, styles, icons and images. Leave out
+        `/enter/` and anything it loads or sends, and the score sheet PDFs.
+      - Saved copies can show old scores: mark them ("Offline, last
+        updated ...") and refresh them when the network is back.
+      - No push notifications, background sync or tracking (the no-trackers
+        rule still holds).
 
 ---
 
@@ -429,6 +446,7 @@ docs/
   game-file-format.md    the game file: a digital copy of the score sheet
   record-game.md         /record-game: how it reads a photo, and how well (test results)
   record-game-prompt.md  the free version: a prompt for ChatGPT or claude.ai and a photo (copied to /enter/)
+  old-sheet-prompt.md    a prompt for Claude Code: the older league sheet (Feuille de pointage) into a draft
   open-questions.md      league decisions still needed
   design-brief.md        the design spec and decisions
   mockups/               approved mockups
