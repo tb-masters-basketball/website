@@ -3,7 +3,7 @@
   "short_name": "Masters",
   "start_url": "../",
   "display": "standalone",
-  "background_color": "#F4F6FB",
+  "background_color": "#032F98",
   "theme_color": "#032F98",
   "icons": [
     {

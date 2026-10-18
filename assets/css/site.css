@@ -969,8 +969,9 @@ a.leader-card--hot:hover {
   margin-top: 28px;
 }
 
-/* The page runs under the phone's bottom bar (viewport-fit=cover in the head),
-   so the bar takes the page's colour; the padding keeps the links above it. */
+/* viewport-fit=cover (in the head) lets the page run under a phone's bottom
+   bar where the browser allows it; the padding keeps the links above it. In
+   the installed app the bar is the manifest's background_color instead. */
 .site-footer__band {
   padding: 10px 0 calc(28px + env(safe-area-inset-bottom, 0px));
   background: var(--mb-footer);
