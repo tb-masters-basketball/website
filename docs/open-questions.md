@@ -26,6 +26,7 @@ The site shows a visible `[placeholder]` for each of these until it's answered.
 | A regular-season game still tied after one overtime (rule 4: "may be recorded as a tie") | Standings, box score, game file checks | Ties are allowed: quarters give their points, overtime none, no win points. The standings have a T column; PCT counts a tie as half a win (October 2026) |
 | Forfeits (rule 24: recorded as Q1-Q4 1-0) | Standings, Schedule | A nearly blank game file, `forfeit: <team>`, counted as 1-0 each quarter: 7 points and a win to the other team, no player stats (October 2026) |
 | Timeouts (rule 9: two per half, one per overtime) | Score sheet | The sheet prints them that way: H1 two circles, H2 two, OT one (October 2026) |
+| The league's paper score sheet (form MBL-PS1, `scripts/scoresheet/paper_sheet.py`): how does the scorekeeper mark the P1-P4 cells? On the old sheet each attempt is written in order (2 or 3 a basket, a dot a made free throw worth 2, 1 a 1-point free throw, 0 a miss) with the period's points circled, but the league hasn't said that's the rule, and a reader for this sheet depends on it | The paper sheet (not on the site yet) | |
 | Reseeding after 6 games (rule 31) | Schedule | Probably no longer done; to confirm |
 | How long is a game? | Team calendars | 90 minutes (calendar events last 90 minutes) |
 | Gym address | Team calendars | 621 Selkirk St S, Thunder Bay, ON P7E 1T9 (`gym_address` in `data/seasons.yml`) |

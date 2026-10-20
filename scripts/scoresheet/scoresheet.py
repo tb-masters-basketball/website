@@ -52,21 +52,12 @@ from reportlab.lib.pagesizes import letter, legal, TABLOID
 from reportlab.lib.colors import HexColor, white, black
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ASSETS = os.path.join(HERE, "assets")
-for _name, _file in [("Cond", "barlow-condensed-700"), ("CondSemi", "barlow-condensed-600"),
-                     ("Body", "barlow-400"), ("BodySemi", "barlow-600")]:
-    pdfmetrics.registerFont(TTFont(_name, os.path.join(ASSETS, "fonts", _file + ".ttf")))
-BADGE = os.path.join(ASSETS, "masters-badge.png")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Fonts (Cond, CondSemi, Body, BodySemi), brand colours, badge and header,
+# shared with the paper sheet (paper_sheet.py).
+from branding import HERE, ASSETS, BADGE, NAVY, BLUE, RED, RULE, TINT, SHADE, draw_text, draw_header  # noqa: E402
 
-NAVY = HexColor("#0B1B3F")
-BLUE = HexColor("#032F98")
-RED = HexColor("#CB0E1D")
-RULE = HexColor("#8C96AE")
-TINT = HexColor("#E7ECF7")
-SHADE = HexColor("#F1F3F9")
 PEN = HexColor("#1F3FB8")      # example handwriting only
 
 # Everything structural about the printed sheet, in one place. The drawing code
@@ -148,16 +139,7 @@ class ScoreSheet:
 
     # ---- drawing helpers ------------------------------------------------
     def text(self, x, y, s, font="Body", size=8, color=NAVY, anchor="l", tracking=0):
-        c = self.c
-        c.setFillColor(color)
-        w = pdfmetrics.stringWidth(s, font, size) + tracking * max(len(s) - 1, 0)
-        if anchor == "c": x -= w / 2
-        elif anchor == "r": x -= w
-        t = c.beginText()
-        t.setFont(font, size); t.setCharSpace(tracking); t.setTextOrigin(x, y)
-        t.textOut(s); t.setCharSpace(0)
-        c.drawText(t)
-        return w
+        return draw_text(self.c, x, y, s, font, size, color, anchor, tracking)
 
     def label(self, x, y, s, anchor="l", size=6.4, color=BLUE):
         return self.text(x, y, s.upper(), "CondSemi", size, color, anchor, tracking=0.6)
@@ -220,14 +202,7 @@ class ScoreSheet:
     def header(self, top, g, subtitle="SCORE SHEET  ·  THUNDER BAY"):
         c, x0, cw = self.c, self.x0, self.cw
         self.header_boxes = {}
-        bh = 44
-        if os.path.exists(BADGE):
-            c.drawImage(BADGE, x0, top - bh, bh, bh, mask="auto")
-        tx = x0 + bh + 9
-        self.text(tx, top - 17, "MASTERS BASKETBALL LEAGUE", "Cond", 17.5, NAVY, tracking=0.4)
-        c.setFillColor(RED); c.rect(tx, top - 25, 30, 2, stroke=0, fill=1)
-        self.text(tx + 36, top - 26.3, subtitle, "CondSemi", 8.6, BLUE, tracking=0.9)
-        self.text(tx, top - 39, f"Form {FORM} · {self.orient.title()} {self.size.title()}", "Body", 6.8, RULE)
+        draw_header(c, x0, top, subtitle, f"Form {FORM} · {self.orient.title()} {self.size.title()}")
         rows = [[("Date", "date", 80), ("Start time", "time", 56), ("Court", "court", 76)],
                 [("Game ID", "game_id", 96), ("Scorekeeper", "scorekeeper", 122)]]
         right = x0 + cw
