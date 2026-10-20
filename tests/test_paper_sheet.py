@@ -85,6 +85,17 @@ class PaperSheetTests(unittest.TestCase):
         if pdfium:
             self.assertEqual(len(page_texts(out / "paper-sheets-2026-10-17.pdf")), 2)
 
+    def test_no_games_left_is_fine_with_allow_empty(self):
+        """The deploy runs it with --from-today: after the last game day there's nothing to make."""
+        out = self.tmp / "out"
+        r = subprocess.run([sys.executable, str(SCRIPT), "--data", str(self.season), "--date", "2030-01-01",
+                            "--allow-empty", "--out", str(out)], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0)
+        self.assertEqual(list(out.glob("*.pdf")), [])
+        r = subprocess.run([sys.executable, str(SCRIPT), "--data", str(self.season), "--date", "2030-01-01",
+                            "--out", str(out)], capture_output=True, text=True)
+        self.assertNotEqual(r.returncode, 0)
+
     def test_the_prefilled_fields(self):
         out = self.tmp / "out"
         self.run_script("--data", str(self.season), "--game", "2026-10-17-g1", "--out", str(out))

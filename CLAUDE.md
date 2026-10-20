@@ -52,7 +52,8 @@ The printable score sheet (form MBL-SS6) comes from
 `scripts/make_score_sheets.sh` runs it on every deploy, after `build_stats.py`
 and before Jekyll, for the season the site shows. It writes `score-sheets/`
 (git-ignored): each game day from today on in all five layouts (Letter and Legal both ways, landscape Tabloid), plus the blank
-sheets. The Schedule page links only the PDFs that exist.
+sheets, and the same for the league's paper sheet (`paper_sheet.py`, form MBL-PS1), which is the Schedule page's main
+**Score sheet (PDF)** link (MBL-SS6 is under **Other layouts**). The Schedule page links only the PDFs that exist.
 Every structural number (rows, circles, foul boxes, score boxes, running-score
 pages) is in its `SPEC` dict; `scoresheet.py --spec scripts/scoresheet/spec.json`
 writes it out for `sheet_rules.py` (a test keeps the two in step).
@@ -89,7 +90,7 @@ scripts/check_links.sh  fails on broken links/images in _site/ (html-proofer; ru
 scripts/scoresheet/     the score sheet generator (README, fonts, badge, example data)
 scripts/make_score_sheets.sh  score-sheets/*.pdf (git-ignored) for the season shown; runs in CI
 scripts/scoresheet/paper_sheet.py  the league's own paper sheet (form MBL-PS1, English, running score to 130):
-                        a separate form, not linked from the site; shares branding.py with scoresheet.py
+                        a separate form, made on every deploy (the Schedule's main sheet link); shares branding.py
 scripts/record_game.py  /record-game's helper: prepare (straighten a photo with the corner squares, crop each section,
                         measure the ink in every box, start a draft), zoom, compare, check (the rules on one file), save
 .claude/skills/record-game/SKILL.md  the /record-game command: photo -> draft in data/<season>/drafts/ + photo in sheets/,

@@ -1,49 +1,52 @@
 {%- comment -%}
-  Score sheet PDF links: the landscape Legal sheet (the league's default),
-  and an "Other layouts" disclosure (works without JavaScript) with
-  landscape Letter and Tabloid (11 x 17, page 1 runs to 150) and portrait
-  Letter and Legal. The PDFs come from scripts/make_score_sheets.sh; a link is
-  only drawn when its file was generated (e.g. not for a game day before today,
-  or a playoff game whose teams aren't known yet).
-    date=YYYY-MM-DD   one game day's sheets (score-sheets-<date>-...pdf)
-    blank=true        the blank sheets (score-sheet-blank-...pdf), all five listed
+  Score sheet PDF links: the league's paper sheet (form MBL-PS1, Letter,
+  scripts/scoresheet/paper_sheet.py: the sheet the league uses, typed up on
+  /enter/paper/), and an "Other layouts" disclosure (works without JavaScript)
+  with the MBL-SS6 sheet in its five layouts: landscape Legal, Letter and
+  Tabloid (11 x 17, page 1 runs to 150), portrait Letter and Legal. The PDFs
+  come from scripts/make_score_sheets.sh; a link is only drawn when its file
+  was generated (e.g. not for a game day before today, or a playoff game whose
+  teams aren't known yet).
+    date=YYYY-MM-DD   one game day's sheets (paper-sheets-<date>.pdf, score-sheets-<date>-...pdf)
+    blank=true        the blank sheets (paper-sheet-blank.pdf, score-sheet-blank-...pdf), all listed
     label="..."       what the links are for, for screen readers ("Sat Oct 17")
   Usage: include score-sheet-links.html date=g.date label=week.date_display
          include score-sheet-links.html blank=true label="blank"
 {%- endcomment -%}
 {%- if include.blank -%}
+{%- assign ssl_main_path = "/score-sheets/paper-sheet-blank.pdf" -%}
 {%- assign ssl_stem = "/score-sheets/score-sheet-blank-" -%}
 {%- else -%}
+{%- assign ssl_main_path = "/score-sheets/paper-sheets-" | append: include.date | append: ".pdf" -%}
 {%- assign ssl_stem = "/score-sheets/score-sheets-" | append: include.date | append: "-" -%}
 {%- endif -%}
-{%- comment %} The first layout is the default link; the rest go under "Other layouts". {% endcomment -%}
+{%- comment %} The MBL-SS6 layouts, under "Other layouts". {% endcomment -%}
 {%- assign ssl_layouts = "landscape-legal|Landscape, Legal;landscape-letter|Landscape, Letter;landscape-tabloid|Landscape, Tabloid (11 × 17);portrait-letter|Portrait, Letter;portrait-legal|Portrait, Legal" | split: ";" -%}
-{%- assign ssl_main_layout = ssl_layouts | first | split: "|" | first -%}
-{%- assign ssl_main_path = ssl_stem | append: ssl_main_layout | append: ".pdf" -%}
 {%- assign ssl_main = site.static_files | where: "path", ssl_main_path | first -%}
 {%- if ssl_main and include.blank -%}
 <ul class="sheet-links__list sheet-links__list--open">
+  <li><a class="link-more" href="{{ ssl_main_path | relative_url }}">League paper sheet, Letter<span class="visually-hidden">, blank</span> (PDF)</a></li>
   {%- for ssl_layout in ssl_layouts %}
   {%- assign ssl_parts = ssl_layout | split: "|" %}
   {%- assign ssl_path = ssl_stem | append: ssl_parts[0] | append: ".pdf" %}
   {%- assign ssl_file = site.static_files | where: "path", ssl_path | first %}
   {%- if ssl_file %}
-  <li><a class="link-more" href="{{ ssl_path | relative_url }}">{{ ssl_parts[1] }}<span class="visually-hidden"> blank score sheet</span> (PDF)</a></li>
+  <li><a class="link-more" href="{{ ssl_path | relative_url }}">MBL-SS6, {{ ssl_parts[1] }}<span class="visually-hidden">, blank</span> (PDF)</a></li>
   {%- endif %}
   {%- endfor %}
 </ul>
 {%- elsif ssl_main -%}
 <div class="sheet-links">
-  <a class="link-more" href="{{ ssl_main_path | relative_url }}">Score sheet (PDF)<span class="visually-hidden">, {{ include.label }}, landscape Legal</span></a>
+  <a class="link-more" href="{{ ssl_main_path | relative_url }}">Score sheet (PDF)<span class="visually-hidden">, {{ include.label }}, the league's paper sheet</span></a>
   <details class="sheet-links__more">
     <summary>Other layouts<span class="visually-hidden"> for the {{ include.label }} score sheet</span></summary>
     <ul class="sheet-links__list">
-      {%- for ssl_layout in ssl_layouts offset: 1 %}
+      {%- for ssl_layout in ssl_layouts %}
       {%- assign ssl_parts = ssl_layout | split: "|" %}
       {%- assign ssl_path = ssl_stem | append: ssl_parts[0] | append: ".pdf" %}
       {%- assign ssl_file = site.static_files | where: "path", ssl_path | first %}
       {%- if ssl_file %}
-      <li><a class="link-more" href="{{ ssl_path | relative_url }}">{{ ssl_parts[1] }}<span class="visually-hidden"> ({{ include.label }} score sheet, PDF)</span></a></li>
+      <li><a class="link-more" href="{{ ssl_path | relative_url }}">MBL-SS6, {{ ssl_parts[1] }}<span class="visually-hidden"> ({{ include.label }} score sheet, PDF)</span></a></li>
       {%- endif %}
       {%- endfor %}
     </ul>

@@ -218,10 +218,10 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
   then the placeholders ("**Semifinal (G42)** · 2nd vs 3rd"), in the same game
   row and next-game panel. Playoff weeks are headed "Playoffs · Sat Apr 24".
 - Score sheets on the Schedule page (reusable include `score-sheet-links.html`):
-  - Each game day still to play gets **Score sheet (PDF)** (landscape Legal)
-    and a muted **Other layouts** disclosure (a `<details>`, so it works
-    without JavaScript) with landscape Letter and Tabloid and portrait Letter
-    and Legal.
+  - Each game day still to play gets **Score sheet (PDF)** (the league's paper
+    sheet, MBL-PS1, Letter) and a muted **Other layouts** disclosure (a
+    `<details>`, so it works without JavaScript) with the MBL-SS6 sheet:
+    landscape Legal, Letter and Tabloid, and portrait Letter and Legal.
     Both are `link-more` text links with 44 px tap areas. A link is only drawn
     when its PDF was generated, so past days and TBD playoff games get none.
   - A **Score sheets** section at the bottom lists the four blank layouts,
@@ -264,7 +264,8 @@ See `docs/qa/report.md` for the full list. None of these change the approved loo
   card, FT card and table, rank rows (team rosters, technical fouls), box
   scores and the player page heading. Captions, page titles and alt-style
   text keep the plain name.
-- Score sheet links on the Schedule page lead with **landscape Legal**.
+- Score sheet links on the Schedule page lead with **the league's paper sheet**
+  (MBL-PS1); MBL-SS6 (landscape Legal first) is under Other layouts.
 
 ## Quarters and standings points
 

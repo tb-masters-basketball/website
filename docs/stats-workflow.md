@@ -108,22 +108,29 @@ checked one.
 
 ## The score sheet
 
-The league's score sheet is form **MBL-SS6**, made by
+The league scores on its own paper sheet, form **MBL-PS1** (points per player
+per period, no running score), made by `scripts/scoresheet/paper_sheet.py`, and
+typed up on [the paper sheet page](#the-leagues-paper-sheet-enterpaper). The
+site's original sheet, form **MBL-SS6** (with a running score), is made by
 `scripts/scoresheet/scoresheet.py` ([its README](../scripts/scoresheet/README.md)).
 Every time the site is published:
 
 - **Upcoming game days:** each one on the Schedule gets a **Score sheet (PDF)**
-  link (landscape Legal) and **Other layouts** (landscape Letter, landscape
+  link: the paper sheet, Letter, one page per game, with the game number,
+  "Masters", the gym, the date, both team names and each team's regular players
+  (in jersey-number order) filled in, every one still an editable field.
+- **Other layouts** has the MBL-SS6 sheet (landscape Legal and Letter, landscape
   Tabloid, portrait Letter and Legal). Tabloid (11 x 17) needs a printer that
   takes it; its page 1 runs to 150 points, with How to mark under the rosters. The sheet has both games, two pages each, with the date,
   start time, game ID and team names filled in. Each roster lists the team's
   regular players (not subs) in jersey-number order. Until the rosters are in
   `players.yml`, the 13 rows print blank. Every printed name and number is still
   an editable field, so last-minute changes can be typed in before printing.
-- **Blank sheets:** all five layouts are at the bottom of the Schedule page.
+- **Blank sheets:** the paper sheet and all five MBL-SS6 layouts are at the
+  bottom of the Schedule page.
 
 The sheets on the Schedule page cover game days from today on (yesterday's
-drop off at the next nightly publish). Print double-sided. Page 2 has **How to mark** (the scorekeeper's
+drop off at the next nightly publish). The paper sheet is one page. Print MBL-SS6 double-sided. Page 2 has **How to mark** (the scorekeeper's
 instructions) and the overflow: the running score past 100 points (150 on
 Tabloid, which also has a short How to mark on page 1) and free throws past 10. Page 1 has a **Notes** box for flagrant fouls. Games are played
 in quarters: the scorekeeper writes each team's running total at the end of

@@ -19,6 +19,7 @@ Only one day, or one game, or from today on:
   python paper_sheet.py --data data/2026-27 --date 2026-10-31 --out ...
   python paper_sheet.py --data data/2026-27 --game 2026-10-31-g1 --out ...
   python paper_sheet.py --data data/2026-27 --from-today --out ...
+(--allow-empty: no matching games is fine; the deploy uses it with --from-today.)
 A blank sheet (every field empty but fillable):
   python paper_sheet.py --blank --out dist/paper-sheets
 The structure, and every box's position:
@@ -582,6 +583,8 @@ def main():
     ap.add_argument("--blank", action="store_true", help="a blank fillable sheet")
     ap.add_argument("--example", action="store_true",
                     help="write a made-up game on each sheet as handwriting (previews only)")
+    ap.add_argument("--allow-empty", action="store_true",
+                    help="no matching games is fine (e.g. --from-today after the last game day): make nothing, exit 0")
     ap.add_argument("--out", help="output folder")
     ap.add_argument("--spec", metavar="OUT.json", help="write the sheet spec as JSON and stop")
     ap.add_argument("--geometry", metavar="OUT.json", help="write where every box is and stop")
@@ -611,6 +614,9 @@ def main():
             today = dt.date.today().isoformat()
             games = [g for g in games if g["iso_date"] >= today]
         if not games:
+            if a.allow_empty:
+                print("no games matched; nothing to make")
+                return
             sys.exit("no games matched")
         days = {}
         for g in games:

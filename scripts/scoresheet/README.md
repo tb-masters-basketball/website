@@ -129,8 +129,9 @@ regenerate `spec.json`, and update the game file format
 `paper_sheet.py` makes a second form, alongside MBL-SS6 and separate from it:
 the league's own paper score sheet ("Feuille de pointage"), English only, with
 one more running-score line (101-130) for each team. Letter portrait, one page
-per game, one PDF per game day. It isn't linked from the site and isn't made by
-the deploy.
+per game, one PDF per game day. The deploy (`scripts/make_score_sheets.sh`)
+makes it for every game day from today on and blank, and it's the Schedule
+page's main **Score sheet (PDF)** link; MBL-SS6 is under **Other layouts**.
 
 Each team block: the team cell (the printed "Visitor" or "Home" over a
 fillable team name), Colour, 16 player rows (name, No., a tick for played,
