@@ -84,6 +84,8 @@ scripts/build_preview.sh  after the main build: the sample-season copy into _sit
 scripts/check_links.sh  fails on broken links/images in _site/ (html-proofer; runs in CI)
 scripts/scoresheet/     the score sheet generator (README, fonts, badge, example data)
 scripts/make_score_sheets.sh  score-sheets/*.pdf (git-ignored) for the season shown; runs in CI
+scripts/scoresheet/paper_sheet.py  the league's own paper sheet (form MBL-PS1, English, running score to 130):
+                        a separate form, not linked from the site; shares branding.py with scoresheet.py
 scripts/record_game.py  /record-game's helper: prepare (straighten a photo with the corner squares, crop each section,
                         measure the ink in every box, start a draft), zoom, compare, check (the rules on one file), save
 .claude/skills/record-game/SKILL.md  the /record-game command: photo -> draft in data/<season>/drafts/ + photo in sheets/,
@@ -94,7 +96,7 @@ scripts/make_practice_games.py  practice sheets for /record-game into tests/fixt
                         (answer key + filled + empty sheet; uses `scoresheet.py --fill`)
 scripts/screenshot_all.py  builds sample + real mode, screenshots the main pages (360/390/1440, light/dark),
                         checks sideways scroll, console errors and failed requests
-tests/                  pytest: build_stats, calendars, score sheets, sheet rules, record_game
+tests/                  pytest: build_stats, calendars, score sheets (MBL-SS6 and the paper sheet), sheet rules, record_game
 tests/js/               node --test: the JS sheet rules against the same fixtures (runs in CI)
 tests/fixtures/sheets/  test game files + expected results (run by both the Python and the JS rules)
 tests/fixtures/record-game/  four practice games for /record-game (see its README); synthetic*/ photos are git-ignored
