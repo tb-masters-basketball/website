@@ -55,8 +55,11 @@ STATUSES = ("draft", "final")
 NOTE_KINDS = ("flagrant", "note")
 FT_RE = re.compile(r"^[MX]*$")
 JERSEY_RE = re.compile(r"^\d{1,2}$")
-FIELDS = {"game_id", "form", "status", "home", "away", "scorekeeper", "teams", "running", "lines",
+FIELDS = {"game_id", "form", "source", "status", "home", "away", "scorekeeper", "teams", "running", "lines",
           "boxes", "notes", "review", "checked_by", "forfeit"}
+# `source`: the game was typed from another paper form and its running score
+# generated (the entry page /enter/paper/); nothing else about the file changes.
+SOURCES = ("MBL-PS1",)
 SHEET_PARTS = ("teams", "running", "lines", "boxes")   # the boxes a forfeit file leaves out
 ROW_FIELDS = {"player", "name", "num", "here", "ft", "fouls", "tech"}
 
@@ -110,6 +113,8 @@ def check(sheet, ctx):
 
     if sheet.get("form") != FORM:
         err("form", f"form {sheet.get('form')!r} isn't {FORM}, the sheet this format describes")
+    if "source" in sheet and sheet["source"] not in SOURCES:
+        err("source", f"source {sheet['source']!r} isn't a paper form this site knows (MBL-PS1)")
 
     gid = sheet.get("game_id")
     row = None
@@ -555,7 +560,7 @@ def dump(sheet):
         return "{" + ", ".join(f"{k}: {scalar(v)}" for k, v in d.items()) + "}"
 
     out = []
-    for key in ("game_id", "form", "status", "home", "away", "forfeit", "scorekeeper"):
+    for key in ("game_id", "form", "source", "status", "home", "away", "forfeit", "scorekeeper"):
         if key in sheet:
             out.append(f"{key}: {scalar(sheet[key])}")
     if "teams" in sheet:                   # a forfeit has none

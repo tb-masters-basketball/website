@@ -68,6 +68,7 @@ neither, and a final file can't have `review`.)
 |---|---|
 | `game_id` | The schedule's id; must equal the file name and have a row in `schedule.csv` (which gives the date, type and teams) |
 | `form` | The sheet's form, `MBL-SS6` |
+| `source` | Only for a game typed from the league's paper sheet on `/enter/paper/`: `MBL-PS1`. That sheet has no running score, so the file's `running` was made from each player's points per period: period by period, players in roster order, baskets of 2 (one 3 for an odd total, a 1 for a single point, 1s where a player made more free throws than that gives baskets). Points per player, the quarters and the free throws are exactly as on the paper; the order within a period isn't. Nothing else changes |
 | `status` | `final` (in `games/`) or `draft` (in `drafts/`) |
 | `home`, `away` | Team ids, matching the schedule row |
 | `scorekeeper` | Optional, as written |
@@ -121,7 +122,7 @@ the same path the entry page highlights:
 
 **Errors** (the build stops on any in `games/`):
 - the file: a key that isn't one of the fields above (at the top or in a row)
-- the header: `form`, `status` (and its folder), `game_id` (file name, schedule
+- the header: `form`, `source` (only `MBL-PS1`), `status` (and its folder), `game_id` (file name, schedule
   row, not cancelled, teams known), `home`/`away` against the schedule
 - rows: a jersey number on two rows, an unknown or repeated player id, no
   player id in a final file, `here` not true/false, `ft` not `M`/`X` or more
