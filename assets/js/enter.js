@@ -10,7 +10,15 @@
    The page's model is the game file itself (`sheet`), exactly as it will be
    saved; the boxes on screen read from and write to it. Work in progress is
    kept in localStorage under mb-enter:<game_id>. A photo opened beside the
-   sheet stays in the browser: it is never uploaded or stored. */
+   sheet stays in the browser: it is never uploaded or stored.
+
+   The paper sheet page (/enter/paper/, data-paper) is this page with the
+   league's own paper sheet (form MBL-PS1) in the middle instead: each
+   player's points per period, free throws made and tried, and fouls. Those
+   rows (`S.paper`) are what you edit there; paper-entry.js turns them into
+   the game file on every change, generating its running score, and the
+   checks' box paths are turned back into the paper boxes. Loading, the checks,
+   unsaved work, the photo and saving are shared. */
 (function () {
   "use strict";
 
@@ -19,6 +27,9 @@
   var BASE = app.getAttribute("data-base");
   var yaml = window.jsyaml;
   var SR = window.SheetRules;
+  var PAPER = app.hasAttribute("data-paper");
+  var PE = null;                // paper-entry.js, made from the spec
+  var PAPER_ROWS = 16;          // player rows on the paper sheet (scripts/scoresheet/paper-spec.json)
 
   var S = {
     spec: null, rules: null, season: null, index: null,
@@ -29,6 +40,11 @@
     page2: false,
     result: null,             // the last check
     finalProblems: [],        // what stops it being saved as final
+    paper: null,              // paper page: {team: [rows]} (points per period...)
+    paperProblems: [],        // paper page: what only the paper rows can show
+    runMap: {},               // paper page: running total -> [row, period]
+    ot: false,                // paper page: show the OT column
+    flip: false,              // paper page: the paper had the teams the other way round from the schedule
   };
 
   // ------------------------------------------------------------ small helpers
@@ -162,6 +178,8 @@
     ]).then(function (got) {
       S.spec = got[0];
       S.rules = SR.make(S.spec);
+      if (window.PaperEntry) PE = window.PaperEntry.make(S.spec);
+      if (PAPER && !PE) throw new Error("paper-entry.js didn't load");
       S.season = got[1];
       S.index = got[2];
       var saved = pref("layout");
@@ -329,14 +347,34 @@
       status(what.charAt(0).toUpperCase() + what.slice(1) + " isn't valid YAML: " + e.message, true);
       return false;
     }
-    normalizeTeams(sheet);
+    if (isDict(sheet)) normalizeTeams(sheet);
     if (!isDict(sheet) || !S.season.teams[sheet.home] || !S.season.teams[sheet.away] || sheet.home === sheet.away) {
       status((what === "That file" ? "That doesn't" : "The " + what + " doesn't") +
         " look like a game file for this season's teams (it needs home and away from teams.yml).", true);
       return false;
     }
     status("");
-    open(sheet, "file", fileName || "pasted text");
+    // The paper sheet calls the bottom block home; the site keeps the
+    // schedule's order (the printed schedule has no home team)
+    var g = S.season.schedule[sheet.game_id];
+    var swapped = !!(g && sheet.home === g.away && sheet.away === g.home);
+    if (swapped) { sheet.home = g.home; sheet.away = g.away; }
+    S.flip = swapped;
+    // A paper sheet file (form MBL-PS1, from the older-sheet prompt): the
+    // paper page keeps its rows as written; /enter/ opens the game file made from them
+    var paper = null, lost = [];
+    if (PE && PE.isPaperDoc(sheet)) {
+      var conv = PE.fromPaperDoc(sheet);
+      paper = conv.paper;
+      var made = PE.toGame(conv.meta, conv.paper);
+      sheet = made.sheet;
+      lost = made.problems;
+    }
+    open(sheet, "file", fileName || "pasted text", false, PAPER ? paper : null);
+    if (!PAPER && lost.length) status("This is a paper sheet file, and " + lost.length + " of its boxes can't go into a game file as they are " +
+      "(points with no jersey number, or more free throws made than tried): open it on the paper sheet page (" + BASE + "paper/) instead.", true);
+    else if (swapped) status("The sheet has " + team(g.away).name + " as the home team; kept the schedule's order (" + team(g.home).name + " first). " +
+      ($("[data-enter-status]").textContent || ""));
     return true;
   }
 
@@ -389,7 +427,7 @@
     var note = $("[data-prompt-note]");
     var link = note.innerHTML;
     var prompt = null;
-    getText(BASE + "data/record-game-prompt.txt").then(function (t) { prompt = t; }, function () {});
+    getText(BASE + (btn.getAttribute("data-prompt-file") || "data/record-game-prompt.txt")).then(function (t) { prompt = t; }, function () {});
     btn.addEventListener("click", function () {
       if (!prompt) { note.innerHTML = "Couldn't load the prompt. " + link; return; }
       copyText(prompt).then(function () {
@@ -460,7 +498,7 @@
       list.appendChild(el("li", { class: "enter-local__row" },
         el("button", { class: "enter-list__item", type: "button", onclick: function () {
           var saved = store.get(gid);
-          if (saved && saved.sheet) open(saved.sheet, saved.origin || "file", null, true);
+          if (saved && saved.sheet) open(saved.sheet, saved.origin || "file", null, true, PAPER ? saved.paper : null);
         } }, el("span", { class: "enter-list__main", text: S.season.schedule[gid] ? gameLabel(gid) : gid }),
           el("span", { class: "enter-list__sub", text: "Last edited " + when + " · " + gid })),
         el("button", { class: "btn btn--quiet", type: "button", "aria-label": "Discard the unsaved work on " + gid, text: "Discard",
@@ -470,7 +508,7 @@
 
   // ------------------------------------------------------------ the work area
   function setUpWork() {
-    var layout = $("[data-layout]");
+    var layout = $("[data-layout]") || el("select");    // the paper page has no layouts, page 2 or forfeit
     Object.keys(S.spec.layouts).forEach(function (k) {
       var l = S.spec.layouts[k];
       var name = k.replace("-", " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
@@ -484,7 +522,7 @@
     });
     // A forfeit (league rule 24): the file is only who forfeited, no boxes.
     // The score sheet is kept aside, so pressing Forfeit again brings it back.
-    $("[data-forfeit]").addEventListener("click", function () {
+    if ($("[data-forfeit]")) $("[data-forfeit]").addEventListener("click", function () {
       var sheet = S.sheet;
       if ("forfeit" in sheet) {
         var back = S.beforeForfeit && S.beforeForfeit.game_id === sheet.game_id ? S.beforeForfeit : emptySheet(sheet.game_id);
@@ -500,8 +538,13 @@
       renderSheet();
       changed();
     });
-    $("[data-page2]").addEventListener("click", function () {
+    if ($("[data-page2]")) $("[data-page2]").addEventListener("click", function () {
       S.page2 = !S.page2;
+      renderSheet();
+    });
+    if ($("[data-ot]")) $("[data-ot]").addEventListener("click", function () {
+      if (S.ot && paperHasOT()) { status("Clear the OT points and the OT boxes first.", true); return; }
+      S.ot = !S.ot;
       renderSheet();
     });
     $("[data-change-game]").addEventListener("click", function () {
@@ -564,10 +607,32 @@
     return matched;
   }
 
-  function open(sheet, origin, fileName, resumed) {
-    var matched = origin === "published" ? 0 : matchNames(sheet);
+  function open(sheet, origin, fileName, resumed, paper) {
+    var matched;
+    if (origin !== "file") S.flip = false;
+    var typedOnSS6 = PAPER && sheet.source !== PE.SOURCE && isDict(sheet.running) &&
+      [sheet.home, sheet.away].some(function (tid) { return isDict(sheet.running[tid]) && Object.keys(sheet.running[tid]).length; });
+    if (PAPER) {
+      if ("forfeit" in sheet) {
+        status("That game is a forfeit: open it on the score sheet entry page (" + BASE + ") instead.", true);
+        return;
+      }
+      S.paper = paper || PE.fromGame(sheet);
+      var wrap = { teams: {} };
+      Object.keys(S.paper).forEach(function (tid) { wrap.teams[tid] = { players: S.paper[tid] }; });
+      matched = origin === "published" ? 0 : matchNames(wrap);
+      S.sheet = sheet;
+      regen();
+      // review flags on running-score boxes now name the paper box they came from
+      (Array.isArray(S.sheet.review) ? S.sheet.review : []).forEach(function (r) {
+        if (isDict(r) && typeof r.at === "string") r.at = PE.locate(r.at, S.runMap);
+      });
+      S.ot = paperHasOT();
+    } else {
+      matched = origin === "published" ? 0 : matchNames(sheet);
+      S.sheet = sheet;
+    }
     status(matched ? "Matched " + matched + " row" + (matched === 1 ? "" : "s") + " to players.yml by name and number: check them." : "");
-    S.sheet = sheet;
     S.origin = origin;
     S.fileName = fileName || null;
     S.page2 = needsPage2();
@@ -578,16 +643,31 @@
     $("[data-work-title]").textContent = S.season.schedule[gid] ? gameLabel(gid) : team(sheet.home).name + " vs " + team(sheet.away).name;
     $("[data-work-sub]").textContent = [S.season.schedule[gid] ? gameWhen(gid) : null, String(gid), resumed ? "Unsaved work on this device" : kinds[origin]]
       .filter(Boolean).join(" · ");
-    $("[data-checked-by]").value = sheet.checked_by || "";
+    $("[data-checked-by]").value = S.sheet.checked_by || "";
+    // Where the file came from, when it's the other sheet's
+    var src = $("[data-source-note]");
+    if (src) {
+      var other = PAPER ? BASE : BASE + "paper/";      // both pages read their data from /enter/
+      var href = other + "?game=" + encodeURIComponent(String(gid));
+      src.hidden = true;
+      src.textContent = "";
+      if (PAPER && typedOnSS6) {
+        src.appendChild(el("p", { text: "This game was typed from the MBL-SS6 sheet, with its own running score. Saving it here replaces that running score with one made from the points per period. " }, el("a", { href: href, text: "Edit it on the MBL-SS6 page instead" })));
+        src.hidden = false;
+      } else if (!PAPER && sheet.source === "MBL-PS1") {
+        src.appendChild(el("p", { text: "This game was typed from the league's paper sheet: its running score was made from each player's points per period, in roster order. " }, el("a", { href: href, text: "Edit it on the paper sheet page" })));
+        src.hidden = false;
+      }
+    }
     // Unsaved work from earlier on this device?
     var banner = $("[data-resume]");
     banner.hidden = true;
     var saved = !resumed && store.get(gid);
-    if (saved && saved.sheet && SR.dump(saved.sheet) !== SR.dump(sheet)) {
+    if (saved && saved.sheet && SR.dump(saved.sheet) !== SR.dump(S.sheet)) {
       $("[data-resume-text]").textContent = "You have unsaved work on this game on this device (last edited " +
         new Date(saved.saved).toLocaleString("en-CA", { dateStyle: "medium", timeStyle: "short" }) + ").";
       banner.hidden = false;
-      $("[data-resume-use]").onclick = function () { open(saved.sheet, saved.origin || origin, fileName, true); };
+      $("[data-resume-use]").onclick = function () { open(saved.sheet, saved.origin || origin, fileName, true, PAPER ? saved.paper : null); };
       $("[data-resume-drop]").onclick = function () { store.drop(gid); banner.hidden = true; };
     }
     renderSheet();
@@ -606,6 +686,7 @@
   // ------------------------------------------------------------ the sheet
   function renderSheet(focus) {
     if (focus === undefined) focus = focusKey();
+    if (PAPER) { renderPaper(focus); return; }
     var root = $("[data-sheet]");
     root.textContent = "";
     if (needsPage2()) S.page2 = true;
@@ -956,6 +1037,269 @@
     changed();
   }
 
+  // ------------------------------------------------------------ the paper sheet (/enter/paper/)
+  // The game file from the paper rows (running score generated), and what
+  // only the paper can show (a made > tried, points with no jersey number)
+  function regen() {
+    var r = PE.toGame(S.sheet, S.paper);
+    S.sheet = r.sheet;
+    S.paperProblems = r.problems;
+    S.runMap = r.runMap;
+  }
+  function paperRows(tid) { return S.paper && Array.isArray(S.paper[tid]) ? S.paper[tid] : []; }
+  function paperHasOT() {
+    var boxes = isDict(S.sheet.boxes) ? S.sheet.boxes : {};
+    return sides().some(function (tid) {
+      return (isDict(boxes[tid]) && boxes[tid].ot !== null && boxes[tid].ot !== undefined && boxes[tid].ot !== "") ||
+        paperRows(tid).some(function (r) { return r.pts && r.pts[4] !== null && r.pts[4] !== undefined && r.pts[4] !== "" && r.pts[4] !== 0; });
+    });
+  }
+  function ptsValue(text) {
+    text = String(text).trim();
+    return text === "" ? null : /^\d+$/.test(text) ? parseInt(text, 10) : text;
+  }
+  function periods() { return S.ot ? PE.PERIODS : PE.PERIODS.slice(0, S.spec.quarters.length); }
+  function sum(list) { return list.reduce(function (a, b) { return a + (typeof b === "number" ? b : 0); }, 0); }
+
+  function renderPaper(focus) {
+    var root = $("[data-sheet]");
+    root.textContent = "";
+    root.classList.add("sheet--paper");
+    var ot = $("[data-ot]");
+    if (ot) { ot.setAttribute("aria-pressed", String(S.ot)); ot.textContent = S.ot ? "Overtime: shown" : "Overtime"; }
+    root.appendChild(renderHeader());
+    // as on the paper: the visitors' block on top, the home team's below (the
+    // site's home is the schedule's first team; S.flip when the paper disagreed)
+    var order = S.flip ? [S.sheet.home, S.sheet.away] : [S.sheet.away, S.sheet.home];
+    order.forEach(function (tid, n) { root.appendChild(renderPaperTeam(tid, n === 1)); });
+    root.appendChild(renderNotes());
+    paintPaperTotals();
+    changed(true);
+    restoreFocus(focus);
+  }
+
+  function renderPaperTeam(tid, isHome) {
+    var t = team(tid);
+    var side = isHome ? "Home" : "Visitor";
+    var per = periods();
+    var head = el("tr", null,
+      el("th", { scope: "col", class: "roster__num", text: "No." }),
+      el("th", { scope: "col", class: "roster__here", text: "✓" }),
+      el("th", { scope: "col", class: "roster__player", text: "Player" }),
+      per.map(function (p) { return el("th", { scope: "col", class: "paper__pts", text: p }); }),
+      el("th", { scope: "col", class: "paper__total", text: "Total" }),
+      el("th", { scope: "col", class: "paper__ft" }, el("abbr", { title: "free throws made", text: "FTM" })),
+      el("th", { scope: "col", class: "paper__ft" }, el("abbr", { title: "free throws tried", text: "FTA" })),
+      el("th", { scope: "col", class: "roster__fouls" }, "Fouls · ", el("span", { class: "sheet-t-label", text: "T" })),
+      el("th", { scope: "col", class: "roster__tools" }, el("span", { class: "visually-hidden", text: "Row" })));
+    var body = el("tbody");
+    var rows = paperRows(tid);
+    var count = Math.max(PAPER_ROWS, rows.length + 1);
+    var cols = 8 + per.length;
+    for (var i = 0; i < count; i++) {
+      body.appendChild(renderPaperRow(tid, i, rows[i], per));
+      body.appendChild(el("tr", { class: "roster__msgrow", "data-msgrow": "teams." + tid + ".players." + i, hidden: true },
+        el("td", { colspan: String(cols) }, el("ul", { class: "sheet-msgs", "data-msgs": "teams." + tid + ".players." + i }))));
+    }
+    var foot = el("tr", { class: "paper__team" },
+      el("th", { scope: "row", colspan: "3", text: "Team: points in each period" }),
+      per.map(function (p, k) { return el("td", { class: "paper__pts", "data-period-sum": tid + "." + k }); }),
+      el("td", { class: "paper__total", "data-team-sum": tid }),
+      el("td", { colspan: "4" }));
+    var table = el("table", { class: "roster paper", "data-at": "teams." + tid + ".players" },
+      el("caption", { class: "visually-hidden", text: side + ": " + t.name }), el("thead", null, head), body, el("tfoot", null, foot));
+
+    // the boxes: the team's running total at the end of each period, as boxed on the paper
+    var boxes = isDict(S.sheet.boxes) && isDict(S.sheet.boxes[tid]) ? S.sheet.boxes[tid] : {};
+    var keys = S.spec.score_boxes.filter(function (b) { return b.key !== "ot" || S.ot; });
+    var boxCells = keys.map(function (b) {
+      var v = boxes[b.key];
+      var k = /^q(\d)$/.exec(b.key);
+      var name = k ? PE.PERIODS[+k[1] - 1] : b.label;
+      return el("label", { class: "sheet-box", "data-at": "boxes." + tid + "." + b.key },
+        el("span", { class: "sheet-label", text: name }),
+        el("input", { class: "sheet-box__input", type: "text", inputmode: "numeric", autocomplete: "off", maxlength: String(b.digits),
+          style: "--digits:" + b.digits, value: v === null || v === undefined ? "" : String(v),
+          "aria-label": t.name + ": score at the end of " + name, oninput: function (e) { setBox(tid, b.key, e.target.value); } }),
+        el("span", { class: "paper__hint", "data-box-sum": tid + "." + b.key }));
+    });
+    return el("section", { class: "sheet-team", "data-at": "teams." + tid, "aria-label": side + ": " + t.name },
+      el("div", { class: "sheet-team__bar" },
+        el("span", { class: "sheet-team__side", text: side }),
+        el("span", { class: "chip chip--" + (t.slot || 1), "aria-hidden": "true" }),
+        el("span", { class: "sheet-team__name", text: t.name })),
+      el("div", { class: "sheet-scroll" }, table),
+      el("ul", { class: "sheet-msgs", "data-msgs": "teams." + tid }),
+      el("div", { class: "sheet-boxes", "data-at": "boxes." + tid },
+        el("div", { class: "sheet-boxes__row" }, el("span", { class: "sheet-boxes__label", text: "Score at end of" }), boxCells),
+        el("p", { class: "enter-hint paper__note", text: "As boxed on the paper: the team's total so far. The small number under each box is what the players add up to." })),
+      el("ul", { class: "sheet-msgs", "data-msgs": "boxes." + tid }));
+  }
+
+  function renderPaperRow(tid, i, row, per) {
+    var base = "teams." + tid + ".players." + i;
+    var r = isDict(row) ? row : PE.blankRow();
+    var t = team(tid);
+    var placeholder = !row;
+    var rowLabel = t.short + " row " + (i + 1);
+    function numInput(at, value, aria, onset, max) {
+      return el("input", { class: "roster__numinput", type: "text", inputmode: "numeric", autocomplete: "off", maxlength: String(max || 2),
+        value: value === undefined || value === null ? "" : String(value), "aria-label": rowLabel + ": " + aria,
+        oninput: function (e) { var v = e.target.value; editPaper(tid, i, function (x) { onset(x, v); }); } });
+    }
+    var num = numInput(base + ".num", r.num, "jersey number", function (x, v) { var n = numValue(v); if (n === undefined) delete x.num; else x.num = n; });
+    var here = el("button", { class: "sheet-tick", type: "button", "aria-pressed": String(r.here === true), "aria-label": rowLabel + ": played",
+      onclick: function (e) {
+        var on = e.currentTarget.getAttribute("aria-pressed") !== "true";
+        e.currentTarget.setAttribute("aria-pressed", String(on));
+        editPaper(tid, i, function (x) { x.here = on; });
+      } });
+
+    // the player: a roster id, or a sub's name written in by hand
+    var select = el("select", { class: "roster__select", "aria-label": rowLabel + ": player" });
+    select.appendChild(el("option", { value: "", text: "—" }));
+    var mine = Object.keys(S.season.players).map(function (k) { return S.season.players[k]; })
+      .filter(function (p) { return p.team === tid; })
+      .sort(function (a, b) { return (a.sub - b.sub) || (a.display < b.display ? -1 : 1); });
+    mine.forEach(function (p) { select.appendChild(el("option", { value: p.id, text: playerName(p.id) + (p.sub ? " (sub)" : "") })); });
+    if (r.player !== undefined && r.player !== null && !mine.some(function (p) { return p.id === r.player; })) {
+      select.appendChild(el("option", { value: String(r.player), text: (playerName(r.player) || String(r.player)) + " (not on " + t.short + ")" }));
+    }
+    select.appendChild(el("option", { value: "\u0000name", text: "Written in by hand…" }));
+    var written = r.player === undefined || r.player === null;
+    select.value = !written ? String(r.player) : (r.name ? "\u0000name" : "");
+    var name = el("input", { class: "enter-input roster__name", type: "text", autocomplete: "off", placeholder: "First L.", value: r.name || "",
+      "aria-label": rowLabel + ": name as written", hidden: select.value !== "\u0000name",
+      oninput: function (e) { var v = e.target.value; editPaper(tid, i, function (x) { delete x.player; x.name = v; }); } });
+    select.addEventListener("change", function () {
+      var v = select.value;
+      name.hidden = v !== "\u0000name";
+      editPaper(tid, i, function (x) {
+        if (v === "\u0000name") { delete x.player; x.name = name.value; name.focus(); }
+        else if (v === "") { delete x.player; delete x.name; }
+        else {
+          x.player = v;
+          delete x.name;
+          var p = S.season.players[v];
+          if ((x.num === undefined || x.num === null || x.num === "") && p && p.number !== null && p.number !== undefined) {
+            x.num = numValue(p.number);
+            num.value = String(x.num);
+          }
+        }
+      });
+    });
+
+    var cells = per.map(function (p, k) {
+      return el("td", { class: "paper__pts", "data-at": base + ".pts." + k },
+        numInput(base + ".pts." + k, r.pts[k], p + " points", function (x, v) { x.pts[k] = ptsValue(v); }));
+    });
+    var ftm = numInput(base + ".ftm", r.ftm, "free throws made", function (x, v) { var n = ptsValue(v); if (n === null) delete x.ftm; else x.ftm = n; });
+    var fta = numInput(base + ".fta", r.fta, "free throws tried", function (x, v) { var n = ptsValue(v); if (n === null) delete x.fta; else x.fta = n; });
+
+    var marks = el("div", { class: "sheet-marks" });
+    var fouls = el("div", { class: "sheet-marks__group", "data-at": base + ".fouls", role: "group", "aria-label": rowLabel + ": fouls" });
+    for (var f = 0; f < S.spec.personal_foul_boxes; f++) {
+      fouls.appendChild(el("button", { class: "sheet-mark", type: "button", "data-n": String(f), onclick: (function (f) { return function () { setPaperCount(tid, i, "fouls", f); }; })(f) }));
+    }
+    var techs = el("div", { class: "sheet-marks__group sheet-marks__group--t", "data-at": base + ".tech", role: "group", "aria-label": rowLabel + ": technical fouls" });
+    for (var x = 0; x < S.spec.technical_boxes; x++) {
+      techs.appendChild(el("button", { class: "sheet-mark sheet-mark--t", type: "button", "data-n": String(x), onclick: (function (x) { return function () { setPaperCount(tid, i, "tech", x); }; })(x) }));
+    }
+    marks.appendChild(fouls);
+    marks.appendChild(techs);
+    paintMarks(fouls, r.fouls, "Foul");
+    paintMarks(techs, r.tech, "T");
+
+    var tools = placeholder ? el("span") : el("button", { class: "enter-icon-btn enter-icon-btn--small", type: "button", "aria-label": "Clear " + rowLabel, text: "✕",
+      onclick: function () { clearPaperRow(tid, i); } });
+
+    return el("tr", { class: "roster__row" + (placeholder ? " is-blank" : ""), "data-at": base },
+      el("td", { class: "roster__num", "data-at": base + ".num" }, num),
+      el("td", { class: "roster__here", "data-at": base + ".here" }, here),
+      el("td", { class: "roster__player", "data-at": base + ".player" }, el("div", { class: "roster__who" }, select, name)),
+      cells,
+      el("td", { class: "paper__total", "data-total": tid + "." + i }),
+      el("td", { class: "paper__ft", "data-at": base + ".ftm" }, ftm),
+      el("td", { class: "paper__ft", "data-at": base + ".fta" }, fta),
+      el("td", { class: "roster__fouls" }, marks),
+      el("td", { class: "roster__tools" }, tools));
+  }
+
+  // Each row's total, each period's team points, and what the boxes should say
+  function paintPaperTotals() {
+    var per = periods();
+    sides().forEach(function (tid) {
+      var rows = paperRows(tid);
+      var team = per.map(function () { return 0; });
+      rows.forEach(function (r, i) {
+        var pts = per.map(function (p, k) { return typeof r.pts[k] === "number" ? r.pts[k] : 0; });
+        pts.forEach(function (v, k) { team[k] += v; });
+        var cell = $('[data-total="' + tid + "." + i + '"]');
+        if (cell) cell.textContent = sum(pts) || (r.here ? "0" : "");
+      });
+      team.forEach(function (v, k) { var c = $('[data-period-sum="' + tid + "." + k + '"]'); if (c) c.textContent = String(v); });
+      var all = $('[data-team-sum="' + tid + '"]');
+      if (all) all.textContent = String(sum(team));
+      var run = 0;
+      S.spec.score_boxes.forEach(function (b) {
+        var m = /^q(\d)$/.exec(b.key);
+        var hint = $('[data-box-sum="' + tid + "." + b.key + '"]');
+        if (m) { run += team[+m[1] - 1] || 0; if (hint) hint.textContent = String(run); }
+        else if (hint) hint.textContent = String(sum(team));
+      });
+    });
+  }
+
+  // Change one paper row. Typing in a blank row adds it as the next row.
+  function editPaper(tid, i, fn) {
+    if (!Array.isArray(S.paper[tid])) S.paper[tid] = [];
+    var rows = S.paper[tid];
+    var fresh = i >= rows.length;
+    var focus = fresh ? focusKey() : null;
+    if (fresh) {
+      if (focus) focus.at = focus.at.replace("teams." + tid + ".players." + i, "teams." + tid + ".players." + rows.length);
+      i = rows.length;
+      rows.push(PE.blankRow());
+    }
+    fn(rows[i]);
+    regen();
+    if (fresh) { renderSheet(focus); changed(); return; }
+    paintPaperTotals();
+    changed();
+  }
+
+  function setPaperCount(tid, i, key, k) {
+    var row = paperRows(tid)[i] || {};
+    var n = typeof row[key] === "number" ? row[key] : 0;
+    var next = k < n ? k : k + 1;       // tap a slashed box to clear it (and any after it)
+    i = Math.min(i, paperRows(tid).length);
+    editPaper(tid, i, function (x) { if (next) x[key] = next; else delete x[key]; });
+    var group = $('[data-at="teams.' + tid + ".players." + i + "." + key + '"]');
+    if (group) {
+      paintMarks(group, next, key === "tech" ? "T" : "Foul");
+      var again = group.querySelector('[data-n="' + k + '"]');
+      if (again && document.activeElement !== again) again.focus();
+    }
+  }
+
+  function clearPaperRow(tid, i) {
+    paperRows(tid).splice(i, 1);
+    if (Array.isArray(S.sheet.review)) {      // review flags on later rows move up with them
+      var prefix = "teams." + tid + ".players.";
+      S.sheet.review = S.sheet.review.filter(function (item) {
+        var m = isDict(item) && typeof item.at === "string" && item.at.indexOf(prefix) === 0 ? /^(\d+)(.*)$/.exec(item.at.slice(prefix.length)) : null;
+        if (!m) return true;
+        var j = +m[1];
+        if (j === i) return false;
+        if (j > i) item.at = prefix + (j - 1) + m[2];
+        return true;
+      });
+      if (!S.sheet.review.length) delete S.sheet.review;
+    }
+    regen();
+    renderSheet();
+  }
+
   // ---- notes
   function renderNotes() {
     var notes = Array.isArray(S.sheet.notes) ? S.sheet.notes : [];
@@ -1110,6 +1454,11 @@
     var fin = finalSheet(sheet, sheet.checked_by || "x");
     S.finalProblems = S.rules.check(fin, Object.assign({}, ctx, { folder: "games" }))[1]
       .filter(function (p) { return p.level === "error"; });
+    if (PAPER) {             // the rules speak of the game file: point at the paper boxes
+      var onPaper = function (p) { return Object.assign({}, p, { at: PE.locate(p.at, S.runMap) }); };
+      S.result.problems = S.paperProblems.concat(S.result.problems.map(onPaper));
+      S.finalProblems = S.paperProblems.concat(S.finalProblems.map(onPaper));
+    }
     paintProblems();
     renderChecks();
     renderSave();
@@ -1117,7 +1466,7 @@
     if (!fromRender) {
       clearTimeout(saveTimer);
       saveTimer = setTimeout(function () {
-        store.set(sheet.game_id, { sheet: sheet, origin: S.origin, saved: new Date().toISOString() });
+        store.set(sheet.game_id, { sheet: sheet, paper: PAPER ? S.paper : undefined, origin: S.origin, saved: new Date().toISOString() });
       }, 400);
     }
   }
@@ -1163,8 +1512,9 @@
     if (p[0] === "running") return "Running score" + (p[1] ? ", " + name(p[1]) : "");
     if (p[0] === "teams" && p.length >= 4) {
       var row = name(p[1]) + " row " + (+p[3] + 1);
-      var parts = { num: "#", player: "player", here: "Here", ft: "free throws", fouls: "fouls", tech: "T" };
+      var parts = { num: "#", player: "player", here: "Here", ft: "free throws", fouls: "fouls", tech: "T", ftm: "FT made", fta: "FT tried" };
       if (p[4] === "ft" && p[5] !== undefined) return row + ", free throw " + (+p[5] + 1);
+      if (p[4] === "pts" && p[5] !== undefined) return row + ", " + (PE ? PE.PERIODS[+p[5]] : "P" + (+p[5] + 1)) + " points";
       return p[4] ? row + ", " + (parts[p[4]] || p[4]) : row;
     }
     if (p[0] === "teams") return p[1] ? name(p[1]) + " roster" : "Rosters";

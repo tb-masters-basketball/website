@@ -155,10 +155,11 @@ game id), Competition ("Masters"), Place (the game's gym, else the season's from
 each team's regular players ("First L." and number, in number order; the other
 rows stay blank for subs). A long team name gets a smaller font. Its `SPEC` is
 in PDF points with the origin at the top-left; the geometry uses the same
-coordinates. Nothing reads these sheets yet: how the P1-P4 cells are marked is
-still an open question (`docs/open-questions.md`). `--example` writes them the
-way the old sheet is marked: every attempt in order (2 or 3 a basket, a dot a
-made free throw worth 2, 1 a 1-point free throw, 0 a miss), the period's points
+coordinates. Games on this sheet are typed up on the paper sheet entry page
+(`/enter/paper/`), or read from a photo by a chat with `docs/old-sheet-prompt.md`;
+no script reads its photos yet. `--example` writes it the way the old sheet is
+marked: every attempt in order (2 or 3 a basket, a dot a made free throw worth
+2, a triangle one worth 3, 1 a 1-point free throw, 0 a miss), the period's points
 circled, each team's running total boxed after each period, and each total
 reached struck through in the running score.
 

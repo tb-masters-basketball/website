@@ -1237,19 +1237,23 @@ def write_entry_data(root, data_dir, season, loaded, config):
     built = dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")
     _write_json(out / "index.json", {"season": sid, "built": built, "games": games, "drafts": drafts})
     (out / "record-game-prompt.txt").write_text(prompt_text(PROMPT_DOC.read_text(encoding="utf-8")), encoding="utf-8")
+    (out / "old-sheet-prompt.txt").write_text(prompt_text(OLD_SHEET_PROMPT_DOC.read_text(encoding="utf-8"),
+                                                          OLD_SHEET_PROMPT_DOC.name), encoding="utf-8")
     return len(games), len(drafts)
 
 
 PROMPT_DOC = ROOT / "docs" / "record-game-prompt.md"
+OLD_SHEET_PROMPT_DOC = ROOT / "docs" / "old-sheet-prompt.md"     # the paper sheet page's prompt
 
 
-def prompt_text(md):
-    """The free /record-game prompt, for the entry page's Copy button: what sits
-    between the two `---` lines under "## The prompt" in docs/record-game-prompt.md."""
+def prompt_text(md, name=PROMPT_DOC.name):
+    """A prompt for an entry page's Copy button: what sits between the two `---`
+    lines under "## The prompt" in docs/record-game-prompt.md (/enter/) or
+    docs/old-sheet-prompt.md (/enter/paper/)."""
     after = md.split("\n## The prompt\n", 1)
     parts = re.split(r"^---[ \t]*$", after[1], flags=re.M) if len(after) == 2 else []
     if len(parts) < 3 or not parts[1].strip():
-        raise DataError(f"{PROMPT_DOC.name}: no prompt between two '---' lines under '## The prompt'")
+        raise DataError(f"{name}: no prompt between two '---' lines under '## The prompt'")
     return parts[1].strip() + "\n"
 
 

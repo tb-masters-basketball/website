@@ -44,7 +44,7 @@ and `CNAME`. (`site.webmanifest` uses relative paths, so it needs no change.)
   stat-table sorting and expanding player rows (`assets/js/site.js`, and
   `assets/js/stats.js` on the Stats page). Every page must make sense
   with JS off.
-  **Exception:** the unlisted score sheet entry page (`/enter/`) is a tool and needs JavaScript (it says so with JS off).
+  **Exception:** the unlisted score sheet entry pages (`/enter/`, `/enter/paper/`) are tools and need JavaScript (they say so with JS off).
 
 ## Score sheets
 The printable score sheet (form MBL-SS6) comes from
@@ -77,6 +77,10 @@ enter/index.html        the score sheet entry page (unlisted, noindex): built fr
                         (the deploy writes it with `scoresheet.py --spec`) and enter/data/ (build_stats.py,
                         including the free prompt from docs/record-game-prompt.md for its Copy button);
                         UI in assets/js/enter.js, js-yaml vendored in assets/js/lib/
+enter/paper/index.html  the same page for the league's paper sheet (form MBL-PS1: points per period, no running
+                        score): assets/js/paper-entry.js makes the game file (`source: MBL-PS1`, running score
+                        generated in roster order per period) and reads one back; its prompt is
+                        docs/old-sheet-prompt.md (copied to enter/data/ by build_stats.py; tests/js covers both)
 scripts/calendars.py    writes calendar/<team>.ics and league.ics (git-ignored) from the real season;
                         called by build_stats.py, linked from Schedule and team pages
 scripts/make_sample_season.py  regenerates data/sample-2026-27/ and sample-2025-26/ (fake data)

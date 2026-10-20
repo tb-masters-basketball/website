@@ -422,15 +422,37 @@ makes the assistant read one section at a time and show a check picture
 look at that first, since a roster boxed in the wrong colour means the whole
 reading is off.
 
-### The older league sheet
+### The league's paper sheet (/enter/paper/)
 
-Some games are kept on the older league sheet ("Feuille de pointage"), which
-has no running score. `/record-game` can't read it: send Claude Code the prompt
-in [old-sheet-prompt.md](old-sheet-prompt.md) with the photo. It shows you each
-team's points, free throws and fouls in a table first and waits: check them
-against the paper (each player's marks on their own row), reply with any fixes
-("move Ed K. to Corey B. down one row"), and say when they're right. Only then
-does it write the draft and push it.
+Games kept on the league's own paper sheet (the English form MBL-PS1, or the
+older bilingual "Feuille de pointage") have no running score: each player's
+points per period, free throws and fouls, and the team's score boxed after each
+period. `/record-game` can't read them. Type them up on
+**mastersbasketball.ca/enter/paper/** instead: it's the entry page with the
+paper sheet in the middle.
+
+1. **Open the game** (a game from the schedule, a draft, or a file), or have a
+   chat read the photo: press **Copy the prompt**, paste it into Claude or
+   ChatGPT with the photo, and check the tables it shows you against the paper
+   (each player's marks on their own row; reply with fixes such as "move Ed K.
+   to Corey B. down one row" and say when they're right). Paste the file it then
+   writes into "Load a score sheet YML".
+2. **For each player**, as on the paper: the ✓, the circled points in P1-P4
+   (turn on **Overtime** for an OT column), free throws made (dots, triangles
+   and 1s) and tried (those plus the 0s), and the circled fouls. T is for
+   technical fouls; flagrant fouls go in Notes, as on the entry page.
+3. **The team boxes**: the score boxed after each period, and the final. The
+   small number under each box is what the players add up to, and the checks
+   say when they disagree.
+4. **Save** as on the entry page. The page writes an ordinary game file with
+   `source: MBL-PS1`: its running score is made from the points per period
+   (period by period, players in roster order), so each player's points, the
+   quarter scores and the free throws are exactly as typed. Only the order of
+   baskets within a period is made up, and the site never shows it.
+
+The entry page (`/enter/`) opens these games too, with a note and a link back
+to the paper sheet page; edit them on the paper sheet page, so the running
+score is made again from the points.
 
 ### Enter or check a game on the entry page
 
