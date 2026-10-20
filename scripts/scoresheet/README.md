@@ -137,11 +137,14 @@ fillable team name), Colour, 16 player rows (name, No., a tick for played,
 fouls 1-5, P1-P4, Total) with team fouls over P1+P2 and P3+P4, then Coach,
 timeouts 1-5 and OT, Time Out, and the running score 1-36, 37-69, 70-100 and
 101-130. The footer has the officials, the start and finish times and the coaches.
+Black squares in the four corners (12 pt, 16 pt in from the edges, as on MBL-SS6)
+let a reader straighten a photo of it.
 
 ```
 python scripts/scoresheet/paper_sheet.py --data data/2026-27 --out dist/paper-sheets    # every game day
 python scripts/scoresheet/paper_sheet.py --data data/2026-27 --date 2026-10-31 --out ...   # or --game, --from-today
 python scripts/scoresheet/paper_sheet.py --blank --out dist/paper-sheets               # a blank fillable sheet
+python scripts/scoresheet/paper_sheet.py --data data/2026-27 --game 2026-10-31-g1 --example --out ...   # a made-up game written on it (previews only)
 python scripts/scoresheet/paper_sheet.py --spec scripts/scoresheet/paper-spec.json    # the spec (a test keeps it in step)
 python scripts/scoresheet/paper_sheet.py --geometry OUT.json                          # where every box is
 ```
@@ -153,7 +156,11 @@ each team's regular players ("First L." and number, in number order; the other
 rows stay blank for subs). A long team name gets a smaller font. Its `SPEC` is
 in PDF points with the origin at the top-left; the geometry uses the same
 coordinates. Nothing reads these sheets yet: how the P1-P4 cells are marked is
-still an open question (`docs/open-questions.md`).
+still an open question (`docs/open-questions.md`). `--example` writes them the
+way the old sheet is marked: every attempt in order (2 or 3 a basket, a dot a
+made free throw worth 2, 1 a 1-point free throw, 0 a miss), the period's points
+circled, each team's running total boxed after each period, and each total
+reached struck through in the running score.
 
 Both forms share `branding.py`: the fonts, the brand colours and the header.
 

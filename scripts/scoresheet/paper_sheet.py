@@ -34,8 +34,8 @@ the remaining rows are left blank for subs.
 Needs: reportlab, PyYAML. Shares fonts, colours and the header with
 scoresheet.py through branding.py.
 """
-import argparse, csv, datetime as dt, io, json, os, sys
-from reportlab.lib.colors import white, black
+import argparse, csv, datetime as dt, io, json, os, random, sys
+from reportlab.lib.colors import HexColor, white, black
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 
@@ -46,6 +46,9 @@ FORM = "MBL-PS1"
 
 SPEC = {
     "page": {"w": 612, "h": 792, "size": "letter", "orientation": "portrait"},
+    # black corner squares for straightening a photo, as on MBL-SS6 (12 pt here,
+    # so the bottom-right one clears the footer's last rule)
+    "corners": {"size": 12, "inset": 16},
     "fonts": {"label": "CondSemi", "number": "Cond"},   # Barlow Condensed 600 / 700 (branding.py)
     "lines": {"grid": 0.6, "frame": 1.0},
     "header": {
@@ -92,6 +95,7 @@ SPEC = {
                                     {"label": "Visitor Coach", "x": 350, "field_end": 584}]}]},
 }
 
+PEN = HexColor("#1F3FB8")   # example handwriting only (--example)
 LABEL_TRACK = 0.4          # letter spacing of the (upper-case) labels, as on MBL-SS6
 FIELD_FONT = "Helvetica"   # PDF form fields can only use the standard fonts
 
@@ -244,8 +248,10 @@ class PaperSheet:
             dp = min(7.5, (b - a - 6 - sw - 2) / 5)
             sx = (a + b) / 2 - (sw + 2 + 5 * dp) / 2
             self.label(sx, T + hh - 3.6, sub, size)
+            m.setdefault("team_foul_digits", {})[k] = []
             for i in range(5):
                 self.number(sx + sw + 2 + (i + 0.5) * dp, T + hh - 3.6, str(i + 1), size)
+                m["team_foul_digits"][k].append(box(sx + sw + 2 + i * dp, T + hs, dp, hh - hs))
         m["header"] = {k: box(span[k][0], T, span[k][1] - span[k][0], hh) for k in ("no", "here", "fouls", "total")}
         m["team_fouls"] = {k: box(span[k][0], T + hs, span[k][1] - span[k][0], hh - hs) for k in ("p1", "p2", "p3", "p4")}
 
@@ -307,12 +313,22 @@ class PaperSheet:
         self.c.setLineWidth(self.frame); self.c.setStrokeColor(NAVY)
         self.c.rect(x0, self.y(bottom), x1 - x0, bottom - T, stroke=1, fill=0)
 
+    def corners(self):
+        k = self.S["corners"]
+        z, i = k["size"], k["inset"]
+        self.c.setFillColor(black)
+        self.map["corners"] = []
+        for x in (i, self.W - i - z):
+            for y in (i, self.H - i - z):
+                self.c.rect(x, self.y(y + z), z, z, stroke=0, fill=1)
+                self.map["corners"].append(box(x, y, z, z))
+
     def footer(self):
         F = self.S["footer"]
         for ln in F["lines"]:
             self.underlined(ln["items"], ln["baseline"], F["size"], BLUE)
 
-    def add_page(self, g=None):
+    def add_page(self, g=None, example=False):
         g = g or {}
         self.pages += 1
         self.prefix = f"g{self.pages}_" if self.multi else ""
@@ -322,11 +338,131 @@ class PaperSheet:
         for B in self.S["blocks"]:
             self.block(B, teams[B["team_field"].split("_")[0]])
         self.footer()
+        self.corners()
+        if example:
+            self.example_marks(g)
         self.maps.append(self.map)
         self.c.showPage()
 
     def save(self):
         self.c.save()
+
+    # ---- example handwriting (previews only) ----------------------------
+    def pen(self, x, base, s, size=9.5, anchor="c"):
+        draw_text(self.c, x, self.y(base), s, "CondSemi", size, PEN, anchor)
+
+    def ptick(self, cx, cy, s=3.2):
+        c = self.c
+        c.setStrokeColor(PEN); c.setLineWidth(1.2); c.setLineCap(1)
+        p = c.beginPath()
+        p.moveTo(cx - s, self.y(cy)); p.lineTo(cx - s * 0.2, self.y(cy + s * 0.8)); p.lineTo(cx + s * 1.1, self.y(cy - s * 1.1))
+        c.drawPath(p, stroke=1, fill=0); c.setLineCap(0)
+
+    def ring(self, x, y, w, h):
+        self.c.setStrokeColor(PEN); self.c.setLineWidth(0.9)
+        self.c.ellipse(x, self.y(y + h), x + w, self.y(y), stroke=1, fill=0)
+
+    def stroke(self, x0, y0, x1, y1, lw=1.0):
+        self.c.setStrokeColor(PEN); self.c.setLineWidth(lw)
+        self.c.line(x0, self.y(y0), x1, self.y(y1))
+
+    def example_marks(self, g):
+        """A made-up game written onto the sheet the way the league's old sheet
+        is marked (an open question for this form): in each period cell every
+        attempt in order (2 or 3 a basket, a dot a made free throw worth 2,
+        1 a 1-point free throw after a basket, 0 a miss) and the period's points
+        circled; Total; fouls circled; team fouls struck through; each team's
+        points per period boxed under its last player, the final boxed under
+        Total; each running total reached struck through."""
+        rnd = random.Random(g.get("game_id", "example"))
+        periods = ("p1", "p2", "p3", "p4")
+        for side, key in (("visitor", "away"), ("home", "home")):
+            m = self.map["blocks"][side]
+            players = [p for p in g.get(key, {}).get("players", []) if p.get("name")]
+            played = [i for i in range(len(players)) if rnd.random() < 0.85][:10]
+            shooters = played[:]
+            rnd.shuffle(shooters)
+            weights = {i: w for i, w in zip(shooters, [9, 7, 6, 4, 3, 3, 2, 2, 1, 1])}
+            marks = {i: {p: [] for p in periods} for i in played}
+            timeline = []                      # (period, points) in the order scored
+            fouls = {i: 0 for i in played}
+            team_fouls = {p: 0 for p in periods}
+            for p in periods:
+                pts = 0
+                while pts < rnd.randint(10, 16):
+                    i = rnd.choices(played, [weights[j] for j in played])[0]
+                    r = rnd.random()
+                    if r < 0.58: ev = [("2", 2)]
+                    elif r < 0.72: ev = [("3", 3)]
+                    elif r < 0.82: ev = [("•", 2)]
+                    elif r < 0.88: ev = [("2", 2), ("1", 1)]
+                    else: ev = [("0", 0)]
+                    for mark, v in ev:
+                        marks[i][p].append((mark, v))
+                        if v: timeline.append(v)
+                        pts += v
+                    if rnd.random() < 0.25:
+                        f = rnd.choice(played)
+                        if fouls[f] < 4: fouls[f] += 1
+                        team_fouls[p] = min(5, team_fouls[p] + 1)
+            totals = {p: 0 for p in periods}
+            for i in played:
+                row = m["rows"][i]
+                x, y, w, h = row["here"]
+                self.ptick(x + w / 2, y + h / 2)
+                fx = row["foul_marks"]
+                for k in range(fouls[i]):
+                    bx, by, bw, bh = fx[k]
+                    self.ring(bx + bw / 2 - 4, by + 2, 8, bh - 4)
+                tot = 0
+                for p in periods:
+                    ms = marks[i][p]
+                    if not ms:
+                        continue
+                    x, y, w, h = row[p]
+                    cx = x + 4
+                    for mark, _ in ms:
+                        if mark == "•":
+                            self.c.setFillColor(PEN); self.c.circle(cx + 2.2, self.y(y + h / 2), 2.2, stroke=0, fill=1)
+                            cx += 6.5
+                        else:
+                            draw_text(self.c, cx, self.y(y + h - 3.2), mark, "CondSemi", 9.5, PEN)
+                            cx += 6.5
+                    v = sum(v for _, v in ms)
+                    tot += v; totals[p] += v
+                    self.pen(x + w - 9, y + h - 3.2, str(v), 9)
+                    self.ring(x + w - 16, y + 0.8, 14, h - 1.6)
+                x, y, w, h = row["total"]
+                self.pen(x + w / 2, y + h - 3.2, str(tot), 10)
+            # the period totals boxed in the first empty row, the final under Total
+            spare = m["rows"][min(len(players), len(m["rows"]) - 1)]
+            run = 0
+            for p in periods:
+                run += totals[p]
+                x, y, w, h = spare[p]
+                self.pen(x + w - 12, y + h - 3.2, str(run), 9.5)
+                self.c.setStrokeColor(PEN); self.c.setLineWidth(0.9)
+                self.c.rect(x + w - 22, self.y(y + h - 0.8), 20, h - 1.6, stroke=1, fill=0)
+            x, y, w, h = spare["total"]
+            self.pen(x + w / 2, y + h - 3.2, str(run), 10)
+            self.c.rect(x + 4, self.y(y + h - 0.8), w - 8, h - 1.6, stroke=1, fill=0)
+            for p in periods:
+                for k in range(team_fouls[p]):
+                    bx, by, bw, bh = m["team_foul_digits"][p][k]
+                    self.stroke(bx + 0.5, by + bh - 2.5, bx + bw - 0.5, by + 2.5, 0.9)
+            for t in rnd.sample(["1", "2", "3", "4"], 2):
+                bx, by, bw, bh = m["timeouts"][t]
+                self.stroke(bx + 5, by + bh - 3, bx + bw - 5, by + 3, 1.1)
+            score = 0
+            for v in timeline:
+                score += v
+                if str(score) in m["running"]:
+                    bx, by, bw, bh = m["running"][str(score)]
+                    self.stroke(bx + bw * 0.25, by + bh - 1.5, bx + bw * 0.75, by + 1.5, 0.9)
+        for key, s in (("scorer", "Dana P."), ("timer", "Chris W."), ("30_timer", "Lee M."),
+                       ("referee", "Sam T."), ("umpire", "Jo B."), ("time_start", "9:45"), ("finish", "11:05")):
+            x, y, w, h = self.map["footer"][key]
+            self.pen(x + 6, y + h - 3, s, 10, anchor="l")
 
 
 def box(x, y, w, h):
@@ -429,11 +565,11 @@ def load_games(data_dir):
     return games
 
 
-def build(path, games):
+def build(path, games, example=False):
     s = PaperSheet(path)
     s.multi = len(games) > 1
     for g in games:
-        s.add_page(g)
+        s.add_page(g, example=example)
     s.save()
 
 
@@ -444,6 +580,8 @@ def main():
     ap.add_argument("--game", help="only this game_id")
     ap.add_argument("--from-today", action="store_true", help="skip games before today")
     ap.add_argument("--blank", action="store_true", help="a blank fillable sheet")
+    ap.add_argument("--example", action="store_true",
+                    help="write a made-up game on each sheet as handwriting (previews only)")
     ap.add_argument("--out", help="output folder")
     ap.add_argument("--spec", metavar="OUT.json", help="write the sheet spec as JSON and stop")
     ap.add_argument("--geometry", metavar="OUT.json", help="write where every box is and stop")
@@ -478,8 +616,8 @@ def main():
         for g in games:
             days.setdefault(g["iso_date"], []).append(g)
         for day, gs in sorted(days.items()):
-            p = os.path.join(a.out, f"paper-sheets-{day}.pdf")
-            build(p, gs); made.append(p)
+            p = os.path.join(a.out, f"paper-sheet{'-example' if a.example else 's'}-{day}.pdf")
+            build(p, gs, a.example); made.append(p)
     for p in made:
         print(p)
 

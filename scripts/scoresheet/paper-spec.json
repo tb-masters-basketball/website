@@ -6,6 +6,10 @@
     "size": "letter",
     "orientation": "portrait"
   },
+  "corners": {
+    "size": 12,
+    "inset": 16
+  },
   "fonts": {
     "label": "CondSemi",
     "number": "Cond"

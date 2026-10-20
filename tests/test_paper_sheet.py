@@ -158,6 +158,18 @@ class PaperSheetTests(unittest.TestCase):
         self.assertEqual(rows[0]["row"][1], fr[1] + 26)
         self.assertLess(rows[-1]["row"][1] + 14, fr[1] + fr[3])
 
+    def test_four_corner_squares(self):
+        corners = paper_sheet.geometry_json()["pages"][0]["corners"]
+        self.assertEqual(len(corners), 4)
+        for x, y, w, h in corners:   # on the page, clear of the table and the footer
+            self.assertTrue(0 < x and x + w < 612 and 0 < y and y + h < 792)
+            self.assertTrue(y + h < 84 or y > 762)
+
+    def test_an_example_sheet_builds(self):
+        out = self.tmp / "out"
+        made = self.run_script("--data", str(self.season), "--game", "2026-10-17-g1", "--example", "--out", str(out))
+        self.assertEqual(made, [str(out / "paper-sheet-example-2026-10-17.pdf")])
+
     def test_the_spec_round_trips(self):
         """paper-spec.json is `paper_sheet.py --spec`; a sheet drawn from it is the same sheet."""
         path = ROOT / "scripts" / "scoresheet" / "paper-spec.json"
