@@ -19,6 +19,7 @@ Only one day, or one game, or from today on:
   python paper_sheet.py --data data/2026-27 --date 2026-10-31 --out ...
   python paper_sheet.py --data data/2026-27 --game 2026-10-31-g1 --out ...
   python paper_sheet.py --data data/2026-27 --from-today --out ...
+(--allow-empty: no matching games is fine; the deploy uses it with --from-today.)
 A blank sheet (every field empty but fillable):
   python paper_sheet.py --blank --out dist/paper-sheets
 The structure, and every box's position:
@@ -52,42 +53,43 @@ SPEC = {
     "fonts": {"label": "CondSemi", "number": "Cond"},   # Barlow Condensed 600 / 700 (branding.py)
     "lines": {"grid": 0.6, "frame": 1.0},
     "header": {
-        "logo_slot": {"x": 34, "y": 26, "w": 250, "h": 36,
+        "logo_slot": {"x": 34, "y": 18, "w": 250, "h": 36,
                       "note": "league header: badge + wordmark, styled like MBL-SS6"},
-        "title": {"text": "Score Sheet", "x_right": 590, "baseline": 62, "size": 9.5},
-        "game_line": {"baseline": 78, "size": 10.5, "field_rule": "underline from 3pt after the label to field_end",
-                      "items": [{"label": "Game No.", "x": 40, "field_end": 204},
-                                {"label": "Competition", "x": 208, "field_end": 384},
-                                {"label": "Place", "x": 388, "field_end": 478},
-                                {"label": "Date", "x": 482, "field_end": 584}]},
+        "subtitle": "Score Sheet  ·  Thunder Bay",
+        # the game's details, in two rows in the top-right corner (clear of its corner square)
+        "game_line": {"size": 9.5, "field_rule": "underline from 3pt after the label to field_end",
+                      "rows": [{"baseline": 36, "items": [{"label": "Game No.", "x": 300, "field_end": 380},
+                                                          {"label": "Competition", "x": 388, "field_end": 584}]},
+                               {"baseline": 56, "items": [{"label": "Place", "x": 300, "field_end": 470},
+                                                          {"label": "Date", "x": 478, "field_end": 584}]}]},
     },
     "table": {"x0": 22, "x1": 590},
     "columns": [{"key": "name", "x": 22},
-                {"key": "colour", "x": 110, "row_divider": False},
+                {"key": "colour", "x": 132, "row_divider": False},
                 {"key": "no", "x": 182, "label": "No."},
                 {"key": "here", "x": 211, "label": "✓"},
                 {"key": "fouls", "x": 231, "label": "Fouls", "per_row": "1 2 3 4 5"},
-                {"key": "p1", "x": 300, "sub": "P1-"},
-                {"key": "p2", "x": 365, "sub": "P2-"},
-                {"key": "p3", "x": 425, "sub": "P3-"},
-                {"key": "p4", "x": 490, "sub": "P4-"},
+                {"key": "p1", "x": 300, "sub": "P1"},
+                {"key": "p2", "x": 365, "sub": "P2"},
+                {"key": "p3", "x": 425, "sub": "P3"},
+                {"key": "p4", "x": 490, "sub": "P4"},
                 {"key": "total", "x": 553, "label": "Total"}],
     "team_fouls_groups": [{"from": "p1", "to": "p2", "label": "Team fouls"},
                           {"from": "p3", "to": "p4", "label": "Team fouls"}],
-    "block": {"header_h": 26, "header_split": 13, "rows": 16, "row_h": 14, "bottom_rows": [12, 14, 13, 13],
-              "time_out_label_rows": [2, 3], "bottom_left_x1": 182,
+    "block": {"header_h": 26, "header_split": 13, "rows": 16, "row_h": 15.5, "bottom_rows": [13, 13, 12.5, 12.5],
+              "time_out_label_rows": [2, 3], "bottom_left_x1": 160,
               "timeouts": ["1", "2", "3", "4", "5", "OT"],
-              "running": [[1, 36], [37, 69], [70, 100], [101, 130]], "running_x": [188, 588]},
-    "blocks": [{"top": 84, "label": "Visitor", "team_field": "visitor_team"},
-               {"top": 386, "label": "Home Team", "team_field": "home_team"}],
-    "team_cell": {"x0": 22, "x1": 110, "split": 13,
+              "running": [[1, 36], [37, 69], [70, 100], [101, 130]], "running_x": [165, 588]},
+    "blocks": [{"top": 62, "label": "Visitor", "team_field": "visitor_team"},
+               {"top": 387, "label": "Home", "team_field": "home_team"}],
+    "team_cell": {"x0": 22, "x1": 132, "split": 13,
                   "note": "top half: printed block label; bottom half: fillable team name (PDF text field), "
                           "pre-filled by the script"},
     "footer": {"size": 9.5, "lines": [
-        {"baseline": 714, "items": [{"label": "Scorer", "x": 30, "field_end": 178},
+        {"baseline": 728, "items": [{"label": "Scorer", "x": 30, "field_end": 178},
                                     {"label": "Timer", "x": 184, "field_end": 342},
                                     {"label": "30” Timer", "x": 350, "field_end": 560}]},
-        {"baseline": 737, "items": [{"label": "Referee", "x": 30, "field_end": 178},
+        {"baseline": 744, "items": [{"label": "Referee", "x": 30, "field_end": 178},
                                     {"label": "Umpire", "x": 184, "field_end": 342},
                                     {"label": "Time: Start", "x": 350, "field_end": 494},
                                     {"label": "Finish", "x": 500, "field_end": 584}]},
@@ -169,14 +171,14 @@ class PaperSheet:
     def header(self, g):
         H = self.S["header"]
         slot = H["logo_slot"]
-        draw_header(self.c, slot["x"], self.y(slot["y"]), "THUNDER BAY", f"Form {FORM} · Letter", badge=slot["h"])
+        draw_header(self.c, slot["x"], self.y(slot["y"]), H["subtitle"].upper(), f"Form {FORM} · Letter",
+                    badge=slot["h"])
         self.map["header"] = {"logo_slot": box(slot["x"], slot["y"], slot["w"], slot["h"])}
-        t = H["title"]
-        self.label(t["x_right"], t["baseline"], t["text"], t["size"], anchor="r", color=NAVY)
         gl = H["game_line"]
         values = {"Game No.": "game_no", "Competition": "competition", "Place": "place", "Date": "date"}
-        self.underlined(gl["items"], gl["baseline"], gl["size"], BLUE,
-                        lambda lab: (values[lab], g.get(values[lab], "")))
+        for row in gl["rows"]:
+            self.underlined(row["items"], row["baseline"], gl["size"], BLUE,
+                            lambda lab: (values[lab], g.get(values[lab], "")))
 
     def underlined(self, items, base, size, color, field_for=None):
         """Labels, each followed by a rule (from 3 pt after the label to field_end);
@@ -227,8 +229,7 @@ class PaperSheet:
         for k in ("no", "here", "fouls", "p1", "p3", "total"):
             self.line(cols[k]["x"], T, cols[k]["x"], bottom_top)
         # header text
-        self.label((tc["x0"] + tc["x1"]) / 2, T + tc["split"] - 3.8, B["label"], 8,
-                   anchor="c", room=tc["x1"] - tc["x0"] - 6)
+        self.label(tc["x0"] + 4, T + tc["split"] - 3.8, B["label"], 8, room=tc["x1"] - tc["x0"] - 8)
         self.field(B["team_field"], tc["x0"] + 2, T + tc["split"] + 0.5, tc["x1"] - tc["x0"] - 4,
                    hh - tc["split"] - 1, team.get("name", ""), size=9)
         m["team_label"] = box(tc["x0"], T, tc["x1"] - tc["x0"], tc["split"])
@@ -582,6 +583,8 @@ def main():
     ap.add_argument("--blank", action="store_true", help="a blank fillable sheet")
     ap.add_argument("--example", action="store_true",
                     help="write a made-up game on each sheet as handwriting (previews only)")
+    ap.add_argument("--allow-empty", action="store_true",
+                    help="no matching games is fine (e.g. --from-today after the last game day): make nothing, exit 0")
     ap.add_argument("--out", help="output folder")
     ap.add_argument("--spec", metavar="OUT.json", help="write the sheet spec as JSON and stop")
     ap.add_argument("--geometry", metavar="OUT.json", help="write where every box is and stop")
@@ -611,6 +614,9 @@ def main():
             today = dt.date.today().isoformat()
             games = [g for g in games if g["iso_date"] >= today]
         if not games:
+            if a.allow_empty:
+                print("no games matched; nothing to make")
+                return
             sys.exit("no games matched")
         days = {}
         for g in games:

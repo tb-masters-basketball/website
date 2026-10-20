@@ -3041,6 +3041,59 @@ html:not(.js) [data-enter-status] {
   border-style: dashed;
 }
 
+/* the paper sheet page (/enter/paper/): points per period, totals, FT made / tried */
+.paper .paper__pts,
+.paper .paper__ft,
+.paper .paper__total {
+  text-align: center;
+}
+
+.paper thead .paper__pts,
+.paper thead .paper__ft,
+.paper thead .paper__total {
+  text-align: center;
+}
+
+.paper .paper__total {
+  min-width: 3.2em;
+  font: 700 17px/1 var(--mb-font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.paper .paper__ft abbr {
+  text-decoration: none;
+}
+
+.paper tfoot th,
+.paper tfoot td {
+  padding: 6px;
+  background: var(--mb-bg);
+  font: 700 15px/1.2 var(--mb-font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.paper tfoot th {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  font: 700 11px/1.2 var(--mb-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--mb-muted);
+}
+
+.paper__hint {
+  min-height: 1.2em;
+  font: 600 12px/1.2 var(--mb-font-body);
+  color: var(--mb-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.paper__note {
+  margin: 0;
+}
+
 /* notes */
 .sheet-notes__list {
   display: grid;

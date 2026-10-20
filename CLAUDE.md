@@ -44,7 +44,7 @@ and `CNAME`. (`site.webmanifest` uses relative paths, so it needs no change.)
   stat-table sorting and expanding player rows (`assets/js/site.js`, and
   `assets/js/stats.js` on the Stats page). Every page must make sense
   with JS off.
-  **Exception:** the unlisted score sheet entry page (`/enter/`) is a tool and needs JavaScript (it says so with JS off).
+  **Exception:** the unlisted score sheet entry pages (`/enter/`, `/enter/paper/`) are tools and need JavaScript (they say so with JS off).
 
 ## Score sheets
 The printable score sheet (form MBL-SS6) comes from
@@ -52,7 +52,8 @@ The printable score sheet (form MBL-SS6) comes from
 `scripts/make_score_sheets.sh` runs it on every deploy, after `build_stats.py`
 and before Jekyll, for the season the site shows. It writes `score-sheets/`
 (git-ignored): each game day from today on in all five layouts (Letter and Legal both ways, landscape Tabloid), plus the blank
-sheets. The Schedule page links only the PDFs that exist.
+sheets, and the same for the league's paper sheet (`paper_sheet.py`, form MBL-PS1), which is the Schedule page's main
+**Score sheet (PDF)** link (MBL-SS6 is under **Other layouts**). The Schedule page links only the PDFs that exist.
 Every structural number (rows, circles, foul boxes, score boxes, running-score
 pages) is in its `SPEC` dict; `scoresheet.py --spec scripts/scoresheet/spec.json`
 writes it out for `sheet_rules.py` (a test keeps the two in step).
@@ -77,6 +78,10 @@ enter/index.html        the score sheet entry page (unlisted, noindex): built fr
                         (the deploy writes it with `scoresheet.py --spec`) and enter/data/ (build_stats.py,
                         including the free prompt from docs/record-game-prompt.md for its Copy button);
                         UI in assets/js/enter.js, js-yaml vendored in assets/js/lib/
+enter/paper/index.html  the same page for the league's paper sheet (form MBL-PS1: points per period, no running
+                        score): assets/js/paper-entry.js makes the game file (`source: MBL-PS1`, running score
+                        generated in roster order per period) and reads one back; its prompt is
+                        docs/old-sheet-prompt.md (copied to enter/data/ by build_stats.py; tests/js covers both)
 scripts/calendars.py    writes calendar/<team>.ics and league.ics (git-ignored) from the real season;
                         called by build_stats.py, linked from Schedule and team pages
 scripts/make_sample_season.py  regenerates data/sample-2026-27/ and sample-2025-26/ (fake data)
@@ -85,7 +90,7 @@ scripts/check_links.sh  fails on broken links/images in _site/ (html-proofer; ru
 scripts/scoresheet/     the score sheet generator (README, fonts, badge, example data)
 scripts/make_score_sheets.sh  score-sheets/*.pdf (git-ignored) for the season shown; runs in CI
 scripts/scoresheet/paper_sheet.py  the league's own paper sheet (form MBL-PS1, English, running score to 130):
-                        a separate form, not linked from the site; shares branding.py with scoresheet.py
+                        a separate form, made on every deploy (the Schedule's main sheet link); shares branding.py
 scripts/record_game.py  /record-game's helper: prepare (straighten a photo with the corner squares, crop each section,
                         measure the ink in every box, start a draft), zoom, compare, check (the rules on one file), save
 .claude/skills/record-game/SKILL.md  the /record-game command: photo -> draft in data/<season>/drafts/ + photo in sheets/,

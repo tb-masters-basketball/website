@@ -22,8 +22,11 @@
   const NOTE_KINDS = ["flagrant", "note"];
   const FT_RE = /^[MX]*$/;
   const JERSEY_RE = /^\d{1,2}$/;
-  const FIELDS = ["game_id", "form", "status", "home", "away", "scorekeeper", "teams", "running", "lines",
+  const FIELDS = ["game_id", "form", "source", "status", "home", "away", "scorekeeper", "teams", "running", "lines",
     "boxes", "notes", "review", "checked_by", "forfeit"];
+  // `source`: the game was typed from another paper form and its running score
+  // generated (the entry page /enter/paper/); nothing else about the file changes.
+  const SOURCES = ["MBL-PS1"];
   const SHEET_PARTS = ["teams", "running", "lines", "boxes"];   // the boxes a forfeit file leaves out
   const ROW_FIELDS = ["player", "name", "num", "here", "ft", "fouls", "tech"];
 
@@ -120,6 +123,9 @@
 
       if (get(sheet, "form") !== FORM) {
         err("form", `form ${repr(get(sheet, "form"))} isn't ${FORM}, the sheet this format describes`);
+      }
+      if ("source" in sheet && !SOURCES.includes(sheet.source)) {
+        err("source", `source ${repr(sheet.source)} isn't a paper form this site knows (MBL-PS1)`);
       }
 
       const gid = get(sheet, "game_id");
@@ -504,7 +510,7 @@
 
   function dump(sheet) {
     const out = [];
-    for (const key of ["game_id", "form", "status", "home", "away", "forfeit", "scorekeeper"]) {
+    for (const key of ["game_id", "form", "source", "status", "home", "away", "forfeit", "scorekeeper"]) {
       if (key in sheet) out.push(`${key}: ${scalar(sheet[key])}`);
     }
     if ("teams" in sheet) {                // a forfeit has none

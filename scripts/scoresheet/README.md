@@ -129,10 +129,11 @@ regenerate `spec.json`, and update the game file format
 `paper_sheet.py` makes a second form, alongside MBL-SS6 and separate from it:
 the league's own paper score sheet ("Feuille de pointage"), English only, with
 one more running-score line (101-130) for each team. Letter portrait, one page
-per game, one PDF per game day. It isn't linked from the site and isn't made by
-the deploy.
+per game, one PDF per game day. The deploy (`scripts/make_score_sheets.sh`)
+makes it for every game day from today on and blank, and it's the Schedule
+page's main **Score sheet (PDF)** link; MBL-SS6 is under **Other layouts**.
 
-Each team block: the team cell (the printed "Visitor" or "Home Team" over a
+Each team block: the team cell (the printed "Visitor" or "Home" over a
 fillable team name), Colour, 16 player rows (name, No., a tick for played,
 fouls 1-5, P1-P4, Total) with team fouls over P1+P2 and P3+P4, then Coach,
 timeouts 1-5 and OT, Time Out, and the running score 1-36, 37-69, 70-100 and
@@ -155,10 +156,11 @@ game id), Competition ("Masters"), Place (the game's gym, else the season's from
 each team's regular players ("First L." and number, in number order; the other
 rows stay blank for subs). A long team name gets a smaller font. Its `SPEC` is
 in PDF points with the origin at the top-left; the geometry uses the same
-coordinates. Nothing reads these sheets yet: how the P1-P4 cells are marked is
-still an open question (`docs/open-questions.md`). `--example` writes them the
-way the old sheet is marked: every attempt in order (2 or 3 a basket, a dot a
-made free throw worth 2, 1 a 1-point free throw, 0 a miss), the period's points
+coordinates. Games on this sheet are typed up on the paper sheet entry page
+(`/enter/paper/`), or read from a photo by a chat with `docs/old-sheet-prompt.md`;
+no script reads its photos yet. `--example` writes it the way the old sheet is
+marked: every attempt in order (2 or 3 a basket, a dot a made free throw worth
+2, a triangle one worth 3, 1 a 1-point free throw, 0 a miss), the period's points
 circled, each team's running total boxed after each period, and each total
 reached struck through in the running score.
 

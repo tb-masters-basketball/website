@@ -6,6 +6,7 @@ description: A working copy of the league score sheet, for typing up and checkin
 scripts:
   - lib/js-yaml.min.js
   - sheet-rules.js
+  - paper-entry.js
   - enter.js
 ---
 {%- comment -%}
@@ -51,6 +52,11 @@ scripts:
         <button class="btn btn--quiet" type="button" data-paste-open>Open the pasted file</button>
       </div>
       <div class="enter-card">
+        <h3 class="enter-card__title">Kept on the league's paper sheet?</h3>
+        <p class="enter-hint">Games on the league's own paper sheet (points per period, no running score) are typed up on the paper sheet page. A file from there opens here too.</p>
+        <a class="btn btn--quiet" href="{{ '/enter/paper/' | relative_url }}">Open the paper sheet page</a>
+      </div>
+      <div class="enter-card">
         <h3 class="enter-card__title">Read a photo with an AI chat</h3>
         <p class="enter-hint">Copy the prompt and paste it into ChatGPT or Claude (claude.ai) with a photo of the sheet. It writes a game file: paste it into "Load a score sheet YML". Gemini doesn't read the sheet well.</p>
         <button class="btn btn--quiet" type="button" data-prompt-copy>Copy the prompt</button>
@@ -81,6 +87,7 @@ scripts:
         <button class="btn btn--quiet" type="button" data-change-game>Change game</button>
       </div>
     </div>
+    <div class="enter-banner" data-source-note hidden></div>
     <div class="enter-banner" data-resume hidden>
       <p data-resume-text></p>
       <button class="btn" type="button" data-resume-use>Use my unsaved work</button>

@@ -85,6 +85,17 @@ class PaperSheetTests(unittest.TestCase):
         if pdfium:
             self.assertEqual(len(page_texts(out / "paper-sheets-2026-10-17.pdf")), 2)
 
+    def test_no_games_left_is_fine_with_allow_empty(self):
+        """The deploy runs it with --from-today: after the last game day there's nothing to make."""
+        out = self.tmp / "out"
+        r = subprocess.run([sys.executable, str(SCRIPT), "--data", str(self.season), "--date", "2030-01-01",
+                            "--allow-empty", "--out", str(out)], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0)
+        self.assertEqual(list(out.glob("*.pdf")), [])
+        r = subprocess.run([sys.executable, str(SCRIPT), "--data", str(self.season), "--date", "2030-01-01",
+                            "--out", str(out)], capture_output=True, text=True)
+        self.assertNotEqual(r.returncode, 0)
+
     def test_the_prefilled_fields(self):
         out = self.tmp / "out"
         self.run_script("--data", str(self.season), "--game", "2026-10-17-g1", "--out", str(out))
@@ -141,7 +152,7 @@ class PaperSheetTests(unittest.TestCase):
         numbers = [int(n) for n in re.findall(r"\b\d+\b", text)]
         for n in range(1, 131):
             self.assertGreaterEqual(numbers.count(n), 2, n)         # the running score, both teams
-        for s in ("VISITOR", "HOME TEAM", "TIME OUT", "SCORE SHEET"):
+        for s in ("VISITOR", "HOME", "TIME OUT", "SCORE SHEET"):
             self.assertIn(s, text)
 
     def test_the_geometry_has_both_blocks(self):
@@ -156,14 +167,14 @@ class PaperSheetTests(unittest.TestCase):
         # rows sit inside their block's frame, below its header
         fr, rows = page["blocks"]["home"]["frame"], page["blocks"]["home"]["rows"]
         self.assertEqual(rows[0]["row"][1], fr[1] + 26)
-        self.assertLess(rows[-1]["row"][1] + 14, fr[1] + fr[3])
+        self.assertLess(rows[-1]["row"][1] + 15, fr[1] + fr[3])
 
     def test_four_corner_squares(self):
         corners = paper_sheet.geometry_json()["pages"][0]["corners"]
         self.assertEqual(len(corners), 4)
         for x, y, w, h in corners:   # on the page, clear of the table and the footer
             self.assertTrue(0 < x and x + w < 612 and 0 < y and y + h < 792)
-            self.assertTrue(y + h < 84 or y > 762)
+            self.assertTrue(y + h < 80 or y > 762)
 
     def test_an_example_sheet_builds(self):
         out = self.tmp / "out"

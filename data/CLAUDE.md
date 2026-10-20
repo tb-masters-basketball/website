@@ -189,6 +189,12 @@ checked_by: Lee M.
   `docs/game-file-format.md` ("The entry page"). `enter/?game=<game_id>` opens
   that game's draft. A local file may name teams (`home`/`away` or team names)
   and players (`name` + `num`) instead of ids: the page turns them into ids.
+- **The paper sheet page** (`/enter/paper/`) is the entry page for games kept
+  on the league's own paper sheet (points per period, no running score). It
+  writes an ordinary game file with `source: MBL-PS1`, its running score made
+  from the points per period (`assets/js/paper-entry.js`). It also opens the
+  file the older-sheet prompt writes (`form: MBL-PS1`, rows with `pts: [P1, P2,
+  P3, P4]`, `ftm`, `fta`; see `docs/old-sheet-prompt.md`).
 - **`/record-game`** (`.claude/skills/record-game/SKILL.md`) writes a draft
   and its photo from a photo of the sheet and pushes both to main;
   `python scripts/record_game.py check <file>` runs the rules on one file.
