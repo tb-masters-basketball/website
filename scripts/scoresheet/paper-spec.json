@@ -21,41 +21,45 @@
   "header": {
     "logo_slot": {
       "x": 34,
-      "y": 26,
+      "y": 18,
       "w": 250,
       "h": 36,
       "note": "league header: badge + wordmark, styled like MBL-SS6"
     },
-    "title": {
-      "text": "Score Sheet",
-      "x_right": 590,
-      "baseline": 62,
-      "size": 9.5
-    },
+    "subtitle": "Score Sheet  ·  Thunder Bay",
     "game_line": {
-      "baseline": 74,
-      "size": 10.5,
+      "size": 9.5,
       "field_rule": "underline from 3pt after the label to field_end",
-      "items": [
+      "rows": [
         {
-          "label": "Game No.",
-          "x": 40,
-          "field_end": 204
+          "baseline": 36,
+          "items": [
+            {
+              "label": "Game No.",
+              "x": 300,
+              "field_end": 380
+            },
+            {
+              "label": "Competition",
+              "x": 388,
+              "field_end": 584
+            }
+          ]
         },
         {
-          "label": "Competition",
-          "x": 208,
-          "field_end": 384
-        },
-        {
-          "label": "Place",
-          "x": 388,
-          "field_end": 478
-        },
-        {
-          "label": "Date",
-          "x": 482,
-          "field_end": 584
+          "baseline": 56,
+          "items": [
+            {
+              "label": "Place",
+              "x": 300,
+              "field_end": 470
+            },
+            {
+              "label": "Date",
+              "x": 478,
+              "field_end": 584
+            }
+          ]
         }
       ]
     }
@@ -132,18 +136,18 @@
     "header_h": 26,
     "header_split": 13,
     "rows": 16,
-    "row_h": 15,
+    "row_h": 15.5,
     "bottom_rows": [
-      12,
       13,
-      12,
-      12
+      13,
+      12.5,
+      12.5
     ],
     "time_out_label_rows": [
       2,
       3
     ],
-    "bottom_left_x1": 182,
+    "bottom_left_x1": 160,
     "timeouts": [
       "1",
       "2",
@@ -171,18 +175,18 @@
       ]
     ],
     "running_x": [
-      188,
+      165,
       588
     ]
   },
   "blocks": [
     {
-      "top": 80,
+      "top": 62,
       "label": "Visitor",
       "team_field": "visitor_team"
     },
     {
-      "top": 395,
+      "top": 387,
       "label": "Home",
       "team_field": "home_team"
     }
@@ -197,7 +201,7 @@
     "size": 9.5,
     "lines": [
       {
-        "baseline": 726,
+        "baseline": 728,
         "items": [
           {
             "label": "Scorer",
@@ -217,7 +221,7 @@
         ]
       },
       {
-        "baseline": 743,
+        "baseline": 744,
         "items": [
           {
             "label": "Referee",

@@ -52,14 +52,15 @@ SPEC = {
     "fonts": {"label": "CondSemi", "number": "Cond"},   # Barlow Condensed 600 / 700 (branding.py)
     "lines": {"grid": 0.6, "frame": 1.0},
     "header": {
-        "logo_slot": {"x": 34, "y": 26, "w": 250, "h": 36,
+        "logo_slot": {"x": 34, "y": 18, "w": 250, "h": 36,
                       "note": "league header: badge + wordmark, styled like MBL-SS6"},
-        "title": {"text": "Score Sheet", "x_right": 590, "baseline": 62, "size": 9.5},
-        "game_line": {"baseline": 74, "size": 10.5, "field_rule": "underline from 3pt after the label to field_end",
-                      "items": [{"label": "Game No.", "x": 40, "field_end": 204},
-                                {"label": "Competition", "x": 208, "field_end": 384},
-                                {"label": "Place", "x": 388, "field_end": 478},
-                                {"label": "Date", "x": 482, "field_end": 584}]},
+        "subtitle": "Score Sheet  ·  Thunder Bay",
+        # the game's details, in two rows in the top-right corner (clear of its corner square)
+        "game_line": {"size": 9.5, "field_rule": "underline from 3pt after the label to field_end",
+                      "rows": [{"baseline": 36, "items": [{"label": "Game No.", "x": 300, "field_end": 380},
+                                                          {"label": "Competition", "x": 388, "field_end": 584}]},
+                               {"baseline": 56, "items": [{"label": "Place", "x": 300, "field_end": 470},
+                                                          {"label": "Date", "x": 478, "field_end": 584}]}]},
     },
     "table": {"x0": 22, "x1": 590},
     "columns": [{"key": "name", "x": 22},
@@ -74,20 +75,20 @@ SPEC = {
                 {"key": "total", "x": 553, "label": "Total"}],
     "team_fouls_groups": [{"from": "p1", "to": "p2", "label": "Team fouls"},
                           {"from": "p3", "to": "p4", "label": "Team fouls"}],
-    "block": {"header_h": 26, "header_split": 13, "rows": 16, "row_h": 15, "bottom_rows": [12, 13, 12, 12],
-              "time_out_label_rows": [2, 3], "bottom_left_x1": 182,
+    "block": {"header_h": 26, "header_split": 13, "rows": 16, "row_h": 15.5, "bottom_rows": [13, 13, 12.5, 12.5],
+              "time_out_label_rows": [2, 3], "bottom_left_x1": 160,
               "timeouts": ["1", "2", "3", "4", "5", "OT"],
-              "running": [[1, 36], [37, 69], [70, 100], [101, 130]], "running_x": [188, 588]},
-    "blocks": [{"top": 80, "label": "Visitor", "team_field": "visitor_team"},
-               {"top": 395, "label": "Home", "team_field": "home_team"}],
+              "running": [[1, 36], [37, 69], [70, 100], [101, 130]], "running_x": [165, 588]},
+    "blocks": [{"top": 62, "label": "Visitor", "team_field": "visitor_team"},
+               {"top": 387, "label": "Home", "team_field": "home_team"}],
     "team_cell": {"x0": 22, "x1": 132, "split": 13,
                   "note": "top half: printed block label; bottom half: fillable team name (PDF text field), "
                           "pre-filled by the script"},
     "footer": {"size": 9.5, "lines": [
-        {"baseline": 726, "items": [{"label": "Scorer", "x": 30, "field_end": 178},
+        {"baseline": 728, "items": [{"label": "Scorer", "x": 30, "field_end": 178},
                                     {"label": "Timer", "x": 184, "field_end": 342},
                                     {"label": "30” Timer", "x": 350, "field_end": 560}]},
-        {"baseline": 743, "items": [{"label": "Referee", "x": 30, "field_end": 178},
+        {"baseline": 744, "items": [{"label": "Referee", "x": 30, "field_end": 178},
                                     {"label": "Umpire", "x": 184, "field_end": 342},
                                     {"label": "Time: Start", "x": 350, "field_end": 494},
                                     {"label": "Finish", "x": 500, "field_end": 584}]},
@@ -169,14 +170,14 @@ class PaperSheet:
     def header(self, g):
         H = self.S["header"]
         slot = H["logo_slot"]
-        draw_header(self.c, slot["x"], self.y(slot["y"]), "THUNDER BAY", f"Form {FORM} · Letter", badge=slot["h"])
+        draw_header(self.c, slot["x"], self.y(slot["y"]), H["subtitle"].upper(), f"Form {FORM} · Letter",
+                    badge=slot["h"])
         self.map["header"] = {"logo_slot": box(slot["x"], slot["y"], slot["w"], slot["h"])}
-        t = H["title"]
-        self.label(t["x_right"], t["baseline"], t["text"], t["size"], anchor="r", color=NAVY)
         gl = H["game_line"]
         values = {"Game No.": "game_no", "Competition": "competition", "Place": "place", "Date": "date"}
-        self.underlined(gl["items"], gl["baseline"], gl["size"], BLUE,
-                        lambda lab: (values[lab], g.get(values[lab], "")))
+        for row in gl["rows"]:
+            self.underlined(row["items"], row["baseline"], gl["size"], BLUE,
+                            lambda lab: (values[lab], g.get(values[lab], "")))
 
     def underlined(self, items, base, size, color, field_for=None):
         """Labels, each followed by a rule (from 3 pt after the label to field_end);
