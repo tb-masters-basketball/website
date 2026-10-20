@@ -132,7 +132,7 @@ one more running-score line (101-130) for each team. Letter portrait, one page
 per game, one PDF per game day. It isn't linked from the site and isn't made by
 the deploy.
 
-Each team block: the team cell (the printed "Visitor" or "Home Team" over a
+Each team block: the team cell (the printed "Visitor" or "Home" over a
 fillable team name), Colour, 16 player rows (name, No., a tick for played,
 fouls 1-5, P1-P4, Total) with team fouls over P1+P2 and P3+P4, then Coach,
 timeouts 1-5 and OT, Time Out, and the running score 1-36, 37-69, 70-100 and

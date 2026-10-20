@@ -33,7 +33,7 @@
       "size": 9.5
     },
     "game_line": {
-      "baseline": 78,
+      "baseline": 74,
       "size": 10.5,
       "field_rule": "underline from 3pt after the label to field_end",
       "items": [
@@ -71,7 +71,7 @@
     },
     {
       "key": "colour",
-      "x": 110,
+      "x": 132,
       "row_divider": false
     },
     {
@@ -93,22 +93,22 @@
     {
       "key": "p1",
       "x": 300,
-      "sub": "P1-"
+      "sub": "P1"
     },
     {
       "key": "p2",
       "x": 365,
-      "sub": "P2-"
+      "sub": "P2"
     },
     {
       "key": "p3",
       "x": 425,
-      "sub": "P3-"
+      "sub": "P3"
     },
     {
       "key": "p4",
       "x": 490,
-      "sub": "P4-"
+      "sub": "P4"
     },
     {
       "key": "total",
@@ -132,12 +132,12 @@
     "header_h": 26,
     "header_split": 13,
     "rows": 16,
-    "row_h": 14,
+    "row_h": 15,
     "bottom_rows": [
       12,
-      14,
       13,
-      13
+      12,
+      12
     ],
     "time_out_label_rows": [
       2,
@@ -177,19 +177,19 @@
   },
   "blocks": [
     {
-      "top": 84,
+      "top": 80,
       "label": "Visitor",
       "team_field": "visitor_team"
     },
     {
-      "top": 386,
-      "label": "Home Team",
+      "top": 395,
+      "label": "Home",
       "team_field": "home_team"
     }
   ],
   "team_cell": {
     "x0": 22,
-    "x1": 110,
+    "x1": 132,
     "split": 13,
     "note": "top half: printed block label; bottom half: fillable team name (PDF text field), pre-filled by the script"
   },
@@ -197,7 +197,7 @@
     "size": 9.5,
     "lines": [
       {
-        "baseline": 714,
+        "baseline": 726,
         "items": [
           {
             "label": "Scorer",
@@ -217,7 +217,7 @@
         ]
       },
       {
-        "baseline": 737,
+        "baseline": 743,
         "items": [
           {
             "label": "Referee",

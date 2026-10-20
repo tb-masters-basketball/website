@@ -55,7 +55,7 @@ SPEC = {
         "logo_slot": {"x": 34, "y": 26, "w": 250, "h": 36,
                       "note": "league header: badge + wordmark, styled like MBL-SS6"},
         "title": {"text": "Score Sheet", "x_right": 590, "baseline": 62, "size": 9.5},
-        "game_line": {"baseline": 78, "size": 10.5, "field_rule": "underline from 3pt after the label to field_end",
+        "game_line": {"baseline": 74, "size": 10.5, "field_rule": "underline from 3pt after the label to field_end",
                       "items": [{"label": "Game No.", "x": 40, "field_end": 204},
                                 {"label": "Competition", "x": 208, "field_end": 384},
                                 {"label": "Place", "x": 388, "field_end": 478},
@@ -63,31 +63,31 @@ SPEC = {
     },
     "table": {"x0": 22, "x1": 590},
     "columns": [{"key": "name", "x": 22},
-                {"key": "colour", "x": 110, "row_divider": False},
+                {"key": "colour", "x": 132, "row_divider": False},
                 {"key": "no", "x": 182, "label": "No."},
                 {"key": "here", "x": 211, "label": "✓"},
                 {"key": "fouls", "x": 231, "label": "Fouls", "per_row": "1 2 3 4 5"},
-                {"key": "p1", "x": 300, "sub": "P1-"},
-                {"key": "p2", "x": 365, "sub": "P2-"},
-                {"key": "p3", "x": 425, "sub": "P3-"},
-                {"key": "p4", "x": 490, "sub": "P4-"},
+                {"key": "p1", "x": 300, "sub": "P1"},
+                {"key": "p2", "x": 365, "sub": "P2"},
+                {"key": "p3", "x": 425, "sub": "P3"},
+                {"key": "p4", "x": 490, "sub": "P4"},
                 {"key": "total", "x": 553, "label": "Total"}],
     "team_fouls_groups": [{"from": "p1", "to": "p2", "label": "Team fouls"},
                           {"from": "p3", "to": "p4", "label": "Team fouls"}],
-    "block": {"header_h": 26, "header_split": 13, "rows": 16, "row_h": 14, "bottom_rows": [12, 14, 13, 13],
+    "block": {"header_h": 26, "header_split": 13, "rows": 16, "row_h": 15, "bottom_rows": [12, 13, 12, 12],
               "time_out_label_rows": [2, 3], "bottom_left_x1": 182,
               "timeouts": ["1", "2", "3", "4", "5", "OT"],
               "running": [[1, 36], [37, 69], [70, 100], [101, 130]], "running_x": [188, 588]},
-    "blocks": [{"top": 84, "label": "Visitor", "team_field": "visitor_team"},
-               {"top": 386, "label": "Home Team", "team_field": "home_team"}],
-    "team_cell": {"x0": 22, "x1": 110, "split": 13,
+    "blocks": [{"top": 80, "label": "Visitor", "team_field": "visitor_team"},
+               {"top": 395, "label": "Home", "team_field": "home_team"}],
+    "team_cell": {"x0": 22, "x1": 132, "split": 13,
                   "note": "top half: printed block label; bottom half: fillable team name (PDF text field), "
                           "pre-filled by the script"},
     "footer": {"size": 9.5, "lines": [
-        {"baseline": 714, "items": [{"label": "Scorer", "x": 30, "field_end": 178},
+        {"baseline": 726, "items": [{"label": "Scorer", "x": 30, "field_end": 178},
                                     {"label": "Timer", "x": 184, "field_end": 342},
                                     {"label": "30” Timer", "x": 350, "field_end": 560}]},
-        {"baseline": 737, "items": [{"label": "Referee", "x": 30, "field_end": 178},
+        {"baseline": 743, "items": [{"label": "Referee", "x": 30, "field_end": 178},
                                     {"label": "Umpire", "x": 184, "field_end": 342},
                                     {"label": "Time: Start", "x": 350, "field_end": 494},
                                     {"label": "Finish", "x": 500, "field_end": 584}]},
@@ -227,8 +227,7 @@ class PaperSheet:
         for k in ("no", "here", "fouls", "p1", "p3", "total"):
             self.line(cols[k]["x"], T, cols[k]["x"], bottom_top)
         # header text
-        self.label((tc["x0"] + tc["x1"]) / 2, T + tc["split"] - 3.8, B["label"], 8,
-                   anchor="c", room=tc["x1"] - tc["x0"] - 6)
+        self.label(tc["x0"] + 4, T + tc["split"] - 3.8, B["label"], 8, room=tc["x1"] - tc["x0"] - 8)
         self.field(B["team_field"], tc["x0"] + 2, T + tc["split"] + 0.5, tc["x1"] - tc["x0"] - 4,
                    hh - tc["split"] - 1, team.get("name", ""), size=9)
         m["team_label"] = box(tc["x0"], T, tc["x1"] - tc["x0"], tc["split"])

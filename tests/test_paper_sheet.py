@@ -141,7 +141,7 @@ class PaperSheetTests(unittest.TestCase):
         numbers = [int(n) for n in re.findall(r"\b\d+\b", text)]
         for n in range(1, 131):
             self.assertGreaterEqual(numbers.count(n), 2, n)         # the running score, both teams
-        for s in ("VISITOR", "HOME TEAM", "TIME OUT", "SCORE SHEET"):
+        for s in ("VISITOR", "HOME", "TIME OUT", "SCORE SHEET"):
             self.assertIn(s, text)
 
     def test_the_geometry_has_both_blocks(self):
@@ -156,14 +156,14 @@ class PaperSheetTests(unittest.TestCase):
         # rows sit inside their block's frame, below its header
         fr, rows = page["blocks"]["home"]["frame"], page["blocks"]["home"]["rows"]
         self.assertEqual(rows[0]["row"][1], fr[1] + 26)
-        self.assertLess(rows[-1]["row"][1] + 14, fr[1] + fr[3])
+        self.assertLess(rows[-1]["row"][1] + 15, fr[1] + fr[3])
 
     def test_four_corner_squares(self):
         corners = paper_sheet.geometry_json()["pages"][0]["corners"]
         self.assertEqual(len(corners), 4)
         for x, y, w, h in corners:   # on the page, clear of the table and the footer
             self.assertTrue(0 < x and x + w < 612 and 0 < y and y + h < 792)
-            self.assertTrue(y + h < 84 or y > 762)
+            self.assertTrue(y + h < 80 or y > 762)
 
     def test_an_example_sheet_builds(self):
         out = self.tmp / "out"
