@@ -1,0 +1,45 @@
+game_id: "2026-10-31-g1"
+form: MBL-SS6
+source: MBL-PS1
+status: final
+home: bb
+away: fg
+scorekeeper: Dennis P.
+teams:
+  bb:
+    players:
+      - {player: mike-z, num: 1, here: true, ft: X, fouls: 2}
+      - {player: tom-m, num: 5, here: false}
+      - {player: colin-o, num: 8, here: true, ft: X, fouls: 3}
+      - {player: derek-o, num: 9, here: true, fouls: 4}
+      - {player: kris-l, num: 13, here: true}
+      - {player: mike-n, num: 15, here: false}
+      - {player: matt-p, num: 17, here: true, ft: M}
+      - {player: chris-u, num: 19, here: true, ft: X, fouls: 1}
+      - {player: mike-f, num: 22, here: false}
+      - {player: darryl-f, num: 23, here: false}
+      - {player: dino-b, num: 30, here: true, ft: M, fouls: 1}
+      - {player: matt-s, num: 45, here: true, ft: M}
+  fg:
+    players:
+      - {player: adam-a, num: "00", here: true, ft: M, fouls: 3}
+      - {player: dan-k, num: 7, here: true, ft: MMMM, fouls: 1}
+      - {player: esa-k, num: 11, here: true, ft: M}
+      - {player: jesse-l, num: 17, here: false}
+      - {player: albert-t, num: 18, here: true, ft: M, fouls: 3}
+      - {player: john-s, num: 21, here: false}
+      - {player: ryan-k, num: 32, here: true}
+      - {player: ben-c, num: 33, here: false}
+      - {player: jeff-l, num: 43, here: true, ft: MM, fouls: 1}
+      - {player: mike-n2, num: 91, here: true, ft: X, fouls: 2}
+      - {player: ryan-t, num: 20, here: false}
+running:
+  bb: {2: 1, 5: 8, 8: 9, 11: 13, 13: 30, 15: 1, 17: 8, 19: 9, 21: 9, 23: 17, 25: 19, 27: 45, 29: 8, 32: 17, 35: 19, 37: 30, 39: 45, 41: 1, 43: 8, 45: 13, 47: 19, 49: 30, 51: 45}
+  fg: {2: 7, 4: 11, 6: 11, 8: 11, 11: 18, 13: 32, 15: 43, 17: 91, 19: 91, 22: "00", 24: "00", 27: 7, 30: 11, 32: 11, 34: 18, 36: 43, 38: 91, 41: "00", 44: 7, 46: 7, 48: 7, 50: 32, 52: 32, 54: 91, 56: "00", 58: "00", 60: 7, 63: 11, 65: 11, 67: 11, 69: 18}
+lines:
+  bb: [13, 27, 39, 51]
+  fg: [19, 38, 54, 69]
+boxes:
+  bb: {q1: 13, q2: 27, q3: 39, q4: 51, ot: null, final: 51}
+  fg: {q1: 19, q2: 38, q3: 54, q4: 69, ot: null, final: 69}
+checked_by: Kyle M.
