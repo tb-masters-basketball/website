@@ -63,6 +63,7 @@
 - {id: jeff-l, display: Jeff L., team: fg, sub: false, number: 43}
 - {id: mike-n2, display: Mike N., team: fg, sub: false, number: 91}
 - {id: ryan-t, display: Ryan T., team: fg, sub: false, number: 20}
+- {id: ryan-k, display: Ryan K., team: fg, sub: true, number: 32}
 
 - {id: kevin-a, display: Kevin A., team: hu, sub: false, number: 0}
 - {id: kevin-r, display: Kevin R., team: hu, sub: false, number: 1}
