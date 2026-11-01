@@ -1,0 +1,48 @@
+game_id: "2026-10-31-g2"
+form: MBL-SS6
+source: MBL-PS1
+status: final
+home: dn
+away: nw
+scorekeeper: Dennis P.
+teams:
+  dn:
+    players:
+      - {player: john-c, num: 2, here: true, ft: MX, fouls: 3}
+      - {player: paul-n, num: 7, here: true, ft: MM, fouls: 2}
+      - {player: joe-d, num: 8, here: false}
+      - {player: tom-g, num: 23, here: true}
+      - {player: dave-v, num: 24, here: true, fouls: 1}
+      - {player: greg-c, num: 30, here: true, fouls: 2}
+      - {player: rod-m, num: 31, here: false}
+      - {player: joe-c, num: 32, here: false}
+      - {player: ibrahim-d, num: 33, here: true}
+      - {player: doug-f, num: 34, here: true, ft: M, fouls: 1}
+      - {player: derek-l, num: 42, here: true, ft: MMM, fouls: 3}
+      - {player: keith-h, num: 44, here: true, ft: X, fouls: 1}
+      - {player: clayton-e, num: 91, here: false}
+  nw:
+    players:
+      - {player: sam-e, num: 1, here: false}
+      - {player: herbie-b, num: 2, here: true, ft: M, fouls: 1}
+      - {player: mike-c, num: 3, here: false}
+      - {player: ryan-s, num: 4, here: true, ft: MMMX}
+      - {player: darren-t, num: 8, here: true, ft: MMMMXXX, fouls: 4}
+      - {player: steve-s, num: 11, here: true, fouls: 2}
+      - {player: bernie-c, num: 13, here: true, fouls: 2}
+      - {player: lauren-m, num: 14, here: false}
+      - {player: aaron-g, num: 21, here: true, fouls: 2}
+      - {player: fil-l, num: 22, here: true}
+      - {player: andrew-h, num: 24, here: false}
+      - {player: mike-n3, num: 33, here: true, fouls: 3}
+      - {player: jared-r, num: 9, here: false}
+running:
+  dn: {2: 2, 4: 2, 6: 2, 8: 2, 11: 7, 13: 7, 16: 24, 18: 33, 20: 34, 22: 34, 24: 34, 26: 42, 29: 2, 31: 2, 33: 7, 35: 33, 37: 33, 39: 34, 41: 34, 43: 42, 46: 44, 48: 44, 51: 2, 53: 30, 55: 30, 57: 30, 59: 33, 61: 34, 63: 34, 65: 42, 68: 44, 70: 2, 72: 2, 74: 2, 77: 23, 79: 24, 81: 33, 83: 42, 85: 42, 87: 42, 90: 44}
+  nw: {2: 8, 4: 8, 7: 11, 10: 2, 13: 8, 15: 8, 17: 8, 20: 11, 22: 11, 24: 33, 27: 2, 29: 2, 32: 4, 34: 4, 36: 4, 38: 4, 40: 4, 42: 8, 44: 11, 46: 11, 48: 11, 50: 4, 52: 4, 54: 8, 56: 22}
+lines:
+  dn: [26, 48, 68, 90]
+  nw: [7, 24, 48, 56]
+boxes:
+  dn: {q1: 26, q2: 48, q3: 68, q4: 90, ot: null, final: 90}
+  nw: {q1: 7, q2: 24, q3: 48, q4: 56, ot: null, final: 56}
+checked_by: Kyle M.
