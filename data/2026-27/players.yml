@@ -8,18 +8,19 @@
 # Team ids: bb Bay City Bears, dn Dam Nation, fg Floor Generals, hu Hustle,
 # nw Nor'Westers.
 
-- {id: clayton-e, display: Clayton E., team: dn, sub: false}
-- {id: john-c, display: John C., team: dn, sub: false}
-- {id: paul-n, display: Paul N., team: dn, sub: false}
-- {id: joe-d, display: Joe D., team: dn, sub: false}
-- {id: dave-v, display: Dave V., team: dn, sub: false}
-- {id: rod-m, display: Rod M., team: dn, sub: false}
-- {id: joe-c, display: Joe C., team: dn, sub: false}
-- {id: ibrahim-d, display: Ibrahim D., team: dn, sub: false}
-- {id: doug-f, display: Doug F., team: dn, sub: false}
-- {id: derek-l, display: Derek L., team: dn, sub: false}
-- {id: keith-h, display: Keith H., team: dn, sub: false}
-- {id: greg-c, display: Greg C., team: dn, sub: false}
+- {id: clayton-e, display: Clayton E., team: dn, sub: false, number: 91}
+- {id: john-c, display: John C., team: dn, sub: false, number: 2}
+- {id: paul-n, display: Paul N., team: dn, sub: false, number: 7}
+- {id: joe-d, display: Joe D., team: dn, sub: false, number: 8}
+- {id: dave-v, display: Dave V., team: dn, sub: false, number: 24}
+- {id: rod-m, display: Rod M., team: dn, sub: false, number: 31}
+- {id: joe-c, display: Joe C., team: dn, sub: false, number: 32}
+- {id: ibrahim-d, display: Ibrahim D., team: dn, sub: false, number: 33}
+- {id: doug-f, display: Doug F., team: dn, sub: false, number: 34}
+- {id: derek-l, display: Derek L., team: dn, sub: false, number: 42}
+- {id: keith-h, display: Keith H., team: dn, sub: false, number: 44}
+- {id: greg-c, display: Greg C., team: dn, sub: false, number: 30}
+- {id: tom-g, display: Tom G., team: dn, sub: false, number: 23}
 
 - {id: sam-e, display: Sam E., team: nw, sub: false, number: 1}
 - {id: herbie-b, display: Herbie B., team: nw, sub: false, number: 2}
@@ -35,6 +36,7 @@
 - {id: andrew-h, display: Andrew H., team: nw, sub: false, number: 24}
 - {id: rob-m, display: Rob M., team: nw, sub: false, number: 47}
 - {id: mike-n3, display: Mike N., team: nw, sub: false, number: 33}
+- {id: jared-r, display: Jared R., team: nw, sub: false, number: 9}
 
 - {id: tom-m, display: Tom M., team: bb, sub: false, number: 5}
 - {id: chris-u, display: Chris U., team: bb, sub: false, number: 19}
