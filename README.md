@@ -35,11 +35,6 @@ The full list, with answers so far, is in
 [`docs/open-questions.md`](docs/open-questions.md). Still open:
 
 **League decisions:**
-- [ ] **Jersey numbers for Dam Nation and Bay City Bears.** The rosters are
-      in `data/2026-27/players.yml`; these two teams have no numbers yet. They go in `players.yml` as `number:`,
-      show as "#23 Dave M." wherever a player is named, and print in the score
-      sheets' # box (blank until then). Two players on one team with the same
-      "First L." must both have one, or the build stops.
 - [ ] **Approve the league rules.** The rules page holds the league's draft
       playing rules and code of conduct. Once they're approved, put the date in
       `updated:` at the top of `rules/index.md` (until then the page says it's
