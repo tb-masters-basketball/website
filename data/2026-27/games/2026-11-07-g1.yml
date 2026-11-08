@@ -1,0 +1,47 @@
+game_id: "2026-11-07-g1"
+form: MBL-SS6
+source: MBL-PS1
+status: final
+home: bb
+away: dn
+scorekeeper: Dennis P.
+teams:
+  bb:
+    players:
+      - {player: mike-z, num: 1, here: true, fouls: 5}
+      - {player: tom-m, num: 5, here: false}
+      - {player: colin-o, num: 8, here: true, ft: M, fouls: 2}
+      - {player: derek-o, num: 9, here: true, fouls: 2}
+      - {player: kris-l, num: 13, here: true, fouls: 1}
+      - {player: mike-n, num: 15, here: false}
+      - {player: matt-p, num: 17, here: true, ft: MXX, fouls: 2}
+      - {player: chris-u, num: 19, here: false}
+      - {player: mike-f, num: 22, here: true, fouls: 5}
+      - {player: darryl-f, num: 23, here: false}
+      - {player: dino-b, num: 30, here: false}
+      - {player: matt-s, num: 45, here: true, ft: MX, fouls: 1}
+  dn:
+    players:
+      - {player: john-c, num: 2, here: false}
+      - {player: paul-n, num: 7, here: true, ft: MXX, fouls: 2, tech: 1}
+      - {player: joe-d, num: 8, here: false}
+      - {player: tom-g, num: 23, here: false}
+      - {player: dave-v, num: 24, here: true, fouls: 1}
+      - {player: greg-c, num: 30, here: true}
+      - {player: rod-m, num: 31, here: true, ft: MMMX, fouls: 2}
+      - {player: joe-c, num: 32, here: false}
+      - {player: ibrahim-d, num: 33, here: true}
+      - {player: doug-f, num: 34, here: true, ft: M, fouls: 1, tech: 1}
+      - {player: derek-l, num: 42, here: true, ft: MMXX}
+      - {player: keith-h, num: 44, here: true, ft: X, fouls: 1}
+      - {player: clayton-e, num: 91, here: false}
+running:
+  bb: {2: 13, 4: 22, 6: 45, 8: 45, 10: 8, 12: 8, 14: 8, 16: 13, 18: 17, 20: 22, 22: 45, 24: 1, 26: 8, 28: 13, 31: 17, 33: 17, 35: 22, 37: 45, 39: 1, 41: 8, 43: 8, 45: 8, 48: 13, 50: 45, 52: 45, 54: 45, 56: 45}
+  dn: {2: 7, 5: 31, 7: 31, 9: 34, 11: 34, 13: 34, 15: 42, 17: 42, 19: 42, 21: 7, 23: 24, 25: 30, 27: 31, 29: 33, 31: 34, 34: 42, 36: 42, 38: 42, 40: 44, 43: 30, 45: 30, 47: 30, 49: 30, 51: 30, 53: 31, 56: 33, 58: 33, 60: 34, 62: 34, 64: 34, 66: 42, 68: 42, 70: 42, 72: 42, 75: 7, 77: 30, 79: 31, 82: 33, 85: 34, 87: 34, 89: 42, 91: 44, 93: 44}
+lines:
+  bb: [8, 22, 37, 56]
+  dn: [19, 40, 72, 93]
+boxes:
+  bb: {q1: 8, q2: 22, q3: 37, q4: 56, ot: null, final: 56}
+  dn: {q1: 19, q2: 40, q3: 72, q4: 93, ot: null, final: 93}
+checked_by: Kyle M.
