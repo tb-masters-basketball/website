@@ -1,0 +1,9 @@
+{%- comment -%}
+  One sponsor: logo and the league's thanks, in a card (the Sponsors box on
+  the home page). Logos aren't links (the league's choice).
+  Usage: include sponsor-card.html sponsor=s   (s from _data/sponsors.yml)
+{%- endcomment -%}
+<div class="card sponsor-card">
+  <img class="sponsor-card__logo" src="{{ include.sponsor.logo | relative_url }}" alt="{{ include.sponsor.name }}" width="72" height="72">
+  <p class="sponsor-card__text">{{ include.sponsor.text }}</p>
+</div>

@@ -110,6 +110,8 @@ flagrant/index.html     flagrant fouls by player and each one with its note (unl
 rules/index.md          the League rules page: playing rules + player code of conduct (Markdown, two # headings,
                         numbered ## rules, auto table of contents; linked from the footer)
 assets/css/site.css     page styles, built on brand/css/brand.css variables
+_data/sponsors.yml      the league's sponsors: the Sponsors box at the bottom of the home page (sponsor-card.html), and
+                        the header logo for the one with `header: true`; logos in assets/img/sponsors/ (not links)
 brand/                  logos, icons, colours, scenes (from the brand kit; don't edit)
 docs/design-brief.md    the design spec: read this before touching any page
 docs/stats-workflow.md  how score sheets become site numbers, for the volunteer (keep it true)

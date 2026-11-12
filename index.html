@@ -83,4 +83,17 @@ nav: home
     </section>
 
   </div>
+
+  {%- if site.data.sponsors.size > 0 %}
+  <section class="home__sponsors" aria-labelledby="sponsors-title">
+    <div class="section-head">
+      <h2 class="section-title" id="sponsors-title">Sponsors</h2>
+    </div>
+    <div class="sponsor-grid">
+      {%- for s in site.data.sponsors %}
+      {% include sponsor-card.html sponsor=s %}
+      {%- endfor %}
+    </div>
+  </section>
+  {%- endif %}
 </div>
