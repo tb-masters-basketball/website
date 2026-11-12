@@ -392,9 +392,15 @@ html:not(.js) .theme-toggle {
     padding: 22px var(--gutter) 0;
   }
 
-  .brand,
-  .site-header__bar:has(.site-header__sponsor) .brand {
+  .brand {
     flex: 1 1 260px;
+    gap: 18px;
+  }
+
+  /* With a sponsor's logo, the logo sits just right of the title and the
+     nav keeps to the right */
+  .site-header__bar:has(.site-header__sponsor) .brand {
+    flex: 0 1 auto;
     gap: 18px;
   }
 
@@ -411,7 +417,7 @@ html:not(.js) .theme-toggle {
   .site-header__sponsor {
     width: 64px;
     height: 64px;
-    margin-right: 14px;
+    margin: 0 auto 0 10px;
   }
 
   .brand__name {
@@ -446,6 +452,24 @@ html:not(.js) .theme-toggle {
 
   .site-header .scene {
     margin-top: 10px;
+  }
+}
+
+/* With a sponsor's logo the title, logo, nav and theme button don't fit on
+   one row until about 1120 px: below that the nav takes the second row and
+   the button stays top right. */
+@media (min-width: 900px) and (max-width: 1119px) {
+  .site-header__bar:has(.site-header__sponsor) {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "brand sponsor . toggle"
+      "nav nav nav nav";
+  }
+
+  .site-header__bar:has(.site-header__sponsor) .site-nav {
+    grid-area: nav;
+    margin-top: 6px;
   }
 }
 

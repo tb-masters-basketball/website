@@ -348,7 +348,8 @@ The league's sponsor, Boston Pizza (`_data/sponsors.yml`, logo in
   phones it sits between the title and the theme button (38 px; the club badge
   shrinks to 48 px and the gaps tighten so "Masters Basketball" and the season
   line stay on one line from 390 px; at 360 px they wrap). From 900 px it sits
-  between the title and the nav (64 px).
+  just right of the title (64 px), the nav and theme button at the right; from
+  900 to 1119 px the nav takes a second row so nothing wraps on its own.
 - **Home page, last section:** **Sponsors**, a card per sponsor (logo and the
   league's thanks, `sponsor-card.html`), across both columns on desktop.
 
