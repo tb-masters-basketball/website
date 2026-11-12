@@ -398,6 +398,7 @@ Run `build_stats.py` again after changing anything in `data/` or the
 | Check a draft against the paper | open it on `/enter/` (or `enter/?game=<game_id>`), with the photo beside it |
 | Fix a number | edit the game file (or reopen the game on `/enter/`); everything is recalculated |
 | Add a player or sub | one line in `data/2026-27/players.yml` |
+| Add or change a sponsor | `_data/sponsors.yml` (name, logo in `assets/img/sponsors/`, text; `header: true` puts the logo in the header) |
 | Edit the league rules | `rules/index.md` ([guide](docs/stats-workflow.md#edit-the-league-rules)) |
 | Cancel, move or make up a game | edit its row in `schedule.csv` ([guide](docs/stats-workflow.md#cancel-or-move-a-game)) |
 | Set a playoff matchup | replace `TBD` / `2nd` / `Winner G41` with team ids in `schedule.csv` |

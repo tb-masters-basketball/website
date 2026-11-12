@@ -338,3 +338,21 @@ laptop, usable on a phone.
   line: who forfeited, how it's recorded, and that no player stats count. On
   the entry page, a **Forfeit** button in the bar swaps the sheet for a
   "team that forfeited" choice (and back).
+
+## Sponsors
+
+The league's sponsor, Boston Pizza (`_data/sponsors.yml`, logo in
+`assets/img/sponsors/`), shows in two places:
+
+- **Header, every page:** the logo of the sponsor with `header: true`. On
+  phones it sits between the title and the theme button (38 px; the club badge
+  shrinks to 48 px and the gaps tighten so "Masters Basketball" and the season
+  line stay on one line from 390 px; at 360 px they wrap). From 900 px it sits
+  between the title and the nav (64 px).
+- **Home page, last section:** **Sponsors**, a card per sponsor (logo and the
+  league's thanks, `sponsor-card.html`), across both columns on desktop.
+
+Logos aren't links (the league's decision). The logo is the sponsor's own
+artwork, so its colours aren't `--mb-*` variables; it reads on the blue header
+and in both themes.
+

@@ -1,5 +1,6 @@
 {%- comment -%}
-  Site header: badge, title, season line, nav, theme button and the Sleeping
+  Site header: badge, title, season line, the sponsor's logo (the one marked
+  `header: true` in _data/sponsors.yml), nav, theme button and the Sleeping
   Giant scene (drawn by CSS from brand/scenes/). The active tab comes from
   `nav:` in the page's front matter.
 {%- endcomment -%}
@@ -14,6 +15,10 @@
         <span class="brand__season"><span class="brand__rule" aria-hidden="true"></span><span>Thunder Bay{% if season %} · {{ season.label | replace: "-", "–" }}<span class="u-wide"> season</span>{% endif %}</span></span>
       </span>
     </a>
+    {%- assign header_sponsor = site.data.sponsors | where: "header", true | first %}
+    {%- if header_sponsor %}
+    <img class="site-header__sponsor" src="{{ header_sponsor.logo | relative_url }}" alt="Sponsored by {{ header_sponsor.name }}" width="44" height="44">
+    {%- endif %}
     <nav class="site-nav" aria-label="Main">
       {%- for item in nav_items %}
       {%- assign parts = item | split: "|" %}

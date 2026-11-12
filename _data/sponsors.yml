@@ -1,0 +1,13 @@
+# The league's sponsors. Each is shown in the Sponsors box at the bottom of the
+# home page (logo and text); one with `header: true` also shows its logo in
+# the site header on every page. Logos go in assets/img/sponsors/ (SVG, or a
+# PNG at least 160 px square). No links: the league chose to show the logo and
+# the thanks only.
+#   name    the sponsor, as it reads (also the logo's alt text)
+#   logo    the logo file, from the site root
+#   text    the thanks shown beside the logo in the Sponsors box
+#   header  true: the logo also goes in the site header (one sponsor at most)
+- name: Boston Pizza
+  logo: /assets/img/sponsors/boston-pizza.svg
+  header: true
+  text: The Thunder Bay Masters Basketball League is grateful for the decades of support from Boston Pizza.
