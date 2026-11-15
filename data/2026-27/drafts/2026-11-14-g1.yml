@@ -1,0 +1,44 @@
+game_id: "2026-11-14-g1"
+form: MBL-SS6
+source: MBL-PS1
+status: draft
+home: hu
+away: nw
+scorekeeper: Dennis P.
+teams:
+  hu:
+    players:
+      - {player: kevin-a, num: 0, here: true}
+      - {player: kevin-r, num: 1, here: true, ft: M}
+      - {player: ed-k, num: 5, here: true}
+      - {player: hao-l, num: 7, here: false}
+      - {player: martin-k, num: 8, here: true, ft: XX, fouls: 3, tech: 1}
+      - {player: matthew-h, num: 15, here: true, fouls: 5}
+      - {player: andrew-c, num: 16, here: false}
+      - {player: kyle-m, num: 17, here: true, ft: M, fouls: 2}
+      - {player: jedd-w, num: 22, here: true, fouls: 2}
+      - {player: corey-b, num: 23, here: true, fouls: 2}
+      - {player: rene-c, num: 39, here: true, ft: X, fouls: 1}
+  nw:
+    players:
+      - {player: sam-e, num: 1, here: false}
+      - {player: herbie-b, num: 2, here: true}
+      - {player: mike-c, num: 3, here: false}
+      - {player: ryan-s, num: 4, here: true, fouls: 1}
+      - {player: darren-t, num: 8, here: true, ft: MMXX, fouls: 1, tech: 1}
+      - {player: steve-s, num: 11, here: true}
+      - {player: bernie-c, num: 13, here: true}
+      - {player: lauren-m, num: 14, here: false}
+      - {player: aaron-g, num: 21, here: true, ft: M, fouls: 2}
+      - {player: fil-l, num: 22, here: true, ft: M, fouls: 1}
+      - {player: andrew-h, num: 24, here: true, ft: MX, fouls: 1}
+      - {player: mike-n3, num: 33, here: true, ft: XX, fouls: 2}
+running:
+  hu: {2: 1, 4: 8, 6: 17, 8: 1, 11: 17, 13: 17, 15: 0, 18: 22, 20: 22, 22: 39, 24: 17, 27: 22}
+  nw: {2: 4, 4: 4, 6: 8, 8: 13, 10: 21, 13: 2, 15: 4, 18: 11, 20: 11, 23: 22, 25: 22, 28: 24, 30: 24, 32: 4, 34: 8, 36: 8, 38: 8, 40: 8, 42: 11, 44: 11, 46: 22, 48: 22, 51: 2, 53: 2, 55: 2, 57: 2, 59: 4, 62: 11, 64: 11, 66: 21, 68: 22, 70: 33}
+lines:
+  hu: [6, 13, 22, 27]
+  nw: [10, 30, 48, 70]
+boxes:
+  hu: {q1: 6, q2: 13, q3: 22, q4: 27, ot: null, final: 27}
+  nw: {q1: 10, q2: 30, q3: 48, q4: 70, ot: null, final: 70}
