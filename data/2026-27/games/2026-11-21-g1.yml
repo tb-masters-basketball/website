@@ -1,0 +1,43 @@
+game_id: "2026-11-21-g1"
+form: MBL-SS6
+source: MBL-PS1
+status: final
+home: fg
+away: nw
+teams:
+  fg:
+    players:
+      - {player: adam-a, num: "00", here: true, fouls: 4}
+      - {player: dan-k, num: 7, here: true, ft: M, fouls: 2}
+      - {player: esa-k, num: 11, here: true, ft: MX, fouls: 1, tech: 1}
+      - {player: jesse-l, num: 17, here: true, fouls: 1}
+      - {player: albert-t, num: 18, here: true, fouls: 5}
+      - {player: ryan-t, num: 3, here: false}
+      - {player: john-s, num: 21, here: true, fouls: 2}
+      - {player: steve-r, num: 22, here: false}
+      - {player: jeff-l, num: 43, here: false}
+      - {player: mike-n2, num: 91, here: true, ft: M, fouls: 3}
+  nw:
+    players:
+      - {player: sam-e, num: 1, here: false}
+      - {player: herbie-b, num: 2, here: true, ft: MMMMMX, fouls: 2}
+      - {player: mike-c, num: 3, here: false}
+      - {player: ryan-s, num: 4, here: false}
+      - {player: darren-t, num: 8, here: true, ft: MMMMXX, fouls: 2}
+      - {player: steve-s, num: 11, here: true, fouls: 3}
+      - {player: bernie-c, num: 13, here: false}
+      - {player: lauren-m, num: 14, here: false}
+      - {player: aaron-g, num: 21, here: true, fouls: 5}
+      - {player: fil-l, num: 22, here: true, ft: XXX}
+      - {player: andrew-h, num: 24, here: false}
+      - {player: mike-n3, num: 33, here: false}
+running:
+  fg: {3: 7, 5: 7, 8: 11, 10: 11, 13: 17, 16: 18, 18: 18, 21: "00", 23: 7, 25: 7, 28: 11, 30: 11, 32: 11, 34: 11, 36: 91, 38: 91, 40: "00", 42: "00", 44: 7, 46: 7, 49: 18, 51: 91, 53: 91, 55: 91}
+  nw: {3: 2, 5: 8, 7: 11, 9: 11, 11: 11, 13: 2, 15: 2, 17: 2, 19: 2, 21: 8, 23: 8, 25: 8, 27: 8, 30: 11, 32: 22, 34: 2, 36: 2, 38: 8, 40: 8, 42: 11, 44: 2, 46: 2, 48: 2, 50: 2, 52: 2, 54: 8, 57: 11, 59: 22}
+lines:
+  fg: [18, 23, 38, 55]
+  nw: [11, 32, 42, 59]
+boxes:
+  fg: {q1: 18, q2: 23, q3: 38, q4: 55, ot: null, final: 55}
+  nw: {q1: 11, q2: 32, q3: 42, q4: 59, ot: null, final: 59}
+checked_by: Kyle M
